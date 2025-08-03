@@ -1,0 +1,26 @@
+{
+  "server": {
+    "port": "8080",
+    "host": "localhost",
+    "read_timeout": "60s",
+    "write_timeout": "60s"
+  },
+  "python": {
+    "service_url": "http://localhost:8000",
+    "timeout": "60s",
+    "retries": 5
+  },
+  "database": {
+    "type": "sqlite",
+    "host": "localhost",
+    "port": 0,
+    "database": "cpagx_dev.db",
+    "username": "",
+    "password": ""
+  },
+  "cache": {
+    "type": "memory",
+    "ttl": "1h",
+    "max_size": 1000
+  }
+} 
