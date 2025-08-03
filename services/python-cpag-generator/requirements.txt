@@ -6,7 +6,7 @@ scapy==2.5.0
 pyshark==0.5.0
 networkx==3.2.1
 pydantic==2.5.0
-python-multipart==0.0.6
+python-multipart==0.0.18
 aiofiles==23.2.1
 redis==5.0.1
 celery==5.3.4
