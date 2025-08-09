@@ -1,0 +1,26 @@
+{
+  "server": {
+    "port": "8080",
+    "host": "0.0.0.0",
+    "read_timeout": "30s",
+    "write_timeout": "30s"
+  },
+  "python": {
+    "service_url": "http://python-cpag-generator:8000",
+    "timeout": "120s",
+    "retries": 3
+  },
+  "database": {
+    "type": "sqlite",
+    "host": "0.0.0.0",
+    "port": 6280,
+    "database": "cpagx_prod",
+    "username": "",
+    "password": ""
+  },
+  "cache": {
+    "type": "redis",
+    "ttl": "2h",
+    "max_size": 2000
+  }
+} 

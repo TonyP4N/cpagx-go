@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/TonyP4N/cpagx-go/api"
 	"github.com/TonyP4N/cpagx-go/internal/config"
 	"github.com/urfave/cli/v2"
 )
@@ -69,8 +70,14 @@ func main() {
 					fmt.Printf("Starting server on %s\n", cfg.GetServerAddress())
 					fmt.Printf("Python service: %s\n", cfg.Python.ServiceURL)
 
-					// TODO: 启动服务器
-					fmt.Println("Server functionality will be implemented here...")
+					// 设置 Python 服务 URL 到环境变量，供 API 层读取
+					_ = os.Setenv("PYTHON_SERVICE_URL", cfg.Python.ServiceURL)
+
+					// 启动 Gin 服务器
+					r := api.NewServer()
+					if err := r.Run(cfg.GetServerAddress()); err != nil {
+						return fmt.Errorf("failed to start server: %w", err)
+					}
 					return nil
 				},
 			},

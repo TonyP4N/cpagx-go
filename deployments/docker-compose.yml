@@ -1,0 +1,88 @@
+
+
+services:
+  # Go API服务
+  go-app:
+    build:
+      context: ..
+      dockerfile: deployments/Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PYTHON_SERVICE_URL=http://python-cpag-generator:8000
+      - SERVER_PORT=8080
+      - SERVER_HOST=0.0.0.0
+    depends_on:
+      - python-cpag-generator
+    networks:
+      - cpagx-network
+    volumes:
+      - ../data:/app/data
+      - ../configs:/app/configs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Python CPAG生成服务
+  python-cpag-generator:
+    build:
+      context: ../services/python-cpag-generator
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONPATH=/app
+      - LOG_LEVEL=INFO
+    networks:
+      - cpagx-network
+    volumes:
+      - ../data:/app/data
+      - ../uploads:/app/uploads
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Web UI静态站点（Nginx）
+  webui:
+    build:
+      context: ../webui
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    depends_on:
+      - go-app
+    networks:
+      - cpagx-network
+    restart: unless-stopped
+
+  # Redis缓存服务（开发环境）
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - cpagx-network
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  cpagx-network:
+    driver: bridge
+
+volumes:
+  redis-data: 

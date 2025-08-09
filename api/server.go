@@ -3,25 +3,26 @@ package api
 import (
 	"log"
 	"os"
+	"time"
 
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
-// NewServer 创建新的Fiber服务器
-func NewServer() *fiber.App {
-	app := fiber.New(fiber.Config{
-		AppName: "CPAGX-Go API",
-	})
+// NewServer 创建新的Gin服务器
+func NewServer() *gin.Engine {
+	r := gin.New()
+	r.Use(gin.Logger())
+	r.Use(gin.Recovery())
 
-	// 中间件
-	app.Use(logger.New())
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders: "Origin,Content-Type,Accept,Authorization",
-	}))
+	// CORS 配置
+	corsConfig := cors.Config{
+		AllowAllOrigins: true,
+		AllowMethods:    []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:    []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		MaxAge:          12 * time.Hour,
+	}
+	r.Use(cors.New(corsConfig))
 
 	// 获取Python服务URL（从环境变量）
 	pythonServiceURL := os.Getenv("PYTHON_SERVICE_URL")
@@ -33,8 +34,8 @@ func NewServer() *fiber.App {
 	handler := NewHandler(pythonServiceURL)
 
 	// 设置路由
-	SetupRoutes(app, handler)
+	SetupRoutes(r, handler)
 
 	log.Printf("API server initialized with Python service at: %s", pythonServiceURL)
-	return app
+	return r
 }

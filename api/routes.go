@@ -1,24 +1,28 @@
 package api
 
 import (
-	"github.com/gofiber/fiber/v2"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
 )
 
 // SetupRoutes 设置API路由
-func SetupRoutes(app *fiber.App, handler *Handler) {
+func SetupRoutes(r *gin.Engine, handler *Handler) {
 	// API版本组
-	api := app.Group("/api/v1")
+	api := r.Group("/api/v1")
 
 	// CPAG生成相关路由
 	cpag := api.Group("/cpag")
-	cpag.Post("/generate", handler.GenerateCPAG)   // 生成CPAG
-	cpag.Get("/status/:id", handler.GetCPAGStatus) // 获取生成状态
-	cpag.Get("/result/:id", handler.GetCPAGResult) // 获取生成结果
-	cpag.Post("/analyze", handler.AnalyzeCPAG)     // 分析CPAG
+	{
+		cpag.POST("/generate", handler.GenerateCPAG)   // 生成CPAG
+		cpag.GET("/status/:id", handler.GetCPAGStatus) // 获取生成状态
+		cpag.GET("/result/:id", handler.GetCPAGResult) // 获取生成结果
+		cpag.POST("/analyze", handler.AnalyzeCPAG)     // 分析CPAG
+	}
 
 	// 健康检查
-	api.Get("/health", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{
+	api.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
 			"status":  "healthy",
 			"service": "cpagx-go",
 			"version": "1.0.0",
@@ -26,7 +30,13 @@ func SetupRoutes(app *fiber.App, handler *Handler) {
 	})
 
 	// 兼容性路由
-	app.Get("/api/ping", func(c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message": "pong"})
+	r.GET("/api/ping", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"message": "pong"})
+	})
+
+	// 初始页面
+	r.GET("/", func(c *gin.Context) {
+		c.Header("Content-Type", "text/html; charset=utf-8")
+		c.String(http.StatusOK, "<h1>CPAGX API</h1><p>Server is running.</p>")
 	})
 }
