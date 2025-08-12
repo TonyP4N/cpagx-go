@@ -48,7 +48,13 @@ export default function HomePage() {
     { refreshInterval: taskId ? 3000 : 0, keepPreviousData: true }
   );
 
-  React.useEffect(() => { mutate(); }, [taskId, mutate]);
+  React.useEffect(() => { 
+    mutate(); 
+    // 如果任务完成，清除taskId以停止轮询
+    if (taskStatus?.status === 'completed' || taskStatus?.status === 'failed') {
+      setTimeout(() => setTaskId(null), 5000); // 5秒后清除
+    }
+  }, [taskId, mutate, taskStatus]);
 
   const onDrop = useCallback((accepted: File[]) => {
     if (!accepted.length) return;
@@ -58,8 +64,8 @@ export default function HomePage() {
       toast.error('Only .pcap / .pcapng / .csv files are supported');
       return;
     }
-    if (file.size > 100 * 1024 * 1024) { // 100MB
-      toast.error('File size must be less than 100MB');
+    if (file.size > 300 * 1024 * 1024) { // 300MB
+      toast.error('File size must be less than 300MB');
       return;
     }
     setSelectedFile(file);
@@ -249,7 +255,7 @@ export default function HomePage() {
                   )}
                 </p>
                 <p className="text-sm text-slate-500 mt-2">
-                  Supports .pcap, .pcapng, .csv files (max 100MB)
+                  Supports .pcap, .pcapng, .csv files (max 300MB)
                 </p>
                 {selectedFile && (
                   <div className="mt-4 p-3 bg-green-50 rounded-lg border border-green-200">
