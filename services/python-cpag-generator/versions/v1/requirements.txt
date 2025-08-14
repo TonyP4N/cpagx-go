@@ -12,5 +12,5 @@ celery==5.3.4
 PyYAML==6.0.1
 # Note: scapy-ics removed as it's not compatible with Python 3.11
 # Alternative: Use scapy with custom ICS layers or other ICS-specific libraries
-requests==2.31.0
+requests==2.32.4
 matplotlib==3.8.2
