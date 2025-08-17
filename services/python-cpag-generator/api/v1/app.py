@@ -69,14 +69,7 @@ async def generate_cpag(
     rules: str = Form("[]")
 ):
     """生成CPAG的异步接口"""
-    print(f"DEBUG: generate_cpag called")
-    print(f"DEBUG: file: {file}")
-    print(f"DEBUG: pcap_file: {pcap_file}")
-    print(f"DEBUG: csv_file: {csv_file}")
-    print(f"DEBUG: assets_file: {assets_file}")
-    
     task_id = str(uuid.uuid4())
-    print(f"DEBUG: Generated task_id: {task_id}")
     
     # 检查并发限制
     current_active = 0
@@ -104,18 +97,13 @@ async def generate_cpag(
     try:
         device_map_dict = json.loads(device_map) if device_map else {}
         rules_list = json.loads(rules) if rules else []
-        print(f"DEBUG: device_map_dict: {device_map_dict}")
-        print(f"DEBUG: rules_list: {rules_list}")
     except json.JSONDecodeError as e:
-        print(f"DEBUG: JSON decode error: {e}")
         raise HTTPException(status_code=400, detail="Invalid JSON in device_map or rules")
     
     # 接收文件（兼容旧参数 'file'）
     try:
         pcap_file, csv_file = assign_compatible_file_param(file, pcap_file, csv_file)
-        print(f"DEBUG: After assign_compatible_file_param - pcap_file: {pcap_file}, csv_file: {csv_file}")
     except ValueError as e:
-        print(f"DEBUG: assign_compatible_file_param error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
     temp_file_path = None
@@ -130,9 +118,6 @@ async def generate_cpag(
             temp_file_path = await save_upload_validated(pcap_file, [".pcap", ".pcapng"])
             file_size = pcap_file.size
             file_name = pcap_file.filename
-            print(f"DEBUG: Saved PCAP file to: {temp_file_path}")
-            print(f"DEBUG: File exists: {os.path.exists(temp_file_path)}")
-            print(f"DEBUG: File size: {file_size}, File name: {file_name}")
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
@@ -142,9 +127,6 @@ async def generate_cpag(
             temp_csv_path = await save_upload_validated(csv_file, [".csv"])
             file_size = csv_file.size
             file_name = csv_file.filename
-            print(f"DEBUG: Saved CSV file to: {temp_csv_path}")
-            print(f"DEBUG: File exists: {os.path.exists(temp_csv_path)}")
-            print(f"DEBUG: File size: {file_size}, File name: {file_name}")
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 

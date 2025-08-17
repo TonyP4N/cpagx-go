@@ -35,15 +35,9 @@ func main() {
 					}
 
 					// 显示配置信息
-					fmt.Printf("Configuration loaded successfully:\n")
-					fmt.Printf("  Server: %s\n", cfg.GetServerAddress())
-					fmt.Printf("  Python Service: %s\n", cfg.Python.ServiceURL)
-					fmt.Printf("  Database: %s\n", cfg.Database.Type)
-					fmt.Printf("  Cache: %s\n", cfg.Cache.Type)
-					fmt.Printf("  Environment: %s\n", getEnvironment(cfg))
 
 					// TODO: 实现分析逻辑
-					fmt.Println("Analysis functionality will be implemented here...")
+
 					return nil
 				},
 			},
@@ -67,8 +61,6 @@ func main() {
 					}
 
 					// 显示服务器配置
-					fmt.Printf("Starting server on %s\n", cfg.GetServerAddress())
-					fmt.Printf("Python service: %s\n", cfg.Python.ServiceURL)
 
 					// 设置 Python 服务 URL 到环境变量，供 API 层读取
 					_ = os.Setenv("PYTHON_SERVICE_URL", cfg.Python.ServiceURL)
@@ -103,14 +95,6 @@ func main() {
 								return fmt.Errorf("failed to load config: %w", err)
 							}
 
-							fmt.Printf("Configuration from: %s\n", configPath)
-							fmt.Printf("Server: %s:%s\n", cfg.Server.Host, cfg.Server.Port)
-							fmt.Printf("Python Service: %s (timeout: %v, retries: %d)\n",
-								cfg.Python.ServiceURL, cfg.Python.Timeout, cfg.Python.Retries)
-							fmt.Printf("Database: %s://%s:%d/%s\n",
-								cfg.Database.Type, cfg.Database.Host, cfg.Database.Port, cfg.Database.Database)
-							fmt.Printf("Cache: %s (TTL: %v, max size: %d)\n",
-								cfg.Cache.Type, cfg.Cache.TTL, cfg.Cache.MaxSize)
 							return nil
 						},
 					},
@@ -140,7 +124,6 @@ func main() {
 								return fmt.Errorf("failed to save config: %w", err)
 							}
 
-							fmt.Printf("Configuration saved to: %s\n", outputPath)
 							return nil
 						},
 					},

@@ -56,11 +56,7 @@ def generate_cpag(
                 redis_client.expire("v1_active_tasks", 3600)  # 1小时过期
             except Exception:
                 pass
-        print(f"DEBUG: v1 task started for task_id: {task_id}")
-        print(f"DEBUG: file_path: {file_path}")
-        print(f"DEBUG: csv_path: {csv_path}")
-        print(f"DEBUG: file_path exists: {os.path.exists(file_path) if file_path else 'None'}")
-        print(f"DEBUG: csv_path exists: {os.path.exists(csv_path) if csv_path else 'None'}")
+        
         
 
         

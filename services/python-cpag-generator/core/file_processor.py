@@ -22,7 +22,7 @@ try:
     V2_MODULES_AVAILABLE = True
 except ImportError:
     V2_MODULES_AVAILABLE = False
-    print("Warning: v2 modules not available, falling back to core generators")
+    
 
 
 class FileProcessor:
@@ -37,19 +37,16 @@ class FileProcessor:
     def detect_file_type(self, file_path: str) -> Optional[str]:
         """检测文件类型"""
         if not file_path or not os.path.exists(file_path):
-            print(f"DEBUG: File not found or path is None: {file_path}")
+    
             return None
             
         ext = Path(file_path).suffix.lower()
-        print(f"DEBUG: Detected extension: '{ext}' for file: {file_path}")
-        print(f"DEBUG: Supported extensions: {self.supported_extensions}")
+
         
         for file_type, extensions in self.supported_extensions.items():
             if ext in extensions:
-                print(f"DEBUG: Matched file type: {file_type}")
                 return file_type
                 
-        print(f"DEBUG: No matching file type found for extension: '{ext}'")
         return None
     
     def process_csv_v2(self, csv_path: str, output_dir: str, **kwargs) -> Dict[str, Any]:

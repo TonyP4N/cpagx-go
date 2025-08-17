@@ -155,7 +155,7 @@ class PCAPCPAGGenerator:
             if file_size == 0:
                 raise RuntimeError(f"PCAP file is empty: {pcap_path}")
             
-            print(f"DEBUG: Processing PCAP file: {pcap_path}, size: {file_size} bytes")
+        
             
             # 使用流式读取，避免内存不足
             packets_data = []
@@ -168,7 +168,7 @@ class PCAPCPAGGenerator:
                 reader = PcapReader(pcap_path)
                 for packet in reader:
                     if packet_count >= max_packets:
-                        print(f"DEBUG: Reached max packet limit ({max_packets}), stopping processing")
+            
                         break
                     
                     packet_info = {
@@ -211,13 +211,13 @@ class PCAPCPAGGenerator:
                     
                     # 每处理1000个包输出一次进度
                     if packet_count % 1000 == 0:
-                        print(f"DEBUG: Processed {packet_count} packets...")
+
                 
                 reader.close()
                 
             except Exception as e:
                 # 如果流式读取失败，回退到传统方法但限制包数量
-                print(f"DEBUG: Stream reading failed, falling back to rdpcap with limit: {e}")
+    
                 from scapy.all import rdpcap
                 packets = rdpcap(pcap_path, count=max_packets)
                 
@@ -259,7 +259,7 @@ class PCAPCPAGGenerator:
 
                     packets_data.append(packet_info)
 
-            print(f"DEBUG: Successfully processed {len(packets_data)} packets, found {len(modbus_evidence)} Modbus writes")
+        
 
             return {
                 'packets': packets_data,
