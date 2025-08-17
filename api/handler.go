@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"time"
 
+	"github.com/TonyP4N/cpagx-go/internal/services"
 	"github.com/gin-gonic/gin"
 )
 
@@ -34,15 +35,25 @@ type PythonServiceConfig struct {
 // Handler API处理器
 type Handler struct {
 	pythonService *PythonServiceConfig
+	messageQueue  *services.MessageQueueService
 }
 
 // NewHandler 创建新的处理器
-func NewHandler(pythonServiceURL string) *Handler {
+func NewHandler(pythonServiceURL string, rabbitMQURL string) *Handler {
+	// 创建消息队列服务
+	messageQueue, err := services.NewMessageQueueService(rabbitMQURL, "cpag_generation")
+	if err != nil {
+		// 如果消息队列连接失败，记录错误但继续运行（降级到直接调用）
+		fmt.Printf("Warning: Failed to connect to message queue: %v\n", err)
+		messageQueue = nil
+	}
+
 	return &Handler{
 		pythonService: &PythonServiceConfig{
 			BaseURL: pythonServiceURL,
 			Timeout: 30 * time.Second,
 		},
+		messageQueue: messageQueue,
 	}
 }
 
@@ -81,18 +92,46 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 		return
 	}
 
-	// 创建任务消息（为将来的消息队列实现准备）
-	_ = map[string]interface{}{
-		"task_id":       taskID,
-		"file_path":     tempFilePath,
-		"device_map":    deviceMapStr,
-		"rules":         rulesStr,
-		"output_format": outputFormat,
-		"created_at":    time.Now().Unix(),
+	// 创建任务消息
+	taskMessage := &services.TaskMessage{
+		TaskID:     taskID,
+		Type:       "cpag_generation",
+		CreatedAt:  time.Now(),
+		Priority:   1,
+		MaxRetries: 3,
+		Data: map[string]interface{}{
+			"file_path":     tempFilePath,
+			"file_name":     file.Filename,
+			"device_map":    deviceMapStr,
+			"rules":         rulesStr,
+			"output_format": outputFormat,
+		},
 	}
 
-	// 发送到消息队列（这里简化处理，直接调用Python服务）
-	// TODO: 实现真正的消息队列发送
+	// 尝试使用消息队列发送任务
+	if h.messageQueue != nil {
+		if err := h.messageQueue.PublishTask(taskMessage); err != nil {
+			fmt.Printf("Warning: Failed to publish to message queue: %v, falling back to direct call\n", err)
+			// 降级到直接调用Python服务
+			h.directCallPythonService(c, file, deviceMapStr, rulesStr, outputFormat, taskID)
+		}
+
+		// 消息队列发送成功，返回任务ID
+		response := CPAGGenerationResponse{
+			ID:        taskID,
+			Status:    "queued",
+			CreatedAt: time.Now(),
+		}
+		c.JSON(http.StatusOK, response)
+		return
+	}
+
+	// 消息队列不可用，直接调用Python服务
+	h.directCallPythonService(c, file, deviceMapStr, rulesStr, outputFormat, taskID)
+}
+
+// directCallPythonService 直接调用Python服务的降级方法
+func (h *Handler) directCallPythonService(c *gin.Context, file *multipart.FileHeader, deviceMapStr, rulesStr, outputFormat, taskID string) {
 	url := fmt.Sprintf("%s/generate", h.pythonService.BaseURL)
 
 	// 创建multipart请求体

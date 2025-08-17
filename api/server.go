@@ -37,8 +37,14 @@ func NewServer() *gin.Engine {
 		pythonServiceURL = "http://localhost:8000" // 默认值
 	}
 
+	// 获取RabbitMQ URL
+	rabbitMQURL := os.Getenv("RABBITMQ_URL")
+	if rabbitMQURL == "" {
+		rabbitMQURL = "amqp://guest:guest@localhost:5672/" // 默认值
+	}
+
 	// 创建处理器
-	handler := NewHandler(pythonServiceURL)
+	handler := NewHandler(pythonServiceURL, rabbitMQURL)
 
 	// 设置路由
 	SetupRoutes(r, handler, proxy)
