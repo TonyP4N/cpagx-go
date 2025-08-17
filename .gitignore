@@ -38,3 +38,9 @@ out/
 
 # Node.js dependencies
 node_modules/
+
+# Python service data directories
+services/python-cpag-generator/outputs/
+services/python-cpag-generator/test_data/
+services/python-cpag-generator/uploads/
+uploads/
