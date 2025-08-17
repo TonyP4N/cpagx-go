@@ -1,8 +1,9 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
 import useSWR from 'swr';
 import { useDropzone } from 'react-dropzone';
 import toast, { Toaster } from 'react-hot-toast';
+import { useRouter } from 'next/router';
 import { 
   ArrowPathIcon, 
   CloudArrowUpIcon, 
@@ -20,7 +21,6 @@ import {
   ServerIcon
 } from '@heroicons/react/24/outline';
 
-import TaskList from '../components/TaskList';
 import VersionSelector from '../components/VersionSelector';
 
 interface TaskStatus {
@@ -38,6 +38,7 @@ interface RuleFormInput { rule: string; }
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export default function HomePage() {
+  const router = useRouter();
   const [taskId, setTaskId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [deviceMap, setDeviceMap] = useState<Record<string, string>>({});
@@ -45,6 +46,24 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [currentVersion, setCurrentVersion] = useState('v1');
   const [activeTab, setActiveTab] = useState<'upload' | 'history' | 'active'>('upload');
+
+  // 从URL参数初始化activeTab
+  useEffect(() => {
+    const { tab } = router.query;
+    if (tab && ['upload', 'history', 'active'].includes(tab as string)) {
+      setActiveTab(tab as 'upload' | 'history' | 'active');
+    }
+  }, [router.query]);
+
+  // 当activeTab改变时立即更新URL
+  const handleTabChange = (newTab: 'upload' | 'history' | 'active') => {
+    setActiveTab(newTab);
+    if (newTab !== 'upload') {
+      router.replace(`/?tab=${newTab}`, undefined, { shallow: true });
+    } else {
+      router.replace('/', undefined, { shallow: true });
+    }
+  };
 
   const { register: registerDevice, handleSubmit: handleDeviceSubmit, reset: resetDevice, formState: { errors: deviceErrors } } = useForm<DeviceFormInput>();
   const { register: registerRule, handleSubmit: handleRuleSubmit, reset: resetRule, formState: { errors: ruleErrors } } = useForm<RuleFormInput>();
@@ -260,7 +279,7 @@ export default function HomePage() {
       <div className="max-w-7xl mx-auto px-6 pt-6">
         <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-slate-200">
           <button
-            onClick={() => setActiveTab('upload')}
+            onClick={() => handleTabChange('upload')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
               activeTab === 'upload'
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
@@ -271,7 +290,7 @@ export default function HomePage() {
             File Upload
           </button>
           <button
-            onClick={() => setActiveTab('active')}
+            onClick={() => handleTabChange('active')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
               activeTab === 'active'
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
@@ -287,7 +306,7 @@ export default function HomePage() {
             )}
           </button>
           <button
-            onClick={() => setActiveTab('history')}
+            onClick={() => handleTabChange('history')}
             className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
               activeTab === 'history'
                 ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
@@ -301,11 +320,11 @@ export default function HomePage() {
       </div>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto p-6">
+      <main className="max-w-7xl mx-auto p-6 min-h-[calc(100vh-200px)]">
         
         {/* Upload Tab */}
         {activeTab === 'upload' && (
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid lg:grid-cols-3 gap-8 min-h-[calc(100vh-300px)]" style={{ gridTemplateRows: '1fr', display: 'grid' }}>
             
             {/* Left Column - Input Controls */}
             <div className="lg:col-span-2 space-y-6">
@@ -623,8 +642,8 @@ export default function HomePage() {
 
         {/* Active Tasks Tab */}
         {activeTab === 'active' && (
-          <div className="space-y-6">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6">
+          <div className="space-y-6 min-h-[calc(100vh-300px)] flex flex-col">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6 flex-1">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
                   <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
@@ -688,7 +707,27 @@ export default function HomePage() {
 
         {/* Task History Tab */}
         {activeTab === 'history' && (
-          <TaskList />
+          <div className="space-y-6 min-h-[calc(100vh-300px)] flex flex-col">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6 flex-1">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+                    <ChartBarIcon className="h-6 w-6 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-800">Task History</h2>
+                    <p className="text-sm text-slate-500">View completed and failed analysis tasks</p>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="text-center py-12">
+                <ChartBarIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-slate-600 mb-2">Task History</h3>
+                <p className="text-slate-500">Completed tasks will appear here</p>
+              </div>
+            </div>
+          </div>
         )}
       </main>
     </div>
