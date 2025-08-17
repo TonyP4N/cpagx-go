@@ -9,12 +9,27 @@ import (
 	"time"
 )
 
+// VersionConfig 版本配置
+type VersionConfig struct {
+	Port        int    `json:"port"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Enabled     bool   `json:"enabled"`
+}
+
+// VersionsConfig 版本管理配置
+type VersionsConfig struct {
+	Versions       map[string]VersionConfig `json:"versions"`
+	DefaultVersion string                   `json:"default_version"`
+}
+
 // Config 应用配置结构
 type Config struct {
 	Server   ServerConfig   `json:"server"`
 	Python   PythonConfig   `json:"python"`
 	Database DatabaseConfig `json:"database"`
 	Cache    CacheConfig    `json:"cache"`
+	Versions VersionsConfig `json:"versions"`
 }
 
 // ServerConfig 服务器配置
@@ -107,6 +122,25 @@ type ConfigWithDuration struct {
 	Python   PythonConfigWithDuration `json:"python"`
 	Database DatabaseConfig           `json:"database"`
 	Cache    CacheConfigWithDuration  `json:"cache"`
+	Versions VersionsConfig           `json:"versions"`
+}
+
+// LoadVersionsConfig 从JSON文件加载版本配置
+func LoadVersionsConfig(versionsPath string) (*VersionsConfig, error) {
+	file, err := os.Open(versionsPath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open versions config file: %w", err)
+	}
+	defer file.Close()
+
+	versionsConfig := &VersionsConfig{}
+	decoder := json.NewDecoder(file)
+	err = decoder.Decode(versionsConfig)
+	if err != nil {
+		return nil, fmt.Errorf("failed to decode versions config file: %w", err)
+	}
+
+	return versionsConfig, nil
 }
 
 // LoadConfig 从JSON文件加载配置
@@ -144,6 +178,7 @@ func LoadConfig(configPath string) (*Config, error) {
 			TTL:     configWithDuration.Cache.TTL.Duration(),
 			MaxSize: configWithDuration.Cache.MaxSize,
 		},
+		Versions: configWithDuration.Versions,
 	}
 
 	// 验证配置

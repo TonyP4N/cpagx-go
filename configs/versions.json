@@ -1,0 +1,17 @@
+{
+  "versions": {
+    "v1": {
+      "port": 8000,
+      "name": "Version 1.0",
+      "description": "Basic Version",
+      "enabled": true
+    },
+    "v2": {
+      "port": 8002,
+      "name": "Version 2.0", 
+      "description": "Enhanced Version",
+      "enabled": true
+    }
+  },
+  "default_version": "v2"
+}

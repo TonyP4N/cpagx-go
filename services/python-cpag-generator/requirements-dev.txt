@@ -1,0 +1,19 @@
+# 包含基础依赖
+-r requirements.txt
+
+# 开发工具
+pytest==7.4.3
+pytest-asyncio==0.21.1
+black==23.11.0
+flake8==6.1.0
+mypy==1.7.1
+pre-commit==3.5.0
+
+# 调试工具
+ipython==8.17.2
+jupyter==1.0.0
+notebook==7.0.6
+
+# 文档工具
+mkdocs==1.5.3
+mkdocs-material==9.4.8

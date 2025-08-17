@@ -2,11 +2,15 @@ package api
 
 import (
 	"bytes"
+	"crypto/rand"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
 	"mime/multipart"
 	"net/http"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -42,7 +46,7 @@ func NewHandler(pythonServiceURL string) *Handler {
 	}
 }
 
-// GenerateCPAG 调用Python服务生成CPAG
+// GenerateCPAG 使用消息队列生成CPAG
 func (h *Handler) GenerateCPAG(c *gin.Context) {
 	// 获取上传的文件
 	file, err := c.FormFile("file")
@@ -67,13 +71,29 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 		outputFormat = "tcity"
 	}
 
-	// 打开文件
-	src, err := file.Open()
+	// 生成任务ID
+	taskID := generateTaskID()
+
+	// 保存文件到临时目录
+	tempFilePath, err := saveUploadedFile(file)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open uploaded file"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
 		return
 	}
-	defer src.Close()
+
+	// 创建任务消息（为将来的消息队列实现准备）
+	_ = map[string]interface{}{
+		"task_id":       taskID,
+		"file_path":     tempFilePath,
+		"device_map":    deviceMapStr,
+		"rules":         rulesStr,
+		"output_format": outputFormat,
+		"created_at":    time.Now().Unix(),
+	}
+
+	// 发送到消息队列（这里简化处理，直接调用Python服务）
+	// TODO: 实现真正的消息队列发送
+	url := fmt.Sprintf("%s/generate", h.pythonService.BaseURL)
 
 	// 创建multipart请求体
 	var b bytes.Buffer
@@ -85,6 +105,15 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create form file"})
 		return
 	}
+
+	// 重新打开文件
+	src, err := file.Open()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to open uploaded file"})
+		return
+	}
+	defer src.Close()
+
 	_, err = io.Copy(part, src)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy file data"})
@@ -98,7 +127,6 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 	writer.Close()
 
 	// 发送请求到Python服务
-	url := fmt.Sprintf("%s/generate", h.pythonService.BaseURL)
 	req, err := http.NewRequest("POST", url, &b)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})
@@ -194,4 +222,44 @@ func (h *Handler) AnalyzeCPAG(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"analysis": "CPAG analysis results",
 	})
+}
+
+// generateTaskID 生成唯一的任务ID
+func generateTaskID() string {
+	bytes := make([]byte, 16)
+	rand.Read(bytes)
+	return hex.EncodeToString(bytes)
+}
+
+// saveUploadedFile 保存上传的文件到临时目录
+func saveUploadedFile(file *multipart.FileHeader) (string, error) {
+	// 创建临时目录
+	tempDir := os.TempDir()
+	cpagDir := filepath.Join(tempDir, "cpagx")
+	if err := os.MkdirAll(cpagDir, 0755); err != nil {
+		return "", err
+	}
+
+	// 生成临时文件路径
+	tempFile := filepath.Join(cpagDir, file.Filename)
+
+	// 保存文件
+	src, err := file.Open()
+	if err != nil {
+		return "", err
+	}
+	defer src.Close()
+
+	dst, err := os.Create(tempFile)
+	if err != nil {
+		return "", err
+	}
+	defer dst.Close()
+
+	_, err = io.Copy(dst, src)
+	if err != nil {
+		return "", err
+	}
+
+	return tempFile, nil
 }
