@@ -76,11 +76,11 @@ jobs:
           # 安装Redis客户端
           sudo apt-get update
           sudo apt-get install -y redis-tools
-          # 安装Neo4j客户端
-          wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo apt-key add -
-          echo 'deb https://debian.neo4j.com stable latest' | sudo tee /etc/apt/sources.list.d/neo4j.list
+          # 安装Neo4j客户端 (cypher-shell)
+          wget -O - https://debian.neo4j.com/neotechnology.gpg.key | sudo gpg --dearmor -o /usr/share/keyrings/neo4j-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/neo4j-archive-keyring.gpg] https://debian.neo4j.com stable latest" | sudo tee /etc/apt/sources.list.d/neo4j.list
           sudo apt-get update
-          sudo apt-get install -y neo4j-client
+          sudo apt-get install -y cypher-shell
           # 安装InfluxDB客户端
           wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.1-linux-amd64.tar.gz
           tar xvzf influxdb2-client-2.7.1-linux-amd64.tar.gz
