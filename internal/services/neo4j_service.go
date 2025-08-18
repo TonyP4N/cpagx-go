@@ -73,7 +73,7 @@ func NewNeo4jService(cfg *config.Neo4jConfig) (*Neo4jService, error) {
 	// 测试连接
 	ctx, cancel := context.WithTimeout(context.Background(), cfg.Timeout)
 	defer cancel()
-	
+
 	if err := service.TestConnection(ctx); err != nil {
 		driver.Close(ctx)
 		return nil, fmt.Errorf("failed to connect to neo4j: %w", err)
