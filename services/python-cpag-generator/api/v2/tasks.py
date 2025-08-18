@@ -191,8 +191,15 @@ def generate_cpag(
             meta={'current': 60, 'total': 100, 'status': 'Storing to Neo4j...'}
         )
         
+        # 调试日志：检查Neo4j参数
+        print(f"DEBUG: Neo4j parameters - uri: {neo4j_uri}, user: {neo4j_user}, password: {'*' * len(neo4j_password) if neo4j_password else 'None'}")
+        print(f"DEBUG: Neo4j storage condition: {bool(neo4j_uri and neo4j_user and neo4j_password)}")
+        
         if neo4j_uri and neo4j_user and neo4j_password:
+            print(f"DEBUG: Attempting to store to Neo4j with {len(cpag_graph.get('nodes', []))} nodes and {len(cpag_graph.get('edges', []))} edges")
             store_to_neo4j(cpag_graph, neo4j_uri, neo4j_user, neo4j_password, neo4j_db, neo4j_label, wipe_neo4j)
+        else:
+            print("DEBUG: Skipping Neo4j storage due to missing parameters")
         
         # 步骤3: 生成可视化 (80%)
         self.update_state(
@@ -408,21 +415,13 @@ def build_cpag_graph(network_analysis: Dict[str, Any], rules: List[str], minimal
 
 def store_to_neo4j(cpag_graph: Dict[str, Any], uri: str, user: str, password: str, db: str, label: str, wipe: bool):
     """存储到Neo4j"""
-    driver = GraphDatabase.driver(uri, auth=(user, password))
-    
-    with driver.session(database=db) as session:
-        if wipe:
-            # use a fixed query; label is sanitized by backticks
-            session.run("CALL apoc.util.validate(false, '', [])")
-        
-        # 存储节点和边
-        for node in cpag_graph.get('nodes', []):
-            session.run(
-                "CREATE (n:CPAGNode {id: $id, type: $type, label: $label})",
-                id=node['id'], type=node['type'], label=node['label']
-            )
-    
-    driver.close()
+    from api.v2.cpag_e2e_module import store_cpag_to_neo4j
+    try:
+        store_cpag_to_neo4j(cpag_graph, uri, user, password, db, label, wipe)
+        print(f"Successfully stored CPAG to Neo4j: {len(cpag_graph.get('nodes', []))} nodes, {len(cpag_graph.get('edges', []))} edges")
+    except Exception as e:
+        print(f"Failed to store to Neo4j: {e}")
+        raise
 
 def generate_visualizations(cpag_graph: Dict[str, Any], task_id: str):
     """生成可视化"""

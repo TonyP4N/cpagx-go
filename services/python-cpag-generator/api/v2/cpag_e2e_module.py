@@ -360,16 +360,72 @@ def save_cpag_results(cpag_result: Dict[str, Any], outdir: str):
 def store_cpag_to_neo4j(cpag_result: Dict[str, Any], neo4j_uri: str, neo4j_user: str, 
                         neo4j_password: str, neo4j_db: str, label: str, wipe: bool):
     """存储CPAG到Neo4j"""
-    if NEO is None:
-        print("Warning: Neo4j module not available")
-        return
+    from neo4j import GraphDatabase
+    import uuid
     
+    driver = None
     try:
-        # 这里可以调用Neo4j存储函数
-        # NEO.store_cpag(cpag_result, neo4j_uri, neo4j_user, neo4j_password, neo4j_db, label, wipe)
-        print(f"Neo4j storage not implemented yet for {len(cpag_result.get('nodes', []))} nodes")
+        # 连接到Neo4j
+        driver = GraphDatabase.driver(neo4j_uri, auth=(neo4j_user, neo4j_password))
+        
+        with driver.session(database=neo4j_db) as session:
+            # 如果需要清空数据库
+            if wipe:
+                session.run(f"MATCH (n:{label}) DETACH DELETE n")
+                print(f"Cleared existing {label} nodes from Neo4j")
+            
+            # 获取任务ID用于标识这次分析
+            task_id = cpag_result.get('task_id', str(uuid.uuid4()))
+            timestamp = datetime.now().isoformat()
+            
+            # 批量插入节点
+            nodes = cpag_result.get('nodes', [])
+            if nodes:
+                node_query = f"""
+                UNWIND $nodes AS node
+                CREATE (n:{label} {{
+                    id: node.id,
+                    task_id: $task_id,
+                    timestamp: $timestamp,
+                    node_type: node.node_type,
+                    properties: node
+                }})
+                """
+                session.run(node_query, nodes=nodes, task_id=task_id, timestamp=timestamp)
+                print(f"Inserted {len(nodes)} nodes into Neo4j")
+            
+            # 批量插入边
+            edges = cpag_result.get('edges', [])
+            if edges:
+                edge_query = f"""
+                UNWIND $edges AS edge
+                MATCH (src:{label} {{id: edge.source, task_id: $task_id}})
+                MATCH (dst:{label} {{id: edge.target, task_id: $task_id}})
+                CREATE (src)-[r:ATTACKS {{
+                    task_id: $task_id,
+                    timestamp: $timestamp,
+                    edge_type: edge.edge_type,
+                    properties: edge
+                }}]->(dst)
+                """
+                session.run(edge_query, edges=edges, task_id=task_id, timestamp=timestamp)
+                print(f"Inserted {len(edges)} edges into Neo4j")
+            
+            # 创建索引以提高查询性能
+            try:
+                session.run(f"CREATE INDEX {label}_id_index IF NOT EXISTS FOR (n:{label}) ON (n.id)")
+                session.run(f"CREATE INDEX {label}_task_id_index IF NOT EXISTS FOR (n:{label}) ON (n.task_id)")
+            except Exception as e:
+                print(f"Index creation warning: {e}")
+            
+            print(f"Successfully stored CPAG to Neo4j: {len(nodes)} nodes, {len(edges)} edges")
+            
     except Exception as e:
         print(f"Error storing to Neo4j: {e}")
+        raise
+    finally:
+        if driver:
+            driver.close()
 
 
 # 添加必要的导入

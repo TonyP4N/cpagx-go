@@ -35,6 +35,7 @@ func main() {
 					}
 
 					// 显示配置信息
+					fmt.Printf("Loaded configuration: %s\n", cfg.String())
 
 					// TODO: 实现分析逻辑
 
@@ -66,7 +67,7 @@ func main() {
 					_ = os.Setenv("PYTHON_SERVICE_URL", cfg.Python.ServiceURL)
 
 					// 启动 Gin 服务器
-					r := api.NewServer()
+					r := api.NewServer(cfg)
 					if err := r.Run(cfg.GetServerAddress()); err != nil {
 						return fmt.Errorf("failed to start server: %w", err)
 					}
@@ -95,6 +96,7 @@ func main() {
 								return fmt.Errorf("failed to load config: %w", err)
 							}
 
+							fmt.Printf("Current configuration:\n%s\n", cfg.String())
 							return nil
 						},
 					},

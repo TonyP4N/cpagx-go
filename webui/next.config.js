@@ -12,6 +12,7 @@ const nextConfig = {
       { source: '/api/version/:path*', destination: 'http://localhost:8080/api/version/:path*' },
       { source: '/api/tasks/:path*', destination: 'http://localhost:8080/api/tasks/:path*' },
       { source: '/api/cpag/:path*', destination: 'http://localhost:8080/api/cpag/:path*' },
+      { source: '/api/graph/:path*', destination: 'http://localhost:8080/api/graph/:path*' },
       { source: '/api/health', destination: 'http://localhost:8080/api/health' }
     ];
   },

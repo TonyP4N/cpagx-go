@@ -30,6 +30,7 @@ type Config struct {
 	Database DatabaseConfig `json:"database"`
 	Cache    CacheConfig    `json:"cache"`
 	Versions VersionsConfig `json:"versions"`
+	Neo4j    Neo4jConfig    `json:"neo4j"`
 }
 
 // ServerConfig 服务器配置
@@ -62,6 +63,16 @@ type CacheConfig struct {
 	Type    string        `json:"type"` // "memory", "redis"
 	TTL     time.Duration `json:"ttl"`
 	MaxSize int           `json:"max_size"`
+}
+
+// Neo4jConfig Neo4j配置
+type Neo4jConfig struct {
+	URI      string        `json:"uri"`
+	Username string        `json:"username"`
+	Password string        `json:"password"`
+	Database string        `json:"database"`
+	Timeout  time.Duration `json:"timeout"`
+	Enabled  bool          `json:"enabled"`
 }
 
 // Duration 自定义时间类型，支持JSON字符串解析
@@ -116,6 +127,16 @@ type CacheConfigWithDuration struct {
 	MaxSize int      `json:"max_size"`
 }
 
+// Neo4jConfigWithDuration 支持时间字符串的Neo4j配置
+type Neo4jConfigWithDuration struct {
+	URI      string   `json:"uri"`
+	Username string   `json:"username"`
+	Password string   `json:"password"`
+	Database string   `json:"database"`
+	Timeout  Duration `json:"timeout"`
+	Enabled  bool     `json:"enabled"`
+}
+
 // ConfigWithDuration 支持时间字符串的完整配置
 type ConfigWithDuration struct {
 	Server   ServerConfigWithDuration `json:"server"`
@@ -123,6 +144,7 @@ type ConfigWithDuration struct {
 	Database DatabaseConfig           `json:"database"`
 	Cache    CacheConfigWithDuration  `json:"cache"`
 	Versions VersionsConfig           `json:"versions"`
+	Neo4j    Neo4jConfigWithDuration  `json:"neo4j"`
 }
 
 // LoadVersionsConfig 从JSON文件加载版本配置
@@ -159,26 +181,41 @@ func LoadConfig(configPath string) (*Config, error) {
 		return nil, fmt.Errorf("failed to decode config file: %w", err)
 	}
 
-	// 转换为标准配置
+	// 转换为标准配置，并应用环境变量覆盖
 	config := &Config{
 		Server: ServerConfig{
-			Port:         configWithDuration.Server.Port,
-			Host:         configWithDuration.Server.Host,
+			Port:         getEnvOrDefault("SERVER_PORT", "8080"),
+			Host:         getEnvOrDefault("SERVER_HOST", "0.0.0.0"),
 			ReadTimeout:  configWithDuration.Server.ReadTimeout.Duration(),
 			WriteTimeout: configWithDuration.Server.WriteTimeout.Duration(),
 		},
 		Python: PythonConfig{
-			ServiceURL: configWithDuration.Python.ServiceURL,
+			ServiceURL: getEnvOrDefault("PYTHON_SERVICE_URL", "http://python-cpag-generator:8000"),
 			Timeout:    configWithDuration.Python.Timeout.Duration(),
 			Retries:    configWithDuration.Python.Retries,
 		},
-		Database: configWithDuration.Database,
+		Database: DatabaseConfig{
+			Type:     getEnvOrDefault("DATABASE_TYPE", "redis"),
+			Host:     getEnvOrDefault("REDIS_HOST", "redis"),
+			Port:     getEnvIntOrDefault("REDIS_PORT", 6379),
+			Database: getEnvOrDefault("REDIS_DB", "0"),
+			Username: getEnvOrDefault("REDIS_USERNAME", ""),
+			Password: getEnvOrDefault("REDIS_PASSWORD", "password123"),
+		},
 		Cache: CacheConfig{
 			Type:    configWithDuration.Cache.Type,
 			TTL:     configWithDuration.Cache.TTL.Duration(),
 			MaxSize: configWithDuration.Cache.MaxSize,
 		},
 		Versions: configWithDuration.Versions,
+		Neo4j: Neo4jConfig{
+			URI:      getEnvOrDefault("NEO4J_URI", "bolt://neo4j:7687"),
+			Username: getEnvOrDefault("NEO4J_USER", "neo4j"),
+			Password: getEnvOrDefault("NEO4J_PASSWORD", "password123"),
+			Database: getEnvOrDefault("NEO4J_DATABASE", "neo4j"),
+			Timeout:  configWithDuration.Neo4j.Timeout.Duration(),
+			Enabled:  getEnvBoolOrDefault("NEO4J_ENABLED", true),
+		},
 	}
 
 	// 验证配置
@@ -268,6 +305,36 @@ func (c *Config) IsDevelopment() bool {
 	return c.Server.Host == "localhost" || c.Server.Host == "127.0.0.1"
 }
 
+// 环境变量辅助函数
+
+// getEnvOrDefault 获取环境变量，如果不存在则返回默认值
+func getEnvOrDefault(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
+	}
+	return defaultValue
+}
+
+// getEnvIntOrDefault 获取环境变量并转换为整数，如果不存在则返回默认值
+func getEnvIntOrDefault(key string, defaultValue int) int {
+	if value := os.Getenv(key); value != "" {
+		if intValue, err := strconv.Atoi(value); err == nil {
+			return intValue
+		}
+	}
+	return defaultValue
+}
+
+// getEnvBoolOrDefault 获取环境变量并转换为布尔值，如果不存在则返回默认值
+func getEnvBoolOrDefault(key string, defaultValue bool) bool {
+	if value := os.Getenv(key); value != "" {
+		if boolValue, err := strconv.ParseBool(value); err == nil {
+			return boolValue
+		}
+	}
+	return defaultValue
+}
+
 // IsProduction 检查是否为生产环境
 func (c *Config) IsProduction() bool {
 	return c.Server.Host == "0.0.0.0" && c.Database.Type == "redis"
@@ -323,6 +390,23 @@ func validateConfig(config *Config) error {
 		errors = append(errors, "cache max size must be greater than 0")
 	}
 
+	// 验证Neo4j配置（如果启用）
+	if config.Neo4j.Enabled {
+		if config.Neo4j.URI == "" {
+			errors = append(errors, "neo4j URI cannot be empty when neo4j is enabled")
+		} else if !strings.HasPrefix(config.Neo4j.URI, "bolt://") && !strings.HasPrefix(config.Neo4j.URI, "neo4j://") {
+			errors = append(errors, "neo4j URI must start with bolt:// or neo4j://")
+		}
+
+		if config.Neo4j.Username == "" {
+			errors = append(errors, "neo4j username cannot be empty when neo4j is enabled")
+		}
+
+		if config.Neo4j.Database == "" {
+			errors = append(errors, "neo4j database cannot be empty when neo4j is enabled")
+		}
+	}
+
 	if len(errors) > 0 {
 		return fmt.Errorf("configuration validation failed: %s", strings.Join(errors, "; "))
 	}
@@ -332,6 +416,10 @@ func validateConfig(config *Config) error {
 
 // String 返回配置的字符串表示
 func (c *Config) String() string {
-	return fmt.Sprintf("Server: %s:%s, Python: %s, DB: %s, Cache: %s",
-		c.Server.Host, c.Server.Port, c.Python.ServiceURL, c.Database.Type, c.Cache.Type)
+	neo4jStatus := "disabled"
+	if c.Neo4j.Enabled {
+		neo4jStatus = "enabled"
+	}
+	return fmt.Sprintf("Server: %s:%s, Python: %s, DB: %s, Cache: %s, Neo4j: %s",
+		c.Server.Host, c.Server.Port, c.Python.ServiceURL, c.Database.Type, c.Cache.Type, neo4jStatus)
 }

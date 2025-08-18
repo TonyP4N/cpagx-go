@@ -8,6 +8,7 @@ require (
 	github.com/gin-contrib/cors v1.7.6
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-redis/redis/v8 v8.11.5
+	github.com/neo4j/neo4j-go-driver/v5 v5.15.0
 	github.com/streadway/amqp v1.0.0
 	github.com/urfave/cli/v2 v2.27.7
 )

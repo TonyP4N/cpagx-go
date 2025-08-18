@@ -41,7 +41,7 @@ export default function TaskList() {
 
   // 获取队列状态
   const { data: queueStatus } = useSWR('/api/tasks/queue/status', fetcher, {
-    refreshInterval: 5000
+    refreshInterval: 3000 // 减少轮询间隔以提高同步性
   });
 
   const handlePreview = async (task: Task) => {

@@ -1,26 +1,22 @@
 {
   "server": {
-    "port": "8080",
-    "host": "0.0.0.0",
     "read_timeout": "30s",
     "write_timeout": "30s"
   },
   "python": {
-    "service_url": "http://localhost:8000",
     "timeout": "30s",
     "retries": 3
   },
   "database": {
-    "type": "sqlite",
-    "host": "localhost",
-    "port": 6379,
-    "database": "cpagx",
-    "username": "",
-    "password": ""
+    "type": "redis"
   },
   "cache": {
     "type": "redis",
     "ttl": "1h",
     "max_size": 1000
+  },
+  "neo4j": {
+    "timeout": "30s",
+    "enabled": true
   }
 } 

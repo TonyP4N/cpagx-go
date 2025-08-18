@@ -348,7 +348,10 @@ def enhanced_pipeline(df: pd.DataFrame, per_tag: int, pre_s: int, post_s: int, t
 
 # --------------------- Main ---------------------
 def run(csv_path: Path, out_dir: Path, build_minimal: bool, build_enhanced: bool,
-        pre_s: int, post_s: int, per_tag: int, top_k_analog: int, visualize: bool):
+        pre_s: int, post_s: int, per_tag: int, top_k_analog: int, visualize: bool,
+        neo4j_uri: Optional[str] = None, neo4j_user: Optional[str] = None, 
+        neo4j_password: Optional[str] = None, neo4j_db: str = "neo4j", 
+        neo4j_label: str = "CPAGNode", wipe_neo4j: bool = False):
     out_dir.mkdir(parents=True, exist_ok=True)
     df = pd.read_csv(csv_path, low_memory=False)
     ts = df["Timestamp"].apply(parse_ts) if "Timestamp" in df.columns else pd.Series([None]*len(df))
@@ -369,6 +372,24 @@ def run(csv_path: Path, out_dir: Path, build_minimal: bool, build_enhanced: bool
         (out_dir / "cpag_enhanced.json").write_text(json.dumps(cpag_enh, ensure_ascii=False, indent=2), encoding="utf-8")
         if visualize:
             visualize_cpag(cpag_enh, out_dir / "cpag_enhanced.png", seed=7)
+        
+        # 存储到Neo4j（如果配置了）
+        if neo4j_uri and neo4j_user and neo4j_password:
+            try:
+                from api.v2.cpag_e2e_module import store_cpag_to_neo4j
+                store_cpag_to_neo4j(cpag_enh, neo4j_uri, neo4j_user, neo4j_password, neo4j_db, neo4j_label, wipe_neo4j)
+                print(f"Successfully stored enhanced CPAG to Neo4j: {len(cpag_enh.get('nodes', []))} nodes, {len(cpag_enh.get('edges', []))} edges")
+            except Exception as e:
+                print(f"Warning: Failed to store enhanced CPAG to Neo4j: {e}")
+    
+    # 存储到Neo4j（如果配置了且只构建minimal）
+    if build_minimal and not build_enhanced and neo4j_uri and neo4j_user and neo4j_password:
+        try:
+            from api.v2.cpag_e2e_module import store_cpag_to_neo4j
+            store_cpag_to_neo4j(cpag_min, neo4j_uri, neo4j_user, neo4j_password, neo4j_db, neo4j_label, wipe_neo4j)
+            print(f"Successfully stored minimal CPAG to Neo4j: {len(cpag_min.get('nodes', []))} nodes, {len(cpag_min.get('edges', []))} edges")
+        except Exception as e:
+            print(f"Warning: Failed to store minimal CPAG to Neo4j: {e}")
 
 def main():
     parser = argparse.ArgumentParser(description="Build CPAG (minimal/enhanced) from CSV and visualize.")

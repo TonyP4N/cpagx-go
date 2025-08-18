@@ -71,6 +71,12 @@ class FileProcessor:
             run_csv_builder(
                 csv_path=Path(csv_path),
                 out_dir=Path(output_dir),
+                neo4j_uri=kwargs.get('neo4j_uri'),
+                neo4j_user=kwargs.get('neo4j_user'),
+                neo4j_password=kwargs.get('neo4j_password'),
+                neo4j_db=kwargs.get('neo4j_db', 'neo4j'),
+                neo4j_label=kwargs.get('neo4j_label', 'CPAGNode'),
+                wipe_neo4j=kwargs.get('wipe_neo4j', False),
                 **params
             )
             

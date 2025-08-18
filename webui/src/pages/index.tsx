@@ -22,6 +22,7 @@ import {
 } from '@heroicons/react/24/outline';
 
 import VersionSelector from '../components/VersionSelector';
+import TaskList from '../components/TaskList';
 
 interface TaskStatus {
   id: string;
@@ -76,14 +77,14 @@ export default function HomePage() {
 
   // 获取队列状态
   const { data: queueStatus } = useSWR(`/api/${currentVersion}/cpag/queue/status`, fetcher, {
-    refreshInterval: 5000
+    refreshInterval: taskId ? 3000 : 10000 // 有任务时3秒，无任务时10秒
   });
 
   React.useEffect(() => { 
     mutate(); 
-    // 如果任务完成，清除taskId以停止轮询
+    // 如果任务完成，立即清除taskId以停止轮询
     if (taskStatus?.status === 'completed' || taskStatus?.status === 'failed') {
-      setTimeout(() => setTaskId(null), 5000); // 5秒后清除
+      setTaskId(null);
     }
   }, [taskId, mutate, taskStatus]);
 
@@ -242,6 +243,13 @@ export default function HomePage() {
               currentVersion={currentVersion} 
               onVersionChange={setCurrentVersion} 
             />
+            <a
+              href="/graph"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-200 shadow-md bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900"
+            >
+              <ChartBarIcon className="h-5 w-5" />
+              Graph View
+            </a>
             <button 
               className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-200 shadow-lg ${
                 canStartAnalysis 
@@ -707,27 +715,7 @@ export default function HomePage() {
 
         {/* Task History Tab */}
         {activeTab === 'history' && (
-          <div className="space-y-6 min-h-[calc(100vh-300px)] flex flex-col">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6 flex-1">
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
-                    <ChartBarIcon className="h-6 w-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-semibold text-slate-800">Task History</h2>
-                    <p className="text-sm text-slate-500">View completed and failed analysis tasks</p>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="text-center py-12">
-                <ChartBarIcon className="h-12 w-12 text-slate-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-slate-600 mb-2">Task History</h3>
-                <p className="text-slate-500">Completed tasks will appear here</p>
-              </div>
-            </div>
-          </div>
+          <TaskList />
         )}
       </main>
     </div>

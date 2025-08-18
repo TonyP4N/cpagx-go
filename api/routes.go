@@ -51,6 +51,16 @@ func SetupRoutes(r *gin.Engine, handler *Handler, proxy *VersionProxy) {
 			cpag.POST("/analyze", handler.AnalyzeCPAG)     // 分析CPAG
 		}
 
+		// 图数据可视化相关路由
+		graph := api.Group("/graph")
+		{
+			graph.GET("/tasks", handler.GetGraphTasks)                      // 获取图任务列表
+			graph.GET("/data/:task_id", handler.GetGraphData)               // 获取图数据
+			graph.DELETE("/tasks/:task_id", handler.DeleteGraphTask)        // 删除图任务
+			graph.GET("/health", handler.GetNeo4jHealth)                    // Neo4j健康检查
+			graph.GET("/browser", handler.GetNeo4jBrowserURL)               // 获取Neo4j Browser访问URL
+		}
+
 		// 健康检查
 		api.GET("/health", func(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{

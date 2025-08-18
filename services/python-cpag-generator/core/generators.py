@@ -211,7 +211,7 @@ class PCAPCPAGGenerator:
                     
                     # 每处理1000个包输出一次进度
                     if packet_count % 1000 == 0:
-
+                        print(f"Processed {packet_count} packets...")
                 
                 reader.close()
                 

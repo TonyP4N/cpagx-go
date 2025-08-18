@@ -20,10 +20,14 @@ services:
       - SERVER_HOST=${SERVER_HOST}
       - PYTHON_SERVICE_URL=http://python-cpag-generator:8000
     depends_on:
-      - rabbitmq
-      - redis
-      - neo4j
-      - influxdb
+      rabbitmq:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
     networks:
       - cpagx-network
     volumes:
@@ -82,15 +86,19 @@ services:
       - INFLUXDB_URL=${INFLUXDB_URL}
       - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
       - INFLUXDB_ORG=${INFLUXDB_ORG}
-      - INFLUXDB_BUCKET=cpagx_metrics
+      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
     volumes:
       - ../services/python-cpag-generator:/app
       - ../uploads:/app/uploads
     depends_on:
-      - redis
-      - rabbitmq
-      - neo4j
-      - influxdb
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      neo4j:
+        condition: service_healthy
+      influxdb:
+        condition: service_healthy
     command: celery -A infrastructure.celery_app worker --loglevel=info -Q celery,cpag_generation,network_analysis,graph_building --concurrency=2
     networks:
       - cpagx-network
@@ -181,9 +189,9 @@ services:
     volumes:
       - redis_data:/data
     restart: unless-stopped
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -191,9 +199,9 @@ services:
   # Neo4j图数据库
   neo4j:
     image: neo4j:5.15
-    # ports:
-    #   - "7476:7474"   # HTTP端口
-    #   - "7689:7687"   # Bolt端口
+    ports:
+      - "7476:7474"   # HTTP端口
+      - "7689:7687"   # Bolt端口
     environment:
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
       - NEO4J_PLUGINS=["apoc"]
@@ -210,9 +218,10 @@ services:
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
   # InfluxDB时序数据库
   influxdb:

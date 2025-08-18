@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
@@ -11,8 +12,10 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"strconv"
 	"time"
 
+	"github.com/TonyP4N/cpagx-go/internal/config"
 	"github.com/TonyP4N/cpagx-go/internal/services"
 	"github.com/gin-gonic/gin"
 )
@@ -36,10 +39,11 @@ type PythonServiceConfig struct {
 type Handler struct {
 	pythonService *PythonServiceConfig
 	messageQueue  *services.MessageQueueService
+	neo4jService  *services.Neo4jService
 }
 
 // NewHandler 创建新的处理器
-func NewHandler(pythonServiceURL string, rabbitMQURL string) *Handler {
+func NewHandler(pythonServiceURL string, rabbitMQURL string, neo4jConfig *config.Neo4jConfig) *Handler {
 	// 创建消息队列服务
 	messageQueue, err := services.NewMessageQueueService(rabbitMQURL, "cpag_generation")
 	if err != nil {
@@ -48,12 +52,34 @@ func NewHandler(pythonServiceURL string, rabbitMQURL string) *Handler {
 		messageQueue = nil
 	}
 
+	// 创建Neo4j服务（带重试逻辑）
+	var neo4jService *services.Neo4jService
+	if neo4jConfig != nil && neo4jConfig.Enabled {
+		// 重试连接Neo4j，最多重试5次，每次间隔5秒
+		for i := 0; i < 5; i++ {
+			neo4jService, err = services.NewNeo4jService(neo4jConfig)
+			if err == nil {
+				fmt.Printf("Successfully connected to Neo4j on attempt %d\n", i+1)
+				break
+			}
+			fmt.Printf("Warning: Failed to connect to Neo4j (attempt %d/5): %v\n", i+1, err)
+			if i < 4 { // 不是最后一次尝试
+				time.Sleep(5 * time.Second)
+			}
+		}
+		if err != nil {
+			fmt.Printf("Warning: Failed to connect to Neo4j after 5 attempts, continuing without Neo4j\n")
+			neo4jService = nil
+		}
+	}
+
 	return &Handler{
 		pythonService: &PythonServiceConfig{
 			BaseURL: pythonServiceURL,
 			Timeout: 30 * time.Second,
 		},
 		messageQueue: messageQueue,
+		neo4jService: neo4jService,
 	}
 }
 
@@ -92,6 +118,16 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 		return
 	}
 
+	// 获取Neo4j配置
+	neo4jConfig := map[string]interface{}{
+		"neo4j_uri":      os.Getenv("NEO4J_URI"),
+		"neo4j_user":     os.Getenv("NEO4J_USER"),
+		"neo4j_password": os.Getenv("NEO4J_PASSWORD"),
+		"neo4j_db":       os.Getenv("NEO4J_DATABASE"),
+		"neo4j_label":    "CPAGNode",
+		"wipe_neo4j":     false,
+	}
+
 	// 创建任务消息
 	taskMessage := &services.TaskMessage{
 		TaskID:     taskID,
@@ -105,6 +141,7 @@ func (h *Handler) GenerateCPAG(c *gin.Context) {
 			"device_map":    deviceMapStr,
 			"rules":         rulesStr,
 			"output_format": outputFormat,
+			"neo4j_config":  neo4jConfig,
 		},
 	}
 
@@ -163,6 +200,15 @@ func (h *Handler) directCallPythonService(c *gin.Context, file *multipart.FileHe
 	writer.WriteField("device_map", deviceMapStr)
 	writer.WriteField("rules", rulesStr)
 	writer.WriteField("output_format", outputFormat)
+
+	// 添加Neo4j配置字段
+	writer.WriteField("neo4j_uri", os.Getenv("NEO4J_URI"))
+	writer.WriteField("neo4j_user", os.Getenv("NEO4J_USER"))
+	writer.WriteField("neo4j_password", os.Getenv("NEO4J_PASSWORD"))
+	writer.WriteField("neo4j_db", os.Getenv("NEO4J_DATABASE"))
+	writer.WriteField("neo4j_label", "CPAGNode")
+	writer.WriteField("wipe_neo4j", "false")
+
 	writer.Close()
 
 	// 发送请求到Python服务
@@ -301,4 +347,121 @@ func saveUploadedFile(file *multipart.FileHeader) (string, error) {
 	}
 
 	return tempFile, nil
+}
+
+// GetGraphTasks 获取Neo4j中的任务列表
+func (h *Handler) GetGraphTasks(c *gin.Context) {
+	if h.neo4jService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Neo4j service not available"})
+		return
+	}
+
+	// 获取限制参数
+	limitStr := c.DefaultQuery("limit", "20")
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		limit = 20
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	tasks, err := h.neo4jService.GetTaskList(ctx, limit)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get task list: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"tasks": tasks,
+		"total": len(tasks),
+	})
+}
+
+// GetGraphData 获取指定任务的图数据
+func (h *Handler) GetGraphData(c *gin.Context) {
+	if h.neo4jService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Neo4j service not available"})
+		return
+	}
+
+	taskID := c.Param("task_id")
+	if taskID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Task ID is required"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	graphData, err := h.neo4jService.GetGraphData(ctx, taskID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to get graph data: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, graphData)
+}
+
+// DeleteGraphTask 删除指定任务的图数据
+func (h *Handler) DeleteGraphTask(c *gin.Context) {
+	if h.neo4jService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Neo4j service not available"})
+		return
+	}
+
+	taskID := c.Param("task_id")
+	if taskID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Task ID is required"})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	err := h.neo4jService.DeleteTask(ctx, taskID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": fmt.Sprintf("Failed to delete task: %v", err)})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Task deleted successfully"})
+}
+
+// GetNeo4jHealth 获取Neo4j健康状态
+func (h *Handler) GetNeo4jHealth(c *gin.Context) {
+	if h.neo4jService == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"neo4j": gin.H{
+				"enabled":   false,
+				"connected": false,
+				"message":   "Neo4j service not configured",
+			},
+		})
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	healthStatus := h.neo4jService.GetHealthStatus(ctx)
+	c.JSON(http.StatusOK, gin.H{"neo4j": healthStatus})
+}
+
+// GetNeo4jBrowserURL 获取Neo4j Browser访问URL
+func (h *Handler) GetNeo4jBrowserURL(c *gin.Context) {
+	if h.neo4jService == nil {
+		c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Neo4j service not available"})
+		return
+	}
+
+	// 根据docker-compose.yml的端口映射，Neo4j Browser的外部访问端口是7476
+	// 内部端口7474映射到外部端口7476
+	browserURL := "http://localhost:7476/browser/"
+
+	c.JSON(http.StatusOK, gin.H{
+		"browser_url": browserURL,
+		"database":    h.neo4jService.GetConfig().Database,
+		"username":    h.neo4jService.GetConfig().Username,
+	})
 }
