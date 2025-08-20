@@ -1,11 +1,15 @@
 package api
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
+	"mime/multipart"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
 	"sort"
 	"strings"
 
@@ -101,6 +105,13 @@ func (p *VersionProxy) ProxyToVersion(version string) gin.HandlerFunc {
 			c.Request.URL.Path = strings.TrimPrefix(originalPath, "/api/v1")
 		} else if strings.HasPrefix(originalPath, "/api/v2") {
 			c.Request.URL.Path = strings.TrimPrefix(originalPath, "/api/v2")
+		}
+
+		// 对于 v2 版本的 CPAG 生成请求，添加 Neo4j 配置参数
+		fmt.Printf("Proxy check: version=%s, method=%s, path=%s\n", version, c.Request.Method, c.Request.URL.Path)
+		if version == "v2" && c.Request.Method == "POST" && strings.Contains(c.Request.URL.Path, "/cpag/generate") {
+			fmt.Printf("Calling enhanceV2Request\n")
+			p.enhanceV2Request(c)
 		}
 
 		// 执行代理
@@ -450,4 +461,95 @@ func (p *VersionProxy) GetQueueStatus() gin.HandlerFunc {
 		// 转发响应
 		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
 	}
+}
+
+// enhanceV2Request 为 v2 请求添加 Neo4j 配置参数
+func (p *VersionProxy) enhanceV2Request(c *gin.Context) {
+	fmt.Printf("enhanceV2Request called for path: %s, content-type: %s\n", c.Request.URL.Path, c.GetHeader("Content-Type"))
+
+	// 只处理 multipart form-data 请求
+	if !strings.Contains(c.GetHeader("Content-Type"), "multipart/form-data") {
+		fmt.Printf("Skipping non-multipart request\n")
+		return
+	}
+
+	// 解析 multipart form
+	if err := c.Request.ParseMultipartForm(300 << 20); err != nil { // 300MB limit
+		fmt.Printf("Warning: Failed to parse multipart form: %v\n", err)
+		return
+	}
+
+	// 添加 Neo4j 配置到表单数据
+	form := c.Request.MultipartForm
+	if form.Value == nil {
+		form.Value = make(map[string][]string)
+	}
+
+	// 添加 Neo4j 配置字段
+	neo4jURI := os.Getenv("NEO4J_URI")
+	if neo4jURI == "" {
+		neo4jURI = "bolt://neo4j:7687"
+	}
+
+	neo4jUser := os.Getenv("NEO4J_USER")
+	if neo4jUser == "" {
+		neo4jUser = "neo4j"
+	}
+
+	neo4jPassword := os.Getenv("NEO4J_PASSWORD")
+	if neo4jPassword == "" {
+		neo4jPassword = "password123"
+	}
+
+	neo4jDB := os.Getenv("NEO4J_DATABASE")
+	if neo4jDB == "" {
+		neo4jDB = "neo4j"
+	}
+
+	// 添加配置到表单
+	form.Value["neo4j_uri"] = []string{neo4jURI}
+	form.Value["neo4j_user"] = []string{neo4jUser}
+	form.Value["neo4j_password"] = []string{neo4jPassword}
+	form.Value["neo4j_db"] = []string{neo4jDB}
+	form.Value["neo4j_label"] = []string{"CPAGNode"}
+	form.Value["wipe_neo4j"] = []string{"false"}
+
+	fmt.Printf("Enhanced v2 request with Neo4j config: URI=%s, User=%s, DB=%s\n", neo4jURI, neo4jUser, neo4jDB)
+
+	// 重新构建请求体
+	var buf bytes.Buffer
+	writer := multipart.NewWriter(&buf)
+
+	// 添加文件
+	if form.File != nil {
+		for fieldName, files := range form.File {
+			for _, fileHeader := range files {
+				file, err := fileHeader.Open()
+				if err != nil {
+					continue
+				}
+				defer file.Close()
+
+				part, err := writer.CreateFormFile(fieldName, fileHeader.Filename)
+				if err != nil {
+					continue
+				}
+				io.Copy(part, file)
+			}
+		}
+	}
+
+	// 添加表单字段
+	for fieldName, values := range form.Value {
+		for _, value := range values {
+			writer.WriteField(fieldName, value)
+		}
+	}
+
+	writer.Close()
+
+	// 更新请求
+	c.Request.Body = io.NopCloser(&buf)
+	c.Request.ContentLength = int64(buf.Len())
+	c.Request.Header.Set("Content-Type", writer.FormDataContentType())
 }

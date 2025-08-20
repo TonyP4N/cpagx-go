@@ -148,58 +148,73 @@ def generate_cpag(
             meta={'current': 20, 'total': 100, 'status': 'Detecting file type and processing...'}
         )
         
-        # 使用新的文件处理器
-        from core.file_processor import file_processor
+        # 使用统一的文件处理器（v2的核心功能）
+        from .unified_cpag_processor import UnifiedCPAGProcessor
         
         # 确定要处理的文件
         input_file = file_path if file_path else csv_path
         if not input_file:
             raise ValueError("No input file provided")
         
+        # 准备Neo4j配置
+        neo4j_config = None
+        if neo4j_uri and neo4j_user and neo4j_password:
+            neo4j_config = {
+                'uri': neo4j_uri,
+                'user': neo4j_user,
+                'password': neo4j_password,
+                'database': neo4j_db,
+                'label': neo4j_label,
+                'wipe': wipe_neo4j,
+                'task_id': task_id  # 添加task_id用于数据隔离
+            }
+        
+        # 创建统一处理器
+        processor = UnifiedCPAGProcessor()
+        
         # 处理文件
-        processing_result = file_processor.process_file(
+        processing_result = processor.process_file(
             file_path=input_file,
             output_dir=os.path.join(os.getenv("OUTPUT_DIR", "outputs/v2"), task_id),
             device_map=device_map,
             rules=rules,
+            max_pkts=120000,  # 从kwargs中提取或使用默认值
+            target_cip=8000,
+            top_k=top_k,
+            top_per_plc=top_per_plc,
+            neo4j_config=neo4j_config,
             build_minimal=build_minimal,
             build_enhanced=build_enhanced,
             pre_window=pre_window,
             post_window=post_window,
             per_tag=per_tag,
             top_k_analog=top_k_analog,
-            visualize=visualize,
-            neo4j_uri=neo4j_uri,
-            neo4j_user=neo4j_user,
-            neo4j_password=neo4j_password,
-            neo4j_db=neo4j_db,
-            neo4j_label=neo4j_label,
-            wipe_neo4j=wipe_neo4j,
-            top_k=top_k,
-            top_per_plc=top_per_plc
+            visualize=visualize
         )
         
         if processing_result.get('status') == 'failed':
             raise Exception(processing_result.get('error', 'Processing failed'))
         
-        # 获取最佳结果
-        cpag_graph = processing_result.get('best_result', {})
+        # 获取处理结果
+        cpag_graph = processing_result.get('graph_data', {})
         
-        # 步骤2: 存储到Neo4j (60%)
+        # 步骤2: Neo4j存储结果检查 (60%)
         self.update_state(
             state='PROGRESS',
-            meta={'current': 60, 'total': 100, 'status': 'Storing to Neo4j...'}
+            meta={'current': 60, 'total': 100, 'status': 'Checking Neo4j storage...'}
         )
         
-        # 调试日志：检查Neo4j参数
-        print(f"DEBUG: Neo4j parameters - uri: {neo4j_uri}, user: {neo4j_user}, password: {'*' * len(neo4j_password) if neo4j_password else 'None'}")
-        print(f"DEBUG: Neo4j storage condition: {bool(neo4j_uri and neo4j_user and neo4j_password)}")
+        # Neo4j存储已在统一处理器中完成，检查结果
+        neo4j_stored = processing_result.get('neo4j_stored', False)
+        neo4j_error = processing_result.get('neo4j_error')
         
-        if neo4j_uri and neo4j_user and neo4j_password:
-            print(f"DEBUG: Attempting to store to Neo4j with {len(cpag_graph.get('nodes', []))} nodes and {len(cpag_graph.get('edges', []))} edges")
-            store_to_neo4j(cpag_graph, neo4j_uri, neo4j_user, neo4j_password, neo4j_db, neo4j_label, wipe_neo4j)
+        if neo4j_config:
+            if neo4j_stored:
+                print("SUCCESS: Data successfully stored to Neo4j")
+            else:
+                print(f"WARNING: Neo4j storage failed: {neo4j_error}")
         else:
-            print("DEBUG: Skipping Neo4j storage due to missing parameters")
+            print("INFO: Neo4j storage skipped (no configuration provided)")
         
         # 步骤3: 生成可视化 (80%)
         self.update_state(

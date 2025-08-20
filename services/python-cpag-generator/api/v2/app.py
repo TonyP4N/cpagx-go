@@ -27,6 +27,7 @@ from infrastructure.files import (
 )
 from infrastructure.status import read_manifest, list_tasks_from_manifests
 
+
 app = FastAPI(title="CPAG Generator v2.0", version="2.0.0")
 
 # CORS中间件
@@ -152,30 +153,9 @@ async def generate_cpag(
         except Exception:
             enqueued = False
         if not enqueued:
-            import asyncio
-            asyncio.create_task(process_cpag_generation_v2(
-                task_id,
-                temp_file_path,
-                temp_csv_path,
-                device_map_dict,
-                rules_list,
-                output_format,
-                neo4j_uri,
-                neo4j_user,
-                neo4j_password,
-                neo4j_db,
-                neo4j_label,
-                wipe_neo4j,
-                top_k,
-                top_per_plc,
-                build_minimal,
-                build_enhanced,
-                pre_window,
-                post_window,
-                per_tag,
-                top_k_analog,
-                visualize
-            ))
+            # 如果Celery不可用，直接返回错误
+            cleanup_temp_files([temp_file_path, temp_csv_path])
+            raise HTTPException(status_code=503, detail="Task queue service unavailable")
     
     return CPAGResponse(
         id=task_id,
@@ -366,7 +346,7 @@ async def get_batch_task_status(task_ids: str):
 
 @app.get("/cpag/result/{task_id}")
 async def get_task_result(task_id: str):
-    """获取任务结果"""
+    """获取任务结果 - 返回可下载的文件"""
     task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
     
     # 优先读取 manifest 中记录的文件
@@ -376,11 +356,11 @@ async def get_task_result(task_id: str):
             if fn.endswith('.json'):
                 fp = os.path.join(task_dir, fn)
                 if os.path.exists(fp):
-                    with open(fp, 'r', encoding='utf-8') as f:
-                        result = json.load(f)
-                        result['version'] = VERSION
-                        result['task_id'] = task_id
-                        return result
+                    return FileResponse(
+                        path=fp,
+                        filename=f"cpag-{task_id}.json",
+                        media_type='application/json'
+                    )
     # 回退旧逻辑
     for result_file in [
         os.path.join(task_dir, 'cpag_enhanced.json'),
@@ -388,11 +368,11 @@ async def get_task_result(task_id: str):
         os.path.join(task_dir, 'cpag_units.json')
     ]:
         if os.path.exists(result_file):
-            with open(result_file, 'r', encoding='utf-8') as f:
-                result = json.load(f)
-                result['version'] = VERSION
-                result['task_id'] = task_id
-                return result
+            return FileResponse(
+                path=result_file,
+                filename=f"cpag-{task_id}.json",
+                media_type='application/json'
+            )
     raise HTTPException(status_code=404, detail="Result not found")
 
 @app.get("/cpag/tasks", response_model=List[TaskInfo])
@@ -458,177 +438,6 @@ async def get_queue_status():
         "version": "v2"
     }
 
-async def process_cpag_generation_v2(
-    task_id: str,
-    file_path: Optional[str],
-    csv_path: Optional[str],
-    device_map: Dict[str, str],
-    rules: List[str],
-    output_format: str,
-    neo4j_uri: Optional[str],
-    neo4j_user: Optional[str],
-    neo4j_password: Optional[str],
-    neo4j_db: str,
-    neo4j_label: str,
-    wipe_neo4j: bool,
-    top_k: int,
-    top_per_plc: int,
-    build_minimal: bool,
-    build_enhanced: bool,
-    pre_window: int,
-    post_window: int,
-    per_tag: int,
-    top_k_analog: int,
-    visualize: bool
-):
-    """后台处理CPAG生成 - v2版本"""
-    # 记录开始时间（放在最前面）
-    start_time = datetime.utcnow()
-    
-    try:
-        # 输出目录
-        out_dir = ensure_output_dir(OUTPUT_BASE_DIR, task_id)
-        
-        if file_path:
-            # PCAP文件处理 - v2版本增强处理
-            print(f"[v2] Processing PCAP file: {file_path}")
-            
-            # 创建v2版本的增强CPAG
-            enhanced_cpag = {
-                "version": "2.0",
-                "nodes": [
-                    {
-                        "id": "v2_node_1",
-                        "type": "precondition",
-                        "label": "Enhanced PCAP Analysis",
-                        "description": "v2版本增强的PCAP解析"
-                    },
-                    {
-                        "id": "v2_node_2", 
-                        "type": "action",
-                        "label": "ENIP/CIP Protocol Detection",
-                        "description": "工业控制协议检测"
-                    },
-                    {
-                        "id": "v2_node_3",
-                        "type": "postcondition", 
-                        "label": "Advanced CPAG Generation",
-                        "description": "高级攻击图生成"
-                    }
-                ],
-                "edges": [
-                    {
-                        "from": "v2_node_1",
-                        "to": "v2_node_2",
-                        "type": "enables"
-                    },
-                    {
-                        "from": "v2_node_2", 
-                        "to": "v2_node_3",
-                        "type": "results_in"
-                    }
-                ],
-                "metadata": {
-                    "generated_at": datetime.utcnow().isoformat(),
-                    "source": "cpag-generator-v2",
-                    "features": [
-                        "ENIP/CIP Protocol Support",
-                        "Neo4j Integration",
-                        "Enhanced Visualization",
-                        "Advanced Time Series Analysis"
-                    ],
-                    "parameters": {
-                        "top_k": top_k,
-                        "top_per_plc": top_per_plc,
-                        "build_minimal": build_minimal,
-                        "build_enhanced": build_enhanced,
-                        "neo4j_integration": neo4j_uri is not None
-                    }
-                }
-            }
-            
-            # 保存结果
-            cpag_json = os.path.join(out_dir, "cpag_enhanced.json")
-            with open(cpag_json, "w", encoding="utf-8") as f:
-                json.dump(enhanced_cpag, f, ensure_ascii=False, indent=2)
-            
-            print(f"[v2] Enhanced CPAG saved: {cpag_json}")
-        
-        elif csv_path:
-            # CSV文件处理 - v2版本增强处理
-            print(f"[v2] Processing CSV file: {csv_path}")
-            
-            # 使用cpag_builder处理CSV文件
-            from api.v2.cpag_builder import run as run_csv_builder
-            from pathlib import Path
-            
-            run_csv_builder(
-                csv_path=Path(csv_path),
-                out_dir=Path(out_dir),
-                build_minimal=build_minimal,
-                build_enhanced=build_enhanced,
-                pre_s=pre_window,
-                post_s=post_window,
-                per_tag=per_tag,
-                top_k_analog=top_k_analog,
-                visualize=visualize
-            )
-            
-
-        
-        else:
-            raise Exception("No input file provided")
-        
-        # 写入统一清单
-        from infrastructure.status import write_manifest
-        try:
-            files = [os.path.basename(p) for p in glob.glob(os.path.join(out_dir, "*.json"))]
-            
-            # 获取文件信息
-            input_file = file_path if file_path else csv_path
-            file_size = os.path.getsize(input_file) if input_file and os.path.exists(input_file) else None
-            file_name = os.path.basename(input_file) if input_file else None
-            
-            # 如果有start_time使用它，否则使用当前时间
-            if 'start_time' in locals() and isinstance(start_time, datetime):
-                created_at_str = start_time.isoformat() + "Z"
-            else:
-                created_at_str = datetime.utcnow().isoformat() + "Z"
-            
-            manifest = {
-                "task_id": task_id,
-                "version": VERSION,
-                "status": "completed",
-                "created_at": created_at_str,
-                "files": files,
-                "file_size": file_size,
-                "file_name": file_name
-            }
-            print(f"[v2] Writing manifest for task {task_id} with created_at: {created_at_str}")
-            write_manifest(OUTPUT_BASE_DIR, task_id, manifest)
-        except Exception as e:
-            print(f"[v2] Failed to write manifest: {e}")
-            pass
-        
-        # 清理临时文件
-        cleanup_temp_files([file_path, csv_path])
-        
-        print(f"[v2] Task {task_id} completed successfully")
-        
-    except Exception as e:
-        # 记录错误
-        try:
-            out_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-            error_file = os.path.join(out_dir, 'error.log')
-            with open(error_file, 'w', encoding='utf-8') as f:
-                f.write(str(e))
-        except:
-            pass
-        
-        # 清理临时文件
-        cleanup_temp_files([file_path, csv_path])
-        
-        print(f"[v2] Task {task_id} failed: {e}")
 
 # 包含CPAG路由器
 from fastapi import APIRouter

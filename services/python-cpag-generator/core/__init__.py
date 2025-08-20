@@ -6,7 +6,6 @@ Contains generators, models, configuration, and file processing
 from .generators import CSVCPAGGenerator, PCAPCPAGGenerator
 from .models import CPAGResponse, TaskInfo
 from .config import get_config, ServiceConfig
-from .file_processor import FileProcessor, file_processor
 
 __all__ = [
     'CSVCPAGGenerator',

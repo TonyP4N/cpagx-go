@@ -1,14 +1,23 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
+import { ArrowLeftIcon, HomeIcon } from '@heroicons/react/24/outline';
 import GraphTasksList from '../components/GraphTasksList';
 import GraphVisualization from '../components/GraphVisualization';
+import ErrorBoundary from '../components/ErrorBoundary';
+import { useGraphTaskState, useNavigation } from '../hooks/useRouteState';
 
 const GraphPage: React.FC = () => {
-  const [selectedTaskId, setSelectedTaskId] = useState<string>('');
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [selectedEdge, setSelectedEdge] = useState<any>(null);
+  
+  // 使用自定义Hook管理任务ID状态
+  const [selectedTaskId, setSelectedTaskId] = useGraphTaskState();
+  const { goBack, goHome } = useNavigation();
 
+  // 优化的任务选择函数
   const handleTaskSelect = (taskId: string) => {
+    if (taskId === selectedTaskId) return; // 避免重复选择
+    
     setSelectedTaskId(taskId);
     // Clear previous selections when switching tasks
     setSelectedNode(null);
@@ -32,14 +41,39 @@ const GraphPage: React.FC = () => {
         <meta name="description" content="Interactive CPAG graph visualization" />
       </Head>
 
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
         <div className="container mx-auto px-4 py-8">
-          {/* Header */}
+          {/* Header with Navigation */}
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={goBack}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors"
+                >
+                  <ArrowLeftIcon className="h-4 w-4" />
+                  Back
+                </button>
+                <button
+                  onClick={() => goHome()}
+                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-white/50 rounded-lg transition-colors"
+                >
+                  <HomeIcon className="h-4 w-4" />
+                  Home
+                </button>
+              </div>
+              
+              {selectedTaskId && (
+                <div className="text-sm text-slate-600">
+                  Task: <span className="font-mono text-indigo-600">{selectedTaskId.slice(0, 8)}...</span>
+                </div>
+              )}
+            </div>
+            
+            <h1 className="text-3xl font-bold text-slate-900 mb-2">
               CPAG Graph Visualization
             </h1>
-            <p className="text-gray-600">
+            <p className="text-slate-600">
               Interactive visualization of Cyber-Physical Attack Graphs stored in Neo4j
             </p>
           </div>
@@ -113,11 +147,13 @@ const GraphPage: React.FC = () => {
                       </p>
                     </div>
                     
-                    <GraphVisualization
-                      taskId={selectedTaskId}
-                      onNodeSelect={handleNodeSelect}
-                      onEdgeSelect={handleEdgeSelect}
-                    />
+                    <ErrorBoundary>
+                      <GraphVisualization
+                        taskId={selectedTaskId}
+                        onNodeSelect={handleNodeSelect}
+                        onEdgeSelect={handleEdgeSelect}
+                      />
+                    </ErrorBoundary>
                   </>
                 ) : (
                   <div className="h-96 flex items-center justify-center text-gray-500">

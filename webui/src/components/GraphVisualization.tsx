@@ -12,6 +12,14 @@ interface Node {
   task_id: string;
   node_type: string;
   properties: Record<string, any>;
+  label?: string;
+  type?: string;
+  name?: string;
+  category?: string;
+  count?: number;
+  service?: string;
+  dst?: string;
+  path?: string;
 }
 
 interface Edge {
@@ -20,6 +28,7 @@ interface Edge {
   task_id: string;
   edge_type: string;
   properties: Record<string, any>;
+  relation?: string;
 }
 
 interface GraphData {
@@ -52,6 +61,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       try {
         setLoading(true);
         setError(null);
+        console.log(`GraphVisualization: Fetching data for task ${taskId}`);
         
         const response = await fetch(`/api/graph/data/${taskId}`);
         if (!response.ok) {
@@ -59,8 +69,14 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         }
         
         const data = await response.json();
+        // Ensure edges is always an array
+        if (!data.edges) {
+          data.edges = [];
+        }
+        console.log(`GraphVisualization: Received data with ${data.nodes?.length || 0} nodes and ${data.edges?.length || 0} edges`);
         setGraphData(data);
       } catch (err) {
+        console.error('GraphVisualization: Error fetching data:', err);
         setError(err instanceof Error ? err.message : 'Unknown error');
       } finally {
         setLoading(false);
@@ -70,45 +86,141 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     fetchGraphData();
   }, [taskId]);
 
-  // Transform data for Cytoscape
+  // Transform data for Cytoscape with error handling
   const cytoscapeElements = React.useMemo(() => {
     if (!graphData) return [];
 
-    const nodes = graphData.nodes.map(node => ({
-      data: {
-        id: node.id,
-        label: node.properties?.label || node.id,
-        nodeType: node.node_type,
-        ...node.properties
-      },
-      classes: `node-${node.node_type}`
-    }));
+    try {
+      // Validate and transform nodes with flexible property handling
+      const nodes = (graphData.nodes || [])
+        .filter(node => node && node.id) // Filter out invalid nodes
+        .map(node => {
+          try {
+            // Handle both v1 and v2 node formats
+            const nodeData = {
+              id: String(node.id),
+              label: node.label || node.properties?.label || node.properties?.service || node.name || node.id,
+              nodeType: node.type || node.node_type || 'unknown',
+              taskId: node.task_id || '',
+              category: node.category || node.properties?.category || 'unknown',
+              count: node.count || node.properties?.count || 0,
+              service: node.service || node.properties?.service || '',
+              // Include all properties for backward compatibility
+              ...(node.properties || {}),
+              // Include direct fields for v2 compatibility
+              dst: node.dst || '',
+              path: node.path || ''
+            };
 
-    const edges = graphData.edges.map((edge, index) => ({
-      data: {
-        id: `edge-${index}`,
-        source: edge.source,
-        target: edge.target,
-        label: edge.edge_type,
-        edgeType: edge.edge_type,
-        ...edge.properties
-      },
-      classes: `edge-${edge.edge_type}`
-    }));
+            return {
+              data: nodeData,
+              classes: `node-${nodeData.nodeType}`
+            };
+          } catch (err) {
+            console.warn('Error processing node:', node, err);
+            return null;
+          }
+        })
+        .filter((node): node is NonNullable<typeof node> => node !== null); // Remove null entries
 
-    return [...nodes, ...edges];
+      // Validate and transform edges with flexible property handling
+      const edges = (graphData.edges || [])
+        .filter(edge => edge && edge.source && edge.target) // Filter out invalid edges
+        .map((edge, index) => {
+          try {
+            // Handle both v1 and v2 edge formats
+            const edgeData = {
+              id: `edge-${edge.source}-${edge.target}-${index}`,
+              source: String(edge.source),
+              target: String(edge.target),
+              label: edge.relation || edge.edge_type || 'connects',
+              edgeType: edge.relation || edge.edge_type || 'unknown',
+              taskId: edge.task_id || '',
+              // Include all properties for backward compatibility
+              ...(edge.properties || {})
+            };
+
+            return {
+              data: edgeData,
+              classes: `edge-${edgeData.edgeType}`
+            };
+          } catch (err) {
+            console.warn('Error processing edge:', edge, err);
+            return null;
+          }
+        })
+        .filter((edge): edge is NonNullable<typeof edge> => edge !== null); // Remove null entries
+
+      console.log(`Processed ${nodes.length} nodes and ${edges.length} edges`);
+      return [...nodes, ...edges];
+    } catch (err) {
+      console.error('Error transforming graph data:', err);
+      setError(`Error processing graph data: ${err instanceof Error ? err.message : 'Unknown error'}`);
+      return [];
+    }
   }, [graphData]);
 
-  // Cytoscape layout and style
-  const layout = {
-    name: 'grid',
-    rows: 2,
-    cols: 2,
-    position: function(node: any) {
-      return node;
-    },
-    padding: 50
-  };
+  // Cytoscape layout and style - use better layout for large graphs
+  const layout = React.useMemo(() => {
+    const nodeCount = graphData?.nodes?.length || 0;
+    const edgeCount = graphData?.edges?.length || 0;
+    console.log(`GraphVisualization: Rendering ${nodeCount} nodes and ${edgeCount} edges`);
+    
+    if (nodeCount === 0) {
+      return { name: 'grid', fit: true };
+    }
+    
+    if (nodeCount > 100) {
+      // For very large graphs, use simple circle layout
+      console.log('Using circle layout for very large graph');
+      return {
+        name: 'circle',
+        radius: Math.max(200, nodeCount * 3),
+        padding: 30,
+        fit: true
+      };
+    } else if (nodeCount > 50) {
+      // For large graphs, use optimized force-directed layout
+      console.log('Using optimized cose layout for large graph');
+      return {
+        name: 'cose',
+        idealEdgeLength: 80,
+        nodeOverlap: 10,
+        refresh: 10,
+        fit: true,
+        padding: 20,
+        randomize: false,
+        componentSpacing: 50,
+        nodeRepulsion: 200000,
+        edgeElasticity: 50,
+        nestingFactor: 3,
+        gravity: 40,
+        numIter: 500,  // Reduced iterations for performance
+        initialTemp: 100,
+        coolingFactor: 0.98,
+        minTemp: 2.0
+      };
+    } else if (nodeCount > 20) {
+      // For medium graphs, use circle layout
+      console.log('Using circle layout for medium graph');
+      return {
+        name: 'circle',
+        radius: Math.max(150, nodeCount * 5),
+        padding: 50,
+        fit: true
+      };
+    } else {
+      // For small graphs, use grid layout
+      console.log('Using grid layout for small graph');
+      return {
+        name: 'grid',
+        rows: Math.ceil(Math.sqrt(nodeCount)),
+        cols: Math.ceil(Math.sqrt(nodeCount)),
+        padding: 50,
+        fit: true
+      };
+    }
+  }, [graphData?.nodes?.length, graphData?.edges?.length]);
 
   const stylesheet = [
     {
@@ -122,8 +234,8 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         'text-outline-color': '#FFFFFF',
         'text-outline-width': 2,
         'font-size': '12px',
-        'width': '30px',
-        'height': '30px'
+        'width': '40px',
+        'height': '40px'
       }
     },
     {
@@ -158,24 +270,48 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     },
     // Node type specific styles
     {
+      selector: '.node-action',
+      style: {
+        'background-color': '#3B82F6',
+        'shape': 'ellipse',
+        'width': '50px',
+        'height': '35px'
+      }
+    },
+    {
       selector: '.node-device',
       style: {
         'background-color': '#10B981',
-        'shape': 'rectangle'
+        'shape': 'rectangle',
+        'width': '45px',
+        'height': '45px'
       }
     },
     {
       selector: '.node-vulnerability',
       style: {
         'background-color': '#F59E0B',
-        'shape': 'triangle'
+        'shape': 'triangle',
+        'width': '40px',
+        'height': '40px'
       }
     },
     {
       selector: '.node-attack',
       style: {
         'background-color': '#EF4444',
-        'shape': 'diamond'
+        'shape': 'diamond',
+        'width': '40px',
+        'height': '40px'
+      }
+    },
+    {
+      selector: '.node-unknown',
+      style: {
+        'background-color': '#6B7280',
+        'shape': 'octagon',
+        'width': '35px',
+        'height': '35px'
       }
     },
     // Edge type specific styles
@@ -271,7 +407,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     );
   }
 
-  if (!graphData || (graphData.nodes.length === 0 && graphData.edges.length === 0)) {
+  if (!graphData || (graphData.nodes?.length === 0 && (graphData.edges?.length || 0) === 0)) {
     return (
       <div className="h-96 bg-gray-50 rounded-lg flex items-center justify-center">
         <div className="text-gray-500">No graph data available</div>
@@ -304,23 +440,31 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
           </button>
         </div>
         <div className="text-sm text-gray-600">
-          {graphData.nodes.length} nodes, {graphData.edges.length} edges
+          {graphData?.nodes?.length || 0} nodes, {graphData?.edges?.length || 0} edges
         </div>
       </div>
 
       {/* Graph Container */}
       <div className="relative">
         <div className="h-96 border border-gray-300 rounded-lg overflow-hidden">
-          <CytoscapeComponent
-            elements={cytoscapeElements}
-            layout={layout}
-            stylesheet={stylesheet}
-            style={{ width: '100%', height: '100%' }}
-            cy={handleCyReady}
-            wheelSensitivity={0.2}
-            minZoom={0.1}
-            maxZoom={3}
-          />
+          {cytoscapeElements.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-gray-500">
+              No graph elements to display
+            </div>
+          ) : (
+            <div className="h-full">
+              <CytoscapeComponent
+                elements={cytoscapeElements}
+                layout={layout}
+                stylesheet={stylesheet}
+                style={{ width: '100%', height: '100%' }}
+                cy={handleCyReady}
+                wheelSensitivity={0.2}
+                minZoom={0.1}
+                maxZoom={3}
+              />
+            </div>
+          )}
         </div>
 
         {/* Element Info Panel */}
@@ -349,7 +493,11 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       {/* Legend */}
       <div className="bg-gray-50 p-3 rounded-lg">
         <h4 className="font-semibold text-sm mb-2">Legend</h4>
-        <div className="grid grid-cols-2 gap-2 text-xs">
+        <div className="grid grid-cols-3 gap-2 text-xs">
+          <div className="flex items-center space-x-2">
+            <div className="w-4 h-3 bg-blue-500 rounded-full"></div>
+            <span>Action</span>
+          </div>
           <div className="flex items-center space-x-2">
             <div className="w-3 h-3 bg-green-500 rounded"></div>
             <span>Device</span>
@@ -363,7 +511,11 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
             <span>Attack</span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-3 h-0.5 bg-blue-500"></div>
+            <div className="w-3 h-3 bg-gray-500" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}></div>
+            <span>Unknown</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <div className="w-3 h-0.5 bg-gray-600"></div>
             <span>Connection</span>
           </div>
         </div>

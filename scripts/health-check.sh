@@ -65,11 +65,44 @@ check_go_config() {
     export INFLUXDB_URL=http://localhost:8086
     export INFLUXDB_TOKEN=cpagx-admin-token-2025
     
-    if go run cmd/cpagx/main.go --help >/dev/null 2>&1; then
+    # 确保使用Go模块模式
+    export GO111MODULE=on
+    unset GOPATH
+    
+    # 先检查go版本
+    if ! go version >/dev/null 2>&1; then
+        echo -e "${RED}❌ 失败 (Go未安装)${NC}"
+        return 1
+    fi
+    
+    # 检查go.mod是否存在
+    if [ ! -f "go.mod" ]; then
+        echo -e "${RED}❌ 失败 (go.mod不存在)${NC}"
+        return 1
+    fi
+    
+    # 清理模块缓存并重新下载
+    go clean -modcache >/dev/null 2>&1
+    go mod download >/dev/null 2>&1
+    
+    # 检查是否能编译 - 使用相对路径
+    if ! go build -o cpagx-test ./cmd/cpagx 2>/dev/null; then
+        echo -e "${RED}❌ 失败 (编译错误)${NC}"
+        echo "编译错误详情:"
+        go build ./cmd/cpagx 2>&1 | head -5
+        return 1
+    fi
+    
+    # 检查是否能运行 - 使用相对路径
+    if go run ./cmd/cpagx --help >/dev/null 2>&1; then
         echo -e "${GREEN}✅ 正常${NC}"
+        rm -f cpagx-test cpagx-test.exe
         return 0
     else
-        echo -e "${RED}❌ 失败${NC}"
+        echo -e "${RED}❌ 失败 (运行错误)${NC}"
+        echo "运行错误详情:"
+        go run ./cmd/cpagx --help 2>&1 | head -5
+        rm -f cpagx-test cpagx-test.exe
         return 1
     fi
 }

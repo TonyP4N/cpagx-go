@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import useSWR from 'swr';
 import toast from 'react-hot-toast';
 import { 
@@ -10,7 +10,9 @@ import {
   ArrowPathIcon,
   ServerIcon,
   CalendarIcon,
-  DocumentTextIcon
+  DocumentTextIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon
 } from '@heroicons/react/24/outline';
 
 interface Task {
@@ -31,6 +33,8 @@ export default function TaskList() {
   const [previewTask, setPreviewTask] = useState<Task | null>(null);
   const [previewData, setPreviewData] = useState<any>(null);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   // 获取任务列表
   const { data: tasks, error, mutate } = useSWR<Task[]>(
@@ -43,6 +47,25 @@ export default function TaskList() {
   const { data: queueStatus } = useSWR('/api/tasks/queue/status', fetcher, {
     refreshInterval: 3000 // 减少轮询间隔以提高同步性
   });
+
+  // 分页逻辑
+  const paginatedTasks = useMemo(() => {
+    if (!tasks) return [];
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return tasks.slice(startIndex, endIndex);
+  }, [tasks, currentPage, itemsPerPage]);
+
+  const totalPages = useMemo(() => {
+    if (!tasks) return 0;
+    return Math.ceil(tasks.length / itemsPerPage);
+  }, [tasks, itemsPerPage]);
+
+  // 重置分页当版本过滤器改变时
+  const handleVersionChange = (version: string) => {
+    setSelectedVersion(version);
+    setCurrentPage(1);
+  };
 
   const handlePreview = async (task: Task) => {
     if (!task.result_url) {
@@ -176,7 +199,7 @@ export default function TaskList() {
           <label className="text-sm font-medium text-slate-700">Filter by Version:</label>
           <select
             value={selectedVersion}
-            onChange={(e) => setSelectedVersion(e.target.value)}
+            onChange={(e) => handleVersionChange(e.target.value)}
             className="rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
           >
             <option value="all">All Versions</option>
@@ -194,7 +217,7 @@ export default function TaskList() {
               <p className="text-slate-500">Start a new analysis to see tasks here</p>
             </div>
           ) : (
-            tasks.map((task) => (
+            paginatedTasks.map((task) => (
               <div key={task.task_id} className="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-3">
@@ -261,6 +284,58 @@ export default function TaskList() {
             ))
           )}
         </div>
+
+        {/* Pagination */}
+        {tasks && tasks.length > itemsPerPage && (
+          <div className="flex items-center justify-between mt-6 pt-6 border-t border-slate-200">
+            <div className="text-sm text-slate-600">
+              Showing {Math.min((currentPage - 1) * itemsPerPage + 1, tasks.length)} to {Math.min(currentPage * itemsPerPage, tasks.length)} of {tasks.length} tasks
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                disabled={currentPage === 1}
+                className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === 1
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                }`}
+              >
+                <ChevronLeftIcon className="h-4 w-4" />
+                Previous
+              </button>
+              
+              <div className="flex items-center gap-1">
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(page)}
+                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      page === currentPage
+                        ? 'bg-indigo-600 text-white'
+                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+              </div>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                disabled={currentPage === totalPages}
+                className={`inline-flex items-center gap-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === totalPages
+                    ? 'text-slate-400 cursor-not-allowed'
+                    : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                }`}
+              >
+                Next
+                <ChevronRightIcon className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Preview Modal */}

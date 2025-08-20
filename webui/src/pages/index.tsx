@@ -23,6 +23,7 @@ import {
 
 import VersionSelector from '../components/VersionSelector';
 import TaskList from '../components/TaskList';
+import { useTabState, useNavigation } from '../hooks/useRouteState';
 
 interface TaskStatus {
   id: string;
@@ -39,32 +40,26 @@ interface RuleFormInput { rule: string; }
 const fetcher = (url: string) => fetch(url).then(r => r.json());
 
 export default function HomePage() {
-  const router = useRouter();
   const [taskId, setTaskId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [deviceMap, setDeviceMap] = useState<Record<string, string>>({});
   const [customRules, setCustomRules] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [currentVersion, setCurrentVersion] = useState('v1');
-  const [activeTab, setActiveTab] = useState<'upload' | 'history' | 'active'>('upload');
+  
+  // 使用自定义Hook管理标签状态
+  const [activeTab, setActiveTab] = useTabState();
+  const { goToGraph } = useNavigation();
 
-  // 从URL参数初始化activeTab
-  useEffect(() => {
-    const { tab } = router.query;
-    if (tab && ['upload', 'history', 'active'].includes(tab as string)) {
-      setActiveTab(tab as 'upload' | 'history' | 'active');
-    }
-  }, [router.query]);
-
-  // 当activeTab改变时立即更新URL
-  const handleTabChange = (newTab: 'upload' | 'history' | 'active') => {
+  // 优化的标签切换函数
+  const handleTabChange = useCallback((newTab: 'upload' | 'history' | 'active') => {
     setActiveTab(newTab);
-    if (newTab !== 'upload') {
-      router.replace(`/?tab=${newTab}`, undefined, { shallow: true });
-    } else {
-      router.replace('/', undefined, { shallow: true });
+    
+    // 清除相关状态
+    if (newTab !== 'active') {
+      setTaskId(null);
     }
-  };
+  }, [setActiveTab]);
 
   const { register: registerDevice, handleSubmit: handleDeviceSubmit, reset: resetDevice, formState: { errors: deviceErrors } } = useForm<DeviceFormInput>();
   const { register: registerRule, handleSubmit: handleRuleSubmit, reset: resetRule, formState: { errors: ruleErrors } } = useForm<RuleFormInput>();
@@ -243,13 +238,13 @@ export default function HomePage() {
               currentVersion={currentVersion} 
               onVersionChange={setCurrentVersion} 
             />
-            <a
-              href="/graph"
+            <button
+              onClick={() => goToGraph()}
               className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-200 shadow-md bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900"
             >
               <ChartBarIcon className="h-5 w-5" />
               Graph View
-            </a>
+            </button>
             <button 
               className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-200 shadow-lg ${
                 canStartAnalysis 
