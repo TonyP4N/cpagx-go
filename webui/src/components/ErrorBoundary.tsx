@@ -39,7 +39,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
       const DefaultFallback = () => (
         <div className="h-96 bg-red-50 rounded-lg border border-red-200 flex items-center justify-center">
           <div className="text-center p-6">
-            <div className="text-red-600 text-4xl mb-4">⚠️</div>
+            <div className="text-red-600 text-4xl mb-4">⚠</div>
             <h3 className="text-lg font-semibold text-red-800 mb-2">
               Graph Visualization Error
             </h3>

@@ -1,75 +1,75 @@
-# CPAG Generator 配置说明
+# CPAG Generator Configuration
 
-## 配置策略
+## Configuration Strategy
 
-本项目采用**环境变量优先**的配置策略：
+This project uses an **environment variable first** configuration strategy:
 
-1. **环境变量** - 最高优先级，用于运行时配置
-2. **config.json** - 默认配置，包含不常变化的设置
-3. **代码默认值** - 最低优先级，作为最后的回退
+1. **Environment Variables** - Highest priority, used for runtime configuration
+2. **config.json** - Default configuration containing settings that don't change often
+3. **Code Defaults** - Lowest priority, serves as final fallback
 
-## 配置优先级
+## Configuration Priority
 
 ```
-环境变量 > config.json > 代码默认值
+Environment Variables > config.json > Code Defaults
 ```
 
-## 环境变量配置
+## Environment Variable Configuration
 
-### 服务器配置
-- `SERVER_PORT` - 服务器端口 (默认: 8080)
-- `SERVER_HOST` - 服务器主机 (默认: 0.0.0.0)
+### Server Configuration
+- `SERVER_PORT` - Server port (default: 8080)
+- `SERVER_HOST` - Server host (default: 0.0.0.0)
 
-### Python服务配置
-- `PYTHON_SERVICE_URL` - Python服务URL (默认: http://python-cpag-generator:8000)
+### Python Service Configuration
+- `PYTHON_SERVICE_URL` - Python service URL (default: http://python-cpag-generator:8000)
 
-### Redis配置
-- `REDIS_HOST` - Redis主机 (默认: redis)
-- `REDIS_PORT` - Redis端口 (默认: 6379)
-- `REDIS_DB` - Redis数据库 (默认: 0)
-- `REDIS_PASSWORD` - Redis密码 (默认: password123)
-- `REDIS_USERNAME` - Redis用户名 (默认: "") 默认为default用户，可为空
+### Redis Configuration
+- `REDIS_HOST` - Redis host (default: redis)
+- `REDIS_PORT` - Redis port (default: 6379)
+- `REDIS_DB` - Redis database (default: 0)
+- `REDIS_PASSWORD` - Redis password (default: password123)
+- `REDIS_USERNAME` - Redis username (default: "") Uses default user, can be empty
 
-### Neo4j配置
-- `NEO4J_URI` - Neo4j连接URI (默认: bolt://neo4j:7687)
-- `NEO4J_USER` - Neo4j用户名 (默认: neo4j)
-- `NEO4J_PASSWORD` - Neo4j密码 (默认: password123)
-- `NEO4J_DATABASE` - Neo4j数据库 (默认: neo4j)
-- `NEO4J_ENABLED` - 是否启用Neo4j (默认: true)
+### Neo4j Configuration
+- `NEO4J_URI` - Neo4j connection URI (default: bolt://neo4j:7687)
+- `NEO4J_USER` - Neo4j username (default: neo4j)
+- `NEO4J_PASSWORD` - Neo4j password (default: password123)
+- `NEO4J_DATABASE` - Neo4j database (default: neo4j)
+- `NEO4J_ENABLED` - Enable Neo4j (default: true)
 
-### 其他配置
-- `DATABASE_TYPE` - 数据库类型 (默认: redis)
+### Other Configuration
+- `DATABASE_TYPE` - Database type (default: redis)
 
-## config.json 配置
+## config.json Configuration
 
-`config.json` 只包含不常变化的配置项：
+`config.json` contains only configuration items that don't change frequently:
 
-- 超时设置
-- 重试次数
-- 缓存TTL
-- 其他静态配置
+- Timeout settings
+- Retry counts
+- Cache TTL
+- Other static configurations
 
-## 使用方法
+## Usage
 
-### 1. 开发环境
-复制 `env.example` 到 `.env` 并修改需要的值：
+### 1. Development Environment
+Copy `env.example` to `.env` and modify required values:
 
 ```bash
 cp deployments/env.example deployments/.env
-# 编辑 .env 文件
+# Edit .env file
 ```
 
-### 2. 生产环境
-设置环境变量：
+### 2. Production Environment
+Set environment variables:
 
 ```bash
 export NEO4J_PASSWORD=your-secure-password
 export REDIS_PASSWORD=your-redis-password
-# ... 其他环境变量
+# ... other environment variables
 ```
 
-### 3. Docker环境
-在 `docker-compose.yml` 中使用环境变量：
+### 3. Docker Environment
+Use environment variables in `docker-compose.yml`:
 
 ```yaml
 environment:
@@ -77,13 +77,13 @@ environment:
   - REDIS_PASSWORD=${REDIS_PASSWORD}
 ```
 
-## 配置验证
+## Configuration Validation
 
-启动应用时会显示加载的配置信息，可以通过日志查看实际使用的配置值。
+When starting the application, loaded configuration information will be displayed. You can check the actual configuration values used through logs.
 
-## 注意事项
+## Important Notes
 
-1. **敏感信息**：密码、密钥等敏感信息应通过环境变量设置
-2. **环境隔离**：不同环境使用不同的环境变量值
-3. **配置一致性**：确保所有服务的配置保持一致
-4. **默认值**：修改默认值时要考虑向后兼容性 
+1. **Sensitive Information**: Passwords, keys, and other sensitive information should be set through environment variables
+2. **Environment Isolation**: Use different environment variable values for different environments
+3. **Configuration Consistency**: Ensure all services maintain consistent configuration
+4. **Default Values**: Consider backward compatibility when modifying default values 

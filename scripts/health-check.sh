@@ -1,60 +1,60 @@
 #!/bin/bash
 
-# 服务健康检查脚本
-# 用于检查所有内部服务的连接和存活状态
+# Service health check script
+# Used to check connectivity and liveness of all internal services
 
 set -e
 
-echo "🔍 开始服务健康检查..."
+echo "Starting service health checks..."
 
-# 颜色定义
+# Color definitions
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-# 检查函数
+# Check function
 check_service() {
     local service_name=$1
     local check_command=$2
     local timeout=${3:-10}
     
-    echo -n "检查 $service_name... "
+    echo -n "Checking $service_name... "
     
     if timeout $timeout bash -c "$check_command" >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ 正常${NC}"
+        echo -e "${GREEN}[OK] Running${NC}"
         return 0
     else
-        echo -e "${RED}❌ 失败${NC}"
+        echo -e "${RED}[FAIL] Failed${NC}"
         return 1
     fi
 }
 
-# 检查Redis
+# Check Redis
 check_redis() {
     check_service "Redis" "docker run --rm --network host redis:7-alpine redis-cli -h localhost -p 6379 -a password123 ping"
 }
 
-# 检查Neo4j
+# Check Neo4j
 check_neo4j() {
     check_service "Neo4j" "docker run --rm --network host neo4j:5-community cypher-shell -u neo4j -p password123 -a localhost:7689 'RETURN 1'"
 }
 
-# 检查RabbitMQ
+# Check RabbitMQ
 check_rabbitmq() {
     check_service "RabbitMQ" "curl -s -u guest:guest http://localhost:15672/api/overview >/dev/null"
 }
 
-# 检查InfluxDB
+# Check InfluxDB
 check_influxdb() {
     check_service "InfluxDB" "docker run --rm --network host influxdb:2.7-alpine influx ping --host http://localhost:8086"
 }
 
-# 检查Go应用配置
+# Check Go application configuration
 check_go_config() {
-    echo -n "检查Go应用配置... "
+    echo -n "Checking Go application configuration... "
     
-    # 设置环境变量
+    # Set environment variables
     export REDIS_HOST=localhost
     export REDIS_PORT=6379
     export REDIS_PASSWORD=password123
@@ -65,56 +65,56 @@ check_go_config() {
     export INFLUXDB_URL=http://localhost:8086
     export INFLUXDB_TOKEN=cpagx-admin-token-2025
     
-    # 确保使用Go模块模式
+    # Ensure Go module mode is used
     export GO111MODULE=on
     unset GOPATH
     
-    # 先检查go版本
+    # Check Go version first
     if ! go version >/dev/null 2>&1; then
-        echo -e "${RED}❌ 失败 (Go未安装)${NC}"
+        echo -e "${RED}[FAIL] Failed (Go not installed)${NC}"
         return 1
     fi
     
-    # 检查go.mod是否存在
+    # Check if go.mod exists
     if [ ! -f "go.mod" ]; then
-        echo -e "${RED}❌ 失败 (go.mod不存在)${NC}"
+        echo -e "${RED}[FAIL] Failed (go.mod not found)${NC}"
         return 1
     fi
     
-    # 清理模块缓存并重新下载
+    # Clean module cache and re-download
     go clean -modcache >/dev/null 2>&1
     go mod download >/dev/null 2>&1
     
-    # 检查是否能编译 - 使用相对路径
+    # Check if it can compile - use relative path
     if ! go build -o cpagx-test ./cmd/cpagx 2>/dev/null; then
-        echo -e "${RED}❌ 失败 (编译错误)${NC}"
-        echo "编译错误详情:"
+        echo -e "${RED}[FAIL] Failed (compilation error)${NC}"
+        echo "Compilation error details:"
         go build ./cmd/cpagx 2>&1 | head -5
         return 1
     fi
     
-    # 检查是否能运行 - 使用相对路径
+    # Check if it can run - use relative path
     if go run ./cmd/cpagx --help >/dev/null 2>&1; then
-        echo -e "${GREEN}✅ 正常${NC}"
+        echo -e "${GREEN}[OK] Running${NC}"
         rm -f cpagx-test cpagx-test.exe
         return 0
     else
-        echo -e "${RED}❌ 失败 (运行错误)${NC}"
-        echo "运行错误详情:"
+        echo -e "${RED}[FAIL] Failed (runtime error)${NC}"
+        echo "Runtime error details:"
         go run ./cmd/cpagx --help 2>&1 | head -5
         rm -f cpagx-test cpagx-test.exe
         return 1
     fi
 }
 
-# 主检查流程
+# Main check process
 main() {
     local failed_checks=0
     
-    echo "等待服务启动..."
+    echo "Waiting for services to start..."
     sleep 5
     
-    # 检查各个服务
+    # Check each service
     check_redis || ((failed_checks++))
     check_neo4j || ((failed_checks++))
     check_rabbitmq || ((failed_checks++))
@@ -123,15 +123,15 @@ main() {
     
     echo ""
     if [ $failed_checks -eq 0 ]; then
-        echo -e "${GREEN}🎉 所有服务检查通过！${NC}"
+        echo -e "${GREEN}All service checks passed!${NC}"
         exit 0
     else
-        echo -e "${RED}❌ $failed_checks 个服务检查失败${NC}"
+        echo -e "${RED}$failed_checks service checks failed${NC}"
         exit 1
     fi
 }
 
-# 如果直接运行此脚本
+# If running this script directly
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     main "$@"
 fi

@@ -113,25 +113,25 @@ jobs:
         run: |
           echo "Testing Redis connection..."
           redis-cli -h localhost -p 6379 ping
-          echo "✅ Redis is healthy"
+          echo "Redis is healthy"
 
       - name: Test Neo4j connection
         run: |
           echo "Testing Neo4j connection..."
           cypher-shell -u neo4j -p password123 -a localhost:7687 "RETURN 'Neo4j is healthy' as status"
-          echo "✅ Neo4j is healthy"
+          echo "Neo4j is healthy"
 
       - name: Test RabbitMQ connection
         run: |
           echo "Testing RabbitMQ connection..."
           curl -s -u guest:guest http://localhost:15672/api/overview >/dev/null
-          echo "✅ RabbitMQ is healthy"
+          echo "RabbitMQ is healthy"
 
       - name: Test InfluxDB connection
         run: |
           echo "Testing InfluxDB connection..."
           influx ping --host http://localhost:8086
-          echo "✅ InfluxDB is healthy"
+          echo "InfluxDB is healthy"
 
       - name: Test service connectivity
         run: |
@@ -153,7 +153,7 @@ jobs:
           echo "Testing InfluxDB connectivity..."
           timeout 10s bash -c 'until influx ping --host http://localhost:8086; do sleep 1; done' || exit 1
           
-          echo "✅ All services are connected and healthy"
+          echo "All services are connected and healthy"
 
       - name: Test Go application with services
         run: |
@@ -174,4 +174,4 @@ jobs:
           echo "Running service connection tests..."
           go run cmd/cpagx/main.go --help || true
           
-          echo "✅ Go application can start with service configuration" 
+          echo "Go application can start with service configuration" 
