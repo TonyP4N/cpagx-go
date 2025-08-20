@@ -1,9 +1,7 @@
 services:
-  # Go API服务
+  # Go API Service
   go-app:
-    build:
-      context: ..
-      dockerfile: deployments/Dockerfile
+    image: tonyp4n/cpagx-go:v1.0.0
     ports:
       - "8080:8080"
     environment:
@@ -36,11 +34,9 @@ services:
     restart: unless-stopped
 
 
-  # Python CPAG生成服务
+  # Python CPAG Generation Service
   python-cpag-generator:
-    build:
-      context: ../services/python-cpag-generator
-      dockerfile: Dockerfile
+    image: tonyp4n/cpagx-python:v1.0.0
     ports:
       - "8000:8000"
       - "8002:8002"
@@ -71,9 +67,7 @@ services:
 
   # Celery Worker
   celery-worker:
-    build:
-      context: ../services/python-cpag-generator
-      dockerfile: Dockerfile
+    image: tonyp4n/cpagx-python:v1.0.0
     container_name: deployments-celery-worker-1
     environment:
       - RABBITMQ_URL=${RABBITMQ_URL}
@@ -111,9 +105,7 @@ services:
 
   # Celery Beat Scheduler
   celery-beat:
-    build:
-      context: ../services/python-cpag-generator
-      dockerfile: Dockerfile
+    image: tonyp4n/cpagx-python:v1.0.0
     command: celery -A infrastructure.celery_app beat --loglevel=info
     environment:
       - PYTHONPATH=/app
@@ -144,11 +136,9 @@ services:
       retries: 3
       start_period: 40s
 
-  # Web UI静态站点（Nginx）
+  # Web UI Static Site (Nginx)
   webui:
-    build:
-      context: ../webui
-      dockerfile: Dockerfile
+    image: tonyp4n/cpagx-webui:v1.0.0
     ports:
       - "3000:80"
     environment:
@@ -159,12 +149,12 @@ services:
       - cpagx-network
     restart: unless-stopped
 
-  # RabbitMQ消息队列
+  # RabbitMQ Message Queue
   rabbitmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"   # AMQP协议端口
-      - "15672:15672" # 管理界面端口
+      - "5672:5672"   # AMQP protocol port
+      - "15672:15672" # Management interface port
     environment:
       - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
       - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
@@ -179,7 +169,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Redis缓存服务
+  # Redis Cache Service
   redis:
     image: redis:7-alpine
     ports:
@@ -196,12 +186,12 @@ services:
       timeout: 10s
       retries: 3
 
-  # Neo4j图数据库
+  # Neo4j Graph Database
   neo4j:
     image: neo4j:5.15
     ports:
-      - "7476:7474"   # HTTP端口
-      - "7689:7687"   # Bolt端口
+      - "7476:7474"   # HTTP port
+      - "7689:7687"   # Bolt port
     environment:
       - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
       - NEO4J_PLUGINS=["apoc"]
@@ -223,7 +213,7 @@ services:
       retries: 10
       start_period: 60s
 
-  # InfluxDB时序数据库
+  # InfluxDB Time Series Database
   influxdb:
     image: influxdb:2.7
     ports:
@@ -246,7 +236,7 @@ services:
       timeout: 10s
       retries: 3
 
-  # Flower监控界面
+  # Flower Monitoring Interface
   flower:
     image: mher/flower:latest
     ports:
@@ -262,7 +252,7 @@ services:
       - cpagx-network
     restart: unless-stopped
 
-  # Prometheus监控
+  # Prometheus Monitoring
   prometheus:
     image: prom/prometheus:v2.45.0
     ports:
@@ -281,7 +271,7 @@ services:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
     restart: unless-stopped
 
-  # Grafana监控面板
+  # Grafana Monitoring Dashboard
   grafana:
     image: grafana/grafana:10.2.0
     ports:
