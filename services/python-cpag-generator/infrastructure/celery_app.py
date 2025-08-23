@@ -48,8 +48,6 @@ celery_app.conf.update(
     task_routes={
         'api.v1.tasks.generate_cpag': {'queue': 'cpag_generation'},
         'api.v2.tasks.generate_cpag': {'queue': 'cpag_generation'},
-        'api.v2.tasks.analyze_network': {'queue': 'network_analysis'},
-        'api.v2.tasks.build_graph': {'queue': 'graph_building'},
         'api.v2.tasks.collect_metrics': {'queue': 'celery'},
         'api.v2.tasks.health_check': {'queue': 'celery'},
         'api.v2.tasks.cleanup_old_tasks': {'queue': 'celery'},

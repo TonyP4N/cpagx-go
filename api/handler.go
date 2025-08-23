@@ -301,14 +301,6 @@ func (h *Handler) GetCPAGResult(c *gin.Context) {
 	c.JSON(http.StatusOK, result)
 }
 
-// AnalyzeCPAG 对已生成的CPAG进行二次分析
-func (h *Handler) AnalyzeCPAG(c *gin.Context) {
-	// TODO: 调用internal/analyzer进行图分析
-	c.JSON(http.StatusOK, gin.H{
-		"analysis": "CPAG analysis results",
-	})
-}
-
 // generateTaskID 生成唯一的任务ID
 func generateTaskID() string {
 	bytes := make([]byte, 16)

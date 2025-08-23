@@ -1,7 +1,7 @@
 services:
   # Go API Service
   go-app:
-    image: tonyp4n/cpagx-go:v1.0.0
+    image: tonyp4n/cpagx-go:latest
     ports:
       - "8080:8080"
     environment:
@@ -36,7 +36,7 @@ services:
 
   # Python CPAG Generation Service
   python-cpag-generator:
-    image: tonyp4n/cpagx-python:v1.0.0
+    image: tonyp4n/cpagx-python:latest
     ports:
       - "8000:8000"
       - "8002:8002"
@@ -67,7 +67,7 @@ services:
 
   # Celery Worker
   celery-worker:
-    image: tonyp4n/cpagx-python:v1.0.0
+    image: tonyp4n/cpagx-python:latest
     container_name: deployments-celery-worker-1
     environment:
       - RABBITMQ_URL=${RABBITMQ_URL}
@@ -105,7 +105,7 @@ services:
 
   # Celery Beat Scheduler
   celery-beat:
-    image: tonyp4n/cpagx-python:v1.0.0
+    image: tonyp4n/cpagx-python:latest
     command: celery -A infrastructure.celery_app beat --loglevel=info
     environment:
       - PYTHONPATH=/app
@@ -138,7 +138,7 @@ services:
 
   # Web UI Static Site (Nginx)
   webui:
-    image: tonyp4n/cpagx-webui:v1.0.0
+    image: tonyp4n/cpagx-webui:latest
     ports:
       - "3000:80"
     environment:

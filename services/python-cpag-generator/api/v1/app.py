@@ -1,14 +1,12 @@
-from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Form, Query
+from fastapi import FastAPI, HTTPException, BackgroundTasks, UploadFile, File, Form, Query, APIRouter
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from typing import Dict, List, Optional
 import uuid
-import asyncio
 from datetime import datetime
 import os
-import tempfile
 import json
-import glob
+import redis
 
 # Import from core and infrastructure modules
 from core.generators import PCAPCPAGGenerator, CSVCPAGGenerator
@@ -22,10 +20,9 @@ from infrastructure.files import (
     assign_compatible_file_param,
 )
 
-app = FastAPI(title="CPAG Generator", version="1.0.0")
+app = FastAPI(title="CPAG Generator v1", version="1.0.0")
 
 # 创建子应用来处理 /cpag 前缀
-from fastapi import APIRouter
 cpag_router = APIRouter(prefix="/cpag")
 
 # CORS中间件
@@ -48,15 +45,127 @@ VERSION = "v1"
 
 # 并发控制
 MAX_CONCURRENT_TASKS = config.max_concurrent_tasks_v1
-import redis
 try:
     redis_client = redis.from_url(config.redis_url)
-except Exception:
+except Exception as e:
+    print(f"Warning: Redis connection failed: {e}")
     redis_client = None
+
+# 工具函数
+def check_and_add_to_active_tasks(task_id: str) -> None:
+    """检查并发限制并添加到活跃任务集合"""
+    if not redis_client:
+        return
+    
+    try:
+        current_active = len(redis_client.smembers("v1_active_tasks"))
+        if current_active >= MAX_CONCURRENT_TASKS:
+            raise HTTPException(
+                status_code=429,
+                detail=f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}. Current active: {current_active}"
+            )
+        
+        redis_client.sadd("v1_active_tasks", task_id)
+        redis_client.expire("v1_active_tasks", 3600)
+    except HTTPException:
+        raise
+    except Exception as e:
+        print(f"Redis operation failed: {e}")
+
+def remove_from_active_tasks(task_id: str) -> None:
+    """从活跃任务集合中移除"""
+    if redis_client:
+        try:
+            redis_client.srem("v1_active_tasks", task_id)
+        except Exception as e:
+            print(f"Failed to remove task from active set: {e}")
+
+def check_celery_task_status(task_id: str) -> Optional[str]:
+    """检查Celery任务状态"""
+    try:
+        from infrastructure.celery_app import celery_app as _celery
+        
+        # 检查活跃任务
+        active_tasks = _celery.control.inspect().active()
+        if active_tasks:
+            for worker, tasks in active_tasks.items():
+                for task in tasks:
+                    if (task.get('id') == task_id or 
+                        (task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id)):
+                        return "processing"
+        
+        # 检查保留任务
+        reserved_tasks = _celery.control.inspect().reserved()
+        if reserved_tasks:
+            for worker, tasks in reserved_tasks.items():
+                for task in tasks:
+                    if (task.get('id') == task_id or 
+                        (task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id)):
+                        return "processing"
+        
+        return None
+    except Exception as e:
+        print(f"Error checking Celery task status: {e}")
+        return None
+
+def get_task_status_info(task_id: str) -> dict:
+    """获取任务状态信息"""
+    # 1. 先检查manifest
+    manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
+    if manifest:
+        status = manifest.get("status", "processing")
+        return {
+            "task_id": task_id,
+            "status": status,
+            "result_url": f"/cpag/result/{task_id}" if status == "completed" else None,
+            "version": VERSION
+        }
+    
+    # 2. 检查Celery任务状态
+    celery_status = check_celery_task_status(task_id)
+    if celery_status:
+        return {
+            "task_id": task_id,
+            "status": celery_status,
+            "result_url": None,
+            "version": VERSION
+        }
+    
+    # 3. 检查结果文件
+    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
+    if os.path.exists(task_dir):
+        cpag_file = os.path.join(task_dir, 'cpag.json')
+        if os.path.exists(cpag_file):
+            return {
+                "task_id": task_id,
+                "status": "completed",
+                "result_url": f"/cpag/result/{task_id}",
+                "version": VERSION
+            }
+        else:
+            return {
+                "task_id": task_id,
+                "status": "failed",
+                "version": VERSION
+            }
+    
+    # 4. 任务不存在
+    return {
+        "task_id": task_id,
+        "status": "not_found",
+        "version": VERSION
+    }
 
 @app.get("/health")
 async def health_check():
-    return {"status": "healthy", "service": "cpag-generator-v1", "version": VERSION, "port": int(os.getenv("PORT", 8000))}
+    """v1服务健康检查"""
+    return {
+        "status": "healthy", 
+        "service": "cpag-generator-v1", 
+        "version": VERSION, 
+        "port": int(os.getenv("PORT", 8000)),
+        "redis_connected": redis_client is not None
+    }
 
 @cpag_router.post("/generate", response_model=CPAGResponse)
 async def generate_cpag(
@@ -71,27 +180,8 @@ async def generate_cpag(
     """生成CPAG的异步接口"""
     task_id = str(uuid.uuid4())
     
-    # 检查并发限制
-    current_active = 0
-    if redis_client:
-        try:
-            current_active = len(redis_client.smembers("v1_active_tasks"))
-        except Exception:
-            pass
-    
-    if current_active >= MAX_CONCURRENT_TASKS:
-        raise HTTPException(
-            status_code=429, 
-            detail=f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}. Current active: {current_active}"
-        )
-    
-    # 添加到活跃任务集合
-    if redis_client:
-        try:
-            redis_client.sadd("v1_active_tasks", task_id)
-            redis_client.expire("v1_active_tasks", 3600)  # 1小时过期
-        except Exception:
-            pass
+    # 检查并发限制并添加到活跃任务
+    check_and_add_to_active_tasks(task_id)
     
     # 解析参数
     try:
@@ -170,27 +260,8 @@ async def generate_cpag(
     except Exception:
         enqueued = False
     if not enqueued and background_tasks:
-        # 检查并发限制
-        current_active = 0
-        if redis_client:
-            try:
-                current_active = len(redis_client.smembers("v1_active_tasks"))
-            except Exception:
-                pass
-        
-        if current_active >= MAX_CONCURRENT_TASKS:
-            raise HTTPException(
-                status_code=429, 
-                detail=f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}. Current active: {current_active}"
-            )
-        
-        # 添加到活跃任务集合
-        if redis_client:
-            try:
-                redis_client.sadd("v1_active_tasks", task_id)
-                redis_client.expire("v1_active_tasks", 3600)  # 1小时过期
-            except Exception:
-                pass
+        # 检查并发限制并添加到活跃任务
+        check_and_add_to_active_tasks(task_id)
         
         background_tasks.add_task(
             process_cpag_generation,
@@ -213,157 +284,25 @@ async def generate_cpag(
 @cpag_router.get("/status/batch")
 async def get_batch_task_status(task_ids: str = Query(..., description="Comma-separated list of task IDs")):
     """批量获取任务状态"""
-    # 解析任务ID列表
-    task_id_list = task_ids.split(',') if task_ids else []
+    task_id_list = [tid.strip() for tid in task_ids.split(',') if tid.strip()]
     if not task_id_list:
         return {}
     
     results = {}
-    
-    # 批量获取任务状态
     for task_id in task_id_list:
-        task_id = task_id.strip()
-        if not task_id:
-            continue
-            
-        manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
-        if manifest is not None:
-            status = manifest.get("status", "processing")
-            results[task_id] = {
-                "task_id": task_id,
-                "status": status,
-                "result_url": f"/cpag/result/{task_id}" if status == "completed" else None,
-                "version": VERSION
-            }
-        else:
-            # 如果manifest不存在，检查Celery任务状态
-            try:
-                from infrastructure.celery_app import celery_app as _celery
-                # 检查任务是否在运行
-                active_tasks = _celery.control.inspect().active()
-                if active_tasks:
-                    for worker, tasks in active_tasks.items():
-                        for task in tasks:
-                            if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                                results[task_id] = {
-                                    "task_id": task_id,
-                                    "status": "processing",
-                                    "result_url": None,
-                                    "version": VERSION
-                                }
-                                break
-                        if task_id in results:
-                            break
-                
-                # 如果还没找到，检查保留的任务
-                if task_id not in results:
-                    reserved_tasks = _celery.control.inspect().reserved()
-                    if reserved_tasks:
-                        for worker, tasks in reserved_tasks.items():
-                            for task in tasks:
-                                if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                                    results[task_id] = {
-                                        "task_id": task_id,
-                                        "status": "processing",
-                                        "result_url": None,
-                                        "version": VERSION
-                                    }
-                                    break
-                            if task_id in results:
-                                break
-                
-                # 如果还是没找到，检查是否有结果文件存在
-                if task_id not in results:
-                    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-                    if os.path.exists(task_dir):
-                        cpag_file = os.path.join(task_dir, 'cpag.json')
-                        if os.path.exists(cpag_file):
-                            results[task_id] = {
-                                "task_id": task_id,
-                                "status": "completed",
-                                "result_url": f"/cpag/result/{task_id}",
-                                "version": VERSION
-                            }
-                        else:
-                            results[task_id] = {
-                                "task_id": task_id,
-                                "status": "not_found",
-                                "version": VERSION
-                            }
-                    else:
-                        results[task_id] = {
-                            "task_id": task_id,
-                            "status": "not_found",
-                            "version": VERSION
-                        }
-            except Exception as e:
-                print(f"Error checking Celery task status for {task_id}: {e}")
-                results[task_id] = {
-                    "task_id": task_id,
-                    "status": "not_found",
-                    "version": VERSION
-                }
+        results[task_id] = get_task_status_info(task_id)
     
     return results
 
 @cpag_router.get("/status/{task_id}")
 async def get_task_status(task_id: str):
     """获取任务状态"""
-    manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
-    if manifest is not None:
-        status = manifest.get("status", "processing")
-        return {
-            "task_id": task_id,
-            "status": status,
-            "result_url": f"/cpag/result/{task_id}" if status == "completed" else None,
-            "version": VERSION
-        }
+    status_info = get_task_status_info(task_id)
     
-    # 如果manifest不存在，检查Celery任务状态
-    try:
-        from infrastructure.celery_app import celery_app as _celery
-        # 检查任务是否在运行
-        active_tasks = _celery.control.inspect().active()
-        if active_tasks:
-            for worker, tasks in active_tasks.items():
-                for task in tasks:
-                    if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                        return {
-                            "task_id": task_id,
-                            "status": "processing",
-                            "result_url": None,
-                            "version": VERSION
-                        }
-        
-        # 检查任务是否已完成但manifest未写入
-        reserved_tasks = _celery.control.inspect().reserved()
-        if reserved_tasks:
-            for worker, tasks in reserved_tasks.items():
-                for task in tasks:
-                    if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                        return {
-                            "task_id": task_id,
-                            "status": "processing",
-                            "result_url": None,
-                            "version": VERSION
-                        }
-        
-        # 检查是否有结果文件存在（即使没有manifest）
-        task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-        if os.path.exists(task_dir):
-            cpag_file = os.path.join(task_dir, 'cpag.json')
-            if os.path.exists(cpag_file):
-                return {
-                    "task_id": task_id,
-                    "status": "completed",
-                    "result_url": f"/cpag/result/{task_id}",
-                    "version": VERSION
-                }
-    except Exception as e:
-        print(f"Error checking Celery task status: {e}")
+    if status_info["status"] == "not_found":
+        raise HTTPException(status_code=404, detail="Task not found")
     
-    # 如果都找不到，返回404
-    raise HTTPException(status_code=404, detail="Task not found")
+    return status_info
 
 @cpag_router.get("/result/{task_id}")
 async def get_task_result(task_id: str):
@@ -397,44 +336,15 @@ async def get_task_list():
         status = m.get("status", "processing")
         task_id = m.get("task_id", "")
         
-        # 如果状态是processing，检查是否真的还在运行
+        # 如果状态是processing，重新检查实际状态
         if status == "processing":
-            try:
-                from infrastructure.celery_app import celery_app as _celery
-                # 检查任务是否还在运行
-                active_tasks = _celery.control.inspect().active()
-                reserved_tasks = _celery.control.inspect().reserved()
-                
-                is_still_running = False
-                if active_tasks:
-                    for worker, tasks in active_tasks.items():
-                        for task in tasks:
-                            if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                                is_still_running = True
-                                break
-                        if is_still_running:
-                            break
-                
-                if not is_still_running and reserved_tasks:
-                    for worker, tasks in reserved_tasks.items():
-                        for task in tasks:
-                            if task.get('id') == task_id or task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id:
-                                is_still_running = True
-                                break
-                        if is_still_running:
-                            break
-                
-                # 如果不在运行，检查是否有结果文件
-                if not is_still_running:
-                    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-                    if os.path.exists(task_dir):
-                        cpag_file = os.path.join(task_dir, 'cpag.json')
-                        if os.path.exists(cpag_file):
-                            status = "completed"
-                        else:
-                            status = "failed"
-            except Exception as e:
-                print(f"Error checking task status for {task_id}: {e}")
+            celery_status = check_celery_task_status(task_id)
+            if not celery_status:
+                # 不在Celery中运行，检查结果文件
+                task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
+                if os.path.exists(task_dir):
+                    cpag_file = os.path.join(task_dir, 'cpag.json')
+                    status = "completed" if os.path.exists(cpag_file) else "failed"
         
         tasks.append(TaskInfo(
             task_id=task_id,
@@ -443,8 +353,8 @@ async def get_task_list():
             version=VERSION,
             files=m.get("files", []),
             result_url=f"/cpag/result/{task_id}" if status == "completed" else None,
-            file_size=m.get("file_size"),  # 文件大小
-            file_name=m.get("file_name")   # 原始文件名
+            file_size=m.get("file_size"),
+            file_name=m.get("file_name")
         ))
     
     # 按创建时间倒序排列
@@ -473,8 +383,8 @@ async def get_queue_status():
     if redis_client:
         try:
             current_active = len(redis_client.smembers("v1_active_tasks"))
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Failed to get queue status: {e}")
     
     return {
         "active_tasks": current_active,
@@ -569,11 +479,7 @@ async def process_cpag_generation(
         cleanup_temp_files([file_path, csv_path, assets_path])
     finally:
         # 从活跃任务集合中移除
-        if redis_client:
-            try:
-                redis_client.srem("v1_active_tasks", task_id)
-            except Exception:
-                pass
+        remove_from_active_tasks(task_id)
 
 # 包含CPAG路由器
 app.include_router(cpag_router)

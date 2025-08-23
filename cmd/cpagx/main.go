@@ -16,33 +16,6 @@ func main() {
 		Usage: "Cyber-Physical Attack Graph Analysis Tool",
 		Commands: []*cli.Command{
 			{
-				Name:  "analyze",
-				Usage: "Analyze PCAP files and generate attack graphs",
-				Flags: []cli.Flag{
-					&cli.StringFlag{
-						Name:    "config",
-						Aliases: []string{"c"},
-						Value:   "configs/config.json",
-						Usage:   "Path to configuration file",
-					},
-				},
-				Action: func(c *cli.Context) error {
-					// 加载配置文件
-					configPath := c.String("config")
-					cfg, err := config.LoadConfig(configPath)
-					if err != nil {
-						return fmt.Errorf("failed to load config from %s: %w", configPath, err)
-					}
-
-					// 显示配置信息
-					fmt.Printf("Loaded configuration: %s\n", cfg.String())
-
-					// TODO: 实现分析逻辑
-
-					return nil
-				},
-			},
-			{
 				Name:  "server",
 				Usage: "Start the API server",
 				Flags: []cli.Flag{

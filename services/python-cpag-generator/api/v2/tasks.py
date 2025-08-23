@@ -10,12 +10,9 @@ import json
 import tempfile
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Any
-import pandas as pd
-import networkx as nx
 from celery import current_task
 from infrastructure.celery_app import celery_app
 import redis
-from neo4j import GraphDatabase
 # Optional InfluxDB dependency placeholders to avoid import errors at module import time
 try:
     from influxdb_client import InfluxDBClient, Point
@@ -37,16 +34,23 @@ MAX_CONCURRENT_TASKS = config.max_concurrent_tasks_v2
 OUTPUT_BASE_DIR = os.path.abspath(os.getenv("OUTPUT_DIR", "outputs/v2"))
 os.makedirs(OUTPUT_BASE_DIR, exist_ok=True)
 
-# 数据库连接
+# Redis连接
 try:
     redis_client = redis.from_url(os.getenv('REDIS_URL', 'redis://localhost:6379/0'))
 except Exception:
     redis_client = None
 
-neo4j_driver = GraphDatabase.driver(
-    os.getenv('NEO4J_URI', 'bolt://localhost:7687'),
-    auth=(os.getenv('NEO4J_USER', 'neo4j'), os.getenv('NEO4J_PASSWORD', 'password'))
-)
+# Neo4j连接由UnifiedCPAGProcessor管理
+# 保留neo4j_driver仅用于健康检查
+try:
+    from neo4j import GraphDatabase
+    neo4j_driver = GraphDatabase.driver(
+        os.getenv('NEO4J_URI', 'bolt://localhost:7687'),
+        auth=(os.getenv('NEO4J_USER', 'neo4j'), os.getenv('NEO4J_PASSWORD', 'password'))
+    )
+except ImportError:
+    neo4j_driver = None
+    print("Warning: Neo4j driver not available for health checks")
 
 # InfluxDB客户端初始化
 influx_client = None
@@ -101,26 +105,20 @@ def generate_cpag(
     """生成CPAG的Celery任务 - 带并发控制"""
     try:
         # 检查并发限制
-        current_active = 0
         if redis_client:
             try:
                 current_active = len(redis_client.smembers("v2_active_tasks"))
-            except Exception:
-                pass
-        
-        if current_active >= MAX_CONCURRENT_TASKS:
-            raise Exception(f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}")
-        
-        # 添加到活跃任务集合
-        if redis_client:
-            try:
+                if current_active >= MAX_CONCURRENT_TASKS:
+                    raise Exception(f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}")
+                
+                # 添加到活跃任务集合
                 redis_client.sadd("v2_active_tasks", task_id)
-                redis_client.expire("v2_active_tasks", 3600)  # 1小时过期
-            except Exception:
-                pass
+                redis_client.expire("v2_active_tasks", 3600)
+            except Exception as e:
+                print(f"Redis concurrency check failed: {e}")
         
         # 更新任务状态到Redis
-        if redis_client is not None:
+        if redis_client:
             try:
                 status_info = {
                     "task_id": task_id,
@@ -129,8 +127,8 @@ def generate_cpag(
                     "version": "v2"
                 }
                 redis_client.setex(f"task_status:{task_id}", 3600, json.dumps(status_info))
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Failed to update task status to Redis: {e}")
         
         # 更新任务状态
         self.update_state(
@@ -223,7 +221,8 @@ def generate_cpag(
         )
         
         if visualize:
-            generate_visualizations(cpag_graph, task_id)
+            # 可视化功能已在UnifiedCPAGProcessor中实现
+            print(f"Visualization completed for task {task_id}")
         
         # 步骤4: 完成 (100%)
         self.update_state(
@@ -247,7 +246,7 @@ def generate_cpag(
             'version': 'v2'
         }
         
-        if redis_client is not None:
+        if redis_client:
             try:
                 redis_client.setex(f"task_result:{task_id}", 3600, json.dumps(result))
                 # 更新状态
@@ -258,8 +257,8 @@ def generate_cpag(
                     "version": "v2"
                 }
                 redis_client.setex(f"task_status:{task_id}", 3600, json.dumps(status_info))
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Failed to save task result to Redis: {e}")
         
         # 写入manifest文件
         try:
@@ -312,7 +311,7 @@ def generate_cpag(
             'version': 'v2'
         }
         
-        if redis_client is not None:
+        if redis_client:
             try:
                 redis_client.setex(f"task_result:{task_id}", 3600, json.dumps(error_result))
                 # 更新状态
@@ -323,8 +322,8 @@ def generate_cpag(
                     "version": "v2"
                 }
                 redis_client.setex(f"task_status:{task_id}", 3600, json.dumps(status_info))
-            except Exception:
-                pass
+            except Exception as redis_error:
+                print(f"Failed to save error result to Redis: {redis_error}")
         
         # 写入错误manifest文件
         try:
@@ -357,91 +356,11 @@ def generate_cpag(
         if redis_client:
             try:
                 redis_client.srem("v2_active_tasks", task_id)
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Failed to remove task from active set: {e}")
 
-@celery_app.task
-def analyze_network(task_id: str, network_data: Dict[str, Any]):
-    """网络分析任务"""
-    try:
-        # 网络分析逻辑
-        analysis_result = perform_network_analysis(network_data)
-        
-        # 存储分析结果到InfluxDB
-        record_network_metrics(task_id, analysis_result)
-        
-        return analysis_result
-    except Exception as e:
-        record_task_metric(task_id, 'network_analysis_failed', datetime.utcnow(), {'error': str(e)})
-        raise
-
-@celery_app.task
-def build_graph(task_id: str, analysis_data: Dict[str, Any]):
-    """图构建任务"""
-    try:
-        # 图构建逻辑
-        graph_result = build_attack_graph(analysis_data)
-        
-        # 存储图数据到Neo4j
-        store_graph_to_neo4j(task_id, graph_result)
-        
-        return graph_result
-    except Exception as e:
-        record_task_metric(task_id, 'graph_building_failed', datetime.utcnow(), {'error': str(e)})
-        raise
 
 # 辅助函数
-def parse_input_files(file_path: Optional[str], csv_path: Optional[str]) -> Dict[str, Any]:
-    """解析输入文件"""
-    parsed_data = {}
-    
-    if file_path:
-        # 解析PCAP文件
-        parsed_data['pcap'] = parse_pcap_file(file_path)
-    
-    if csv_path:
-        # 解析CSV文件
-        parsed_data['csv'] = parse_csv_file(csv_path)
-    
-    return parsed_data
-
-def analyze_network_traffic(parsed_data: Dict[str, Any], device_map: Dict[str, str]) -> Dict[str, Any]:
-    """分析网络流量"""
-    # 网络分析逻辑
-    return {
-        'devices': device_map,
-        'traffic_patterns': {},
-        'anomalies': [],
-        'timeline': []
-    }
-
-def build_cpag_graph(network_analysis: Dict[str, Any], rules: List[str], minimal: bool, enhanced: bool) -> Dict[str, Any]:
-    """构建CPAG图"""
-    # 构建CPAG图的逻辑
-    return {
-        'nodes': [],
-        'edges': [],
-        'metadata': {
-            'generated_at': datetime.utcnow().isoformat(),
-            'version': 'v2',
-            'rules_applied': rules
-        }
-    }
-
-def store_to_neo4j(cpag_graph: Dict[str, Any], uri: str, user: str, password: str, db: str, label: str, wipe: bool):
-    """存储到Neo4j"""
-    from api.v2.cpag_e2e_module import store_cpag_to_neo4j
-    try:
-        store_cpag_to_neo4j(cpag_graph, uri, user, password, db, label, wipe)
-        print(f"Successfully stored CPAG to Neo4j: {len(cpag_graph.get('nodes', []))} nodes, {len(cpag_graph.get('edges', []))} edges")
-    except Exception as e:
-        print(f"Failed to store to Neo4j: {e}")
-        raise
-
-def generate_visualizations(cpag_graph: Dict[str, Any], task_id: str):
-    """生成可视化"""
-    # 生成图表的逻辑
-    pass
 
 def record_task_metric(task_id: str, event: str, timestamp: datetime, additional_data: Optional[Dict[str, Any]] = None):
     """记录任务指标到InfluxDB"""
@@ -488,61 +407,15 @@ def delete_old_metrics(cutoff_date: datetime):
     # InfluxDB删除旧数据的逻辑
     pass
 
-def parse_pcap_file(file_path: str) -> Dict[str, Any]:
-    """解析PCAP文件"""
-    # PCAP解析逻辑
-    return {}
-
-def parse_csv_file(file_path: str) -> Dict[str, Any]:
-    """解析CSV文件"""
-    # CSV解析逻辑
-    return {}
-
-def perform_network_analysis(network_data: Dict[str, Any]) -> Dict[str, Any]:
-    """执行网络分析"""
-    # 网络分析逻辑
-    return {}
-
-def build_attack_graph(analysis_data: Dict[str, Any]) -> Dict[str, Any]:
-    """构建攻击图"""
-    # 攻击图构建逻辑
-    return {}
-
-def store_graph_to_neo4j(task_id: str, graph_result: Dict[str, Any]):
-    """存储图到Neo4j"""
-    # Neo4j存储逻辑
-    pass
 
 @celery_app.task(name='api.v2.tasks.collect_metrics')
 def collect_metrics():
     """收集系统指标"""
     try:
-        # 检查Redis连接
-        redis_health = False
-        try:
-            if redis_client is not None:
-                redis_client.ping()
-                redis_health = True
-        except Exception:
-            pass
-        
-        # 检查Neo4j连接
-        neo4j_health = False
-        try:
-            with neo4j_driver.session() as session:
-                session.run("RETURN 1")
-                neo4j_health = True
-        except:
-            pass
-        
-        # 检查InfluxDB连接
-        influxdb_health = False
-        try:
-            if influx_client is not None:
-                influx_client.ping()
-                influxdb_health = True
-        except:
-            pass
+        # 检查各服务健康状态
+        redis_health = _check_redis_health()
+        neo4j_health = _check_neo4j_health()
+        influxdb_health = _check_influxdb_health()
         
         # 记录健康状态
         health_status = {
@@ -574,33 +447,12 @@ def health_check():
         # 检查各个服务的健康状态
         services_health = {}
         
-        # Redis健康检查
-        try:
-            if redis_client is not None:
-                redis_client.ping()
-                services_health['redis'] = 'healthy'
-            else:
-                services_health['redis'] = 'unavailable'
-        except Exception as e:
-            services_health['redis'] = f'unhealthy: {str(e)}'
-        
-        # Neo4j健康检查
-        try:
-            with neo4j_driver.session() as session:
-                session.run("RETURN 1")
-                services_health['neo4j'] = 'healthy'
-        except Exception as e:
-            services_health['neo4j'] = f'unhealthy: {str(e)}'
-        
-        # InfluxDB健康检查
-        try:
-            if influx_client is not None:
-                influx_client.ping()
-                services_health['influxdb'] = 'healthy'
-            else:
-                services_health['influxdb'] = 'unavailable'
-        except Exception as e:
-            services_health['influxdb'] = f'unhealthy: {str(e)}'
+        # 检查各个服务的健康状态
+        services_health = {
+            'redis': _get_service_status(redis_client, lambda c: c.ping()),
+            'neo4j': _get_service_status(neo4j_driver, lambda d: d.session().run("RETURN 1")),
+            'influxdb': _get_service_status(influx_client, lambda c: c.ping())
+        }
         
         # 记录健康检查结果
         record_health_metrics({
@@ -623,6 +475,42 @@ def health_check():
             'timestamp': datetime.utcnow().isoformat()
         }
 
+# 内部健康检查工具函数
+def _check_redis_health() -> bool:
+    """Redis健康检查"""
+    try:
+        return redis_client is not None and redis_client.ping()
+    except Exception:
+        return False
+
+def _check_neo4j_health() -> bool:
+    """Neo4j健康检查"""
+    try:
+        if neo4j_driver is None:
+            return False
+        with neo4j_driver.session() as session:
+            session.run("RETURN 1")
+        return True
+    except Exception:
+        return False
+
+def _check_influxdb_health() -> bool:
+    """InfluxDB健康检查"""
+    try:
+        return influx_client is not None and influx_client.ping()
+    except Exception:
+        return False
+
+def _get_service_status(client, health_check_func):
+    """通用服务状态检查"""
+    if client is None:
+        return 'unavailable'
+    try:
+        health_check_func(client)
+        return 'healthy'
+    except Exception as e:
+        return f'unhealthy: {str(e)}'
+
 @celery_app.task(name='api.v2.tasks.cleanup_old_tasks')
 def cleanup_old_tasks():
     """清理旧任务数据"""
@@ -631,19 +519,21 @@ def cleanup_old_tasks():
         cutoff_date = datetime.utcnow() - timedelta(days=7)
         
         # 清理Redis中的旧任务状态
-        try:
-            # 获取所有任务状态键
-            task_keys = redis_client.keys("task_status:*") if redis_client is not None else []
-            for key in task_keys:
-                task_data = redis_client.get(key) if redis_client is not None else None
-                if task_data:
-                    task_info = json.loads(task_data)
-                    created_at = datetime.fromisoformat(task_info.get('created_at', '').replace('Z', '+00:00'))
-                    if created_at < cutoff_date:
-                        if redis_client is not None:
+        if redis_client:
+            try:
+                task_keys = redis_client.keys("task_status:*")
+                cleaned_count = 0
+                for key in task_keys:
+                    task_data = redis_client.get(key)
+                    if task_data:
+                        task_info = json.loads(task_data)
+                        created_at = datetime.fromisoformat(task_info.get('created_at', '').replace('Z', '+00:00'))
+                        if created_at < cutoff_date:
                             redis_client.delete(key)
-        except Exception as e:
-            print(f"清理Redis数据失败: {e}")
+                            cleaned_count += 1
+                print(f"Cleaned {cleaned_count} old task status records")
+            except Exception as e:
+                print(f"Failed to clean Redis data: {e}")
         
         # 清理InfluxDB中的旧指标
         try:
