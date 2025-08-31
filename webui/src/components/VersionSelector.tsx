@@ -80,7 +80,7 @@ const VersionSelector: React.FC<VersionSelectorProps> = ({
       <div className="version-selector relative">
         <div className="flex items-center gap-2 px-4 py-2 bg-white/80 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm">
           <div className="animate-spin">
-            <ArrowPathIcon className="h-4 w-4 text-indigo-600" />
+            <ArrowPathIcon className="h-4 w-4 text-emerald-600" />
           </div>
           <span className="text-sm text-slate-600">Loading version info...</span>
         </div>
@@ -116,10 +116,10 @@ const VersionSelector: React.FC<VersionSelectorProps> = ({
       {/* Version selector button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-3 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-indigo-300 min-w-[200px]"
+                    className="flex items-center gap-3 px-4 py-2 bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200 shadow-sm hover:shadow-md transition-all duration-200 hover:border-emerald-300 min-w-[200px]"
       >
         <div className="flex items-center gap-2">
-          <CogIcon className="h-4 w-4 text-indigo-600" />
+          <CogIcon className="h-4 w-4 text-emerald-600" />
           <span className="text-sm font-medium text-slate-700">Processing Version</span>
         </div>
         
@@ -154,8 +154,8 @@ const VersionSelector: React.FC<VersionSelectorProps> = ({
               <button
                 key={version}
                 onClick={() => handleVersionChange(version)}
-                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-slate-50 transition-colors ${
-                  version === currentVersion ? 'bg-indigo-50 border-r-2 border-indigo-500' : ''
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-emerald-50 transition-colors ${
+                  version === currentVersion ? 'bg-emerald-50 border-r-2 border-emerald-500' : ''
                 }`}
               >
                 {/* Version status icon */}

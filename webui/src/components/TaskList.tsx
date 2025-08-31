@@ -109,7 +109,9 @@ export default function TaskList() {
       a.click();
       URL.revokeObjectURL(url);
       
-      toast.success(`${filename} downloaded successfully`);
+      // 智能文件名截断
+      const displayName = filename.length > 25 ? filename.substring(0, 22) + '...' : filename;
+      toast.success(`${displayName} downloaded successfully`);
     } catch (err: any) {
       toast.error(`Download failed: ${err.message}`);
     }
@@ -160,7 +162,7 @@ export default function TaskList() {
           <p className="text-slate-500 mb-4">{error.message}</p>
           <button 
             onClick={() => mutate()}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
           >
             <ArrowPathIcon className="h-4 w-4" />
             Retry
@@ -176,7 +178,7 @@ export default function TaskList() {
       <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+            <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
               <DocumentTextIcon className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -187,9 +189,9 @@ export default function TaskList() {
           <div className="flex items-center gap-4">
             <div className="text-right">
               <div className="text-sm text-slate-500">Queue Status</div>
-              <div className="text-lg font-semibold text-indigo-600">
-                {queueStatus ? `${queueStatus.active_tasks}/${queueStatus.max_concurrent_tasks}` : '0/0'}
-              </div>
+                                  <div className="text-lg font-semibold text-emerald-600">
+                      {queueStatus ? `${queueStatus.active_tasks}/${queueStatus.max_concurrent_tasks}` : '0/0'}
+                    </div>
             </div>
           </div>
         </div>
@@ -200,7 +202,7 @@ export default function TaskList() {
           <select
             value={selectedVersion}
             onChange={(e) => handleVersionChange(e.target.value)}
-            className="rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+            className="rounded-lg border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
           >
             <option value="all">All Versions</option>
             <option value="v1">Version 1.0</option>
@@ -256,13 +258,13 @@ export default function TaskList() {
                 {/* Action Buttons */}
                 <div className="flex items-center gap-3">
                   {task.status === 'completed' && task.result_url && (
-                    <button
-                      onClick={() => handlePreview(task)}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                      <EyeIcon className="h-4 w-4" />
-                      Preview
-                    </button>
+                                         <button
+                       onClick={() => handlePreview(task)}
+                       className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                     >
+                       <EyeIcon className="h-4 w-4" />
+                       Preview
+                     </button>
                   )}
                   
                   {task.status === 'completed' && task.files && task.files.length > 0 && (
@@ -305,21 +307,21 @@ export default function TaskList() {
                 Previous
               </button>
               
-              <div className="flex items-center gap-1">
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      page === currentPage
-                        ? 'bg-indigo-600 text-white'
-                        : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
-              </div>
+                                 <div className="flex items-center gap-1">
+                     {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                       <button
+                         key={page}
+                         onClick={() => setCurrentPage(page)}
+                         className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                           page === currentPage
+                             ? 'bg-emerald-600 text-white'
+                             : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+                         }`}
+                       >
+                         {page}
+                       </button>
+                     ))}
+                   </div>
               
               <button
                 onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}

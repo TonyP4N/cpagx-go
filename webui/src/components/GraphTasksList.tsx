@@ -23,9 +23,11 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
   const [neo4jBrowserUrl, setNeo4jBrowserUrl] = useState<string | null>(null);
 
   // Fetch tasks from API
-  const fetchTasks = async () => {
+  const fetchTasks = async (showLoading: boolean = true) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError(null);
       
       const response = await fetch('/api/graph/tasks');
@@ -38,7 +40,9 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unknown error');
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -75,8 +79,8 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
         throw new Error(`Failed to delete task: ${response.statusText}`);
       }
       
-      // Refresh the task list
-      await fetchTasks();
+      // Refresh the task list without showing loading state
+      await fetchTasks(false);
       
       // If the deleted task was selected, clear selection
       if (selectedTaskId === taskId && onTaskSelect) {
@@ -115,8 +119,8 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <div className="text-red-600">Error: {error}</div>
           <button
-            onClick={fetchTasks}
-            className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm"
+            onClick={() => fetchTasks(false)}
+            className="mt-2 px-3 py-1 bg-red-100 text-red-700 rounded hover:bg-red-200 text-sm transition-colors"
           >
             Retry
           </button>
@@ -132,8 +136,8 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
         <h3 className="text-lg font-semibold">Graph Tasks</h3>
         <div className="flex space-x-2">
           <button
-            onClick={fetchTasks}
-            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm"
+            onClick={() => fetchTasks(false)}
+            className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm transition-colors"
           >
             Refresh
           </button>
@@ -163,7 +167,7 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
               key={task.task_id}
               className={`border rounded-lg p-3 cursor-pointer transition-colors ${
                 selectedTaskId === task.task_id
-                  ? 'border-blue-500 bg-blue-50'
+                  ? 'border-emerald-500 bg-emerald-50'
                   : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
               }`}
               onClick={() => onTaskSelect && onTaskSelect(task.task_id)}
@@ -191,7 +195,7 @@ const GraphTasksList: React.FC<GraphTasksListProps> = ({
                         onTaskSelect(task.task_id);
                       }
                     }}
-                    className="p-1 text-blue-500 hover:text-blue-700"
+                    className="p-1 text-emerald-500 hover:text-emerald-700"
                     title="View Graph"
                   >
                     <EyeIcon className="w-4 h-4" />

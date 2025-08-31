@@ -41,7 +41,7 @@ const GraphPage: React.FC = () => {
         <meta name="description" content="Interactive CPAG graph visualization" />
       </Head>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50">
         <div className="container mx-auto px-4 py-8">
           {/* Header with Navigation */}
           <div className="mb-8">
@@ -65,7 +65,7 @@ const GraphPage: React.FC = () => {
               
               {selectedTaskId && (
                 <div className="text-sm text-slate-600">
-                  Task: <span className="font-mono text-indigo-600">{selectedTaskId.slice(0, 8)}...</span>
+                  Task: <span className="font-mono text-emerald-600">{selectedTaskId.slice(0, 8)}...</span>
                 </div>
               )}
             </div>

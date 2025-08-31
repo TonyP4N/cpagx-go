@@ -83,6 +83,27 @@ export default function HomePage() {
     }
   }, [taskId, mutate, taskStatus]);
 
+  // 智能文件名截断函数
+  const truncateFileName = (fileName: string, maxLength: number = 25) => {
+    if (fileName.length <= maxLength) return fileName;
+    
+    const extension = fileName.split('.').pop();
+    const nameWithoutExt = fileName.substring(0, fileName.lastIndexOf('.'));
+    
+    if (!extension || extension.length >= maxLength - 3) {
+      return fileName.substring(0, maxLength - 3) + '...';
+    }
+    
+    const availableLength = maxLength - extension.length - 3; // 3 for "..."
+    return nameWithoutExt.substring(0, availableLength) + '...' + extension;
+  };
+
+  // 格式化文件大小的工具函数
+  const formatFileSize = (bytes: number) => {
+    const mb = bytes / 1024 / 1024;
+    return `${mb.toFixed(2)}MB`;
+  };
+
   const onDrop = useCallback((accepted: File[]) => {
     if (!accepted.length) return;
     const file = accepted[0];
@@ -96,7 +117,11 @@ export default function HomePage() {
       return;
     }
     setSelectedFile(file);
-    toast.success(`File selected: ${file.name} (${(file.size / 1024 / 1024).toFixed(2)}MB)`);
+    
+    // 使用智能文件名截断和格式化
+    const displayName = truncateFileName(file.name);
+    const fileSize = formatFileSize(file.size);
+    toast.success(`File selected: ${displayName}\n(${fileSize})`);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ 
@@ -209,14 +234,36 @@ export default function HomePage() {
   const canStartAnalysis = selectedFile && !isLoading;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 text-slate-800">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800">
       <Toaster 
         position="top-center" 
         toastOptions={{
           duration: 4000,
           style: {
-            background: '#363636',
+            background: '#1f2937',
             color: '#fff',
+            maxWidth: 'min(400px, 90vw)',
+            wordBreak: 'break-word',
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.5',
+            padding: '16px 20px',
+            borderRadius: '12px',
+            fontSize: '14px',
+            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.2)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+          },
+          className: '!max-w-[min(400px,90vw)] !break-words !backdrop-blur-sm',
+          success: {
+            style: {
+              background: 'linear-gradient(135deg, #059669, #047857)',
+              border: '1px solid rgba(34, 197, 94, 0.3)',
+            },
+          },
+          error: {
+            style: {
+              background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+            },
           },
         }}
       />
@@ -225,8 +272,8 @@ export default function HomePage() {
       <header className="sticky top-0 z-10 backdrop-blur-md bg-white/90 border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
-              <DocumentTextIcon className="h-8 w-8 text-white" />
+                         <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
+               <DocumentTextIcon className="h-8 w-8 text-white" />
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-800">CPAG Generator</h1>
@@ -240,17 +287,17 @@ export default function HomePage() {
             />
             <button
               onClick={() => goToGraph()}
-              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-200 shadow-md bg-gray-100 hover:bg-gray-200 text-gray-700 hover:text-gray-900"
+              className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium transition-all duration-200 shadow-md bg-blue-100 hover:bg-blue-200 text-blue-700 hover:text-blue-900"
             >
               <ChartBarIcon className="h-5 w-5" />
               Graph View
             </button>
             <button 
-              className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-200 shadow-lg ${
-                canStartAnalysis 
-                  ? 'bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white transform hover:scale-105' 
-                  : 'bg-slate-200 text-slate-400 cursor-not-allowed'
-              }`} 
+                             className={`inline-flex items-center gap-2 rounded-xl px-6 py-3 font-medium transition-all duration-200 shadow-lg ${
+                 canStartAnalysis 
+                   ? 'bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white transform hover:scale-105' 
+                   : 'bg-slate-200 text-slate-400 cursor-not-allowed'
+               }`} 
               onClick={startGeneration}
               disabled={!canStartAnalysis}
             >
@@ -267,13 +314,13 @@ export default function HomePage() {
         {/* Progress Bar */}
         {taskId && (
           <div className="w-full h-1 bg-slate-200">
-            <div 
-              className="h-full transition-all duration-1000 ease-out rounded-r-full" 
-              style={{ 
-                width: `${progress}%`, 
-                background: 'linear-gradient(to right, #6366f1, #8b5cf6, #ec4899)' 
-              }} 
-            />
+                         <div 
+               className="h-full transition-all duration-1000 ease-out rounded-r-full" 
+               style={{ 
+                 width: `${progress}%`, 
+                 background: 'linear-gradient(to right, #10b981, #14b8a6, #0d9488)' 
+               }} 
+             />
           </div>
         )}
       </header>
@@ -283,22 +330,22 @@ export default function HomePage() {
         <div className="flex space-x-1 bg-white/80 backdrop-blur-sm rounded-xl p-1 shadow-lg border border-slate-200">
           <button
             onClick={() => handleTabChange('upload')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'upload'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
-            }`}
+                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+               activeTab === 'upload'
+                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                 : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+             }`}
           >
             <CloudArrowUpIcon className="h-5 w-5" />
             File Upload
           </button>
           <button
             onClick={() => handleTabChange('active')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'active'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
-            }`}
+                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+               activeTab === 'active'
+                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                 : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+             }`}
           >
             <ClockIcon className="h-5 w-5" />
             Active Tasks
@@ -310,11 +357,11 @@ export default function HomePage() {
           </button>
           <button
             onClick={() => handleTabChange('history')}
-            className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
-              activeTab === 'history'
-                ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-md'
-                : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
-            }`}
+                         className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-medium transition-all duration-200 ${
+               activeTab === 'history'
+                 ? 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md'
+                 : 'text-slate-600 hover:text-slate-800 hover:bg-slate-100'
+             }`}
           >
             <ChartBarIcon className="h-5 w-5" />
             Task History
@@ -335,28 +382,28 @@ export default function HomePage() {
               {/* File Upload */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                 <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                    <CloudArrowUpIcon className="h-6 w-6 text-indigo-600" />
-                    File Upload
-                  </h2>
+                                     <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                     <CloudArrowUpIcon className="h-6 w-6 text-emerald-600" />
+                     File Upload
+                   </h2>
                   <p className="text-sm text-slate-500 mt-1">Upload your network capture or CSV file for analysis</p>
                 </div>
                 <div 
                   {...getRootProps()} 
-                  className={`p-8 text-center cursor-pointer transition-all duration-300 ${
-                    isDragActive 
-                      ? 'border-2 border-indigo-500 bg-indigo-50 scale-105' 
-                      : 'border-2 border-dashed border-slate-300 hover:border-indigo-400 hover:bg-slate-50'
-                  }`}
+                                     className={`p-8 text-center cursor-pointer transition-all duration-300 ${
+                     isDragActive 
+                       ? 'border-2 border-emerald-500 bg-emerald-50 scale-105' 
+                       : 'border-2 border-dashed border-slate-300 hover:border-emerald-400 hover:bg-slate-50'
+                   }`}
                 >
                   <input {...getInputProps()} />
-                  <CloudArrowUpIcon className={`mx-auto h-16 w-16 transition-colors ${
-                    isDragActive ? 'text-indigo-600' : 'text-slate-400'
-                  }`} />
+                                     <CloudArrowUpIcon className={`mx-auto h-16 w-16 transition-colors ${
+                     isDragActive ? 'text-emerald-600' : 'text-slate-400'
+                   }`} />
                   <p className="mt-4 text-lg font-medium text-slate-700">
-                    {selectedFile ? (
-                      <span className="text-indigo-600">{selectedFile.name}</span>
-                    ) : (
+                                         {selectedFile ? (
+                       <span className="text-emerald-600">{selectedFile.name}</span>
+                     ) : (
                       'Drag & drop or click to upload'
                     )}
                   </p>
@@ -379,33 +426,33 @@ export default function HomePage() {
               {/* Device Mapping */}
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200">
                 <div className="p-6 border-b border-slate-100">
-                  <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                    <CogIcon className="h-6 w-6 text-indigo-600" />
-                    Device Mapping
-                  </h2>
+                                     <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+                     <CogIcon className="h-6 w-6 text-emerald-600" />
+                     Device Mapping
+                   </h2>
                   <p className="text-sm text-slate-500 mt-1">Map IP addresses to meaningful device names</p>
                 </div>
                 <div className="p-6 space-y-4">
                   <form onSubmit={handleDeviceSubmit(submitDevice)} className="flex flex-col sm:flex-row gap-3">
-                    <input 
-                      {...registerDevice('ip', { 
-                        required: 'IP address is required',
-                        pattern: {
-                          value: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
-                          message: 'Please enter a valid IP address'
-                        }
-                      })} 
-                      placeholder="192.168.1.1" 
-                      className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    />
-                    <input 
-                      {...registerDevice('name', { required: 'Device name is required' })} 
-                      placeholder="Router" 
-                      className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
-                    />
+                                         <input 
+                       {...registerDevice('ip', { 
+                         required: 'IP address is required',
+                         pattern: {
+                           value: /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/,
+                           message: 'Please enter a valid IP address'
+                         }
+                       })} 
+                       placeholder="192.168.1.1" 
+                       className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                     />
+                                         <input 
+                       {...registerDevice('name', { required: 'Device name is required' })} 
+                       placeholder="Router" 
+                       className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+                     />
                     <button 
                       type="submit" 
-                      className="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 font-medium transition-colors shadow-md hover:shadow-lg"
+                      className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium transition-colors shadow-md hover:shadow-lg"
                     >
                       Add
                     </button>
@@ -431,7 +478,7 @@ export default function HomePage() {
                         {Object.entries(deviceMap).map(([ip, name]) => (
                           <div key={ip} className="flex items-center justify-between bg-slate-50 rounded-lg px-4 py-3 border border-slate-200">
                             <div className="flex items-center gap-3">
-                              <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                              <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
                               <span className="font-mono text-sm text-slate-700">{ip}</span>
                               <span className="text-slate-400">→</span>
                               <span className="font-medium text-slate-800">{name}</span>
@@ -454,7 +501,7 @@ export default function HomePage() {
               <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200">
                 <div className="p-6 border-b border-slate-100">
                   <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                    <InformationCircleIcon className="h-6 w-6 text-indigo-600" />
+                    <InformationCircleIcon className="h-6 w-6 text-emerald-600" />
                     Custom Rules
                   </h2>
                   <p className="text-sm text-slate-500 mt-1">Define custom analysis rules for attack detection</p>
@@ -464,11 +511,11 @@ export default function HomePage() {
                     <input 
                       {...registerRule('rule', { required: 'Rule is required' })} 
                       placeholder="Example: port_scan_threshold > 10" 
-                      className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all"
+                      className="flex-1 rounded-lg border border-slate-300 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
                     />
                     <button 
                       type="submit" 
-                      className="rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 font-medium transition-colors shadow-md hover:shadow-lg"
+                      className="rounded-lg bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 font-medium transition-colors shadow-md hover:shadow-lg"
                     >
                       Add
                     </button>
@@ -511,7 +558,7 @@ export default function HomePage() {
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
                   <div className="p-6 border-b border-slate-100">
                     <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
-                      <ClockIcon className="h-6 w-6 text-indigo-600" />
+                      <ClockIcon className="h-6 w-6 text-emerald-600" />
                       Analysis Status
                     </h2>
                     <p className="text-sm text-slate-500 mt-1">Task ID: {taskId}</p>
@@ -520,7 +567,7 @@ export default function HomePage() {
                     {taskStatus.status === 'processing' && (
                       <div className="text-center space-y-4">
                         <div className="relative">
-                          <ArrowPathIcon className="h-12 w-12 animate-spin text-indigo-600 mx-auto" />
+                          <ArrowPathIcon className="h-12 w-12 animate-spin text-emerald-600 mx-auto" />
                           <div className="absolute inset-0 flex items-center justify-center">
                             <div className="w-8 h-8 bg-white rounded-full"></div>
                           </div>
@@ -530,7 +577,7 @@ export default function HomePage() {
                           <p className="text-sm text-slate-500">Analyzing your file, please wait</p>
                         </div>
                         <div className="w-full bg-slate-200 rounded-full h-2">
-                          <div className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
+                          <div className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }}></div>
                         </div>
                       </div>
                     )}
@@ -584,13 +631,13 @@ export default function HomePage() {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-600">Devices Mapped</span>
-                    <span className="text-sm font-medium text-indigo-600">
+                    <span className="text-sm font-medium text-emerald-600">
                       {Object.keys(deviceMap).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-600">Custom Rules</span>
-                    <span className="text-sm font-medium text-indigo-600">
+                    <span className="text-sm font-medium text-emerald-600">
                       {customRules.length}
                     </span>
                   </div>
@@ -614,13 +661,13 @@ export default function HomePage() {
               {queueStatus && (
                 <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6">
                   <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                    <ServerIcon className="h-5 w-5 text-indigo-600" />
+                    <ServerIcon className="h-5 w-5 text-emerald-600" />
                     Queue Status
                   </h3>
                   <div className="space-y-3">
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-slate-600">Active Tasks</span>
-                      <span className="text-sm font-medium text-indigo-600">
+                      <span className="text-sm font-medium text-emerald-600">
                         {queueStatus.active_tasks}
                       </span>
                     </div>
@@ -649,7 +696,7 @@ export default function HomePage() {
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-200 p-6 flex-1">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl">
+                  <div className="p-2 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl">
                     <ClockIcon className="h-6 w-6 text-white" />
                   </div>
                   <div>
@@ -660,7 +707,7 @@ export default function HomePage() {
                 <div className="flex items-center gap-4">
                   <div className="text-right">
                     <div className="text-sm text-slate-500">Queue Status</div>
-                    <div className="text-lg font-semibold text-indigo-600">
+                    <div className="text-lg font-semibold text-emerald-600">
                       {queueStatus ? `${queueStatus.active_tasks}/${queueStatus.max_concurrent_tasks}` : '0/0'}
                     </div>
                   </div>
@@ -670,11 +717,11 @@ export default function HomePage() {
               {/* Active Tasks List */}
               <div className="space-y-4">
                 {taskStatus && taskStatus.status === 'processing' && (
-                  <div className="bg-gradient-to-r from-indigo-50 to-purple-50 rounded-xl p-6 border border-indigo-200">
+                  <div className="bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl p-6 border border-emerald-200">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-4">
                         <div className="relative">
-                          <ArrowPathIcon className="h-8 w-8 animate-spin text-indigo-600" />
+                          <ArrowPathIcon className="h-8 w-8 animate-spin text-emerald-600" />
                         </div>
                         <div>
                           <h3 className="font-semibold text-slate-800">Current Task</h3>
@@ -684,12 +731,12 @@ export default function HomePage() {
                       </div>
                       <div className="text-right">
                         <div className="text-sm text-slate-500">Progress</div>
-                        <div className="text-lg font-semibold text-indigo-600">{progress}%</div>
+                        <div className="text-lg font-semibold text-emerald-600">{progress}%</div>
                       </div>
                     </div>
                     <div className="mt-4 w-full bg-slate-200 rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-indigo-500 to-purple-600 h-2 rounded-full transition-all duration-1000" 
+                        className="bg-gradient-to-r from-emerald-500 to-teal-600 h-2 rounded-full transition-all duration-1000" 
                         style={{ width: `${progress}%` }}
                       />
                     </div>
