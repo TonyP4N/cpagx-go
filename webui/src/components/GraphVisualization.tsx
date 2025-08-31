@@ -29,6 +29,7 @@ interface Edge {
   edge_type: string;
   properties: Record<string, any>;
   relation?: string;
+  logic_type?: string;
 }
 
 interface GraphData {
@@ -135,6 +136,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
               target: String(edge.target),
               label: edge.relation || edge.edge_type || 'connects',
               edgeType: edge.relation || edge.edge_type || 'unknown',
+              logicType: edge.logic_type || 'SEQUENTIAL',
               taskId: edge.task_id || '',
               // Include all properties for backward compatibility
               ...(edge.properties || {})
@@ -142,7 +144,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
 
             return {
               data: edgeData,
-              classes: `edge-${edgeData.edgeType}`
+              classes: `edge-${edgeData.edgeType} ${edgeData.logicType ? `logic-${edgeData.logicType.toLowerCase()}` : ''}`
             };
           } catch (err) {
             console.warn('Error processing edge:', edge, err);
@@ -160,7 +162,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     }
   }, [graphData]);
 
-  // Cytoscape layout and style - use better layout for large graphs
+  // Cytoscape layout optimized for tree-like CPAG structures
   const layout = React.useMemo(() => {
     const nodeCount = graphData?.nodes?.length || 0;
     const edgeCount = graphData?.edges?.length || 0;
@@ -170,14 +172,22 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       return { name: 'grid', fit: true };
     }
     
-    if (nodeCount > 100) {
-      // For very large graphs, use simple circle layout
-      console.log('Using circle layout for very large graph');
+    // Check if this looks like a tree-like structure (edges ≈ nodes - 1)
+    const isTreeLike = edgeCount > 0 && (edgeCount / nodeCount) < 1.5;
+    
+    if (isTreeLike && nodeCount > 8) {
+      // For tree-like structures, use breadthfirst (hierarchical) layout
+      console.log('Using breadthfirst layout for tree-like CPAG structure');
       return {
-        name: 'circle',
-        radius: Math.max(200, nodeCount * 3),
+        name: 'breadthfirst',
+        directed: true,
         padding: 30,
-        fit: true
+        spacingFactor: 1.75,
+        maximal: false,
+        grid: false,
+        fit: true,
+        roots: '#[indegree = 0]', // Start from nodes with no incoming edges
+        animate: false
       };
     } else if (nodeCount > 50) {
       // For large graphs, use optimized force-directed layout
@@ -185,37 +195,40 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       return {
         name: 'cose',
         idealEdgeLength: 80,
-        nodeOverlap: 10,
+        nodeOverlap: 20,
         refresh: 10,
         fit: true,
-        padding: 20,
+        padding: 30,
         randomize: false,
-        componentSpacing: 50,
-        nodeRepulsion: 200000,
-        edgeElasticity: 50,
-        nestingFactor: 3,
-        gravity: 40,
-        numIter: 500,  // Reduced iterations for performance
-        initialTemp: 100,
-        coolingFactor: 0.98,
-        minTemp: 2.0
+        componentSpacing: 80,
+        nodeRepulsion: 400000,
+        edgeElasticity: 100,
+        nestingFactor: 5,
+        gravity: 80,
+        numIter: 300,  // Reduced iterations for performance
+        initialTemp: 200,
+        coolingFactor: 0.95,
+        minTemp: 1.0
       };
-    } else if (nodeCount > 20) {
-      // For medium graphs, use circle layout
-      console.log('Using circle layout for medium graph');
+    } else if (nodeCount > 15) {
+      // For medium graphs with complex relationships, use dagre for hierarchical layout
+      console.log('Using dagre layout for medium hierarchical graph');
       return {
-        name: 'circle',
-        radius: Math.max(150, nodeCount * 5),
-        padding: 50,
-        fit: true
+        name: 'dagre',
+        directed: true,
+        padding: 20,
+        spacingFactor: 1.25,
+        rankSep: 100,
+        nodeSep: 50,
+        fit: true,
+        animate: false
       };
     } else {
-      // For small graphs, use grid layout
-      console.log('Using grid layout for small graph');
+      // For small graphs, use circle layout
+      console.log('Using circle layout for small graph');
       return {
-        name: 'grid',
-        rows: Math.ceil(Math.sqrt(nodeCount)),
-        cols: Math.ceil(Math.sqrt(nodeCount)),
+        name: 'circle',
+        radius: Math.max(120, nodeCount * 8),
         padding: 50,
         fit: true
       };
@@ -327,6 +340,45 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
       style: {
         'line-color': '#3B82F6',
         'target-arrow-color': '#3B82F6'
+      }
+    },
+    {
+      selector: '.edge-requires',
+      style: {
+        'line-color': '#10B981',
+        'target-arrow-color': '#10B981',
+        'line-style': 'solid'
+      }
+    },
+    {
+      selector: '.edge-alternative_to',
+      style: {
+        'line-color': '#F59E0B',
+        'target-arrow-color': '#F59E0B',
+        'line-style': 'dashed'
+      }
+    },
+    {
+      selector: '.edge-required_by',
+      style: {
+        'line-color': '#8B5CF6',
+        'target-arrow-color': '#8B5CF6',
+        'line-style': 'dotted'
+      }
+    },
+    // Logic type specific styles
+    {
+      selector: '.logic-and',
+      style: {
+        'width': 3,
+        'line-style': 'solid'
+      }
+    },
+    {
+      selector: '.logic-or',
+      style: {
+        'width': 2,
+        'line-style': 'dashed'
       }
     }
   ];
@@ -483,6 +535,38 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
                 <>
                   <div><strong>Source:</strong> {selectedElement.data.source}</div>
                   <div><strong>Target:</strong> {selectedElement.data.target}</div>
+                  {selectedElement.data.logicType && (
+                    <div><strong>Logic Type:</strong> 
+                      <span className={`ml-1 px-2 py-1 rounded text-xs ${
+                        selectedElement.data.logicType === 'AND' ? 'bg-green-100 text-green-800' :
+                        selectedElement.data.logicType === 'OR' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {selectedElement.data.logicType}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
+              {selectedElement.type === 'node' && (
+                <>
+                  {selectedElement.data.precondition_logic_type && (
+                    <div><strong>Precondition Logic:</strong> 
+                      <span className={`ml-1 px-2 py-1 rounded text-xs ${
+                        selectedElement.data.precondition_logic_type === 'AND' ? 'bg-green-100 text-green-800' :
+                        selectedElement.data.precondition_logic_type === 'OR' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {selectedElement.data.precondition_logic_type}
+                      </span>
+                    </div>
+                  )}
+                  {selectedElement.data.dependency_count && (
+                    <div><strong>Dependencies:</strong> {selectedElement.data.dependency_count}</div>
+                  )}
+                  {selectedElement.data.alternative_count && (
+                    <div><strong>Alternatives:</strong> {selectedElement.data.alternative_count}</div>
+                  )}
                 </>
               )}
             </div>
@@ -490,33 +574,73 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         )}
       </div>
 
-      {/* Legend */}
+      {/* Enhanced Legend with AND/OR relationships */}
       <div className="bg-gray-50 p-3 rounded-lg">
         <h4 className="font-semibold text-sm mb-2">Legend</h4>
-        <div className="grid grid-cols-3 gap-2 text-xs">
-          <div className="flex items-center space-x-2">
-            <div className="w-4 h-3 bg-blue-500 rounded-full"></div>
-            <span>Action</span>
+        <div className="space-y-3">
+          {/* Node Types */}
+          <div>
+            <div className="font-medium text-xs mb-1 text-gray-700">Node Types:</div>
+            <div className="grid grid-cols-3 gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-3 bg-blue-500 rounded-full"></div>
+                <span>Action</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-green-500 rounded"></div>
+                <span>Device</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-yellow-500" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
+                <span>Vulnerability</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-500 transform rotate-45"></div>
+                <span>Attack</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-gray-500" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}></div>
+                <span>Unknown</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-green-500 rounded"></div>
-            <span>Device</span>
+          
+          {/* Relationship Types */}
+          <div>
+            <div className="font-medium text-xs mb-1 text-gray-700">Relationship Types:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5 bg-gray-600"></div>
+                <span>Basic Connection</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5 bg-green-500"></div>
+                <span>Requires (AND)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5 bg-yellow-500" style={{ borderTop: '1px dashed #F59E0B', backgroundColor: 'transparent' }}></div>
+                <span>Alternative (OR)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5 bg-purple-500" style={{ borderTop: '1px dotted #8B5CF6', backgroundColor: 'transparent' }}></div>
+                <span>Required By</span>
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-yellow-500" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
-            <span>Vulnerability</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-red-500 transform rotate-45"></div>
-            <span>Attack</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-3 bg-gray-500" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}></div>
-            <span>Unknown</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <div className="w-3 h-0.5 bg-gray-600"></div>
-            <span>Connection</span>
+          
+          {/* Logic Types */}
+          <div>
+            <div className="font-medium text-xs mb-1 text-gray-700">Logic Types:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5 bg-green-600" style={{ height: '3px' }}></div>
+                <span>AND Logic (solid, thick)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-4 h-0.5" style={{ borderTop: '2px dashed #059669', backgroundColor: 'transparent' }}></div>
+                <span>OR Logic (dashed)</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

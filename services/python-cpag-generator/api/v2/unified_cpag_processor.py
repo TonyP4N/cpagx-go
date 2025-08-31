@@ -23,6 +23,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Union
 from collections import defaultdict, Counter
 from datetime import datetime
+from enum import Enum
 
 import pandas as pd
 import numpy as np
@@ -48,12 +49,272 @@ except ImportError:
     VISUALIZATION_AVAILABLE = False
 
 
+class ConditionType(Enum):
+    """前置条件类型"""
+    CONNECTIVITY = "connectivity"
+    SERVICE_ACCESS = "service_access"
+    AUTHENTICATION = "authentication"
+    DEVICE_STATE = "device_state"
+    KNOWLEDGE = "knowledge"
+    PHYSICAL_ACCESS = "physical_access"
+
+
+class LogicalOperator(Enum):
+    """逻辑操作符"""
+    AND = "AND"
+    OR = "OR"
+
+
+class CPAGRelationshipAnalyzer:
+    """CPAG单元关系分析器"""
+    
+    def __init__(self):
+        pass
+    
+    def analyze_unit_relationships(self, cpag_units: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """分析CPAG单元之间的关系"""
+        relationships = {
+            'dependencies': {},  # 依赖关系
+            'conflicts': [],     # 冲突关系  
+            'enabling_chains': [], # 启用链
+            'alternative_paths': [] # 替代路径
+        }
+        
+        # 构建条件映射
+        condition_providers = {}  # 哪个单元提供了什么后置条件
+        condition_consumers = {}  # 哪个单元需要什么前置条件
+        
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            # 分析前置条件需求
+            preconditions = self._extract_conditions_from_unit(unit, 'precondition')
+            for precond in preconditions:
+                condition_sig = self._get_condition_signature(precond)
+                if condition_sig not in condition_consumers:
+                    condition_consumers[condition_sig] = []
+                condition_consumers[condition_sig].append(unit_id)
+            
+            # 分析后置条件提供
+            postconditions = self._extract_conditions_from_unit(unit, 'postcondition')
+            for postcond in postconditions:
+                condition_sig = self._get_condition_signature(postcond)
+                condition_providers[condition_sig] = unit_id
+        
+        # 构建依赖关系
+        relationships['dependencies'] = self._build_dependencies(
+            cpag_units, condition_providers, condition_consumers
+        )
+        
+        # 发现替代路径 (OR关系)
+        relationships['alternative_paths'] = self._find_alternative_paths(
+            cpag_units, relationships['dependencies']
+        )
+        
+        # 发现启用链 (AND关系)
+        relationships['enabling_chains'] = self._find_enabling_chains(
+            cpag_units, relationships['dependencies']
+        )
+        
+        return relationships
+    
+    def _extract_conditions_from_unit(self, unit: Dict[str, Any], condition_type: str) -> List[str]:
+        """从单元中提取条件"""
+        conditions = unit.get(condition_type, [])
+        if isinstance(conditions, str):
+            return [conditions]
+        return conditions or []
+    
+    def _get_condition_signature(self, condition: str) -> str:
+        """生成条件签名用于匹配"""
+        # 标准化条件描述
+        condition = condition.lower().strip()
+        
+        # 提取关键信息
+        if 'connectivity' in condition or 'connect' in condition:
+            # 网络连接条件
+            ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', condition)
+            if ip_match:
+                return f"connectivity:{ip_match.group(1)}"
+        
+        elif 'access' in condition:
+            # 访问条件
+            if 'service' in condition:
+                return f"service_access:{self._extract_target(condition)}"
+            else:
+                return f"access:{self._extract_target(condition)}"
+        
+        elif 'control' in condition:
+            return f"control:{self._extract_target(condition)}"
+        
+        elif 'data' in condition or 'information' in condition:
+            return f"knowledge:{self._extract_target(condition)}"
+        
+        # 默认签名
+        return f"generic:{self._extract_target(condition)}"
+    
+    def _extract_target(self, condition: str) -> str:
+        """从条件中提取目标实体"""
+        # 尝试提取IP地址
+        ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', condition)
+        if ip_match:
+            return ip_match.group(1)
+        
+        # 尝试提取设备名
+        for device_type in ['PLC', 'HMI', 'SCADA']:
+            if device_type.lower() in condition.lower():
+                return device_type.lower()
+        
+        return "unknown"
+    
+    def _build_dependencies(self, units: List[Dict[str, Any]], 
+                          providers: Dict[str, str], 
+                          consumers: Dict[str, List[str]]) -> Dict[str, List[str]]:
+        """构建单元间依赖关系"""
+        dependencies = {}
+        
+        for unit in units:
+            unit_id = unit['id']
+            dependencies[unit_id] = []
+            
+            preconditions = self._extract_conditions_from_unit(unit, 'precondition')
+            for precond in preconditions:
+                condition_sig = self._get_condition_signature(precond)
+                
+                # 如果有其他单元提供这个条件
+                if condition_sig in providers:
+                    provider_unit = providers[condition_sig]
+                    if provider_unit != unit_id:
+                        dependencies[unit_id].append(provider_unit)
+        
+        return dependencies
+    
+    def _find_alternative_paths(self, units: List[Dict[str, Any]], 
+                               dependencies: Dict[str, List[str]]) -> List[Dict[str, Any]]:
+        """发现替代路径 (OR关系) - 限制数量避免过度复杂"""
+        alternative_paths = []
+        
+        # 寻找具有相同目标但不同前置条件的单元
+        target_map = {}
+        for unit in units:
+            action = unit.get('action', '').lower()
+            target = self._extract_target(action)
+            category = unit.get('category', '')
+            
+            key = f"{category}:{target}"
+            if key not in target_map:
+                target_map[key] = []
+            target_map[key].append(unit['id'])
+        
+        # 找出有多个实现方式的目标，但限制替代路径数量
+        for target_key, unit_ids in target_map.items():
+            if len(unit_ids) > 1:
+                # 最多保留3个替代单元，避免图过于复杂
+                limited_units = unit_ids[:3]
+                alternative_paths.append({
+                    'target': target_key,
+                    'alternative_units': limited_units,
+                    'relationship_type': 'OR',
+                    'description': f"Alternative ways to achieve {target_key}"
+                })
+        
+        # 限制总的替代路径数量
+        return alternative_paths[:5]
+    
+    def _find_enabling_chains(self, units: List[Dict[str, Any]], 
+                             dependencies: Dict[str, List[str]]) -> List[Dict[str, Any]]:
+        """发现启用链 (AND关系) - 限制复杂度"""
+        enabling_chains = []
+        
+        # 寻找需要多个前置条件的单元，但限制复杂度
+        for unit in units:
+            unit_id = unit['id']
+            preconditions = self._extract_conditions_from_unit(unit, 'precondition')
+            
+            if len(preconditions) > 1:
+                # 这个单元需要多个前置条件，形成AND关系
+                chain_units = dependencies.get(unit_id, [])
+                if len(chain_units) > 1:
+                    # 限制每个AND链最多3个必需单元
+                    limited_required = chain_units[:3]
+                    enabling_chains.append({
+                        'target_unit': unit_id,
+                        'required_units': limited_required,
+                        'relationship_type': 'AND',
+                        'description': f"Unit {unit_id} requires multiple preconditions"
+                    })
+        
+        # 限制总的启用链数量
+        return enabling_chains[:5]
+    
+    def enhance_cpag_units_with_relationships(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """增强CPAG单元，添加关系信息"""
+        relationships = self.analyze_unit_relationships(cpag_units)
+        
+        enhanced_units = []
+        for unit in cpag_units:
+            enhanced_unit = unit.copy()
+            unit_id = unit['id']
+            
+            # 添加依赖信息
+            enhanced_unit['dependencies'] = relationships['dependencies'].get(unit_id, [])
+            
+            # 检查是否是替代路径的一部分
+            alternative_info = []
+            for alt_path in relationships['alternative_paths']:
+                if unit_id in alt_path['alternative_units']:
+                    alternative_info.append({
+                        'alternatives': [u for u in alt_path['alternative_units'] if u != unit_id],
+                        'target': alt_path['target']
+                    })
+            enhanced_unit['alternatives'] = alternative_info
+            
+            # 检查是否是启用链的一部分
+            chain_info = []
+            for chain in relationships['enabling_chains']:
+                if unit_id == chain['target_unit']:
+                    enhanced_unit['requires_all'] = chain['required_units']
+                elif unit_id in chain['required_units']:
+                    chain_info.append(chain['target_unit'])
+            enhanced_unit['enables'] = chain_info
+            
+            # 增强前置条件，添加逻辑关系
+            enhanced_unit['precondition_logic'] = self._analyze_precondition_logic(unit)
+            
+            enhanced_units.append(enhanced_unit)
+        
+        return enhanced_units
+    
+    def _analyze_precondition_logic(self, unit: Dict[str, Any]) -> Dict[str, Any]:
+        """分析单元的前置条件逻辑"""
+        preconditions = self._extract_conditions_from_unit(unit, 'precondition')
+        
+        if len(preconditions) <= 1:
+            return {'type': 'simple', 'conditions': preconditions}
+        
+        # 分析是否是AND还是OR关系
+        # 默认多个前置条件为AND关系
+        logic_type = 'AND'
+        
+        # 检查条件中是否有"或"的表达
+        combined_text = ' '.join(preconditions).lower()
+        if 'or' in combined_text or '或' in combined_text:
+            logic_type = 'OR'
+        
+        return {
+            'type': logic_type,
+            'conditions': preconditions,
+            'description': f"Requires {logic_type.lower()} of the conditions"
+        }
+
+
 class UnifiedCPAGProcessor:
     """Unified processor for all CPAG analysis tasks"""
     
     def __init__(self):
         self.supported_formats = {'.csv', '.pcap', '.pcapng'}
         self.neo4j_driver = None
+        self.relationship_analyzer = CPAGRelationshipAnalyzer()
         
     def detect_file_type(self, file_path: str) -> str:
         """Detect file type based on extension and magic bytes"""
@@ -200,6 +461,9 @@ class UnifiedCPAGProcessor:
             # Build CPAG from CSV data
             cpag_units = self._build_cpag_from_csv(standardized_df, device_map, rules)
             
+            # Enhance units with relationship analysis
+            cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
+            
             # Generate graph structures
             graph_data = self._build_graph_structures(cpag_units)
             
@@ -259,6 +523,9 @@ class UnifiedCPAGProcessor:
             
             # Build CPAG units from parsed data
             cpag_units = self._build_cpag_units_from_df(df)
+            
+            # Enhance units with relationship analysis
+            cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
             
             # Build graph structures
             graph_data = self._build_graph_structures_from_units(cpag_units)
@@ -678,20 +945,114 @@ class UnifiedCPAGProcessor:
                     'relation': 'enables'
                 })
         
-        # Create cross-device attack chains (PLCs can disrupt multiple devices)
+        # Create optimized attack chains avoiding redundancy
+        edges.extend(self._create_optimized_industrial_attack_chains(cpag_units, edges))
+        
+        return {'nodes': nodes, 'edges': edges}
+    
+    def _create_optimized_industrial_attack_chains(self, cpag_units: List[Dict[str, Any]], existing_edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """创建优化的工业攻击链，避免冗余"""
+        optimized_edges = []
+        edge_set = set()
+        
+        # 添加现有边到集合中
+        for edge in existing_edges:
+            edge_set.add((edge['source'], edge['target'], edge['relation']))
+        
+        # 1. 处理明确的依赖关系（优先级最高）
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            if 'dependencies' in unit and unit['dependencies']:
+                for dep_unit in unit['dependencies']:
+                    edge_key = (dep_unit, unit_id, 'requires')
+                    if edge_key not in edge_set:
+                        optimized_edges.append({
+                            'source': dep_unit,
+                            'target': unit_id,
+                            'relation': 'requires',
+                            'logic_type': 'AND'
+                        })
+                        edge_set.add(edge_key)
+        
+        # 2. 添加有限的PLC->设备控制链（最多3条）
         plc_units = [unit for unit in cpag_units if 'PLC' in unit.get('evidence', {}).get('device', '')]
         device_control_units = [unit for unit in cpag_units if unit.get('evidence', {}).get('operation') == 'control']
         
+        compromise_count = 0
         for plc_unit in plc_units:
-            for control_unit in device_control_units:
-                if plc_unit['id'] != control_unit['id']:
-                    edges.append({
-                        'source': plc_unit['id'],
-                        'target': control_unit['id'],
-                        'relation': 'compromises'
+            for control_unit in device_control_units[:2]:  # 限制每个PLC最多控制2个设备
+                if plc_unit['id'] != control_unit['id'] and compromise_count < 3:
+                    edge_key = (plc_unit['id'], control_unit['id'], 'compromises')
+                    if edge_key not in edge_set:
+                        optimized_edges.append({
+                            'source': plc_unit['id'],
+                            'target': control_unit['id'],
+                            'relation': 'compromises'
+                        })
+                        edge_set.add(edge_key)
+                        compromise_count += 1
+        
+        # 3. 添加有限的替代路径（OR关系）
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            if 'alternatives' in unit and unit['alternatives']:
+                # 每个单元最多显示1个主要替代路径
+                alt_info = unit['alternatives'][0]
+                if 'alternatives' in alt_info and alt_info['alternatives']:
+                    alt_unit = alt_info['alternatives'][0]
+                    edge_key = (alt_unit, unit_id, 'alternative_to')
+                    if edge_key not in edge_set:
+                        optimized_edges.append({
+                            'source': alt_unit,
+                            'target': unit_id,
+                            'relation': 'alternative_to',
+                            'logic_type': 'OR'
+                        })
+                        edge_set.add(edge_key)
+        
+        return optimized_edges
+    
+    def _create_logical_relationship_edges(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """为AND/OR逻辑关系创建边"""
+        logical_edges = []
+        
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            # 处理依赖关系（AND关系）
+            if 'dependencies' in unit and unit['dependencies']:
+                for dep_unit in unit['dependencies']:
+                    logical_edges.append({
+                        'source': dep_unit,
+                        'target': unit_id,
+                        'relation': 'requires',
+                        'logic_type': 'AND'
+                    })
+            
+            # 处理替代路径（OR关系）
+            if 'alternatives' in unit and unit['alternatives']:
+                for alt_info in unit['alternatives']:
+                    for alt_unit in alt_info['alternatives']:
+                        logical_edges.append({
+                            'source': alt_unit,
+                            'target': unit_id,
+                            'relation': 'alternative_to',
+                            'logic_type': 'OR'
+                        })
+            
+            # 处理多重前置条件（AND关系）
+            if 'requires_all' in unit and unit['requires_all']:
+                for req_unit in unit['requires_all']:
+                    logical_edges.append({
+                        'source': req_unit,
+                        'target': unit_id,
+                        'relation': 'required_by',
+                        'logic_type': 'AND'
                     })
         
-        return {'nodes': nodes, 'edges': edges}
+        return logical_edges
     
     def _parse_pcapng_enip_requests(self, pcap_path: str, max_pkts: int = 120000, target_cip: int = 8000) -> pd.DataFrame:
         """Parse PCAP-NG file for ENIP/CIP requests"""
@@ -978,69 +1339,24 @@ class UnifiedCPAGProcessor:
             return ["Established/managed a CIP session."]
     
     def _build_graph_structures_from_units(self, cpag_units: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Build graph structures from CPAG units"""
+        """Build optimized tree-like graph structures from CPAG units with minimal redundancy"""
         nodes = []
         edges = []
         
-        # Extract destinations from preconditions and actions
-        destinations = set()
-        for unit in cpag_units:
-            action = unit.get("action", "")
-            precondition = unit.get("precondition", [])
-            
-            # Extract IP from action
-            import re
-            ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", action)
-            if ip_match:
-                destinations.add(ip_match.group(1))
-            
-            # Extract IP from precondition
-            for precond in precondition:
-                ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", precond)
-                if ip_match:
-                    destinations.add(ip_match.group(1))
-        
-        # Create connectivity nodes
-        conn_nodes = {}
-        for dst in destinations:
-            node_id = f"conn::{dst}"
-            conn_nodes[dst] = node_id
-            nodes.append({
-                'id': node_id,
-                'label': f"{dst}:44818 connectivity",
-                'type': 'connectivity',
-                'dst': dst,
-                'category': 'session',
-                'count': 0,
-                'path': '',
-                'service': 'Connectivity'
-            })
-        
-        # Create action nodes and edges
+        # Create nodes for all units
         for unit in cpag_units:
             action_id = unit['id']
             action = unit.get('action', '')
             category = unit.get('category', 'session')
             count = unit.get('evidence', {}).get('count', 1)
             
-            # Extract destination from action or precondition
+            # Extract destination and path information
             import re
             dst = ''
-            
-            # Try action first
             ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", action)
             if ip_match:
                 dst = ip_match.group(1)
-            else:
-                # Try precondition
-                precondition = unit.get("precondition", [])
-                for precond in precondition:
-                    ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", precond)
-                    if ip_match:
-                        dst = ip_match.group(1)
-                        break
             
-            # Extract path from action
             path_match = re.search(r"tag '([^']+)'", action)
             path = path_match.group(1) if path_match else ''
             
@@ -1054,72 +1370,112 @@ class UnifiedCPAGProcessor:
                 'path': path,
                 'service': action.split(' on tag')[0] if ' on tag' in action else action
             })
-            
-            # Add edge from connectivity to action if destination found
-            if dst and dst in conn_nodes:
-                edges.append({
-                    'source': conn_nodes[dst],
-                    'target': action_id,
-                    'relation': 'enables'
-                })
         
-        # Enhanced edge generation - create logical connections even when connectivity logic fails
-        if len(edges) == 0 and len(nodes) > 1:
-            print("Warning: No edges generated from connectivity logic, creating enhanced fallback edges")
-            
-            # Group nodes by destination IP and type
-            dst_groups = {}
-            action_nodes = [n for n in nodes if n['type'] == 'action']
-            conn_nodes_list = [n for n in nodes if n['type'] == 'connectivity']
-            
-            # First, try to connect connectivity nodes to action nodes
-            for conn_node in conn_nodes_list:
-                conn_dst = conn_node.get('dst', '')
-                for action_node in action_nodes:
-                    action_dst = action_node.get('dst', '')
-                    if conn_dst and action_dst and conn_dst == action_dst:
-                        edges.append({
-                            'source': conn_node['id'],
-                            'target': action_node['id'],
-                            'relation': 'enables'
-                        })
-            
-            # Group action nodes by destination for chaining
-            for node in action_nodes:
-                dst = node.get('dst', '')
-                if dst:
-                    if dst not in dst_groups:
-                        dst_groups[dst] = []
-                    dst_groups[dst].append(node)
-            
-            # Create edges within destination groups (attack chains)
-            for dst, node_group in dst_groups.items():
-                if len(node_group) > 1:
-                    # Sort by category priority: session -> reconnaissance -> state_change
-                    category_priority = {'session': 0, 'reconnaissance': 1, 'state_change': 2}
-                    node_group.sort(key=lambda x: category_priority.get(x.get('category', 'session'), 3))
-                    
-                    # Create chain of dependencies
-                    for i in range(len(node_group) - 1):
-                        edges.append({
-                            'source': node_group[i]['id'],
-                            'target': node_group[i + 1]['id'],
-                            'relation': 'enables'
-                        })
-            
-            # If we still have no edges, create a simple sequential chain
-            if len(edges) == 0 and len(action_nodes) > 1:
-                print("Creating simple sequential chain as last resort")
-                for i in range(len(action_nodes) - 1):
-                    edges.append({
-                        'source': action_nodes[i]['id'],
-                        'target': action_nodes[i + 1]['id'],
-                        'relation': 'precedes'
-                    })
+        # Build optimized tree structure based on logical relationships
+        edges = self._build_optimized_tree_edges(cpag_units)
         
-        print(f"Final graph structure: {len(nodes)} nodes, {len(edges)} edges")
+        print(f"Optimized graph structure: {len(nodes)} nodes, {len(edges)} edges")
         
         return {'nodes': nodes, 'edges': edges}
+    
+    def _build_optimized_tree_edges(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """构建优化的树形边结构，避免冗余"""
+        edges = []
+        edge_set = set()  # 用于去重：(source, target, relation)
+        
+        # 1. 首先处理明确的依赖关系（树的主干）
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            # 处理dependencies - 这是主要的AND关系
+            if 'dependencies' in unit and unit['dependencies']:
+                for dep_unit in unit['dependencies']:
+                    edge_key = (dep_unit, unit_id, 'requires')
+                    if edge_key not in edge_set:
+                        edges.append({
+                            'source': dep_unit,
+                            'target': unit_id,
+                            'relation': 'requires',
+                            'logic_type': 'AND'
+                        })
+                        edge_set.add(edge_key)
+        
+        # 2. 添加OR关系（替代路径），但限制数量避免过度复杂
+        for unit in cpag_units:
+            unit_id = unit['id']
+            
+            if 'alternatives' in unit and unit['alternatives']:
+                # 每个单元只显示最多2个替代路径，避免图过于复杂
+                for alt_info in unit['alternatives'][:2]:
+                    for alt_unit in alt_info['alternatives'][:1]:  # 每个替代信息只取第一个
+                        edge_key = (alt_unit, unit_id, 'alternative_to')
+                        if edge_key not in edge_set:
+                            edges.append({
+                                'source': alt_unit,
+                                'target': unit_id,
+                                'relation': 'alternative_to',
+                                'logic_type': 'OR'
+                            })
+                            edge_set.add(edge_key)
+        
+        # 3. 如果没有生成足够的边，基于攻击逻辑创建基础树形结构
+        if len(edges) < len(cpag_units) * 0.3:  # 如果边太少，说明关系分析不充分
+            edges.extend(self._create_fallback_tree_structure(cpag_units, edge_set))
+        
+        return edges
+    
+    def _create_fallback_tree_structure(self, cpag_units: List[Dict[str, Any]], existing_edges: set) -> List[Dict[str, Any]]:
+        """当关系分析不充分时，创建基础的树形结构"""
+        fallback_edges = []
+        
+        # 按目标IP和攻击阶段组织单元
+        target_groups = {}
+        for unit in cpag_units:
+            # 提取目标IP
+            action = unit.get('action', '')
+            import re
+            ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", action)
+            target_ip = ip_match.group(1) if ip_match else 'unknown'
+            
+            if target_ip not in target_groups:
+                target_groups[target_ip] = {'session': [], 'reconnaissance': [], 'state_change': []}
+            
+            category = unit.get('category', 'session')
+            if category in target_groups[target_ip]:
+                target_groups[target_ip][category].append(unit)
+        
+        # 为每个目标创建攻击链：session -> reconnaissance -> state_change
+        for target_ip, categories in target_groups.items():
+            # 创建攻击阶段链
+            prev_units = categories['session']
+            
+            # session -> reconnaissance
+            for session_unit in prev_units:
+                for recon_unit in categories['reconnaissance']:
+                    edge_key = (session_unit['id'], recon_unit['id'], 'enables')
+                    if edge_key not in existing_edges:
+                        fallback_edges.append({
+                            'source': session_unit['id'],
+                            'target': recon_unit['id'],
+                            'relation': 'enables'
+                        })
+                        existing_edges.add(edge_key)
+            
+            # reconnaissance -> state_change
+            current_units = categories['reconnaissance'] if categories['reconnaissance'] else prev_units
+            for current_unit in current_units:
+                for state_unit in categories['state_change']:
+                    edge_key = (current_unit['id'], state_unit['id'], 'enables')
+                    if edge_key not in existing_edges:
+                        fallback_edges.append({
+                            'source': current_unit['id'],
+                            'target': state_unit['id'],
+                            'relation': 'enables'
+                        })
+                        existing_edges.add(edge_key)
+        
+        return fallback_edges
+    
     
     def _generate_pcap_visualizations(self, graph_data: Dict[str, Any], output_dir: str, top_k: int, top_per_plc: int):
         """Generate visualizations for PCAP data"""

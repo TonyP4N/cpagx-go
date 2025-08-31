@@ -100,10 +100,18 @@ class EnhancedNeo4jStore:
         if not nodes:
             return {'nodes_stored': 0, 'edges_stored': 0, 'status': 'no_data'}
         
-        # Add task_id to all nodes for isolation
+        # Add task_id to all nodes for isolation and enhance with relationship metadata
         for node in nodes:
             node['task_id'] = task_id
             node['created_at'] = datetime.utcnow().isoformat()
+            
+            # Add relationship metadata for AND/OR logic
+            if 'precondition_logic' in node:
+                node['precondition_logic_type'] = node['precondition_logic'].get('type', 'simple')
+            if 'dependencies' in node:
+                node['dependency_count'] = len(node['dependencies'])
+            if 'alternatives' in node:
+                node['alternative_count'] = len(node['alternatives'])
         
         try:
             self.ensure_constraints(label)
@@ -158,7 +166,7 @@ class EnhancedNeo4jStore:
         return total_stored
     
     def _batch_store_edges(self, edges: List[Dict], task_id: str, label: str, batch_size: int = 2000) -> int:
-        """Store edges in batches with relationship type handling"""
+        """Store edges in batches with relationship type handling and AND/OR logic support"""
         if not edges:
             return 0
         
@@ -175,11 +183,15 @@ class EnhancedNeo4jStore:
                 for i in range(0, len(rel_edges), batch_size):
                     batch = rel_edges[i:i + batch_size]
                     
+                    # Enhanced cypher with logic_type property
                     cypher = f"""
                     UNWIND $edges AS edge
                     MATCH (s:{label} {{id: edge.source, task_id: $task_id}})
                     MATCH (t:{label} {{id: edge.target, task_id: $task_id}})
-                    MERGE (s)-[:{rel_type}]->(t)
+                    MERGE (s)-[r:{rel_type}]->(t)
+                    SET r.logic_type = COALESCE(edge.logic_type, 'SEQUENTIAL'),
+                        r.created_at = datetime(),
+                        r.task_id = $task_id
                     """
                     
                     session.run(cypher, edges=batch, task_id=task_id)
@@ -259,10 +271,11 @@ class EnhancedNeo4jStore:
                 
                 nodes = [dict(record['n']) for record in nodes_result]
                 
-                # Get edges
+                # Get edges with enhanced relationship properties
                 edges_result = session.run(f"""
                     MATCH (s:{label} {{task_id: $task_id}})-[r]->(t:{label} {{task_id: $task_id}})
-                    RETURN s.id as source, type(r) as relation, t.id as target
+                    RETURN s.id as source, type(r) as relation, t.id as target,
+                           r.logic_type as logic_type, r.created_at as created_at
                 """, task_id=task_id)
                 
                 edges = [dict(record) for record in edges_result]
