@@ -28,6 +28,12 @@ from enum import Enum
 import pandas as pd
 import numpy as np
 
+# Import confidence calculator
+import sys
+import os
+sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
+from core.confidence_calculator import ConfidenceCalculator
+
 # Neo4j integration
 try:
     from neo4j import GraphDatabase
@@ -312,23 +318,24 @@ class UnifiedCPAGProcessor:
     """Unified processor for all CPAG analysis tasks"""
     
     def __init__(self):
+        self.confidence_calculator = ConfidenceCalculator()
         self.supported_formats = {'.csv', '.pcap', '.pcapng'}
         self.neo4j_driver = None
         self.relationship_analyzer = CPAGRelationshipAnalyzer()
         
     def detect_file_type(self, file_path: str) -> str:
         """Detect file type based on extension and magic bytes"""
-        file_path = Path(file_path)
-        extension = file_path.suffix.lower()
+        file_path_obj = Path(file_path)
+        extension = file_path_obj.suffix.lower()
         
         if extension == '.csv':
             return 'csv'
         elif extension in {'.pcap', '.pcapng'}:
-            return self._detect_pcap_format(file_path)
+            return self._detect_pcap_format(file_path_obj)
         else:
             # Try to detect by content
             try:
-                return self._detect_by_content(file_path)
+                return self._detect_by_content(file_path_obj)
             except Exception:
                 raise ValueError(f"Unsupported file format: {extension}")
     
@@ -649,7 +656,7 @@ class UnifiedCPAGProcessor:
                     'category': category,
                     'precondition': [f"Network connectivity between {src_device} and {dst_device}"],
                     'action': f"Communication from {src_device} to {dst_device}:{port}",
-                    'postcondition': self._get_postcondition(category, dst_device, port),
+                    'postcondition': self._get_postcondition(category, str(dst_device), port),
                     'evidence': {'count': count, 'source': src, 'destination': dst, 'port': port}
                 }
                 units.append(unit)
@@ -671,7 +678,7 @@ class UnifiedCPAGProcessor:
                     'category': category,
                     'precondition': [f"Service connectivity to {dst_device}"],
                     'action': f"{service} on {dst_device}",
-                    'postcondition': self._get_postcondition(category, dst_device, service),
+                    'postcondition': self._get_postcondition(category, str(dst_device), service),
                     'evidence': {'count': count, 'destination': dst, 'service': service}
                 }
                 units.append(unit)
@@ -1392,11 +1399,35 @@ class UnifiedCPAGProcessor:
                 for dep_unit in unit['dependencies']:
                     edge_key = (dep_unit, unit_id, 'requires')
                     if edge_key not in edge_set:
+                        # Calculate confidence for dependency edge
+                        source_unit = next((u for u in cpag_units if u['id'] == dep_unit), {})
+                        target_unit = unit
+                        
+                        evidence = {
+                            'source': 'dependency_analysis',
+                            'count': len(unit.get('dependencies', [])),
+                            'category': unit.get('category', 'session'),
+                            'relation': 'requires'
+                        }
+                        
+                        context = {
+                            'total_units': len(cpag_units),
+                            'analysis_type': 'dependency'
+                        }
+                        
+                        confidence = self.confidence_calculator.calculate_edge_confidence(
+                            source_node=source_unit,
+                            target_node=target_unit,
+                            evidence=evidence,
+                            context=context
+                        )
+                        
                         edges.append({
                             'source': dep_unit,
                             'target': unit_id,
                             'relation': 'requires',
-                            'logic_type': 'AND'
+                            'logic_type': 'AND',
+                            'confidence': confidence
                         })
                         edge_set.add(edge_key)
         
@@ -1410,11 +1441,35 @@ class UnifiedCPAGProcessor:
                     for alt_unit in alt_info['alternatives'][:1]:  # 每个替代信息只取第一个
                         edge_key = (alt_unit, unit_id, 'alternative_to')
                         if edge_key not in edge_set:
+                            # Calculate confidence for alternative edge
+                            source_unit = next((u for u in cpag_units if u['id'] == alt_unit), {})
+                            target_unit = unit
+                            
+                            evidence = {
+                                'source': 'alternative_analysis',
+                                'count': len(unit.get('alternatives', [])),
+                                'category': unit.get('category', 'session'),
+                                'relation': 'alternative_to'
+                            }
+                            
+                            context = {
+                                'total_units': len(cpag_units),
+                                'analysis_type': 'alternative'
+                            }
+                            
+                            confidence = self.confidence_calculator.calculate_edge_confidence(
+                                source_node=source_unit,
+                                target_node=target_unit,
+                                evidence=evidence,
+                                context=context
+                            )
+                            
                             edges.append({
                                 'source': alt_unit,
                                 'target': unit_id,
                                 'relation': 'alternative_to',
-                                'logic_type': 'OR'
+                                'logic_type': 'OR',
+                                'confidence': confidence
                             })
                             edge_set.add(edge_key)
         
@@ -1454,10 +1509,31 @@ class UnifiedCPAGProcessor:
                 for recon_unit in categories['reconnaissance']:
                     edge_key = (session_unit['id'], recon_unit['id'], 'enables')
                     if edge_key not in existing_edges:
+                        # Calculate confidence for fallback edge
+                        evidence = {
+                            'source': 'fallback_analysis',
+                            'count': 1,  # Fallback edges have lower confidence
+                            'category': 'reconnaissance',
+                            'relation': 'enables'
+                        }
+                        
+                        context = {
+                            'target_ip': target_ip,
+                            'analysis_type': 'fallback'
+                        }
+                        
+                        confidence = self.confidence_calculator.calculate_edge_confidence(
+                            source_node=session_unit,
+                            target_node=recon_unit,
+                            evidence=evidence,
+                            context=context
+                        )
+                        
                         fallback_edges.append({
                             'source': session_unit['id'],
                             'target': recon_unit['id'],
-                            'relation': 'enables'
+                            'relation': 'enables',
+                            'confidence': confidence
                         })
                         existing_edges.add(edge_key)
             
@@ -1467,10 +1543,31 @@ class UnifiedCPAGProcessor:
                 for state_unit in categories['state_change']:
                     edge_key = (current_unit['id'], state_unit['id'], 'enables')
                     if edge_key not in existing_edges:
+                        # Calculate confidence for state change fallback edge
+                        evidence = {
+                            'source': 'fallback_analysis',
+                            'count': 1,  # Fallback edges have lower confidence
+                            'category': 'state_change',
+                            'relation': 'enables'
+                        }
+                        
+                        context = {
+                            'target_ip': target_ip,
+                            'analysis_type': 'fallback'
+                        }
+                        
+                        confidence = self.confidence_calculator.calculate_edge_confidence(
+                            source_node=current_unit,
+                            target_node=state_unit,
+                            evidence=evidence,
+                            context=context
+                        )
+                        
                         fallback_edges.append({
                             'source': current_unit['id'],
                             'target': state_unit['id'],
-                            'relation': 'enables'
+                            'relation': 'enables',
+                            'confidence': confidence
                         })
                         existing_edges.add(edge_key)
         
@@ -1479,7 +1576,7 @@ class UnifiedCPAGProcessor:
     
     def _generate_pcap_visualizations(self, graph_data: Dict[str, Any], output_dir: str, top_k: int, top_per_plc: int):
         """Generate visualizations for PCAP data"""
-        if not VISUALIZATION_AVAILABLE:
+        if not VISUALIZATION_AVAILABLE or plt is None or nx is None:
             return
         
         try:

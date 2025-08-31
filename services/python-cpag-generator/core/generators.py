@@ -11,6 +11,13 @@ from typing import Any, Dict
 import networkx as nx
 import pandas as pd
 import os
+import sys
+from pathlib import Path
+
+# Add current directory to path for imports
+current_dir = Path(__file__).parent
+sys.path.insert(0, str(current_dir))
+from confidence_calculator import ConfidenceCalculator
 
 
 class CSVCPAGGenerator:
@@ -20,6 +27,9 @@ class CSVCPAGGenerator:
     - parse_csv: normalize and melt CSV into long-form time-series
     - build_cpag: derive a basic CPAG graph from time-series
     """
+    
+    def __init__(self):
+        self.confidence_calculator = ConfidenceCalculator()
 
     def parse_csv(self, csv_path: str) -> pd.DataFrame:
         try:
@@ -105,18 +115,61 @@ class CSVCPAGGenerator:
             graph.add_node(post_id, type="postcondition", name=f"SensorData({tag})", source=tag, target=tag)
             post_nodes.append(post_id)
 
-        # edges
+        # edges with enhanced confidence calculation
         edges = []
         edge_id = 0
+        
+        # Prepare context for confidence calculation
+        context = {
+            'device_map': device_map,
+            'data_source': 'csv',
+            'total_records': len(df),
+            'unique_tags': len(unique_tags),
+            'tag_types': df['tag_type'].unique().tolist() if not df.empty else []
+        }
+        
         for pre_id in pre_nodes:
             for act_id in action_nodes:
-                graph.add_edge(pre_id, act_id, probability=0.8, evidence=[{"source": "precondition", "detail": graph.nodes[pre_id]}])
-                edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": 0.8, "evidence": [{"source": "precondition", "detail": graph.nodes[pre_id]}]})
+                # Prepare evidence for confidence calculation
+                evidence = {
+                    "source": "precondition",
+                    "detail": graph.nodes[pre_id],
+                    "count": len(df[df['tag'] == graph.nodes[pre_id]['source']]) if not df.empty else 1,
+                    "category": "session"
+                }
+                
+                # Calculate dynamic confidence
+                confidence = self.confidence_calculator.calculate_edge_confidence(
+                    source_node=graph.nodes[pre_id],
+                    target_node=graph.nodes[act_id],
+                    evidence=evidence,
+                    context=context
+                )
+                
+                graph.add_edge(pre_id, act_id, probability=confidence, evidence=[evidence])
+                edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": confidence, "evidence": [evidence]})
                 edge_id += 1
+                
         for act_id in action_nodes:
             for post_id in post_nodes:
-                graph.add_edge(act_id, post_id, probability=0.7, evidence=[{"source": "action", "detail": graph.nodes[act_id]}])
-                edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": 0.7, "evidence": [{"source": "action", "detail": graph.nodes[act_id]}]})
+                # Prepare evidence for confidence calculation
+                evidence = {
+                    "source": "action",
+                    "detail": graph.nodes[act_id],
+                    "count": len(df[df['tag_type'] == graph.nodes[act_id]['source'].replace('_Device', '')]) if not df.empty else 1,
+                    "category": "state_change"
+                }
+                
+                # Calculate dynamic confidence
+                confidence = self.confidence_calculator.calculate_edge_confidence(
+                    source_node=graph.nodes[act_id],
+                    target_node=graph.nodes[post_id],
+                    evidence=evidence,
+                    context=context
+                )
+                
+                graph.add_edge(act_id, post_id, probability=confidence, evidence=[evidence])
+                edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": confidence, "evidence": [evidence]})
                 edge_id += 1
 
         nodes = []
@@ -141,6 +194,9 @@ class PCAPCPAGGenerator:
     - parse_pcap: extract basic packet/evidence features
     - build_cpag: derive a basic CPAG from Modbus or fall back to network reachability
     """
+    
+    def __init__(self):
+        self.confidence_calculator = ConfidenceCalculator()
 
     def parse_pcap(self, pcap_path: str) -> Dict[str, Any]:
         try:
@@ -305,17 +361,75 @@ class PCAPCPAGGenerator:
             graph.add_node(post_id, type="postcondition", name=f"ControlEstablished({dst})", source=dst, target=dst)
             post_nodes.append(post_id)
 
+        # Enhanced edges with confidence calculation
         edges = []
         edge_id = 0
+        
+        # Prepare context for confidence calculation
+        context = {
+            'device_map': device_map,
+            'data_source': 'pcap',
+            'total_packets': pcap_data.get('total_packets', 0),
+            'modbus_writes': pcap_data.get('modbus_writes', 0),
+            'modbus_evidence': modbus_evidence
+        }
+        
         for pre_id in pre_nodes:
             for act_id in action_nodes:
-                graph.add_edge(pre_id, act_id, probability=0.9, evidence=[{"source": "precondition", "detail": graph.nodes[pre_id]}])
-                edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": 0.9, "evidence": [{"source": "precondition", "detail": graph.nodes[pre_id]}]})
+                # Extract evidence details for confidence calculation
+                related_evidence = [e for e in modbus_evidence if e.get('src') in graph.nodes[pre_id]['name'] or e.get('dst') in graph.nodes[pre_id]['name']]
+                
+                evidence = {
+                    "source": "precondition",
+                    "detail": graph.nodes[pre_id],
+                    "count": len(related_evidence) + 1,  # +1 to avoid zero
+                    "category": "session",
+                    "port": 502,  # Modbus port
+                    "protocol": "modbus"
+                }
+                
+                # Calculate dynamic confidence
+                confidence = self.confidence_calculator.calculate_edge_confidence(
+                    source_node=graph.nodes[pre_id],
+                    target_node=graph.nodes[act_id],
+                    evidence=evidence,
+                    context=context
+                )
+                
+                graph.add_edge(pre_id, act_id, probability=confidence, evidence=[evidence])
+                edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": confidence, "evidence": [evidence]})
                 edge_id += 1
+                
         for act_id in action_nodes:
             for post_id in post_nodes:
-                graph.add_edge(act_id, post_id, probability=0.8, evidence=[{"source": "action", "detail": graph.nodes[act_id]}])
-                edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": 0.8, "evidence": [{"source": "action", "detail": graph.nodes[act_id]}]})
+                # Extract modbus function code details
+                action_node = graph.nodes[act_id]
+                func_code = None
+                for evidence_item in modbus_evidence:
+                    if evidence_item.get('dst') in action_node['target']:
+                        func_code = evidence_item.get('function_code')
+                        break
+                
+                evidence = {
+                    "source": "action", 
+                    "detail": action_node,
+                    "count": len(modbus_evidence),
+                    "category": "state_change",
+                    "port": 502,
+                    "protocol": "modbus",
+                    "function_code": func_code
+                }
+                
+                # Calculate dynamic confidence
+                confidence = self.confidence_calculator.calculate_edge_confidence(
+                    source_node=graph.nodes[act_id],
+                    target_node=graph.nodes[post_id],
+                    evidence=evidence,
+                    context=context
+                )
+                
+                graph.add_edge(act_id, post_id, probability=confidence, evidence=[evidence])
+                edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": confidence, "evidence": [evidence]})
                 edge_id += 1
 
         nodes = []
@@ -359,14 +473,59 @@ class PCAPCPAGGenerator:
             post_id = f"post_discovery_{i}"
             nodes.append({"id": post_id, "type": "postcondition", "name": f"ServiceDiscovered({ip})", "source": ip, "target": ip})
 
+        # Enhanced edges with confidence calculation for basic network CPAG
+        context = {
+            'device_map': device_map,
+            'data_source': 'pcap_basic',
+            'total_packets': pcap_data.get('total_packets', 0),
+            'unique_ips': len(unique_ips)
+        }
+        
         edge_id = 0
         for i in range(min(len(unique_ips), 3)):
             pre_id = f"pre_network_{i}"
             act_id = f"act_scan_{i}"
             post_id = f"post_discovery_{i}"
-            edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": 0.7, "evidence": [{"source": "network_analysis"}]})
+            
+            # First edge: precondition -> action
+            evidence1 = {
+                "source": "network_analysis",
+                "count": len([p for p in packets if p.get('dst_ip') == unique_ips[i]]),
+                "category": "session",
+                "destination": unique_ips[i]
+            }
+            
+            pre_node = {"type": "precondition", "target": unique_ips[i]}
+            act_node = {"type": "action", "source": "attacker", "target": unique_ips[i]}
+            
+            confidence1 = self.confidence_calculator.calculate_edge_confidence(
+                source_node=pre_node,
+                target_node=act_node,
+                evidence=evidence1,
+                context=context
+            )
+            
+            edges.append({"id": f"e{edge_id}", "source": pre_id, "target": act_id, "probability": confidence1, "evidence": [evidence1]})
             edge_id += 1
-            edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": 0.6, "evidence": [{"source": "network_analysis"}]})
+            
+            # Second edge: action -> postcondition
+            evidence2 = {
+                "source": "network_analysis",
+                "count": evidence1["count"],
+                "category": "reconnaissance", 
+                "destination": unique_ips[i]
+            }
+            
+            post_node = {"type": "postcondition", "target": unique_ips[i]}
+            
+            confidence2 = self.confidence_calculator.calculate_edge_confidence(
+                source_node=act_node,
+                target_node=post_node,
+                evidence=evidence2,
+                context=context
+            )
+            
+            edges.append({"id": f"e{edge_id}", "source": act_id, "target": post_id, "probability": confidence2, "evidence": [evidence2]})
             edge_id += 1
 
         return {
