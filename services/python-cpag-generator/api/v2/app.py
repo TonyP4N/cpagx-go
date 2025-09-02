@@ -76,7 +76,6 @@ async def generate_cpag(
     wipe_neo4j: bool = Form(False),
     top_k: int = Form(40),
     top_per_plc: int = Form(20),
-    build_minimal: bool = Form(True),
     build_enhanced: bool = Form(False),
     pre_window: int = Form(20),
     post_window: int = Form(20),
@@ -140,7 +139,6 @@ async def generate_cpag(
                     wipe_neo4j,
                     top_k,
                     top_per_plc,
-                    build_minimal,
                     build_enhanced,
                     pre_window,
                     post_window,
@@ -193,8 +191,8 @@ async def get_task_status(task_id: str):
             # 检查结果文件
             cpag_files = [
                 os.path.join(task_dir, 'cpag_units.json'),
-                os.path.join(task_dir, 'cpag_minimal.json'),
-                os.path.join(task_dir, 'cpag_enhanced.json')
+                os.path.join(task_dir, 'cpag_enhanced.json'),
+                os.path.join(task_dir, 'cpag_tcity.json')
             ]
             
             for cpag_file in cpag_files:
@@ -284,8 +282,8 @@ async def get_batch_task_status(task_ids: str):
                     # 检查结果文件
                     cpag_files = [
                         os.path.join(task_dir, 'cpag_units.json'),
-                        os.path.join(task_dir, 'cpag_minimal.json'),
-                        os.path.join(task_dir, 'cpag_enhanced.json')
+                        os.path.join(task_dir, 'cpag_enhanced.json'),
+                        os.path.join(task_dir, 'cpag_tcity.json')
                     ]
                     
                     status_info = {
@@ -361,10 +359,10 @@ async def get_task_result(task_id: str):
                         filename=f"cpag-{task_id}.json",
                         media_type='application/json'
                     )
-    # 回退旧逻辑
+
     for result_file in [
         os.path.join(task_dir, 'cpag_enhanced.json'),
-        os.path.join(task_dir, 'cpag_minimal.json'),
+        os.path.join(task_dir, 'cpag_tcity.json'),
         os.path.join(task_dir, 'cpag_units.json')
     ]:
         if os.path.exists(result_file):

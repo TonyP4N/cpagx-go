@@ -322,6 +322,579 @@ class UnifiedCPAGProcessor:
         self.supported_formats = {'.csv', '.pcap', '.pcapng'}
         self.neo4j_driver = None
         self.relationship_analyzer = CPAGRelationshipAnalyzer()
+    
+    def _convert_to_tcity_format(self, cpag_units: List[Dict[str, Any]], graph_data: Dict[str, Any]) -> Dict[str, Any]:
+        """将CPAG数据转换为tcity格式，基于真实的攻击路径"""
+        # 首先对CPAG单元进行去重和聚合
+        aggregated_units = self._aggregate_similar_units(cpag_units)
+        
+        tcity_nodes = []
+        tcity_edges = []
+        
+        # 定义颜色配置
+        color_configs = {
+            'init': {
+                'lineColor': '#f5684c',
+                'fillColor': '#FFD6C2',
+                'textColor': '#000000'
+            },
+            'cyber': {
+                'lineColor': '#75aed1',
+                'fillColor': '#c4e9ff',
+                'textColor': '#000000'
+            },
+            'physical': {
+                'lineColor': '#ffe959',
+                'fillColor': '#fcf2b1',
+                'textColor': '#000000'
+            },
+            'impact': {
+                'lineColor': '#6ae366',
+                'fillColor': '#dfffdb',
+                'textColor': '#000000'
+            },
+            'action': {
+                'lineColor': '#808080',
+                'fillColor': '#FFFFFF',
+                'textColor': '#000000'
+            },
+            'physical-action': {
+                'lineColor': '#ffe959',
+                'fillColor': '#fcf2b1',
+                'textColor': '#000000'
+            },
+            'or': {
+                'lineColor': '#b87aff',
+                'fillColor': '#e8cfff',
+                'textColor': '#000000'
+            }
+        }
+        
+        # 创建条件到单元的映射，用于构建攻击路径
+        postcondition_to_units = {}  # 后置条件 -> 提供此条件的单元
+        precondition_to_units = {}   # 前置条件 -> 需要此条件的单元
+        
+        # 先建立映射关系
+        for unit in aggregated_units:
+            unit_id = unit.get('id', '')
+            
+            # 映射后置条件
+            postconditions = unit.get('postcondition', [])
+            if not isinstance(postconditions, list):
+                postconditions = [postconditions] if postconditions else []
+            
+            for postcond in postconditions:
+                if isinstance(postcond, str) and postcond.strip():
+                    if postcond not in postcondition_to_units:
+                        postcondition_to_units[postcond] = []
+                    postcondition_to_units[postcond].append(unit_id)
+            
+            # 映射前置条件
+            preconditions = unit.get('precondition', [])
+            if not isinstance(preconditions, list):
+                preconditions = [preconditions] if preconditions else []
+            
+            for precond in preconditions:
+                if isinstance(precond, str) and precond.strip():
+                    if precond not in precondition_to_units:
+                        precondition_to_units[precond] = []
+                    precondition_to_units[precond].append(unit_id)
+        
+        # 分层布局算法
+        layers = self._create_attack_graph_layers(aggregated_units, postcondition_to_units, precondition_to_units)
+        
+        # 生成节点位置 - 改进的布局算法
+        layer_spacing = 180  # 增加垂直间距
+        min_node_spacing = 150  # 最小水平间距
+        start_y = 120
+        canvas_width = 1200  # 画布宽度
+        
+        for layer_idx, layer_units in enumerate(layers):
+            y = start_y + layer_idx * layer_spacing
+            
+            # 根据节点数量动态调整间距
+            num_nodes = len(layer_units)
+            if num_nodes <= 1:
+                node_spacing = min_node_spacing
+                start_x = canvas_width // 2
+            else:
+                # 计算最佳间距，确保不超出画布宽度
+                max_total_width = canvas_width - 200  # 留边距
+                ideal_spacing = max_total_width / (num_nodes - 1) if num_nodes > 1 else min_node_spacing
+                node_spacing = max(min_node_spacing, min(ideal_spacing, 300))  # 限制最大间距
+                
+                total_width = (num_nodes - 1) * node_spacing
+                start_x = (canvas_width - total_width) // 2
+            
+            for i, unit_id in enumerate(layer_units):
+                if num_nodes == 1:
+                    x = start_x
+                else:
+                    x = start_x + i * node_spacing
+                
+                # 找到对应的单元数据
+                unit = next((u for u in aggregated_units if u.get('id') == unit_id), None)
+                if not unit:
+                    continue
+                
+                # 确定节点类型
+                node_type = self._determine_node_type_from_cpag(unit)
+                
+                # 生成节点标签
+                label = self._generate_node_label(unit)
+                
+                # 计算置信度值
+                b_value = self._calculate_unit_confidence(unit)
+                
+                # 确定节点大小
+                radius = 13
+                if node_type == 'or':
+                    radius = 19
+                elif node_type in ['action', 'physical-action']:
+                    radius = 17
+                elif node_type == 'init':
+                    radius = 15
+                
+                tcity_node = {
+                    'x': x,
+                    'y': y,
+                    'r': radius,
+                    'label': label,
+                    'id': unit_id,
+                    'value': 'none',
+                    'type': node_type,
+                    'properties': {
+                        'bValue': f"{b_value:.4f}"
+                    },
+                    'colorConfig': color_configs.get(node_type, color_configs['cyber'])
+                }
+                
+                tcity_nodes.append(tcity_node)
+        
+        # 生成攻击路径边
+        tcity_edges = self._generate_attack_edges(aggregated_units, postcondition_to_units, precondition_to_units)
+        
+        # 确定源节点和目标节点
+        source_node = self._find_initial_node(aggregated_units)
+        target_node = self._find_target_node(aggregated_units)
+        
+        # 创建tcity格式的完整结构
+        tcity_data = {
+            'graph': {
+                'graphTitle': 'Cyber-physical attack graph',
+                'nodes': tcity_nodes,
+                'edges': tcity_edges,
+                'source': source_node or (tcity_nodes[0]['id'] if tcity_nodes else 'attacker'),
+                'target': target_node or (tcity_nodes[-1]['id'] if tcity_nodes else 'target')
+            }
+        }
+        
+        return tcity_data
+    
+    def _aggregate_similar_units(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """聚合相似的CPAG单元，减少节点数量"""
+        aggregated = {}
+        device_actions = {}  # 设备 -> 动作类型 -> 单元列表
+        
+        for unit in cpag_units:
+            # 提取关键信息用于聚合
+            category = unit.get('category', 'unknown')
+            evidence = unit.get('evidence', {})
+            device = evidence.get('device', 'unknown') if isinstance(evidence, dict) else 'unknown'
+            action_type = unit.get('action', '').lower()
+            
+            # 确定聚合键
+            if category in ['session', 'reconnaissance', 'control', 'manipulation']:
+                # 按设备和动作类型聚合
+                if 'connect' in action_type or 'establish' in action_type:
+                    agg_key = f"CONN_{device}"
+                elif 'read' in action_type:
+                    agg_key = f"READ_{device}"
+                elif 'write' in action_type or 'control' in action_type:
+                    agg_key = f"CONTROL_{device}"
+                elif 'manipulate' in action_type or 'modify' in action_type:
+                    agg_key = f"MANIP_{device}"
+                else:
+                    # 使用原始ID作为键，不聚合
+                    agg_key = unit.get('id', f'unknown_{len(aggregated)}')
+            else:
+                # 对于其他类型，使用原始ID
+                agg_key = unit.get('id', f'unknown_{len(aggregated)}')
+            
+            if agg_key not in aggregated:
+                # 创建聚合单元
+                aggregated_unit = {
+                    'id': agg_key,
+                    'category': category,
+                    'action': self._get_generic_action_name(category, action_type, device),
+                    'precondition': unit.get('precondition', []),
+                    'postcondition': unit.get('postcondition', []),
+                    'evidence': {
+                        'device': device,
+                        'type': evidence.get('type', 'unknown') if isinstance(evidence, dict) else 'unknown',
+                        'count': 0,
+                        'aggregated_count': 0
+                    },
+                    'confidence': {'combined': 0.0, 'count': 0},
+                    'dependencies': unit.get('dependencies', []),
+                    'alternatives': unit.get('alternatives', []),
+                    'enables': unit.get('enables', []),
+                    'precondition_logic': unit.get('precondition_logic', {})
+                }
+                aggregated[agg_key] = aggregated_unit
+            
+            # 更新聚合统计
+            agg_unit = aggregated[agg_key]
+            if isinstance(evidence, dict) and 'count' in evidence:
+                agg_unit['evidence']['count'] += evidence.get('count', 0)
+            agg_unit['evidence']['aggregated_count'] += 1
+            
+            # 累积置信度计算
+            unit_confidence = self._calculate_original_unit_confidence(unit)
+            agg_unit['confidence']['combined'] += unit_confidence
+            agg_unit['confidence']['count'] += 1
+            
+            # 合并前置条件和后置条件（去重）
+            if 'precondition' in unit:
+                existing_precond = set(str(p) for p in agg_unit.get('precondition', []))
+                for precond in unit['precondition']:
+                    if str(precond) not in existing_precond:
+                        agg_unit['precondition'].append(precond)
+                        existing_precond.add(str(precond))
+            
+            if 'postcondition' in unit:
+                existing_postcond = set(str(p) for p in agg_unit.get('postcondition', []))
+                for postcond in unit['postcondition']:
+                    if str(postcond) not in existing_postcond:
+                        agg_unit['postcondition'].append(postcond)
+                        existing_postcond.add(str(postcond))
+        
+        # 计算每个聚合单元的最终置信度
+        for agg_unit in aggregated.values():
+            confidence_data = agg_unit['confidence']
+            if confidence_data['count'] > 0:
+                # 计算平均置信度，并根据数据量进行调整
+                avg_confidence = confidence_data['combined'] / confidence_data['count']
+                evidence_count = agg_unit['evidence'].get('count', 0)
+                
+                # 根据证据数量调整置信度 (更多证据 = 更高置信度)
+                evidence_boost = min(0.2, evidence_count / 1000 * 0.1)  # 最多增加0.2
+                final_confidence = min(1.0, avg_confidence + evidence_boost)
+                
+                agg_unit['confidence']['combined'] = final_confidence
+            else:
+                agg_unit['confidence']['combined'] = 0.5  # 默认值
+        
+        # 进一步合并非常相似的节点
+        final_aggregated = self._merge_highly_similar_nodes(list(aggregated.values()))
+        
+        print(f"Aggregation: {len(cpag_units)} units -> {len(final_aggregated)} aggregated units")
+        return final_aggregated
+    
+    def _get_generic_action_name(self, category: str, action_type: str, device: str) -> str:
+        """生成通用的动作名称"""
+        if category == 'session':
+            if 'connect' in action_type or 'establish' in action_type:
+                return f"Connect to {device}"
+            else:
+                return f"Session with {device}"
+        elif category == 'reconnaissance':
+            if 'read' in action_type:
+                return f"Read data from {device}"
+            else:
+                return f"Reconnaissance on {device}"
+        elif category == 'control':
+            return f"Control {device}"
+        elif category == 'manipulation':
+            return f"Manipulate {device}"
+        elif category == 'impact':
+            return f"Impact on {device}"
+        else:
+            return f"Action on {device}"
+    
+    def _merge_highly_similar_nodes(self, units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """合并高度相似的节点"""
+        merged = []
+        device_categories = {}  # 设备 -> 类别 -> 单元
+        
+        for unit in units:
+            evidence = unit.get('evidence', {})
+            device = evidence.get('device', 'unknown') if isinstance(evidence, dict) else 'unknown'
+            category = unit.get('category', 'unknown')
+            
+            key = f"{device}_{category}"
+            
+            if key not in device_categories:
+                device_categories[key] = []
+            device_categories[key].append(unit)
+        
+        # 对每个设备-类别组合，如果有多个单元，合并成一个
+        for key, group_units in device_categories.items():
+            if len(group_units) == 1:
+                merged.append(group_units[0])
+            else:
+                # 合并多个单元
+                merged_unit = group_units[0].copy()  # 使用第一个作为基础
+                
+                # 合并统计信息
+                total_count = sum(u.get('evidence', {}).get('count', 0) for u in group_units if isinstance(u.get('evidence'), dict))
+                total_aggregated = sum(u.get('evidence', {}).get('aggregated_count', 0) for u in group_units if isinstance(u.get('evidence'), dict))
+                
+                merged_unit['evidence']['count'] = total_count
+                merged_unit['evidence']['aggregated_count'] = total_aggregated
+                
+                # 合并前置条件和后置条件
+                all_precond = set()
+                all_postcond = set()
+                
+                for unit in group_units:
+                    for precond in unit.get('precondition', []):
+                        all_precond.add(str(precond))
+                    for postcond in unit.get('postcondition', []):
+                        all_postcond.add(str(postcond))
+                
+                merged_unit['precondition'] = list(all_precond)
+                merged_unit['postcondition'] = list(all_postcond)
+                
+                merged.append(merged_unit)
+        
+        return merged
+    
+    def _determine_node_type_from_cpag(self, unit: Dict[str, Any]) -> str:
+        """根据CPAG单元确定tcity节点类型"""
+        category = unit.get('category', '').lower()
+        unit_id = unit.get('id', '').lower()
+        action = unit.get('action', '').lower()
+        preconditions = unit.get('precondition', [])
+        
+        # 分析前置条件来判断节点类型
+        has_physical_access = any('physical access' in str(precond).lower() for precond in preconditions if precond)
+        
+        # 根据CPAG类别映射节点类型
+        if category == 'session':
+            if has_physical_access:
+                return 'physical'  # 需要物理访问的连接
+            else:
+                return 'cyber'     # 网络连接
+        elif category == 'reconnaissance':
+            return 'cyber'         # 侦察行为
+        elif category == 'control':
+            return 'action'        # 控制动作
+        elif category == 'impact':
+            return 'impact'        # 影响节点
+        elif category == 'manipulation':
+            return 'action'        # 操纵动作
+        elif 'attacker' in unit_id:
+            return 'init'          # 攻击者起始点
+        elif 'target' in unit_id:
+            return 'impact'        # 目标节点
+        else:
+            # 基于动作内容进一步判断
+            if any(keyword in action for keyword in ['physical', 'access', 'bypass']):
+                return 'physical-action'
+            elif any(keyword in action for keyword in ['connect', 'establish', 'network']):
+                return 'cyber'
+            elif any(keyword in action for keyword in ['read', 'write', 'control', 'modify']):
+                return 'action'
+            else:
+                return 'cyber'  # 默认类型
+    
+    def _generate_node_label(self, unit: Dict[str, Any]) -> str:
+        """生成节点标签"""
+        # 优先使用action作为标签，如果没有则使用id的简化版本
+        action = unit.get('action', '')
+        if action:
+            # 截断过长的标签
+            if len(action) > 30:
+                return action[:27] + '...'
+            return action
+        
+        # 从ID生成友好的标签
+        unit_id = unit.get('id', '')
+        if '_' in unit_id:
+            parts = unit_id.split('_')
+            if len(parts) >= 2:
+                return f"{parts[0]} {parts[1]}"
+        
+        return unit_id
+    
+    def _create_attack_graph_layers(self, cpag_units: List[Dict[str, Any]], 
+                                   postcondition_to_units: Dict[str, List[str]], 
+                                   precondition_to_units: Dict[str, List[str]]) -> List[List[str]]:
+        """创建攻击图的分层结构"""
+        layers = []
+        placed_units = set()
+        unit_to_layer = {}
+        
+        # 找到没有前置条件的单元（初始节点）
+        initial_units = []
+        for unit in cpag_units:
+            preconditions = unit.get('precondition', [])
+            if not preconditions or all(not str(p).strip() for p in preconditions):
+                initial_units.append(unit.get('id'))
+        
+        if not initial_units:
+            # 如果没找到初始节点，选择第一个作为起点
+            initial_units = [cpag_units[0].get('id')] if cpag_units else []
+        
+        # 第一层：初始节点
+        if initial_units:
+            layers.append(initial_units)
+            placed_units.update(initial_units)
+            for unit_id in initial_units:
+                unit_to_layer[unit_id] = 0
+        
+        # 迭代构建后续层次
+        current_layer = 0
+        max_iterations = len(cpag_units)  # 防止无限循环
+        
+        while len(placed_units) < len(cpag_units) and current_layer < max_iterations:
+            next_layer_units = []
+            
+            for unit in cpag_units:
+                unit_id = unit.get('id')
+                if unit_id in placed_units:
+                    continue
+                
+                # 检查此单元的前置条件是否已满足
+                preconditions = unit.get('precondition', [])
+                can_place = True
+                
+                for precond in preconditions:
+                    if isinstance(precond, str) and precond.strip():
+                        # 检查是否有已放置的单元可以满足此前置条件
+                        providers = postcondition_to_units.get(precond, [])
+                        if not any(provider in placed_units for provider in providers):
+                            can_place = False
+                            break
+                
+                if can_place:
+                    next_layer_units.append(unit_id)
+            
+            if next_layer_units:
+                layers.append(next_layer_units)
+                placed_units.update(next_layer_units)
+                current_layer += 1
+                for unit_id in next_layer_units:
+                    unit_to_layer[unit_id] = current_layer
+            else:
+                # 如果没有新节点可以放置，放置剩余的节点到下一层
+                remaining_units = [u.get('id') for u in cpag_units if u.get('id') not in placed_units]
+                if remaining_units:
+                    layers.append(remaining_units)
+                    placed_units.update(remaining_units)
+                break
+        
+        return layers
+    
+    def _generate_attack_edges(self, cpag_units: List[Dict[str, Any]], 
+                              postcondition_to_units: Dict[str, List[str]], 
+                              precondition_to_units: Dict[str, List[str]]) -> List[Dict[str, Any]]:
+        """生成攻击路径边"""
+        edges = []
+        
+        for unit in cpag_units:
+            unit_id = unit.get('id')
+            preconditions = unit.get('precondition', [])
+            
+            if not isinstance(preconditions, list):
+                preconditions = [preconditions] if preconditions else []
+            
+            for precond in preconditions:
+                if isinstance(precond, str) and precond.strip():
+                    # 找到提供此前置条件的单元
+                    providers = postcondition_to_units.get(precond, [])
+                    
+                    for provider_id in providers:
+                        if provider_id != unit_id:  # 避免自环
+                            edge = {
+                                'value': '1.0',
+                                'source': provider_id,
+                                'target': unit_id,
+                                'label': '',  # 可以添加条件标签
+                                'properties': {}
+                            }
+                            edges.append(edge)
+        
+        return edges
+    
+    def _find_initial_node(self, cpag_units: List[Dict[str, Any]]) -> Optional[str]:
+        """找到初始攻击节点"""
+        for unit in cpag_units:
+            unit_id = unit.get('id', '').lower()
+            category = unit.get('category', '').lower()
+            preconditions = unit.get('precondition', [])
+            
+            # 寻找攻击者起始点或没有前置条件的节点
+            if ('attacker' in unit_id or 
+                not preconditions or 
+                all(not str(p).strip() for p in preconditions)):
+                return unit.get('id')
+        
+        return cpag_units[0].get('id') if cpag_units else None
+    
+    def _find_target_node(self, cpag_units: List[Dict[str, Any]]) -> Optional[str]:
+        """找到目标节点"""
+        # 寻找impact类别的节点或包含target的节点
+        for unit in cpag_units:
+            unit_id = unit.get('id', '').lower()
+            category = unit.get('category', '').lower()
+            
+            if category == 'impact' or 'target' in unit_id:
+                return unit.get('id')
+        
+        return cpag_units[-1].get('id') if cpag_units else None
+    
+    def _calculate_unit_confidence(self, unit: Dict[str, Any]) -> float:
+        """计算聚合单元的置信度"""
+        confidence_data = unit.get('confidence', {})
+        if isinstance(confidence_data, dict) and 'combined' in confidence_data:
+            return confidence_data['combined']
+        else:
+            # 如果没有预计算的置信度，基于证据计算
+            return self._calculate_original_unit_confidence(unit)
+    
+    def _calculate_original_unit_confidence(self, unit: Dict[str, Any]) -> float:
+        """计算原始CPAG单元的置信度"""
+        category = unit.get('category', 'unknown').lower()
+        evidence = unit.get('evidence', {})
+        
+        # 基础置信度（基于类别）
+        base_confidence = {
+            'session': 0.8,        # 会话建立 - 较高置信度
+            'reconnaissance': 0.9,  # 侦察行为 - 高置信度
+            'control': 0.95,       # 控制动作 - 很高置信度
+            'manipulation': 0.95,  # 操纵行为 - 很高置信度
+            'impact': 0.85,        # 影响评估 - 高置信度
+            'unknown': 0.5         # 未知类型 - 中等置信度
+        }.get(category, 0.5)
+        
+        # 根据证据数量调整
+        if isinstance(evidence, dict) and 'count' in evidence:
+            count = evidence.get('count', 0)
+            if count > 100:
+                base_confidence = min(1.0, base_confidence + 0.1)  # 大量证据增加置信度
+            elif count > 10:
+                base_confidence = min(1.0, base_confidence + 0.05) # 适量证据略微增加
+            elif count < 5:
+                base_confidence = max(0.1, base_confidence - 0.1)  # 少量证据降低置信度
+        
+        # 基于ID中的协议信息调整置信度
+        unit_id = unit.get('id', '').lower()
+        if 'enip' in unit_id or 'cip' in unit_id:
+            base_confidence = min(1.0, base_confidence + 0.05)  # 工业协议增加置信度
+        elif 'modbus' in unit_id:
+            base_confidence = min(1.0, base_confidence + 0.1)   # Modbus高置信度
+        
+        return base_confidence
+    
+    def _conditions_match(self, precond: Dict[str, Any], postcond: Dict[str, Any]) -> bool:
+        """简单的条件匹配逻辑"""
+        # 这里可以实现更复杂的匹配逻辑
+        precond_type = precond.get('type', '')
+        postcond_type = postcond.get('type', '')
+        
+        return precond_type == postcond_type
         
     def detect_file_type(self, file_path: str) -> str:
         """Detect file type based on extension and magic bytes"""
@@ -489,19 +1062,22 @@ class UnifiedCPAGProcessor:
                 },
                 'version': 'v2_enhanced'
             }
-            minimal_data = {'units': cpag_units, 'version': 'v2_minimal'}
-            
-            # Save enhanced and minimal JSON files
+            # Save enhanced JSON file
             enhanced_file = os.path.join(output_dir, 'cpag_enhanced.json')
-            minimal_file = os.path.join(output_dir, 'cpag_minimal.json')
             
             with open(enhanced_file, 'w', encoding='utf-8') as f:
                 json.dump(enhanced_data, f, indent=2, ensure_ascii=False)
-            with open(minimal_file, 'w', encoding='utf-8') as f:
-                json.dump(minimal_data, f, indent=2, ensure_ascii=False)
                 
             output_files['enhanced_json'] = enhanced_file
-            output_files['minimal_json'] = minimal_file
+            
+            # Generate and save tcity format file
+            tcity_data = self._convert_to_tcity_format(cpag_units, graph_data)
+            tcity_file = os.path.join(output_dir, 'cpag_tcity.json')
+            
+            with open(tcity_file, 'w', encoding='utf-8') as f:
+                json.dump(tcity_data, f, indent=2, ensure_ascii=False)
+                
+            output_files['tcity_json'] = tcity_file
             
             return {
                 'status': 'completed',
@@ -556,19 +1132,22 @@ class UnifiedCPAGProcessor:
                 },
                 'version': 'v2_enhanced'
             }
-            minimal_data = {'units': cpag_units, 'version': 'v2_minimal'}
-            
-            # Save enhanced and minimal JSON files
+            # Save enhanced JSON file
             enhanced_file = os.path.join(output_dir, 'cpag_enhanced.json')
-            minimal_file = os.path.join(output_dir, 'cpag_minimal.json')
             
             with open(enhanced_file, 'w', encoding='utf-8') as f:
                 json.dump(enhanced_data, f, indent=2, ensure_ascii=False)
-            with open(minimal_file, 'w', encoding='utf-8') as f:
-                json.dump(minimal_data, f, indent=2, ensure_ascii=False)
                 
             output_files['enhanced_json'] = enhanced_file
-            output_files['minimal_json'] = minimal_file
+            
+            # Generate and save tcity format file
+            tcity_data = self._convert_to_tcity_format(cpag_units, graph_data)
+            tcity_file = os.path.join(output_dir, 'cpag_tcity.json')
+            
+            with open(tcity_file, 'w', encoding='utf-8') as f:
+                json.dump(tcity_data, f, indent=2, ensure_ascii=False)
+                
+            output_files['tcity_json'] = tcity_file
             
             return {
                 'status': 'completed',

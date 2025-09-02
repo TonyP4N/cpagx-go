@@ -94,7 +94,6 @@ def generate_cpag(
     wipe_neo4j: bool,
     top_k: int,
     top_per_plc: int,
-    build_minimal: bool,
     build_enhanced: bool,
     pre_window: int,
     post_window: int,
@@ -181,7 +180,6 @@ def generate_cpag(
             top_k=top_k,
             top_per_plc=top_per_plc,
             neo4j_config=neo4j_config,
-            build_minimal=build_minimal,
             build_enhanced=build_enhanced,
             pre_window=pre_window,
             post_window=post_window,
@@ -280,7 +278,7 @@ def generate_cpag(
                 "version": "v2",
                 "status": "completed",
                 "created_at": created_at_str,
-                "files": ["cpag_enhanced.json", "cpag_minimal.json"],
+                "files": ["cpag_enhanced.json", "cpag_tcity.json"],
                 "file_size": file_size,
                 "file_name": file_name
             }
