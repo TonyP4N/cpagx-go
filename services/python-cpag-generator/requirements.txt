@@ -20,7 +20,7 @@ numpy==1.25.2
 scipy==1.11.4
 
 # 机器学习和统计
-scikit-learn==1.3.2
+scikit-learn==1.5.0
 
 # 网络分析
 scapy==2.5.0
