@@ -67,6 +67,7 @@ async def generate_cpag(
     device_map: str = Form("{}"),
     rules: str = Form("[]"),
     output_format: str = Form("tcity"),
+    custom_params: Optional[str] = Form(None),  # 支持自定义参数
     # v2版本特有参数
     neo4j_uri: Optional[str] = Form(None),
     neo4j_user: Optional[str] = Form(None),
@@ -117,6 +118,14 @@ async def generate_cpag(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
+    # 解析自定义参数
+    params_dict = {}
+    if custom_params:
+        try:
+            params_dict = json.loads(custom_params)
+        except:
+            params_dict = {}
+
     # 启动Celery任务（如果有文件的话）
     if temp_file_path or temp_csv_path:
         enqueued = False
@@ -144,7 +153,8 @@ async def generate_cpag(
                     post_window,
                     per_tag,
                     top_k_analog,
-                    visualize
+                    visualize,
+                    params_dict  # 添加自定义参数
                 ]
             )
             enqueued = True
@@ -371,6 +381,60 @@ async def get_task_result(task_id: str):
                 filename=f"cpag-{task_id}.json",
                 media_type='application/json'
             )
+    raise HTTPException(status_code=404, detail="Result not found")
+
+@app.get("/cpag/result/{task_id}/json")
+async def get_task_result_json(task_id: str):
+    """获取任务结果 - 返回 JSON 数据"""
+    import redis
+    
+    # 首先尝试从 Redis 获取
+    try:
+        redis_client = redis.Redis(
+            host=os.getenv('REDIS_HOST', 'localhost'),
+            port=int(os.getenv('REDIS_PORT', '6379')),
+            decode_responses=True
+        )
+        result = redis_client.get(f"task_result:{task_id}")
+        if result:
+            result_data = json.loads(result)
+            # 返回格式化的数据
+            return {
+                "task_id": task_id,
+                "status": result_data.get('status', 'unknown'),
+                "data": {
+                    "units": result_data.get('units', []),
+                    "graph": result_data.get('result', {}),
+                    "cpag_units": len(result_data.get('units', [])),
+                    "nodes": len(result_data.get('result', {}).get('nodes', [])),
+                    "edges": len(result_data.get('result', {}).get('edges', []))
+                },
+                "created_at": result_data.get('created_at'),
+                "duration": result_data.get('duration', 0)
+            }
+    except:
+        pass
+    
+    # 如果 Redis 中没有，尝试从文件读取
+    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
+    
+    # 读取 enhanced JSON 文件
+    enhanced_file = os.path.join(task_dir, 'cpag_enhanced.json')
+    if os.path.exists(enhanced_file):
+        with open(enhanced_file, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+            return {
+                "task_id": task_id,
+                "status": "completed",
+                "data": {
+                    "units": data.get('units', []),
+                    "graph": data.get('graph_data', {}),
+                    "cpag_units": len(data.get('units', [])),
+                    "nodes": len(data.get('graph_data', {}).get('nodes', [])),
+                    "edges": len(data.get('graph_data', {}).get('edges', []))
+                }
+            }
+    
     raise HTTPException(status_code=404, detail="Result not found")
 
 @app.get("/cpag/tasks", response_model=List[TaskInfo])

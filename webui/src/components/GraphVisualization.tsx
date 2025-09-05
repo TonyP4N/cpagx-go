@@ -1,5 +1,18 @@
 import React, { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
+import cytoscape from 'cytoscape';
+
+// Import layout extensions
+import dagre from 'cytoscape-dagre';
+import cola from 'cytoscape-cola';
+import coseBilkent from 'cytoscape-cose-bilkent';
+
+// Register the layout extensions with Cytoscape
+if (typeof cytoscape !== 'undefined') {
+  cytoscape.use(dagre);
+  cytoscape.use(cola);
+  cytoscape.use(coseBilkent);
+}
 
 // Dynamically import CytoscapeComponent to avoid SSR issues
 const CytoscapeComponent = dynamic(() => import('react-cytoscapejs'), {
@@ -101,7 +114,7 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
             const nodeData = {
               id: String(node.id),
               label: node.label || node.properties?.label || node.properties?.service || node.name || node.id,
-              nodeType: node.type || node.node_type || 'unknown',
+              nodeType: node.type || node.node_type || node.properties?.type || 'unknown',
               taskId: node.task_id || '',
               category: node.category || node.properties?.category || 'unknown',
               count: node.count || node.properties?.count || 0,
@@ -113,9 +126,15 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
               path: node.path || ''
             };
 
+            // Add both nodeType and category as classes for styling flexibility
+            const classes = [`node-${nodeData.nodeType}`];
+            if (nodeData.category && nodeData.category !== 'unknown') {
+              classes.push(`node-${nodeData.category}`);
+            }
+            
             return {
               data: nodeData,
-              classes: `node-${nodeData.nodeType}`
+              classes: classes.join(' ')
             };
           } catch (err) {
             console.warn('Error processing node:', node, err);
@@ -175,62 +194,102 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
     // Check if this looks like a tree-like structure (edges ≈ nodes - 1)
     const isTreeLike = edgeCount > 0 && (edgeCount / nodeCount) < 1.5;
     
-    if (isTreeLike && nodeCount > 8) {
-      // For tree-like structures, use breadthfirst (hierarchical) layout
-      console.log('Using breadthfirst layout for tree-like CPAG structure');
-      return {
-        name: 'breadthfirst',
-        directed: true,
-        padding: 30,
-        spacingFactor: 1.75,
-        maximal: false,
-        grid: false,
-        fit: true,
-        roots: '#[indegree = 0]', // Start from nodes with no incoming edges
-        animate: false
-      };
-    } else if (nodeCount > 50) {
-      // For large graphs, use optimized force-directed layout
-      console.log('Using optimized cose layout for large graph');
+    try {
+      if (isTreeLike && nodeCount > 8) {
+        // For tree-like structures, use dagre (hierarchical) layout
+        console.log('Using dagre layout for tree-like CPAG structure');
+        return {
+          name: 'dagre',
+          rankDir: 'TB', // Top to bottom
+          align: 'UL', // Align nodes to upper left
+          rankSep: 80,
+          nodeSep: 40,
+          edgeSep: 10,
+          padding: 30,
+          fit: true,
+          animate: false
+        };
+      } else if (nodeCount > 100) {
+        // For very large graphs, use cola for better performance
+        console.log('Using cola layout for very large graph');
+        return {
+          name: 'cola',
+          maxSimulationTime: 2000,
+          ungrabifyWhileSimulating: true,
+          fit: true,
+          padding: 30,
+          nodeSpacing: 30,
+          flow: { axis: 'y', minSeparation: 30 },
+          animate: false
+        };
+      } else if (nodeCount > 50) {
+        // For large graphs, use cose-bilkent for better clustering
+        console.log('Using cose-bilkent layout for large graph');
+        return {
+          name: 'cose-bilkent',
+          idealEdgeLength: 100,
+          nodeOverlap: 20,
+          refresh: 20,
+          fit: true,
+          padding: 30,
+          randomize: false,
+          componentSpacing: 100,
+          nodeRepulsion: 4500,
+          edgeElasticity: 0.45,
+          nestingFactor: 0.1,
+          gravity: 0.25,
+          numIter: 2500,
+          initialTemp: 200,
+          coolingFactor: 0.95,
+          minTemp: 1.0,
+          animate: false
+        };
+      } else if (nodeCount > 15) {
+        // For medium graphs with complex relationships, use dagre for hierarchical layout
+        console.log('Using dagre layout for medium hierarchical graph');
+        return {
+          name: 'dagre',
+          rankDir: 'TB', // Top to bottom layout
+          padding: 20,
+          spacingFactor: 1.25,
+          rankSep: 100,
+          nodeSep: 50,
+          fit: true,
+          animate: false
+        };
+      } else if (nodeCount > 5) {
+        // For small-medium graphs, use breadthfirst for clear hierarchy
+        console.log('Using breadthfirst layout for small-medium graph');
+        return {
+          name: 'breadthfirst',
+          directed: true,
+          padding: 30,
+          spacingFactor: 1.5,
+          maximal: false,
+          grid: false,
+          fit: true,
+          roots: '#[indegree = 0]', // Start from nodes with no incoming edges
+          animate: false
+        };
+      } else {
+        // For very small graphs, use circle layout
+        console.log('Using circle layout for very small graph');
+        return {
+          name: 'circle',
+          radius: Math.max(120, nodeCount * 15),
+          padding: 50,
+          fit: true,
+          animate: false
+        };
+      }
+    } catch (error) {
+      console.error('Error selecting layout, falling back to cose:', error);
+      // Fallback to basic cose layout if any layout fails
       return {
         name: 'cose',
-        idealEdgeLength: 80,
-        nodeOverlap: 20,
-        refresh: 10,
         fit: true,
         padding: 30,
-        randomize: false,
-        componentSpacing: 80,
-        nodeRepulsion: 400000,
-        edgeElasticity: 100,
-        nestingFactor: 5,
-        gravity: 80,
-        numIter: 300,  // Reduced iterations for performance
-        initialTemp: 200,
-        coolingFactor: 0.95,
-        minTemp: 1.0
-      };
-    } else if (nodeCount > 15) {
-      // For medium graphs with complex relationships, use dagre for hierarchical layout
-      console.log('Using dagre layout for medium hierarchical graph');
-      return {
-        name: 'dagre',
-        directed: true,
-        padding: 20,
-        spacingFactor: 1.25,
-        rankSep: 100,
-        nodeSep: 50,
-        fit: true,
         animate: false
-      };
-    } else {
-      // For small graphs, use circle layout
-      console.log('Using circle layout for small graph');
-      return {
-        name: 'circle',
-        radius: Math.max(120, nodeCount * 8),
-        padding: 50,
-        fit: true
       };
     }
   }, [graphData?.nodes?.length, graphData?.edges?.length]);
@@ -281,7 +340,90 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         'width': 3
       }
     },
-    // Node type specific styles
+    // Node type specific styles - V2 actual types
+    {
+      selector: '.node-mitm_indicator',
+      style: {
+        'background-color': '#EF4444',
+        'shape': 'diamond',
+        'width': '45px',
+        'height': '45px'
+      }
+    },
+    {
+      selector: '.node-dos_attack',
+      style: {
+        'background-color': '#DC2626',
+        'shape': 'star',
+        'width': '50px',
+        'height': '50px'
+      }
+    },
+    {
+      selector: '.node-protocol_manipulation',
+      style: {
+        'background-color': '#F59E0B',
+        'shape': 'triangle',
+        'width': '45px',
+        'height': '45px'
+      }
+    },
+    {
+      selector: '.node-systematic_enumeration',
+      style: {
+        'background-color': '#3B82F6',
+        'shape': 'rectangle',
+        'width': '45px',
+        'height': '45px'
+      }
+    },
+    {
+      selector: '.node-timing_anomaly',
+      style: {
+        'background-color': '#8B5CF6',
+        'shape': 'ellipse',
+        'width': '50px',
+        'height': '35px'
+      }
+    },
+    // Category-based styles as fallback
+    {
+      selector: '.node-attack_execution',
+      style: {
+        'background-color': '#EF4444',
+        'shape': 'diamond',
+        'width': '40px',
+        'height': '40px'
+      }
+    },
+    {
+      selector: '.node-attack_impact',
+      style: {
+        'background-color': '#DC2626',
+        'shape': 'star',
+        'width': '45px',
+        'height': '45px'
+      }
+    },
+    {
+      selector: '.node-reconnaissance',
+      style: {
+        'background-color': '#3B82F6',
+        'shape': 'rectangle',
+        'width': '40px',
+        'height': '40px'
+      }
+    },
+    {
+      selector: '.node-anomaly_detection',
+      style: {
+        'background-color': '#8B5CF6',
+        'shape': 'octagon',
+        'width': '40px',
+        'height': '40px'
+      }
+    },
+    // Legacy V1 styles
     {
       selector: '.node-action',
       style: {
@@ -327,7 +469,17 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         'height': '35px'
       }
     },
-    // Edge type specific styles
+    // Edge type specific styles - V2 actual
+    {
+      selector: '.edge-ENABLES',
+      style: {
+        'line-color': '#10B981',
+        'target-arrow-color': '#10B981',
+        'line-style': 'solid',
+        'width': 2
+      }
+    },
+    // Legacy edge styles
     {
       selector: '.edge-exploits',
       style: {
@@ -574,33 +726,56 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
         )}
       </div>
 
-      {/* Enhanced Legend with AND/OR relationships */}
+      {/* Enhanced Legend with actual node types */}
       <div className="bg-gray-50 p-3 rounded-lg">
         <h4 className="font-semibold text-sm mb-2">Legend</h4>
         <div className="space-y-3">
-          {/* Node Types */}
+          {/* Node Types - V2 Actual */}
           <div>
-            <div className="font-medium text-xs mb-1 text-gray-700">Node Types:</div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="font-medium text-xs mb-1 text-gray-700">Attack Types:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-3 bg-blue-500 rounded-full"></div>
-                <span>Action</span>
+                <div className="w-3 h-3 bg-red-500 transform rotate-45"></div>
+                <span>MITM Indicator</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-green-500 rounded"></div>
-                <span>Device</span>
+                <div className="w-3 h-3 bg-red-700" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}></div>
+                <span>DoS Attack</span>
               </div>
               <div className="flex items-center space-x-2">
                 <div className="w-3 h-3 bg-yellow-500" style={{ clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)' }}></div>
-                <span>Vulnerability</span>
+                <span>Protocol Manipulation</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-red-500 transform rotate-45"></div>
-                <span>Attack</span>
+                <div className="w-3 h-3 bg-blue-500 rounded"></div>
+                <span>Enumeration</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-3 h-3 bg-gray-500" style={{ clipPath: 'polygon(30% 0%, 70% 0%, 100% 30%, 100% 70%, 70% 100%, 30% 100%, 0% 70%, 0% 30%)' }}></div>
-                <span>Unknown</span>
+                <div className="w-4 h-3 bg-purple-500 rounded-full"></div>
+                <span>Timing Anomaly</span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Categories */}
+          <div>
+            <div className="font-medium text-xs mb-1 text-gray-700">Categories:</div>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-500"></div>
+                <span>Attack Execution</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-red-700"></div>
+                <span>Attack Impact</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-blue-500"></div>
+                <span>Reconnaissance</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-purple-500"></div>
+                <span>Anomaly Detection</span>
               </div>
             </div>
           </div>
@@ -610,20 +785,12 @@ const GraphVisualization: React.FC<GraphVisualizationProps> = ({
             <div className="font-medium text-xs mb-1 text-gray-700">Relationship Types:</div>
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-0.5 bg-gray-600"></div>
-                <span>Basic Connection</span>
-              </div>
-              <div className="flex items-center space-x-2">
                 <div className="w-4 h-0.5 bg-green-500"></div>
-                <span>Requires (AND)</span>
+                <span>Enables</span>
               </div>
               <div className="flex items-center space-x-2">
-                <div className="w-4 h-0.5 bg-yellow-500" style={{ borderTop: '1px dashed #F59E0B', backgroundColor: 'transparent' }}></div>
-                <span>Alternative (OR)</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <div className="w-4 h-0.5 bg-purple-500" style={{ borderTop: '1px dotted #8B5CF6', backgroundColor: 'transparent' }}></div>
-                <span>Required By</span>
+                <div className="w-4 h-0.5 bg-gray-600"></div>
+                <span>Sequential Flow</span>
               </div>
             </div>
           </div>

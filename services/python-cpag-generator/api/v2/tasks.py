@@ -99,7 +99,8 @@ def generate_cpag(
     post_window: int,
     per_tag: int,
     top_k_analog: int,
-    visualize: bool
+    visualize: bool,
+    custom_params: Optional[Dict[str, Any]] = None
 ):
     """生成CPAG的Celery任务 - 带并发控制"""
     try:
@@ -165,6 +166,9 @@ def generate_cpag(
                 'wipe': wipe_neo4j,
                 'task_id': task_id  # 添加task_id用于数据隔离
             }
+            print(f"Neo4j config prepared for task {task_id}: uri={neo4j_uri}, user={neo4j_user}")
+        else:
+            print(f"No Neo4j config for task {task_id}: uri={neo4j_uri}, user={neo4j_user}, password={'***' if neo4j_password else 'None'}")
         
         # 创建统一处理器
         processor = UnifiedCPAGProcessor()
@@ -185,7 +189,8 @@ def generate_cpag(
             post_window=post_window,
             per_tag=per_tag,
             top_k_analog=top_k_analog,
-            visualize=visualize
+            visualize=visualize,
+            custom_params=custom_params  # 传递自定义参数
         )
         
         if processing_result.get('status') == 'failed':
@@ -193,6 +198,7 @@ def generate_cpag(
         
         # 获取处理结果
         cpag_graph = processing_result.get('graph_data', {})
+        cpag_units = processing_result.get('units', processing_result.get('cpag_units', []))
         
         # 步骤2: Neo4j存储结果检查 (60%)
         self.update_state(
@@ -238,6 +244,7 @@ def generate_cpag(
             'task_id': task_id,
             'status': 'completed',
             'result': cpag_graph,
+            'units': cpag_units,  # 添加 units 字段
             'created_at': (start_time.isoformat() + "Z") if isinstance(start_time, datetime) else None,
             'completed_at': end_time.isoformat(),
             'duration': duration,

@@ -3,12 +3,14 @@ import Head from 'next/head';
 import { ArrowLeftIcon, HomeIcon } from '@heroicons/react/24/outline';
 import GraphTasksList from '../components/GraphTasksList';
 import GraphVisualization from '../components/GraphVisualization';
+import GraphVisualizationEnhanced from '../components/GraphVisualizationEnhanced';
 import ErrorBoundary from '../components/ErrorBoundary';
 import { useGraphTaskState, useNavigation } from '../hooks/useRouteState';
 
 const GraphPage: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<any>(null);
   const [selectedEdge, setSelectedEdge] = useState<any>(null);
+  const [useEnhanced, setUseEnhanced] = useState(true);
   
   // 使用自定义Hook管理任务ID状态
   const [selectedTaskId, setSelectedTaskId] = useGraphTaskState();
@@ -138,21 +140,44 @@ const GraphPage: React.FC = () => {
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
                 {selectedTaskId ? (
                   <>
-                    <div className="mb-4">
-                      <h2 className="text-xl font-semibold mb-2">
-                        Graph Visualization
-                      </h2>
-                      <p className="text-gray-600 text-sm">
-                        Task ID: <span className="font-mono">{selectedTaskId}</span>
-                      </p>
+                    <div className="mb-4 flex justify-between items-center">
+                      <div>
+                        <h2 className="text-xl font-semibold mb-2">
+                          Graph Visualization
+                        </h2>
+                        <p className="text-gray-600 text-sm">
+                          Task ID: <span className="font-mono">{selectedTaskId}</span>
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="text-sm text-gray-600">View:</span>
+                        <button
+                          onClick={() => setUseEnhanced(!useEnhanced)}
+                          className={`px-3 py-1 text-sm rounded transition-colors ${
+                            useEnhanced 
+                              ? 'bg-purple-500 text-white hover:bg-purple-600' 
+                              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                          }`}
+                        >
+                          {useEnhanced ? '✨ Enhanced' : '📊 Classic'}
+                        </button>
+                      </div>
                     </div>
                     
                     <ErrorBoundary>
-                      <GraphVisualization
-                        taskId={selectedTaskId}
-                        onNodeSelect={handleNodeSelect}
-                        onEdgeSelect={handleEdgeSelect}
-                      />
+                      {useEnhanced ? (
+                        <GraphVisualizationEnhanced
+                          taskId={selectedTaskId}
+                          onNodeSelect={handleNodeSelect}
+                          onEdgeSelect={handleEdgeSelect}
+                        />
+                      ) : (
+                        <GraphVisualization
+                          taskId={selectedTaskId}
+                          onNodeSelect={handleNodeSelect}
+                          onEdgeSelect={handleEdgeSelect}
+                        />
+                      )}
                     </ErrorBoundary>
                   </>
                 ) : (

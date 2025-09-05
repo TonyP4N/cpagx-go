@@ -859,6 +859,10 @@ class UnifiedCPAGProcessor:
         category = unit.get('category', 'unknown').lower()
         evidence = unit.get('evidence', {})
         
+        # 首先检查evidence中是否有confidence值
+        if isinstance(evidence, dict) and 'confidence' in evidence:
+            return float(evidence['confidence'])
+        
         # 基础置信度（基于类别）
         base_confidence = {
             'session': 0.8,        # 会话建立 - 较高置信度
@@ -1001,13 +1005,20 @@ class UnifiedCPAGProcessor:
             
             # Store to Neo4j if configured
             if neo4j_config and NEO4J_AVAILABLE:
+                print(f"Neo4j config provided, attempting to store...")
+                print(f"Result keys: {result.keys()}")
+                print(f"Graph data: nodes={len(result.get('graph_data', {}).get('nodes', []))}, edges={len(result.get('graph_data', {}).get('edges', []))}")
                 try:
                     self._store_to_neo4j(result, neo4j_config)
                     result['neo4j_stored'] = True
                 except Exception as e:
                     print(f"Failed to store to Neo4j: {e}")
+                    import traceback
+                    traceback.print_exc()
                     result['neo4j_stored'] = False
                     result['neo4j_error'] = str(e)
+            else:
+                print(f"Neo4j storage skipped: config={neo4j_config is not None}, available={NEO4J_AVAILABLE}")
             
             # Add metadata
             result.update({
@@ -1039,7 +1050,7 @@ class UnifiedCPAGProcessor:
             standardized_df = self._standardize_csv_format(df)
             
             # Build CPAG from CSV data
-            cpag_units = self._build_cpag_from_csv(standardized_df, device_map, rules)
+            cpag_units = self._build_cpag_from_csv(standardized_df, device_map, rules, kwargs.get('custom_params'))
             
             # Enhance units with relationship analysis
             cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
@@ -1094,38 +1105,91 @@ class UnifiedCPAGProcessor:
             raise Exception(f"CSV processing failed: {e}")
     
     def _process_pcap_file(self, file_path: str, output_dir: str, file_type: str, max_pkts: int, target_cip: int, top_k: int, top_per_plc: int, **kwargs) -> Dict[str, Any]:
-        """Process PCAP/PCAPNG file using built-in parsing"""
+        """Process PCAP/PCAPNG file using optimized parsing"""
         try:
-            # Parse PCAP/PCAPNG for ENIP/CIP traffic
-            if file_type == 'pcapng':
-                df = self._parse_pcapng_enip_requests(file_path, max_pkts=max_pkts, target_cip=target_cip)
-            else:
-                df = self._parse_classic_pcap(file_path, max_pkts, target_cip)
+            # Check if we should use optimized processor
+            custom_params = kwargs.get('custom_params', {})
+            use_optimized = custom_params.get('use_optimized_pcap', True)
             
-            print(f"Extracted {len(df)} CIP requests from {file_type.upper()}")
+            if use_optimized:
+                # Use optimized PCAP processor
+                try:
+                    from .pcap_processor_optimized import OptimizedPCAPProcessor
+                    pcap_processor = OptimizedPCAPProcessor(self)
+                    
+                    result = pcap_processor.process_pcap_optimized(
+                        file_path=file_path,
+                        file_type=file_type,
+                        custom_params=custom_params,
+                        max_pkts=max_pkts,
+                        target_cip=target_cip,
+                        top_k=top_k,
+                        top_per_plc=top_per_plc
+                    )
+                    
+                    # Extract results
+                    cpag_units = result.get('units', [])
+                    graph_data = result.get('graph_data', {})
+                    
+                    print(f"Optimized processor generated {len(cpag_units)} CPAG units")
+                    
+                except ImportError:
+                    print("Warning: Optimized PCAP processor not available, using standard processor")
+                    # Fall back to standard processing
+                    use_optimized = False
             
-            # Build CPAG units from parsed data
-            cpag_units = self._build_cpag_units_from_df(df)
-            
-            # Enhance units with relationship analysis
-            cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
-            
-            # Build graph structures
-            graph_data = self._build_graph_structures_from_units(cpag_units)
+            if not use_optimized:
+                # Standard processing
+                # Parse PCAP/PCAPNG for ENIP/CIP traffic
+                if file_type == 'pcapng':
+                    df = self._parse_pcapng_enip_requests(file_path, max_pkts=max_pkts, target_cip=target_cip)
+                else:
+                    df = self._parse_classic_pcap(file_path, max_pkts, target_cip)
+                
+                print(f"Extracted {len(df)} CIP requests from {file_type.upper()}")
+                
+                # Build CPAG units from parsed data
+                cpag_units = self._build_cpag_units_from_df(df)
+                
+                # Enhance units with relationship analysis
+                cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
+                
+                # Build graph structures
+                graph_data = self._build_graph_structures_from_units(cpag_units)
             
             # Generate visualizations if available
             if VISUALIZATION_AVAILABLE:
                 self._generate_pcap_visualizations(graph_data, output_dir, top_k, top_per_plc)
             
             # Save outputs
-            output_files = self._save_pcap_results(output_dir, df, cpag_units, graph_data)
+            if use_optimized and 'result' in locals():
+                # For optimized processing, we need to handle differently
+                output_files = {}
+                # Save CPAG units
+                units_file = os.path.join(output_dir, 'cpag_units.json')
+                with open(units_file, 'w', encoding='utf-8') as f:
+                    json.dump(cpag_units, f, indent=2, ensure_ascii=False)
+                output_files['units'] = units_file
+                
+                # Save graph data
+                graph_file = os.path.join(output_dir, 'cpag_graph.json')
+                with open(graph_file, 'w', encoding='utf-8') as f:
+                    json.dump(graph_data, f, indent=2, ensure_ascii=False)
+                output_files['graph'] = graph_file
+                
+                # Use stats from result
+                packets_processed = result.get('stats', {}).get('packets_processed', 0)
+            else:
+                # Standard processing with df available
+                output_files = self._save_pcap_results(output_dir, df, cpag_units, graph_data)
+                packets_processed = len(df)
             
             # Create enhanced and minimal JSON files for v2 compatibility
             enhanced_data = {
                 'units': cpag_units,
                 'graph_data': graph_data,
                 'stats': {
-                    'packets_processed': len(df),
+                    'packets_processed': packets_processed,
                     'cpag_units': len(cpag_units),
                     'nodes': len(graph_data.get('nodes', [])),
                     'edges': len(graph_data.get('edges', []))
@@ -1152,12 +1216,13 @@ class UnifiedCPAGProcessor:
             return {
                 'status': 'completed',
                 'source_type': file_type,
-                'packets_processed': len(df),
+                'packets_processed': packets_processed,
                 'cpag_units': len(cpag_units),
                 'nodes': len(graph_data.get('nodes', [])),
                 'edges': len(graph_data.get('edges', [])),
                 'output_files': output_files,
-                'graph_data': graph_data
+                'graph_data': graph_data,
+                'units': cpag_units  # 添加 units 字段
             }
             
         except Exception as e:
@@ -1190,7 +1255,7 @@ class UnifiedCPAGProcessor:
         
         return df_normalized
     
-    def _build_cpag_from_csv(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]]) -> List[Dict[str, Any]]:
+    def _build_cpag_from_csv(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]], custom_params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """Build CPAG units from CSV data - supports both network and industrial sensor data"""
         units = []
         
@@ -1203,7 +1268,7 @@ class UnifiedCPAGProcessor:
             units.extend(self._build_network_cpag_units(df, device_map))
         else:
             # Industrial sensor/actuator data analysis
-            units.extend(self._build_industrial_cpag_units(df, device_map, rules))
+            units.extend(self._build_industrial_cpag_units(df, device_map, rules, custom_params))
         
         return units
     
@@ -1264,8 +1329,20 @@ class UnifiedCPAGProcessor:
         
         return units
     
-    def _build_industrial_cpag_units(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]]) -> List[Dict[str, Any]]:
-        """Build CPAG units from industrial sensor/actuator data"""
+    def _build_industrial_cpag_units(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]], custom_params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+        """Build CPAG units from industrial sensor/actuator data - Enhanced with dynamic generation"""
+        # 使用优化的处理器
+        try:
+            from .unified_cpag_processor_optimized import OptimizedCPAGProcessor
+            optimized_processor = OptimizedCPAGProcessor(self)
+            return optimized_processor.build_industrial_cpag_units_optimized(df, device_map, rules, custom_params)
+        except ImportError:
+            # 如果优化版本不可用，使用原始方法
+            print("Warning: Optimized processor not available, using original method")
+            return self._build_industrial_cpag_units_original(df, device_map, rules)
+    
+    def _build_industrial_cpag_units_original(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]]) -> List[Dict[str, Any]]:
+        """Original method for building CPAG units"""
         units = []
         
         # Identify sensor/actuator columns (exclude metadata columns)
@@ -1278,90 +1355,262 @@ class UnifiedCPAGProcessor:
                          if col.lower() not in [e.lower() for e in exclude_cols] 
                          and not col.startswith('A#')]  # Exclude anomaly detector columns
         
-        print(f"Identified {len(device_columns)} device columns from CSV")
+        print(f"Identified {len(device_columns)} device columns from CSV with {len(df)} rows")
         
-        # Group devices by type
-        device_types = {
-            'sensors': [],
-            'actuators': [],
-            'pumps': [],
-            'valves': [],
-            'plcs': []
-        }
+        # Analyze each device based on actual data patterns
+        for device in device_columns:
+            device_units = self._analyze_device_behavior(df, device, device_map)
+            units.extend(device_units)
         
-        for col in device_columns:
-            col_upper = col.upper()
-            if col_upper.startswith('AIT') or col_upper.startswith('FIT') or col_upper.startswith('LIT') or col_upper.startswith('PIT') or col_upper.startswith('DPIT'):
-                device_types['sensors'].append(col)
-            elif col_upper.startswith('MV') or col_upper.startswith('UV'):
-                device_types['valves'].append(col)
-            elif col_upper.startswith('P') and col_upper[1:].isdigit():
-                device_types['pumps'].append(col)
-            elif col_upper.startswith('PLC'):
-                device_types['plcs'].append(col)
-            else:
-                device_types['actuators'].append(col)
+        # Add cross-device interaction units based on correlations
+        interaction_units = self._analyze_device_interactions(df, device_columns, device_map)
+        units.extend(interaction_units)
         
-        # Create CPAG units for each device type
-        for device_type, devices in device_types.items():
-            if not devices:
-                continue
-                
-            # Create connectivity units for each device
-            for device in devices:
-                # Extract unique device identifier
-                device_name = device_map.get(device, device) if device_map else device
-                
-                # Connectivity unit
+        # Add attack-specific units if attack information is present
+        if any(col for col in df.columns if 'attack' in col.lower()):
+            attack_units = self._analyze_attack_patterns(df, device_columns, device_map)
+            units.extend(attack_units)
+        
+        print(f"Generated {len(units)} CPAG units based on actual data patterns")
+        return units
+    
+    def _analyze_device_behavior(self, df: pd.DataFrame, device: str, device_map: Optional[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """Analyze individual device behavior and generate appropriate units"""
+        units = []
+        device_name = device_map.get(device, device) if device_map else device
+        
+        try:
+            # Convert to numeric, handling non-numeric values
+            values = pd.to_numeric(df[device], errors='coerce')
+            
+            # Skip if all values are NaN
+            if values.isna().all():
+                return units
+            
+            # Basic statistics
+            mean_val = values.mean()
+            std_val = values.std()
+            unique_values = values.nunique()
+            valid_count = values.notna().sum()
+            
+            # 1. Connection unit (only if device has sufficient data)
+            if valid_count > 10:  # Only create if we have meaningful data
                 conn_unit = {
                     'id': f"CONN_{device.replace(' ', '_')}",
                     'category': 'session',
-                    'precondition': [f"Physical access to {device_name}"],
+                    'precondition': [f"Network access to {device_name}"],
                     'action': f"Establish connection to {device_name}",
                     'postcondition': [f"Connected to {device_name}"],
-                    'evidence': {'device': device, 'type': device_type, 'count': len(df)}
+                    'evidence': {
+                        'device': device,
+                        'data_points': int(valid_count),
+                        'confidence': min(0.9, valid_count / 100)
+                    }
                 }
                 units.append(conn_unit)
+            
+            # 2. State change units for discrete-valued devices
+            if 2 <= unique_values <= 10:  # Discrete states
+                state_transitions = self._detect_state_transitions(values)
+                for i, (from_state, to_state, count) in enumerate(state_transitions[:3]):  # Top 3 transitions
+                    if count >= 5:  # Only significant transitions
+                        state_unit = {
+                            'id': f"STATE_{device.replace(' ', '_')}_{i}",
+                            'category': 'state_change',
+                            'precondition': [f"Control access to {device_name}", f"{device_name} in state {from_state}"],
+                            'action': f"Change {device_name} from {from_state} to {to_state}",
+                            'postcondition': [f"{device_name} in state {to_state}"],
+                            'evidence': {
+                                'device': device,
+                                'from_state': float(from_state),
+                                'to_state': float(to_state),
+                                'occurrences': count,
+                                'confidence': min(0.95, count / 20)
+                            }
+                        }
+                        units.append(state_unit)
+            
+            # 3. Anomaly detection for continuous values
+            if std_val > 0 and valid_count > 100:
+                anomalies = values[(values < mean_val - 2.5*std_val) | (values > mean_val + 2.5*std_val)]
+                anomaly_ratio = len(anomalies) / valid_count
                 
-                # Reading capability unit
-                read_unit = {
-                    'id': f"READ_{device.replace(' ', '_')}",
+                if anomaly_ratio > 0.001:  # At least 0.1% anomalies
+                    anomaly_unit = {
+                        'id': f"ANOMALY_{device.replace(' ', '_')}",
+                        'category': 'attack_impact',
+                        'precondition': [f"Control access to {device_name}"],
+                        'action': f"Manipulate {device_name} to abnormal values",
+                        'postcondition': [f"{device_name} exhibits anomalous behavior"],
+                        'evidence': {
+                            'device': device,
+                            'anomaly_count': int(len(anomalies)),
+                            'anomaly_ratio': round(anomaly_ratio, 4),
+                            'mean': round(mean_val, 2),
+                            'std': round(std_val, 2),
+                            'confidence': min(0.9, anomaly_ratio * 100)
+                        }
+                    }
+                    units.append(anomaly_unit)
+            
+            # 4. Reconnaissance for sensors with varying data
+            device_upper = device.upper()
+            is_sensor = any(device_upper.startswith(prefix) for prefix in ['FIT', 'LIT', 'AIT', 'PIT', 'DPIT'])
+            
+            if is_sensor and std_val > 0.1 and unique_values > 10:
+                recon_unit = {
+                    'id': f"RECON_{device.replace(' ', '_')}",
                     'category': 'reconnaissance',
                     'precondition': [f"Connected to {device_name}"],
-                    'action': f"Read data from {device_name}",
-                    'postcondition': [f"Attacker gains process data from {device_name}"],
-                    'evidence': {'device': device, 'type': device_type, 'operation': 'read', 'count': len(df)}
-                }
-                units.append(read_unit)
-                
-                # Control capability unit (for actuators)
-                if device_type in ['actuators', 'pumps', 'valves']:
-                    control_unit = {
-                        'id': f"CONTROL_{device.replace(' ', '_')}",
-                        'category': 'state_change',
-                        'precondition': [f"Connected to {device_name}"],
-                        'action': f"Control {device_name} operation",
-                        'postcondition': [f"Process state altered via {device_name}"],
-                        'evidence': {'device': device, 'type': device_type, 'operation': 'control', 'count': len(df)}
+                    'action': f"Monitor {device_name} readings",
+                    'postcondition': [f"Attacker gains knowledge of {device_name} patterns"],
+                    'evidence': {
+                        'device': device,
+                        'value_range': [round(values.min(), 2), round(values.max(), 2)],
+                        'unique_values': int(unique_values),
+                        'confidence': 0.8
                     }
-                    units.append(control_unit)
-        
-        # Create process disruption units based on PLCs
-        plc_devices = device_types.get('plcs', [])
-        for plc in plc_devices:
-            plc_name = device_map.get(plc, plc) if device_map else plc
+                }
+                units.append(recon_unit)
             
-            disruption_unit = {
-                'id': f"DISRUPT_{plc.replace(' ', '_')}",
-                'category': 'state_change',
-                'precondition': [f"Control access to {plc_name}"],
-                'action': f"Disrupt process control via {plc_name}",
-                'postcondition': [f"Process integrity compromised through {plc_name}"],
-                'evidence': {'device': plc, 'type': 'plc', 'operation': 'disrupt', 'count': len(df)}
-            }
-            units.append(disruption_unit)
+            # 5. Control units for actuators with state changes
+            is_actuator = any(device_upper.startswith(prefix) for prefix in ['MV', 'P', 'UV'])
+            if is_actuator and unique_values >= 2:
+                control_unit = {
+                    'id': f"CONTROL_{device.replace(' ', '_')}",
+                    'category': 'state_change',
+                    'precondition': [f"Connected to {device_name}"],
+                    'action': f"Control {device_name} operation",
+                    'postcondition': [f"Process state altered via {device_name}"],
+                    'evidence': {
+                        'device': device,
+                        'states': int(unique_values),
+                        'confidence': 0.85
+                    }
+                }
+                units.append(control_unit)
+            
+        except Exception as e:
+            print(f"Warning: Error analyzing device {device}: {e}")
         
-        print(f"Generated {len(units)} CPAG units from industrial data")
+        return units
+    
+    def _detect_state_transitions(self, values: pd.Series) -> List[tuple]:
+        """Detect state transitions in discrete valued data"""
+        transitions = defaultdict(int)
+        
+        # Remove NaN values and get clean series
+        clean_values = values.dropna()
+        
+        if len(clean_values) < 2:
+            return []
+        
+        # Count transitions
+        for i in range(1, len(clean_values)):
+            if clean_values.iloc[i] != clean_values.iloc[i-1]:
+                from_state = clean_values.iloc[i-1]
+                to_state = clean_values.iloc[i]
+                transitions[(from_state, to_state)] += 1
+        
+        # Sort by frequency
+        sorted_transitions = sorted(
+            [(k[0], k[1], v) for k, v in transitions.items()],
+            key=lambda x: x[2],
+            reverse=True
+        )
+        
+        return sorted_transitions
+    
+    def _analyze_device_interactions(self, df: pd.DataFrame, device_columns: List[str], device_map: Optional[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """Analyze interactions between devices based on correlations"""
+        units = []
+        
+        # Only analyze numeric columns with sufficient data
+        numeric_cols = []
+        for col in device_columns:
+            try:
+                values = pd.to_numeric(df[col], errors='coerce')
+                if values.notna().sum() > 100:  # Need sufficient data
+                    numeric_cols.append(col)
+            except:
+                pass
+        
+        if len(numeric_cols) < 2:
+            return units
+        
+        try:
+            # Calculate correlation matrix
+            numeric_df = df[numeric_cols].apply(pd.to_numeric, errors='coerce')
+            corr_matrix = numeric_df.corr()
+            
+            # Find strong correlations
+            strong_correlations = []
+            for i in range(len(numeric_cols)):
+                for j in range(i+1, len(numeric_cols)):
+                    correlation = corr_matrix.iloc[i, j]
+                    if abs(correlation) > 0.75 and not np.isnan(correlation):
+                        strong_correlations.append((numeric_cols[i], numeric_cols[j], correlation))
+            
+            # Create interaction units for top correlations
+            for dev1, dev2, corr in sorted(strong_correlations, key=lambda x: abs(x[2]), reverse=True)[:5]:
+                dev1_name = device_map.get(dev1, dev1) if device_map else dev1
+                dev2_name = device_map.get(dev2, dev2) if device_map else dev2
+                
+                interaction_unit = {
+                    'id': f"INTERACT_{dev1.replace(' ', '_')}_{dev2.replace(' ', '_')}",
+                    'category': 'process_dependency',
+                    'precondition': [f"Control over {dev1_name}"],
+                    'action': f"Manipulate {dev1_name} affecting {dev2_name}",
+                    'postcondition': [f"{dev2_name} behavior influenced by {dev1_name}"],
+                    'evidence': {
+                        'device1': dev1,
+                        'device2': dev2,
+                        'correlation': round(float(corr), 3),
+                        'confidence': float(abs(corr))
+                    }
+                }
+                units.append(interaction_unit)
+        except Exception as e:
+            print(f"Warning: Error analyzing device interactions: {e}")
+        
+        return units
+    
+    def _analyze_attack_patterns(self, df: pd.DataFrame, device_columns: List[str], device_map: Optional[Dict[str, str]]) -> List[Dict[str, Any]]:
+        """Analyze attack patterns from attack-related columns"""
+        units = []
+        
+        try:
+            # Find attack-related columns
+            attack_target_cols = [col for col in df.columns if 'attack' in col.lower() and 'target' in col.lower()]
+            
+            if attack_target_cols:
+                target_col = attack_target_cols[0]
+                targets = df[target_col].dropna().unique()
+                
+                for target in targets:
+                    if target and str(target).lower() not in ['none', 'normal', '']:
+                        # Find rows where this target is attacked
+                        attack_rows = df[df[target_col] == target]
+                        
+                        if len(attack_rows) >= 5:  # Significant attack presence
+                            target_name = device_map.get(target, target) if device_map else target
+                            
+                            attack_unit = {
+                                'id': f"ATTACK_{str(target).replace(' ', '_')}",
+                                'category': 'attack_execution',
+                                'precondition': [f"Compromised access to {target_name}"],
+                                'action': f"Execute attack on {target_name}",
+                                'postcondition': [f"{target_name} compromised", "Process integrity violated"],
+                                'evidence': {
+                                    'target': str(target),
+                                    'attack_instances': int(len(attack_rows)),
+                                    'confidence': min(0.95, len(attack_rows) / 50)
+                                }
+                            }
+                            units.append(attack_unit)
+        except Exception as e:
+            print(f"Warning: Error analyzing attack patterns: {e}")
+        
         return units
     
     def _categorize_communication(self, port: Union[int, str], count: int) -> str:
@@ -1439,6 +1688,9 @@ class UnifiedCPAGProcessor:
             action_id = unit['id']
             evidence = unit.get('evidence', {})
             
+            # Calculate confidence for this unit
+            unit_confidence = self._calculate_unit_confidence(unit)
+            
             nodes.append({
                 'id': action_id,
                 'label': unit['action'],
@@ -1446,7 +1698,9 @@ class UnifiedCPAGProcessor:
                 'category': unit['category'],
                 'count': evidence.get('count', 1),
                 'device': evidence.get('destination', ''),
-                'service': evidence.get('service', evidence.get('port', ''))
+                'service': evidence.get('service', evidence.get('port', '')),
+                'confidence': unit_confidence,
+                'evidence_count': evidence.get('count', 1)
             })
             
             # Add edge from connectivity to action
@@ -1498,6 +1752,9 @@ class UnifiedCPAGProcessor:
                 action_id = unit['id']
                 evidence = unit.get('evidence', {})
                 
+                # Calculate confidence for this unit
+                unit_confidence = self._calculate_unit_confidence(unit)
+                
                 nodes.append({
                     'id': action_id,
                     'label': unit['action'],
@@ -1505,7 +1762,9 @@ class UnifiedCPAGProcessor:
                     'category': unit['category'],
                     'count': evidence.get('count', 1),
                     'device': device,
-                    'service': evidence.get('operation', 'unknown')
+                    'service': evidence.get('operation', 'unknown'),
+                    'confidence': unit_confidence,
+                    'evidence_count': evidence.get('count', 1)
                 })
             
             # Create edges to represent attack progression
@@ -1946,6 +2205,9 @@ class UnifiedCPAGProcessor:
             path_match = re.search(r"tag '([^']+)'", action)
             path = path_match.group(1) if path_match else ''
             
+            # Calculate confidence for this unit
+            unit_confidence = self._calculate_unit_confidence(unit)
+            
             nodes.append({
                 'id': action_id,
                 'label': action,
@@ -1954,7 +2216,9 @@ class UnifiedCPAGProcessor:
                 'category': category,
                 'count': count,
                 'path': path,
-                'service': action.split(' on tag')[0] if ' on tag' in action else action
+                'service': action.split(' on tag')[0] if ' on tag' in action else action,
+                'confidence': unit_confidence,
+                'evidence_count': count
             })
         
         # Build optimized tree structure based on logical relationships
