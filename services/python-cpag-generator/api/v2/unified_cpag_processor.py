@@ -1408,7 +1408,7 @@ class UnifiedCPAGProcessor:
                     }
                 }
                 units.append(conn_unit)
-            
+                
             # 2. State change units for discrete-valued devices
             if 2 <= unique_values <= 10:  # Discrete states
                 state_transitions = self._detect_state_transitions(values)
@@ -1476,20 +1476,20 @@ class UnifiedCPAGProcessor:
             # 5. Control units for actuators with state changes
             is_actuator = any(device_upper.startswith(prefix) for prefix in ['MV', 'P', 'UV'])
             if is_actuator and unique_values >= 2:
-                control_unit = {
-                    'id': f"CONTROL_{device.replace(' ', '_')}",
-                    'category': 'state_change',
-                    'precondition': [f"Connected to {device_name}"],
-                    'action': f"Control {device_name} operation",
-                    'postcondition': [f"Process state altered via {device_name}"],
+                    control_unit = {
+                        'id': f"CONTROL_{device.replace(' ', '_')}",
+                        'category': 'state_change',
+                        'precondition': [f"Connected to {device_name}"],
+                        'action': f"Control {device_name} operation",
+                        'postcondition': [f"Process state altered via {device_name}"],
                     'evidence': {
                         'device': device,
                         'states': int(unique_values),
                         'confidence': 0.85
                     }
-                }
-                units.append(control_unit)
-            
+                    }
+                    units.append(control_unit)
+        
         except Exception as e:
             print(f"Warning: Error analyzing device {device}: {e}")
         

@@ -44,3 +44,8 @@ services/python-cpag-generator/outputs/
 services/python-cpag-generator/test_data/
 services/python-cpag-generator/uploads/
 uploads/
+
+# test data
+tests/data
+tests/evaluation_results
+tests/misc
