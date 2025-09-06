@@ -31,7 +31,7 @@ matplotlib==3.8.2
 seaborn==0.13.0
 
 # 异步HTTP客户端
-aiohttp==3.9.1
+aiohttp==3.12.14
 aiofiles==23.2.1
 
 # 工具库
