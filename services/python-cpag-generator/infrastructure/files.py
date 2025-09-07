@@ -11,11 +11,11 @@ def ensure_output_dir(base_dir: str, task_id: str) -> str:
 
 
 async def save_upload_to_temp(upload, suffix: str) -> str:
-    # 使用uploads目录而不是/tmp，确保Celery worker可以访问
+    # Use uploads directory instead of /tmp to ensure Celery worker access
     uploads_dir = os.path.join(os.getcwd(), "uploads")
     os.makedirs(uploads_dir, exist_ok=True)
     
-    # 生成唯一的文件名
+    # Generate unique filename
     filename = f"{uuid.uuid4()}{suffix}"
     file_path = os.path.join(uploads_dir, filename)
     

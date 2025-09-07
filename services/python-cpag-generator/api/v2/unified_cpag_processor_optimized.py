@@ -17,12 +17,12 @@ class OptimizedCPAGProcessor:
     def __init__(self, base_processor):
         """Initialize with reference to base processor for reusing methods"""
         self.base_processor = base_processor
-        # 关键设备列表
+        # Critical device list
         self.critical_devices = {
             'P101', 'P102', 'MV101', 'P201', 'P301', 'P302', 
             'P401', 'UV401', 'P501', 'P502', 'P601', 'P602'
         }
-        # 重要传感器
+        # Important sensors
         self.important_sensors = {
             'LIT101', 'LIT301', 'LIT401', 'LIT601', 'LIT602',
             'FIT101', 'FIT201', 'FIT301', 'FIT401', 'FIT501',
@@ -37,7 +37,7 @@ class OptimizedCPAGProcessor:
         """构建优化的CPAG单元，减少冗余"""
         units = []
         
-        # 识别设备列
+        # Identify device columns
         exclude_cols = ['timestamp', 'annotation', 'other anomalies', 'attack hash', 'attack name', 
                        'attack state', 'attack target', 'attack type', 'intent', 'attack mode',
                        'attack outcome', 'target selection', 'entry point', 'asd', 'attacker',
@@ -49,7 +49,7 @@ class OptimizedCPAGProcessor:
         
         print(f"Processing {len(device_columns)} devices with {len(df)} data points")
         
-        # 获取自定义参数
+        # Get custom parameters
         params = custom_params or {}
         self.anomaly_threshold = params.get('anomaly_threshold', 3.0)
         self.state_transition_min_count = params.get('state_transition_min_count', 10)
@@ -58,22 +58,22 @@ class OptimizedCPAGProcessor:
         self.time_window_size = params.get('time_window_size', 500)
         self.correlation_threshold = params.get('correlation_threshold', 0.8)
         
-        # 1. 分析每个设备的行为（优化版本）
+        # 1. Analyze behavior of each device (optimized version)
         for device in device_columns:
             device_units = self._analyze_device_behavior_optimized(df, device, device_map)
             units.extend(device_units)
         
-        # 2. 只添加关键的交互单元
+        # 2. Only add critical interaction units
         interaction_units = self._analyze_key_interactions(df, device_columns, device_map)
         units.extend(interaction_units)
         
-        # 3. 分析攻击模式（如果有）
+        # 3. Analyze attack patterns (if any)
         attack_columns = [col for col in df.columns if 'attack' in col.lower()]
         if attack_columns:
             attack_units = self._analyze_attack_patterns_optimized(df, device_columns, device_map)
             units.extend(attack_units)
         
-        # 4. 聚合和优先排序
+        # 4. Aggregate and prioritize
         optimized_units = self._aggregate_and_prioritize_units(units)
         
         print(f"Generated {len(optimized_units)} optimized CPAG units (reduced from {len(units)})")
@@ -91,13 +91,13 @@ class OptimizedCPAGProcessor:
             if values.isna().all():
                 return units
             
-            # 基础统计
+            # Basic statistics
             mean_val = values.mean()
             std_val = values.std()
             unique_values = values.nunique()
             valid_count = values.notna().sum()
             
-            # 设备类型识别
+            # Device type identification
             device_upper = device.upper()
             is_sensor = any(device_upper.startswith(p) for p in ['FIT', 'LIT', 'AIT', 'PIT', 'DPIT'])
             is_pump = device_upper.startswith('P') and len(device_upper) <= 4 and device_upper[1:].isdigit()
@@ -106,7 +106,7 @@ class OptimizedCPAGProcessor:
             is_critical = any(cd in device_upper for cd in self.critical_devices)
             is_important_sensor = any(s in device_upper for s in self.important_sensors)
             
-            # 1. 只为关键设备创建连接单元
+            # 1. Only create connection units for critical devices
             if is_critical and valid_count > 100:
                 conn_unit = {
                     'id': f"CONN_{device.replace(' ', '_')}",
@@ -123,14 +123,14 @@ class OptimizedCPAGProcessor:
                 }
                 units.append(conn_unit)
             
-            # 2. 状态变化单元 - 只记录执行器的显著转换
+            # 2. State change units - only record significant transitions of actuators
             if 2 <= unique_values <= 10 and (is_pump or is_valve) and valid_count > 50:
                 state_transitions = self._detect_state_transitions(values)
                 if state_transitions:
-                    # 计算总转换次数
+                    # Calculate total transition count
                     total_transitions = sum(t[2] for t in state_transitions)
                     
-                    # 只有转换频繁的执行器才创建状态单元
+                    # Only create state units for frequently transitioning actuators
                     if total_transitions >= 20 and state_transitions[0][2] >= self.state_transition_min_count:
                         from_state, to_state, count = state_transitions[0]
                         state_unit = {
@@ -150,14 +150,14 @@ class OptimizedCPAGProcessor:
                         }
                         units.append(state_unit)
             
-            # 3. 异常检测 - 提高阈值，只检测显著异常
+            # 3. Anomaly detection - raise threshold, only detect significant anomalies
             if std_val > 0.1 and valid_count > 500:
-                # 使用可配置的标准差作为异常阈值
+                # Use configurable standard deviation as anomaly threshold
                 anomalies = values[(values < mean_val - self.anomaly_threshold*std_val) | (values > mean_val + self.anomaly_threshold*std_val)]
                 anomaly_ratio = len(anomalies) / valid_count
                 
-                # 只有异常比率超过阈值才创建单元
-                if anomaly_ratio > 0.005:  # 0.5%以上
+                # Only create units when anomaly ratio exceeds threshold
+                if anomaly_ratio > 0.005:  # Above 0.5%
                     severity = 'high' if anomaly_ratio > 0.02 else 'medium'
                     
                     anomaly_unit = {
@@ -179,14 +179,14 @@ class OptimizedCPAGProcessor:
                     }
                     units.append(anomaly_unit)
             
-            # 4. 工业控制单元 - 只为活跃的执行器创建
+            # 4. Industrial control units - only create for active actuators
             if (is_pump or is_valve or is_uv) and unique_values >= 2 and is_critical:
-                # 检查是否有实际的控制活动
+                # Check if there's actual control activity
                 value_changes = values.diff().abs() > 0
                 change_count = value_changes.sum()
                 change_ratio = change_count / valid_count if valid_count > 0 else 0
                 
-                # 只有活跃的执行器才创建控制单元
+                # Only create control units for active actuators
                 if change_ratio > 0.005 and change_count > 10:
                     control_unit = {
                         'id': f"CONTROL_{device.replace(' ', '_')}",
@@ -204,7 +204,7 @@ class OptimizedCPAGProcessor:
                     }
                     units.append(control_unit)
             
-            # 5. 侦察单元 - 只为重要传感器创建
+            # 5. Reconnaissance units - only create for important sensors
             if is_sensor and is_important_sensor and std_val > 0.5 and unique_values > 20:
                 recon_unit = {
                     'id': f"RECON_{device.replace(' ', '_')}",
@@ -256,21 +256,21 @@ class OptimizedCPAGProcessor:
                 to_state = clean_values.iloc[i]
                 transitions[(from_state, to_state)] += 1
         
-        # 按频率排序
+        # Sort by frequency
         sorted_transitions = sorted(
             [(k[0], k[1], v) for k, v in transitions.items()],
             key=lambda x: x[2],
             reverse=True
         )
         
-        return sorted_transitions[:3]  # 只返回前3个最频繁的转换
+        return sorted_transitions[:3]  # Only return top 3 most frequent transitions
     
     def _analyze_key_interactions(self, df: pd.DataFrame, device_columns: List[str], 
                                 device_map: Optional[Dict[str, str]]) -> List[Dict[str, Any]]:
         """只分析关键设备之间的交互"""
         units = []
         
-        # 只分析关键设备
+        # Only analyze critical devices
         critical_columns = []
         for col in device_columns:
             if any(cd in col.upper() for cd in self.critical_devices):
@@ -279,11 +279,11 @@ class OptimizedCPAGProcessor:
         if len(critical_columns) < 2:
             return units
         
-        # 计算关键设备之间的相关性
+        # Calculate correlations between critical devices
         numeric_data = df[critical_columns].apply(pd.to_numeric, errors='coerce')
         correlation_matrix = numeric_data.corr()
         
-        # 只记录强相关（> 0.8）
+        # Only record strong correlations (> 0.8)
         added_pairs = set()
         
         for i, col1 in enumerate(critical_columns):
@@ -311,31 +311,31 @@ class OptimizedCPAGProcessor:
                         }
                         units.append(interaction_unit)
         
-        return units[:10]  # 最多返回10个交互单元
+        return units[:10]  # Return at most 10 interaction units
     
     def _analyze_attack_patterns_optimized(self, df: pd.DataFrame, device_columns: List[str],
                                          device_map: Optional[Dict[str, str]]) -> List[Dict[str, Any]]:
         """优化的攻击模式分析"""
         units = []
         
-        # 查找攻击相关列
+        # Find attack-related columns
         attack_target_cols = [col for col in df.columns if 'attack' in col.lower() and 'target' in col.lower()]
         attack_type_cols = [col for col in df.columns if 'attack' in col.lower() and 'type' in col.lower()]
         
         if not attack_target_cols:
             return units
         
-        # 识别攻击目标
+        # Identify attack targets
         targets = set()
         for col in attack_target_cols:
             unique_targets = df[col].dropna().unique()
             targets.update([t for t in unique_targets if t not in ['', 'none', 'normal']])
         
-        # 为每个攻击目标创建一个单元
-        for target in list(targets)[:5]:  # 最多5个攻击目标
+        # Create one unit for each attack target
+        for target in list(targets)[:5]:  # At most 5 attack targets
             target_upper = str(target).upper()
             
-            # 查找匹配的设备
+            # Find matching devices
             matched_devices = []
             for device in device_columns:
                 if target_upper in device.upper():
@@ -362,7 +362,7 @@ class OptimizedCPAGProcessor:
     
     def _aggregate_and_prioritize_units(self, units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """聚合相似单元并优先排序"""
-        # 1. 去除完全重复的单元
+        # 1. Remove completely duplicate units
         unique_units = []
         seen_ids = set()
         
@@ -372,22 +372,22 @@ class OptimizedCPAGProcessor:
                 seen_ids.add(unit_id)
                 unique_units.append(unit)
         
-        # 2. 按类别分组
+        # 2. Group by category
         units_by_category = defaultdict(list)
         for unit in unique_units:
             units_by_category[unit['category']].append(unit)
         
-        # 3. 优先级排序并限制每个类别的数量
+        # 3. Sort by priority and limit quantity per category
         prioritized_units = []
         
-        # 根据策略调整类别限制
+        # Adjust category limits based on strategy
         if hasattr(self, 'unit_generation_strategy'):
             strategy = self.unit_generation_strategy
         else:
             strategy = 'balanced'
             
         if strategy == 'conservative':
-            # 保守策略：较少的单元，更高的置信度要求
+            # Conservative strategy: fewer units, higher confidence requirements
             category_limits = {
                 'attack_execution': (1.0, 3),
                 'anomaly_detection': (0.9, 5),
@@ -400,7 +400,7 @@ class OptimizedCPAGProcessor:
             }
             min_confidence = 0.8
         elif strategy == 'aggressive':
-            # 激进策略：更多的单元，较低的置信度要求
+            # Aggressive strategy: more units, lower confidence requirements
             category_limits = {
                 'attack_execution': (1.0, 10),
                 'anomaly_detection': (0.9, 20),
@@ -413,7 +413,7 @@ class OptimizedCPAGProcessor:
             }
             min_confidence = 0.5
         else:
-            # 平衡策略（默认）
+            # Balanced strategy (default)
             category_limits = {
                 'attack_execution': (1.0, 5),
                 'anomaly_detection': (0.9, 10),
@@ -426,20 +426,20 @@ class OptimizedCPAGProcessor:
             }
             min_confidence = 0.7
         
-        # 按优先级排序类别
+        # Sort categories by priority
         sorted_categories = sorted(category_limits.items(), key=lambda x: x[1][0], reverse=True)
         
         for category, (priority, limit) in sorted_categories:
             category_units = units_by_category.get(category, [])
             
-            # 按置信度排序该类别的单元
+            # Sort units in this category by confidence
             sorted_units = sorted(
                 category_units,
                 key=lambda u: u.get('evidence', {}).get('confidence', 0),
                 reverse=True
             )
             
-            # 过滤低置信度单元
+            # Filter low confidence units
             if hasattr(self, 'confidence_threshold'):
                 min_conf = self.confidence_threshold
             else:
@@ -448,7 +448,7 @@ class OptimizedCPAGProcessor:
             filtered_units = [u for u in sorted_units 
                             if u.get('evidence', {}).get('confidence', 0) >= min_conf]
             
-            # 添加限制数量的单元
+            # Add limited quantity of units
             prioritized_units.extend(filtered_units[:limit])
         
         print(f"Unit distribution after optimization:")

@@ -22,10 +22,10 @@ from infrastructure.files import (
 
 app = FastAPI(title="CPAG Generator v1", version="1.0.0")
 
-# 创建子应用来处理 /cpag 前缀
+# Create sub-application to handle /cpag prefix
 cpag_router = APIRouter(prefix="/cpag")
 
-# CORS中间件
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -34,16 +34,16 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 获取配置
+# Get configuration
 config = get_config()
 
-# 输出目录
+# Output directory
 OUTPUT_BASE_DIR = os.path.abspath(os.getenv("OUTPUT_DIR", "outputs/v1"))
 os.makedirs(OUTPUT_BASE_DIR, exist_ok=True)
 
 VERSION = "v1"
 
-# 并发控制
+# Concurrency control
 MAX_CONCURRENT_TASKS = config.max_concurrent_tasks_v1
 try:
     redis_client = redis.from_url(config.redis_url)
@@ -51,9 +51,9 @@ except Exception as e:
     print(f"Warning: Redis connection failed: {e}")
     redis_client = None
 
-# 工具函数
+# Utility functions
 def check_and_add_to_active_tasks(task_id: str) -> None:
-    """检查并发限制并添加到活跃任务集合"""
+    """Check concurrency limits and add to active tasks"""
     if not redis_client:
         return
     
@@ -73,7 +73,7 @@ def check_and_add_to_active_tasks(task_id: str) -> None:
         print(f"Redis operation failed: {e}")
 
 def remove_from_active_tasks(task_id: str) -> None:
-    """从活跃任务集合中移除"""
+    """Remove from active task set"""
     if redis_client:
         try:
             redis_client.srem("v1_active_tasks", task_id)
@@ -85,7 +85,7 @@ def check_celery_task_status(task_id: str) -> Optional[str]:
     try:
         from infrastructure.celery_app import celery_app as _celery
         
-        # 检查活跃任务
+        # Check active tasks
         active_tasks = _celery.control.inspect().active()
         if active_tasks:
             for worker, tasks in active_tasks.items():
@@ -94,7 +94,7 @@ def check_celery_task_status(task_id: str) -> Optional[str]:
                         (task.get('args', []) and len(task.get('args', [])) > 0 and task.get('args', [])[0] == task_id)):
                         return "processing"
         
-        # 检查保留任务
+        # Check reserved tasks
         reserved_tasks = _celery.control.inspect().reserved()
         if reserved_tasks:
             for worker, tasks in reserved_tasks.items():
@@ -110,7 +110,7 @@ def check_celery_task_status(task_id: str) -> Optional[str]:
 
 def get_task_status_info(task_id: str) -> dict:
     """获取任务状态信息"""
-    # 1. 先检查manifest
+    # 1. First check manifest
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest:
         status = manifest.get("status", "processing")
@@ -121,7 +121,7 @@ def get_task_status_info(task_id: str) -> dict:
             "version": VERSION
         }
     
-    # 2. 检查Celery任务状态
+    # 2. Check Celery task status
     celery_status = check_celery_task_status(task_id)
     if celery_status:
         return {
@@ -131,7 +131,7 @@ def get_task_status_info(task_id: str) -> dict:
             "version": VERSION
         }
     
-    # 3. 检查结果文件
+    # 3. Check result files
     task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
     if os.path.exists(task_dir):
         cpag_file = os.path.join(task_dir, 'cpag.json')
@@ -149,7 +149,7 @@ def get_task_status_info(task_id: str) -> dict:
                 "version": VERSION
             }
     
-    # 4. 任务不存在
+    # 4. Task does not exist
     return {
         "task_id": task_id,
         "status": "not_found",
@@ -180,17 +180,17 @@ async def generate_cpag(
     """生成CPAG的异步接口"""
     task_id = str(uuid.uuid4())
     
-    # 检查并发限制并添加到活跃任务
+    # Check concurrency limits and add to active tasks
     check_and_add_to_active_tasks(task_id)
     
-    # 解析参数
+    # Parse parameters
     try:
         device_map_dict = json.loads(device_map) if device_map else {}
         rules_list = json.loads(rules) if rules else []
     except json.JSONDecodeError as e:
         raise HTTPException(status_code=400, detail="Invalid JSON in device_map or rules")
     
-    # 接收文件（兼容旧参数 'file'）
+    # Receive file (compatible with old parameter 'file')
     try:
         pcap_file, csv_file = assign_compatible_file_param(file, pcap_file, csv_file)
     except ValueError as e:
@@ -200,7 +200,7 @@ async def generate_cpag(
     temp_csv_path = None
     temp_assets_path = None
     
-    # 保存pcap文件
+    # Save pcap file
     file_size = None
     file_name = None
     if pcap_file is not None:
@@ -211,7 +211,7 @@ async def generate_cpag(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    # 保存CSV
+    # Save CSV
     if csv_file is not None:
         try:
             temp_csv_path = await save_upload_validated(csv_file, [".csv"])
@@ -220,14 +220,14 @@ async def generate_cpag(
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    # 保存assets
+    # Save assets
     if assets_file is not None:
         try:
             temp_assets_path = await save_upload_validated(assets_file, [".yaml", ".yml"])
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
-    # 初始化任务状态
+    # Initialize task status
     created_at_str = datetime.utcnow().isoformat() + "Z"
     task_data = {
         "status": "processing",
@@ -239,7 +239,7 @@ async def generate_cpag(
         "assets_path": temp_assets_path,
     }
     
-    # 任务处理：优先队列（Celery），失败则退回进程内后台任务
+    # Task processing: priority queue (Celery), fallback to in-process background task if failed
     enqueued = False
     try:
         from infrastructure.celery_app import celery_app as _celery
@@ -260,7 +260,7 @@ async def generate_cpag(
     except Exception:
         enqueued = False
     if not enqueued and background_tasks:
-        # 检查并发限制并添加到活跃任务
+        # Check concurrency limits and add to active tasks
         check_and_add_to_active_tasks(task_id)
         
         background_tasks.add_task(
@@ -308,7 +308,7 @@ async def get_task_status(task_id: str):
 async def get_task_result(task_id: str):
     """获取任务结果"""
     task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-    # 优先读取清单中记录的主要结果文件
+    # Prioritize reading main result files recorded in manifest
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest and isinstance(manifest.get("files"), list):
         primary = None
@@ -319,7 +319,7 @@ async def get_task_result(task_id: str):
         if primary and os.path.exists(primary):
             with open(primary, 'r', encoding='utf-8') as fh:
                 return json.load(fh)
-    # 兼容：无清单或未记录主文件，降级读取默认 cpag.json
+    # Compatibility: no manifest or main file not recorded, fallback to default cpag.json
     cpag_file = os.path.join(task_dir, 'cpag.json')
     if os.path.exists(cpag_file):
         with open(cpag_file, 'r', encoding='utf-8') as fh:
@@ -336,11 +336,11 @@ async def get_task_list():
         status = m.get("status", "processing")
         task_id = m.get("task_id", "")
         
-        # 如果状态是processing，重新检查实际状态
+        # If status is processing, recheck actual status
         if status == "processing":
             celery_status = check_celery_task_status(task_id)
             if not celery_status:
-                # 不在Celery中运行，检查结果文件
+                # Not running in Celery, check result files
                 task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
                 if os.path.exists(task_dir):
                     cpag_file = os.path.join(task_dir, 'cpag.json')
@@ -357,7 +357,7 @@ async def get_task_list():
             file_name=m.get("file_name")
         ))
     
-    # 按创建时间倒序排列
+    # Sort by creation time in descending order
     tasks.sort(key=lambda x: x.created_at, reverse=True)
     return tasks
 
@@ -404,22 +404,22 @@ async def process_cpag_generation(
 ):
     """后台处理CPAG生成"""
     try:
-        # 输出目录
+        # Output directory
         out_dir = ensure_output_dir(OUTPUT_BASE_DIR, task_id)
         
-        # 1. 解析PCAP
+        # 1. Parse PCAP
         pcap_data = None
         if file_path:
             pcap_generator = PCAPCPAGGenerator()
             pcap_data = pcap_generator.parse_pcap(file_path)
         
-        # 2. Historian CSV 解析
+        # 2. Parse Historian CSV
         csv_df = None
         if csv_path:
             csv_generator = CSVCPAGGenerator()
             csv_df = csv_generator.parse_csv(csv_path)
         
-        # 3. 构建CPAG
+        # 3. Build CPAG
         cpag_graph = {}
         
         if pcap_data:
@@ -429,7 +429,7 @@ async def process_cpag_generation(
             csv_generator = CSVCPAGGenerator()
             cpag_graph = csv_generator.build_cpag(csv_df, device_map)
         else:
-            # 创建基本的CPAG结构
+            # Create basic CPAG structure
             cpag_graph = {
                 "nodes": [],
                 "edges": [],
@@ -439,12 +439,12 @@ async def process_cpag_generation(
                 }
             }
         
-        # 4. 导出cpag.json
+        # 4. Export cpag.json
         cpag_json_path = os.path.join(out_dir, 'cpag.json')
         with open(cpag_json_path, 'w', encoding='utf-8') as f:
             json.dump(cpag_graph, f, ensure_ascii=False, indent=2)
         
-        # 写入统一清单
+        # Write unified manifest
         manifest = {
             "task_id": task_id,
             "version": VERSION,
@@ -457,11 +457,11 @@ async def process_cpag_generation(
         except Exception:
             pass
 
-        # 清理临时文件
+        # Clean up temporary files
         cleanup_temp_files([file_path, csv_path, assets_path])
         
     except Exception as e:
-        # 写入错误状态到manifest
+        # Write error status to manifest
         error_manifest = {
             "task_id": task_id,
             "version": VERSION,
@@ -475,13 +475,13 @@ async def process_cpag_generation(
         except Exception:
             pass
         
-        # 清理临时文件
+        # Clean up temporary files
         cleanup_temp_files([file_path, csv_path, assets_path])
     finally:
-        # 从活跃任务集合中移除
+        # Remove from active task set
         remove_from_active_tasks(task_id)
 
-# 包含CPAG路由器
+# Include CPAG router
 app.include_router(cpag_router)
 
 if __name__ == "__main__":

@@ -19,7 +19,7 @@ class TaskInfo(BaseModel):
     version: str
     files: List[str] = []
     result_url: Optional[str] = None
-    file_size: Optional[int] = None  # 文件大小（字节）
-    file_name: Optional[str] = None  # 原始文件名
+    file_size: Optional[int] = None  # File size in bytes
+    file_name: Optional[str] = None  # Original filename
 
 

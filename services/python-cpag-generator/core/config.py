@@ -10,13 +10,12 @@ class ServiceConfig(BaseModel):
     redis_url: str = os.getenv("REDIS_URL", "redis://localhost:6379/0")
     rabbitmq_url: str = os.getenv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
     cors_allow_origins: str = os.getenv("CORS_ALLOW_ORIGINS", "*")
-    # 并发控制配置
+    # Concurrency control configuration
     max_concurrent_tasks_v1: int = int(os.getenv("MAX_CONCURRENT_TASKS_V1", "5"))
     max_concurrent_tasks_v2: int = int(os.getenv("MAX_CONCURRENT_TASKS_V2", "3"))
 
 
 def get_config() -> ServiceConfig:
-    """获取服务配置"""
     return ServiceConfig()
 
 

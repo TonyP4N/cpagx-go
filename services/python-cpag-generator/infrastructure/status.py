@@ -12,7 +12,7 @@ def write_manifest(base_dir: str, task_id: str, manifest: Dict):
     os.makedirs(out_dir, exist_ok=True)
     path = result_manifest_path(base_dir, task_id)
     
-    # 确保created_at字段包含Z后缀（UTC时间标识）
+    # Ensure created_at field contains Z suffix (UTC time identifier)
     if 'created_at' in manifest and manifest['created_at']:
         created_at = str(manifest['created_at'])
         if not created_at.endswith('Z') and not created_at.endswith('+00:00'):

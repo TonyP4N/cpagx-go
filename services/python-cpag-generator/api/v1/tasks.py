@@ -14,7 +14,7 @@ from core.generators import PCAPCPAGGenerator, CSVCPAGGenerator
 from infrastructure.status import write_manifest
 from core.config import get_config
 
-# 并发控制
+# Concurrency control
 config = get_config()
 MAX_CONCURRENT_TASKS = config.max_concurrent_tasks_v1
 import redis
@@ -38,7 +38,7 @@ def generate_cpag(
 ):
     """v1 generation task: build a single cpag.json in output_dir/task_id"""
     try:
-        # 检查并发限制
+        # Check concurrency limits
         current_active = 0
         if redis_client:
             try:
@@ -49,11 +49,11 @@ def generate_cpag(
         if current_active >= MAX_CONCURRENT_TASKS:
             raise Exception(f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}")
         
-        # 添加到活跃任务集合
+        # Add to active task set
         if redis_client:
             try:
                 redis_client.sadd("v1_active_tasks", task_id)
-                redis_client.expire("v1_active_tasks", 3600)  # 1小时过期
+                redis_client.expire("v1_active_tasks", 3600)  # 1 hour expiry
             except Exception:
                 pass
         
@@ -100,7 +100,7 @@ def generate_cpag(
             pass
         return {"status": "failed", "task_id": task_id, "error": str(e)}
     finally:
-        # 从活跃任务集合中移除
+        # Remove from active task set
         if redis_client:
             try:
                 redis_client.srem("v1_active_tasks", task_id)

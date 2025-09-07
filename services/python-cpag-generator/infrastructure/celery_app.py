@@ -51,7 +51,7 @@ celery_app.conf.update(
         'api.v2.tasks.collect_metrics': {'queue': 'celery'},
         'api.v2.tasks.health_check': {'queue': 'celery'},
         'api.v2.tasks.cleanup_old_tasks': {'queue': 'celery'},
-        # 兼容旧的任务名称
+        # Compatible with old task names
         'tasks.collect_metrics': {'queue': 'celery'},
         'tasks.health_check': {'queue': 'celery'},
         'tasks.cleanup_old_tasks': {'queue': 'celery'},

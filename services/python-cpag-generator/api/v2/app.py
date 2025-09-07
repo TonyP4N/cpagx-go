@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CPAG Generator v2.0 - Enhanced FastAPI Application
-支持ENIP/CIP协议解析、Neo4j集成和增强可视化
+Support for ENIP/CIP protocol parsing, Neo4j integration and enhanced visualization
 """
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
@@ -30,7 +30,7 @@ from infrastructure.status import read_manifest, list_tasks_from_manifests
 
 app = FastAPI(title="CPAG Generator v2.0", version="2.0.0")
 
-# CORS中间件
+# CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -39,14 +39,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 输出目录
+# Output directory
 OUTPUT_BASE_DIR = os.path.abspath(os.getenv("OUTPUT_DIR", "outputs/v2"))
 os.makedirs(OUTPUT_BASE_DIR, exist_ok=True)
 
 from core.models import CPAGResponse, TaskInfo
 VERSION = "v2"
 
-# 并发控制
+# Concurrency control
 from core.config import get_config
 config = get_config()
 import redis
@@ -67,8 +67,8 @@ async def generate_cpag(
     device_map: str = Form("{}"),
     rules: str = Form("[]"),
     output_format: str = Form("tcity"),
-    custom_params: Optional[str] = Form(None),  # 支持自定义参数
-    # v2版本特有参数
+    custom_params: Optional[str] = Form(None),  # Support custom parameters
+    # v2 version specific parameters
     neo4j_uri: Optional[str] = Form(None),
     neo4j_user: Optional[str] = Form(None),
     neo4j_password: Optional[str] = Form(None),
@@ -84,18 +84,18 @@ async def generate_cpag(
     top_k_analog: int = Form(3),
     visualize: bool = Form(True)
 ):
-    """生成CPAG的异步接口 - v2版本"""
+    """Async CPAG generation interface - v2"""
     task_id = str(uuid.uuid4())
     created_at_str = datetime.utcnow().isoformat() + "Z"
     
-    # 解析参数
+    # Parse parameters
     try:
         device_map_dict = json.loads(device_map) if device_map else {}
         rules_list = json.loads(rules) if rules else []
     except json.JSONDecodeError:
         raise HTTPException(status_code=400, detail="Invalid JSON in device_map or rules")
     
-    # 接收文件（兼容旧参数 'file'）
+    # Receive file (compatible with old parameter 'file')
     try:
         pcap_file, csv_file = assign_compatible_file_param(file, pcap_file, csv_file)
     except ValueError as e:
@@ -104,21 +104,21 @@ async def generate_cpag(
     temp_file_path = None
     temp_csv_path = None
     
-    # 保存pcap文件
+    # Save pcap file
     if pcap_file is not None:
         try:
             temp_file_path = await save_upload_validated(pcap_file, [".pcap", ".pcapng"])
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    # 保存CSV文件
+    # Save CSV file
     if csv_file is not None:
         try:
             temp_csv_path = await save_upload_validated(csv_file, [".csv"])
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    # 解析自定义参数
+    # Parse custom parameters
     params_dict = {}
     if custom_params:
         try:
@@ -126,7 +126,7 @@ async def generate_cpag(
         except:
             params_dict = {}
 
-    # 启动Celery任务（如果有文件的话）
+    # Start Celery task (if files are available)
     if temp_file_path or temp_csv_path:
         enqueued = False
         try:
@@ -154,14 +154,14 @@ async def generate_cpag(
                     per_tag,
                     top_k_analog,
                     visualize,
-                    params_dict  # 添加自定义参数
+                    params_dict  # Add custom parameters
                 ]
             )
             enqueued = True
         except Exception:
             enqueued = False
         if not enqueued:
-            # 如果Celery不可用，直接返回错误
+            # If Celery is not available, return error directly
             cleanup_temp_files([temp_file_path, temp_csv_path])
             raise HTTPException(status_code=503, detail="Task queue service unavailable")
     
@@ -175,19 +175,19 @@ async def generate_cpag(
 
 @app.get("/cpag/status/{task_id}")
 async def get_task_status(task_id: str):
-    """获取任务状态 - 使用Redis缓存"""
+    """Get task status with Redis caching"""
     import redis
     
-    # 连接Redis
+    # Connect to Redis
     redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     try:
         redis_client = redis.from_url(redis_url)
         
-        # 检查Redis连接
+        # Check Redis connection
         if redis_client is None:
             raise Exception("Failed to connect to Redis")
             
-        # 从Redis获取任务状态
+        # Get task status from Redis
         task_key = f"task_status:{task_id}"
         task_data = redis_client.get(task_key)
         
@@ -195,10 +195,10 @@ async def get_task_status(task_id: str):
             task_info = json.loads(task_data)
             return task_info
         
-        # 如果Redis中没有，检查文件系统（兼容性）
+        # If not in Redis, check filesystem (compatibility)
         task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
         if os.path.exists(task_dir):
-            # 检查结果文件
+            # Check result files
             cpag_files = [
                 os.path.join(task_dir, 'cpag_units.json'),
                 os.path.join(task_dir, 'cpag_enhanced.json'),
@@ -213,11 +213,11 @@ async def get_task_status(task_id: str):
                         "result_url": f"/cpag/result/{task_id}",
                         "version": "v2"
                     }
-                    # 缓存到Redis
+                    # Cache to Redis
                     redis_client.setex(task_key, 3600, json.dumps(status_info))
                     return status_info
             
-            # 检查错误文件
+            # Check error files
             error_file = os.path.join(task_dir, 'error.log')
             if os.path.exists(error_file):
                 with open(error_file, 'r', encoding='utf-8') as f:
@@ -241,7 +241,7 @@ async def get_task_status(task_id: str):
             raise HTTPException(status_code=404, detail="Task not found")
     
     except Exception as e:
-        # 如果Redis不可用，回退到文件系统
+        # If Redis is not available, fallback to filesystem
         task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
         if os.path.exists(task_dir):
             return {
@@ -257,23 +257,23 @@ async def get_batch_task_status(task_ids: str):
     """批量获取任务状态 - 使用Redis缓存"""
     import redis
     
-    # 解析任务ID列表
+    # Parse task ID list
     task_id_list = task_ids.split(',') if task_ids else []
     if not task_id_list:
         return {}
     
-    # 连接Redis
+    # Connect to Redis
     redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
     try:
         redis_client = redis.from_url(redis_url)
         
-        # 检查Redis连接
+        # Check Redis connection
         if redis_client is None:
             raise Exception("Failed to connect to Redis")
         
         results = {}
         
-        # 批量获取任务状态
+        # Batch get task status
         for task_id in task_id_list:
             task_id = task_id.strip()
             if not task_id:
@@ -286,10 +286,10 @@ async def get_batch_task_status(task_ids: str):
                 task_info = json.loads(task_data)
                 results[task_id] = task_info
             else:
-                # 如果Redis中没有，检查文件系统（兼容性）
+                # If not in Redis, check filesystem (compatibility)
                 task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
                 if os.path.exists(task_dir):
-                    # 检查结果文件
+                    # Check result files
                     cpag_files = [
                         os.path.join(task_dir, 'cpag_units.json'),
                         os.path.join(task_dir, 'cpag_enhanced.json'),
@@ -308,7 +308,7 @@ async def get_batch_task_status(task_ids: str):
                             status_info["result_url"] = f"/cpag/result/{task_id}"
                             break
                     
-                    # 检查错误文件
+                    # Check error files
                     error_file = os.path.join(task_dir, 'error.log')
                     if os.path.exists(error_file):
                         with open(error_file, 'r', encoding='utf-8') as f:
@@ -316,7 +316,7 @@ async def get_batch_task_status(task_ids: str):
                         status_info["status"] = "failed"
                         status_info["error"] = error_msg
                     
-                    # 缓存到Redis
+                    # Cache to Redis
                     redis_client.setex(task_key, 3600, json.dumps(status_info))
                     results[task_id] = status_info
                 else:
@@ -329,7 +329,7 @@ async def get_batch_task_status(task_ids: str):
         return results
     
     except Exception as e:
-        # 如果Redis不可用，回退到文件系统
+        # If Redis is not available, fallback to filesystem
         results = {}
         for task_id in task_id_list:
             task_id = task_id.strip()
@@ -357,7 +357,7 @@ async def get_task_result(task_id: str):
     """获取任务结果 - 返回可下载的文件"""
     task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
     
-    # 优先读取 manifest 中记录的文件
+    # Prioritize reading files recorded in manifest
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest and isinstance(manifest.get('files'), list):
         for fn in manifest['files']:
@@ -388,7 +388,7 @@ async def get_task_result_json(task_id: str):
     """获取任务结果 - 返回 JSON 数据"""
     import redis
     
-    # 首先尝试从 Redis 获取
+    # First try to get from Redis
     try:
         redis_client = redis.Redis(
             host=os.getenv('REDIS_HOST', 'localhost'),
@@ -398,7 +398,7 @@ async def get_task_result_json(task_id: str):
         result = redis_client.get(f"task_result:{task_id}")
         if result:
             result_data = json.loads(result)
-            # 返回格式化的数据
+            # Return formatted data
             return {
                 "task_id": task_id,
                 "status": result_data.get('status', 'unknown'),
@@ -415,10 +415,10 @@ async def get_task_result_json(task_id: str):
     except:
         pass
     
-    # 如果 Redis 中没有，尝试从文件读取
+    # If not in Redis, try reading from file
     task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
     
-    # 读取 enhanced JSON 文件
+    # Read enhanced JSON file
     enhanced_file = os.path.join(task_dir, 'cpag_enhanced.json')
     if os.path.exists(enhanced_file):
         with open(enhanced_file, 'r', encoding='utf-8') as f:
@@ -443,7 +443,7 @@ async def get_task_list():
     tasks: List[TaskInfo] = []
     manifests = list_tasks_from_manifests(OUTPUT_BASE_DIR)
     for m in manifests:
-        # 确保时间格式包含Z后缀
+        # Ensure time format includes Z suffix
         created_at = m.get('created_at', '')
         if created_at and not created_at.endswith('Z'):
             created_at += 'Z'
@@ -459,7 +459,7 @@ async def get_task_list():
             file_name=m.get('file_name')
         ))
     
-    # 按创建时间倒序排列
+    # Sort by creation time in descending order
     tasks.sort(key=lambda x: x.created_at, reverse=True)
     return tasks
 
@@ -501,11 +501,11 @@ async def get_queue_status():
     }
 
 
-# 包含CPAG路由器
+# Include CPAG router
 from fastapi import APIRouter
 cpag_router = APIRouter(prefix="/cpag")
 
-# 将路由添加到路由器
+# Add routes to router
 cpag_router.add_api_route("/generate", generate_cpag, methods=["POST"])
 cpag_router.add_api_route("/status/{task_id}", get_task_status, methods=["GET"])
 cpag_router.add_api_route("/status/batch", get_batch_task_status, methods=["GET"])
@@ -513,7 +513,7 @@ cpag_router.add_api_route("/result/{task_id}", get_task_result, methods=["GET"])
 cpag_router.add_api_route("/tasks", get_task_list, methods=["GET"])
 cpag_router.add_api_route("/download/{task_id}/{filename}", download_file, methods=["GET"])
 
-# 包含路由器到主应用
+# Include router to main application
 app.include_router(cpag_router)
 
 if __name__ == "__main__":

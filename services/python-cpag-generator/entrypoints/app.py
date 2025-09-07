@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 CPAG Generator Unified Application Entry Point
-支持多版本FastAPI应用和Celery任务
+Support for multi-version FastAPI applications and Celery tasks
 """
 
 import os
@@ -12,10 +12,10 @@ from pathlib import Path
 from typing import Dict, Any
 
 """
-将版本目录作为标准包使用，移除动态sys.path注入
+Use version directories as standard packages, removing dynamic sys.path injection
 """
 
-# 版本配置
+# Version configuration
 VERSION_CONFIG = {
     "v1": {
         "port": 8000,
@@ -32,7 +32,7 @@ VERSION_CONFIG = {
 }
 
 def get_version_config():
-    """获取版本配置"""
+    """Get version configuration"""
     # 尝试从配置文件加载
     config_paths = [
         Path("../../configs/versions.json"),

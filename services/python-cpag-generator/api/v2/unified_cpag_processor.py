@@ -22,7 +22,7 @@ import tempfile
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple, Union
 from collections import defaultdict, Counter
-from datetime import datetime
+from datetime import datetime, timedelta
 from enum import Enum
 
 import pandas as pd
@@ -33,6 +33,8 @@ import sys
 import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '..', '..'))
 from core.confidence_calculator import ConfidenceCalculator
+from core.event_matcher import MatchingConfig
+from api.v2.matcher_adapter import MatcherAdapter, enhance_units_with_matcher
 
 # Neo4j integration
 try:
@@ -56,7 +58,7 @@ except ImportError:
 
 
 class ConditionType(Enum):
-    """前置条件类型"""
+    """Precondition types"""
     CONNECTIVITY = "connectivity"
     SERVICE_ACCESS = "service_access"
     AUTHENTICATION = "authentication"
@@ -66,7 +68,7 @@ class ConditionType(Enum):
 
 
 class LogicalOperator(Enum):
-    """逻辑操作符"""
+    """Logical operators"""
     AND = "AND"
     OR = "OR"
 
@@ -80,20 +82,20 @@ class CPAGRelationshipAnalyzer:
     def analyze_unit_relationships(self, cpag_units: List[Dict[str, Any]]) -> Dict[str, Any]:
         """分析CPAG单元之间的关系"""
         relationships = {
-            'dependencies': {},  # 依赖关系
-            'conflicts': [],     # 冲突关系  
-            'enabling_chains': [], # 启用链
-            'alternative_paths': [] # 替代路径
+            'dependencies': {},  # Dependencies
+            'conflicts': [],     # Conflicts  
+            'enabling_chains': [], # Enabling chains
+            'alternative_paths': [] # Alternative paths
         }
         
-        # 构建条件映射
-        condition_providers = {}  # 哪个单元提供了什么后置条件
-        condition_consumers = {}  # 哪个单元需要什么前置条件
+        # Build condition mapping
+        condition_providers = {}  # Which unit provides what postconditions
+        condition_consumers = {}  # Which unit needs what preconditions
         
         for unit in cpag_units:
             unit_id = unit['id']
             
-            # 分析前置条件需求
+            # Analyze precondition requirements
             preconditions = self._extract_conditions_from_unit(unit, 'precondition')
             for precond in preconditions:
                 condition_sig = self._get_condition_signature(precond)
@@ -101,23 +103,23 @@ class CPAGRelationshipAnalyzer:
                     condition_consumers[condition_sig] = []
                 condition_consumers[condition_sig].append(unit_id)
             
-            # 分析后置条件提供
+            # Analyze postcondition provisions
             postconditions = self._extract_conditions_from_unit(unit, 'postcondition')
             for postcond in postconditions:
                 condition_sig = self._get_condition_signature(postcond)
                 condition_providers[condition_sig] = unit_id
         
-        # 构建依赖关系
+        # Build dependency relationships
         relationships['dependencies'] = self._build_dependencies(
             cpag_units, condition_providers, condition_consumers
         )
         
-        # 发现替代路径 (OR关系)
+        # Discover alternative paths (OR relationships)
         relationships['alternative_paths'] = self._find_alternative_paths(
             cpag_units, relationships['dependencies']
         )
         
-        # 发现启用链 (AND关系)
+        # Discover enabling chains (AND relationships)
         relationships['enabling_chains'] = self._find_enabling_chains(
             cpag_units, relationships['dependencies']
         )
@@ -133,18 +135,18 @@ class CPAGRelationshipAnalyzer:
     
     def _get_condition_signature(self, condition: str) -> str:
         """生成条件签名用于匹配"""
-        # 标准化条件描述
+        # Standardize condition descriptions
         condition = condition.lower().strip()
         
-        # 提取关键信息
+        # Extract key information
         if 'connectivity' in condition or 'connect' in condition:
-            # 网络连接条件
+            # Network connection condition
             ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', condition)
             if ip_match:
                 return f"connectivity:{ip_match.group(1)}"
         
         elif 'access' in condition:
-            # 访问条件
+            # Access condition
             if 'service' in condition:
                 return f"service_access:{self._extract_target(condition)}"
             else:
@@ -156,17 +158,17 @@ class CPAGRelationshipAnalyzer:
         elif 'data' in condition or 'information' in condition:
             return f"knowledge:{self._extract_target(condition)}"
         
-        # 默认签名
+        # Default signature
         return f"generic:{self._extract_target(condition)}"
     
     def _extract_target(self, condition: str) -> str:
         """从条件中提取目标实体"""
-        # 尝试提取IP地址
+        # Try to extract IP address
         ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', condition)
         if ip_match:
             return ip_match.group(1)
         
-        # 尝试提取设备名
+        # Try to extract device name
         for device_type in ['PLC', 'HMI', 'SCADA']:
             if device_type.lower() in condition.lower():
                 return device_type.lower()
@@ -187,7 +189,7 @@ class CPAGRelationshipAnalyzer:
             for precond in preconditions:
                 condition_sig = self._get_condition_signature(precond)
                 
-                # 如果有其他单元提供这个条件
+                # If other units provide this condition
                 if condition_sig in providers:
                     provider_unit = providers[condition_sig]
                     if provider_unit != unit_id:
@@ -200,7 +202,7 @@ class CPAGRelationshipAnalyzer:
         """发现替代路径 (OR关系) - 限制数量避免过度复杂"""
         alternative_paths = []
         
-        # 寻找具有相同目标但不同前置条件的单元
+        # Find units with same target but different preconditions
         target_map = {}
         for unit in units:
             action = unit.get('action', '').lower()
@@ -212,10 +214,10 @@ class CPAGRelationshipAnalyzer:
                 target_map[key] = []
             target_map[key].append(unit['id'])
         
-        # 找出有多个实现方式的目标，但限制替代路径数量
+        # Find targets with multiple implementations, but limit alternative path count
         for target_key, unit_ids in target_map.items():
             if len(unit_ids) > 1:
-                # 最多保留3个替代单元，避免图过于复杂
+                # Keep at most 3 alternative units to avoid overly complex graphs
                 limited_units = unit_ids[:3]
                 alternative_paths.append({
                     'target': target_key,
@@ -224,7 +226,7 @@ class CPAGRelationshipAnalyzer:
                     'description': f"Alternative ways to achieve {target_key}"
                 })
         
-        # 限制总的替代路径数量
+        # Limit total alternative path count
         return alternative_paths[:5]
     
     def _find_enabling_chains(self, units: List[Dict[str, Any]], 
@@ -232,16 +234,16 @@ class CPAGRelationshipAnalyzer:
         """发现启用链 (AND关系) - 限制复杂度"""
         enabling_chains = []
         
-        # 寻找需要多个前置条件的单元，但限制复杂度
+        # Find units requiring multiple preconditions, but limit complexity
         for unit in units:
             unit_id = unit['id']
             preconditions = self._extract_conditions_from_unit(unit, 'precondition')
             
             if len(preconditions) > 1:
-                # 这个单元需要多个前置条件，形成AND关系
+                # This unit requires multiple preconditions, forming AND relationships
                 chain_units = dependencies.get(unit_id, [])
                 if len(chain_units) > 1:
-                    # 限制每个AND链最多3个必需单元
+                    # Limit each AND chain to at most 3 required units
                     limited_required = chain_units[:3]
                     enabling_chains.append({
                         'target_unit': unit_id,
@@ -250,7 +252,7 @@ class CPAGRelationshipAnalyzer:
                         'description': f"Unit {unit_id} requires multiple preconditions"
                     })
         
-        # 限制总的启用链数量
+        # Limit total enabling chain count
         return enabling_chains[:5]
     
     def enhance_cpag_units_with_relationships(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
@@ -262,10 +264,10 @@ class CPAGRelationshipAnalyzer:
             enhanced_unit = unit.copy()
             unit_id = unit['id']
             
-            # 添加依赖信息
+            # Add dependency information
             enhanced_unit['dependencies'] = relationships['dependencies'].get(unit_id, [])
             
-            # 检查是否是替代路径的一部分
+            # Check if part of alternative paths
             alternative_info = []
             for alt_path in relationships['alternative_paths']:
                 if unit_id in alt_path['alternative_units']:
@@ -275,7 +277,7 @@ class CPAGRelationshipAnalyzer:
                     })
             enhanced_unit['alternatives'] = alternative_info
             
-            # 检查是否是启用链的一部分
+            # Check if part of enabling chains
             chain_info = []
             for chain in relationships['enabling_chains']:
                 if unit_id == chain['target_unit']:
@@ -284,7 +286,7 @@ class CPAGRelationshipAnalyzer:
                     chain_info.append(chain['target_unit'])
             enhanced_unit['enables'] = chain_info
             
-            # 增强前置条件，添加逻辑关系
+            # Enhance preconditions, add logical relationships
             enhanced_unit['precondition_logic'] = self._analyze_precondition_logic(unit)
             
             enhanced_units.append(enhanced_unit)
@@ -298,11 +300,11 @@ class CPAGRelationshipAnalyzer:
         if len(preconditions) <= 1:
             return {'type': 'simple', 'conditions': preconditions}
         
-        # 分析是否是AND还是OR关系
-        # 默认多个前置条件为AND关系
+        # Analyze whether AND or OR relationship
+        # Default multiple preconditions as AND relationship
         logic_type = 'AND'
         
-        # 检查条件中是否有"或"的表达
+        # Check if conditions contain 'or' expressions
         combined_text = ' '.join(preconditions).lower()
         if 'or' in combined_text or '或' in combined_text:
             logic_type = 'OR'
@@ -317,21 +319,23 @@ class CPAGRelationshipAnalyzer:
 class UnifiedCPAGProcessor:
     """Unified processor for all CPAG analysis tasks"""
     
-    def __init__(self):
+    def __init__(self, use_structured_matching: bool = False, matching_config: Optional[MatchingConfig] = None):
         self.confidence_calculator = ConfidenceCalculator()
         self.supported_formats = {'.csv', '.pcap', '.pcapng'}
         self.neo4j_driver = None
         self.relationship_analyzer = CPAGRelationshipAnalyzer()
+        self.use_structured_matching = use_structured_matching
+        self.matcher_adapter = MatcherAdapter(matching_config) if use_structured_matching else None
     
     def _convert_to_tcity_format(self, cpag_units: List[Dict[str, Any]], graph_data: Dict[str, Any]) -> Dict[str, Any]:
         """将CPAG数据转换为tcity格式，基于真实的攻击路径"""
-        # 首先对CPAG单元进行去重和聚合
+        # First deduplicate and aggregate CPAG units
         aggregated_units = self._aggregate_similar_units(cpag_units)
         
         tcity_nodes = []
         tcity_edges = []
         
-        # 定义颜色配置
+        # Define color configuration
         color_configs = {
             'init': {
                 'lineColor': '#f5684c',
@@ -370,15 +374,15 @@ class UnifiedCPAGProcessor:
             }
         }
         
-        # 创建条件到单元的映射，用于构建攻击路径
-        postcondition_to_units = {}  # 后置条件 -> 提供此条件的单元
-        precondition_to_units = {}   # 前置条件 -> 需要此条件的单元
+        # Create condition to unit mapping for building attack paths
+        postcondition_to_units = {}  # Postconditions -> units providing this condition
+        precondition_to_units = {}   # Preconditions -> units needing this condition
         
-        # 先建立映射关系
+        # First establish mapping relationships
         for unit in aggregated_units:
             unit_id = unit.get('id', '')
             
-            # 映射后置条件
+            # Map postconditions
             postconditions = unit.get('postcondition', [])
             if not isinstance(postconditions, list):
                 postconditions = [postconditions] if postconditions else []
@@ -389,7 +393,7 @@ class UnifiedCPAGProcessor:
                         postcondition_to_units[postcond] = []
                     postcondition_to_units[postcond].append(unit_id)
             
-            # 映射前置条件
+            # Map preconditions
             preconditions = unit.get('precondition', [])
             if not isinstance(preconditions, list):
                 preconditions = [preconditions] if preconditions else []
@@ -400,14 +404,14 @@ class UnifiedCPAGProcessor:
                         precondition_to_units[precond] = []
                     precondition_to_units[precond].append(unit_id)
         
-        # 分层布局算法
+        # Layered layout algorithm
         layers = self._create_attack_graph_layers(aggregated_units, postcondition_to_units, precondition_to_units)
         
-        # 生成节点位置 - 改进的布局算法
-        layer_spacing = 180  # 增加垂直间距
-        min_node_spacing = 150  # 最小水平间距
+        # Generate node positions - improved layout algorithm
+        layer_spacing = 180  # Increase vertical spacing
+        min_node_spacing = 150  # Minimum horizontal spacing
         start_y = 120
-        canvas_width = 1200  # 画布宽度
+        canvas_width = 1200  # Canvas width
         
         for layer_idx, layer_units in enumerate(layers):
             y = start_y + layer_idx * layer_spacing
@@ -497,7 +501,7 @@ class UnifiedCPAGProcessor:
         device_actions = {}  # 设备 -> 动作类型 -> 单元列表
         
         for unit in cpag_units:
-            # 提取关键信息用于聚合
+            # Extract key information用于聚合
             category = unit.get('category', 'unknown')
             evidence = unit.get('evidence', {})
             device = evidence.get('device', 'unknown') if isinstance(evidence, dict) else 'unknown'
@@ -1052,6 +1056,11 @@ class UnifiedCPAGProcessor:
             # Build CPAG from CSV data
             cpag_units = self._build_cpag_from_csv(standardized_df, device_map, rules, kwargs.get('custom_params'))
             
+            # Apply structured matching if enabled
+            if self.use_structured_matching and self.matcher_adapter:
+                print("Applying structured matching logic...")
+                cpag_units = enhance_units_with_matcher(cpag_units, standardized_df, 'process')
+            
             # Enhance units with relationship analysis
             cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
             
@@ -1110,6 +1119,10 @@ class UnifiedCPAGProcessor:
             # Check if we should use optimized processor
             custom_params = kwargs.get('custom_params', {})
             use_optimized = custom_params.get('use_optimized_pcap', True)
+            cpag_units = []
+            graph_data = {}
+            df = pd.DataFrame()
+            result = {}
             
             if use_optimized:
                 # Use optimized PCAP processor
@@ -1150,6 +1163,11 @@ class UnifiedCPAGProcessor:
                 
                 # Build CPAG units from parsed data
                 cpag_units = self._build_cpag_units_from_df(df)
+                
+                # Apply structured matching if enabled
+                if self.use_structured_matching and self.matcher_adapter:
+                    print("Applying structured matching logic...")
+                    cpag_units = enhance_units_with_matcher(cpag_units, df, 'network')
                 
                 # Enhance units with relationship analysis
                 cpag_units = self.relationship_analyzer.enhance_cpag_units_with_relationships(cpag_units)
@@ -1547,7 +1565,11 @@ class UnifiedCPAGProcessor:
             strong_correlations = []
             for i in range(len(numeric_cols)):
                 for j in range(i+1, len(numeric_cols)):
-                    correlation = corr_matrix.iloc[i, j]
+                    correlation_val = corr_matrix.iloc[i, j]
+                    # Skip NaN values
+                    if not isinstance(correlation_val, (int, float, np.number)) or pd.isna(correlation_val):
+                        continue
+                    correlation = float(correlation_val)
                     if abs(correlation) > 0.75 and not np.isnan(correlation):
                         strong_correlations.append((numeric_cols[i], numeric_cols[j], correlation))
             

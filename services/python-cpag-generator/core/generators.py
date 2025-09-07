@@ -68,7 +68,7 @@ class CSVCPAGGenerator:
 
             return long_df[["timestamp", "tag", "tag_type", "tag_id", "value"]]
         except Exception as e:
-            raise RuntimeError(f"CSV 解析失败: {e}")
+            raise RuntimeError(f"CSV parsing failed: {e}")
 
     def _extract_tag_type(self, tag: str) -> str:
         if not isinstance(tag, str):
@@ -202,25 +202,23 @@ class PCAPCPAGGenerator:
         try:
             from scapy.all import IP, TCP, UDP, PcapReader  # lazy import to speed module load
             
-            # 检查文件是否存在
             if not os.path.exists(pcap_path):
                 raise RuntimeError(f"PCAP file not found: {pcap_path}")
             
-            # 检查文件大小
             file_size = os.path.getsize(pcap_path)
             if file_size == 0:
                 raise RuntimeError(f"PCAP file is empty: {pcap_path}")
             
         
             
-            # 使用流式读取，避免内存不足
+            # Use streaming read to avoid memory issues
             packets_data = []
             modbus_evidence = []
             packet_count = 0
-            max_packets = 10000  # 限制处理的包数量，避免内存问题
+            max_packets = 10000  # Limit number of packets to process to avoid memory issues
             
             try:
-                # 使用PcapReader进行流式读取
+                # Use PcapReader for streaming read
                 reader = PcapReader(pcap_path)
                 for packet in reader:
                     if packet_count >= max_packets:
@@ -265,14 +263,14 @@ class PCAPCPAGGenerator:
                     packets_data.append(packet_info)
                     packet_count += 1
                     
-                    # 每处理1000个包输出一次进度
+                    # Output progress every 1000 packets processed
                     if packet_count % 1000 == 0:
                         print(f"Processed {packet_count} packets...")
                 
                 reader.close()
                 
             except Exception as e:
-                # 如果流式读取失败，回退到传统方法但限制包数量
+                # If streaming read fails, fallback to traditional method but limit packet count
     
                 from scapy.all import rdpcap
                 packets = rdpcap(pcap_path, count=max_packets)
@@ -324,7 +322,7 @@ class PCAPCPAGGenerator:
                 'modbus_writes': len(modbus_evidence),
             }
         except Exception as e:
-            raise RuntimeError(f"PCAP 解析失败: {e}")
+            raise RuntimeError(f"PCAP parsing failed: {e}")
 
     def build_cpag(self, pcap_data: Dict[str, Any], device_map: Dict[str, str]) -> Dict[str, Any]:
         graph = nx.DiGraph()
