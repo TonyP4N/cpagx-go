@@ -21,8 +21,8 @@ CPAGX is a microservices platform for analyzing cyber-physical attack graphs fro
 │  (Next.js)  │◄──►│  Gateway     │◄──►│   Services  │
 │   :3000     │    │   :8080      │    │ v1:8000     │
 └─────────────┘    └──────────────┘    │ v2:8002     │
+                          │            │   +Celery   │
                           │            └─────────────┘
-                          │
         ┌─────────────────┼─────────────────┐
         │                 │                 │
    ┌────▼────┐      ┌─────▼─────┐    ┌─────▼─────┐
@@ -140,15 +140,9 @@ The platform includes comprehensive monitoring:
 ├── internal/              # Core services and utilities
 ├── services/              # Python processing services
 ├── webui/                 # Next.js frontend
-└── deployments/           # Docker and infrastructure
+├── deployments/           # Docker and infrastructure
+└── tests/                 # Evaluation and testing
 ```
-
-### Adding New Features
-
-1. Update API handlers in `api/`
-2. Implement business logic in `internal/services/`
-3. Add Python processing in `services/python-cpag-generator/`
-4. Update frontend components in `webui/src/`
 
 ### Running Services Individually
 
@@ -156,12 +150,26 @@ The platform includes comprehensive monitoring:
 # Go API Gateway
 make build && ./bin/cpagx server
 
-# Python Services
+# Python Services - Start All Versions
 cd services/python-cpag-generator
-python server.py
+./start_all.sh
+
+# Or start individual Python service versions:
+# V1 Service (port 8000)
+cd services/python-cpag-generator
+export CPAG_VERSION=v1 && export PORT=8000 && python main.py
+
+# V2 Service (port 8002)
+cd services/python-cpag-generator
+export CPAG_VERSION=v2 && export PORT=8002 && python main.py
 
 # Celery Worker
-celery -A infrastructure.celery_app worker
+cd services/python-cpag-generator
+celery -A entrypoints.app:celery worker --loglevel=info
+
+# Celery Beat (task scheduler)
+cd services/python-cpag-generator
+celery -A entrypoints.app:celery beat --loglevel=info
 
 # Web UI
 cd webui
