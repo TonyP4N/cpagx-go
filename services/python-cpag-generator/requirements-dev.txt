@@ -13,12 +13,12 @@ pre-commit==3.5.0
 ipython==8.17.2
 jupyter==1.0.0
 notebook==7.2.2
-jupyterlab==4.0.9
+jupyterlab==4.2.5
 
 # 评估和分析工具
 loguru==0.7.2
 plotly==5.17.0
-dash==2.14.2
+dash==2.15.0
 
 # 文档工具
 mkdocs==1.5.3
