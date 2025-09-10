@@ -1,9 +1,9 @@
-# CPAGX
+# CPAGx-Go
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/TonyP4N/cpagx-go)](https://goreportcard.com/report/github.com/TonyP4N/cpagx-go)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-CPAGX is a microservices platform for analyzing cyber-physical attack graphs from network traffic. Built for security researchers and SOC analysts to visualize attack paths in industrial control systems.
+CPAGx-Go is a microservices platform for analyzing cyber-physical attack graphs from network traffic. Built for security researchers and SOC analysts to visualize attack paths in industrial control systems.
 
 ## Features
 
@@ -63,10 +63,6 @@ make dev-setup
 # Build and run
 make build
 make run
-
-# Run tests
-go test ./...
-```
 
 ## Usage
 
