@@ -1,0 +1,81 @@
+{
+  "rules": [
+    {
+      "id": "SEC_001",
+      "name": "Unauthorized Access Detection",
+      "description": "Detect unauthorized access attempts to critical systems",
+      "category": "security",
+      "priority": "high",
+      "conditions": [
+        {
+          "field": "dest_port",
+          "operator": "in",
+          "value": [502, 102, 44818]
+        },
+        {
+          "field": "source_ip",
+          "operator": "not_in",
+          "value": ["192.168.1.0/24", "10.0.0.0/24"]
+        }
+      ],
+      "action": "alert",
+      "severity": "critical"
+    },
+    {
+      "id": "SEC_002",
+      "name": "Suspicious Protocol Usage",
+      "description": "Detect non-standard protocol usage on industrial ports",
+      "category": "security",
+      "priority": "medium",
+      "conditions": [
+        {
+          "field": "protocol",
+          "operator": "not_in",
+          "value": ["modbus", "enip", "profinet"]
+        },
+        {
+          "field": "dest_port",
+          "operator": "in",
+          "value": [502, 44818, 34962]
+        }
+      ],
+      "action": "investigate",
+      "severity": "medium"
+    },
+    {
+      "id": "SEC_003",
+      "name": "Anomalous Communication Pattern",
+      "description": "Detect unusual communication patterns between devices",
+      "category": "security",
+      "priority": "medium",
+      "conditions": [
+        {
+          "field": "packet_count",
+          "operator": "greater_than",
+          "value": 1000,
+          "timeframe": "1m"
+        },
+        {
+          "field": "unique_destinations",
+          "operator": "greater_than",
+          "value": 10,
+          "timeframe": "1m"
+        }
+      ],
+      "action": "monitor",
+      "severity": "low"
+    }
+  ],
+  "rule_groups": [
+    {
+      "name": "Critical Infrastructure Protection",
+      "rules": ["SEC_001", "SEC_002"],
+      "logical_operator": "OR"
+    }
+  ],
+  "evaluation_settings": {
+    "enable_correlation": true,
+    "correlation_window": "5m",
+    "false_positive_threshold": 0.1
+  }
+}

@@ -70,7 +70,7 @@ go test ./...
 
 ## Usage
 
-### Upload and Process PCAP Files
+### Upload and Process CSV, PCAP, PCAPNG Files
 
 1. Open the Web UI at http://localhost:3000
 2. Select API version (v1 for basic processing, v2 for enhanced analysis)

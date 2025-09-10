@@ -74,13 +74,13 @@ class LogicalOperator(Enum):
 
 
 class CPAGRelationshipAnalyzer:
-    """CPAG单元关系分析器"""
+    """CPAG Unit Relationship Analyzer"""
     
     def __init__(self):
         pass
     
     def analyze_unit_relationships(self, cpag_units: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """分析CPAG单元之间的关系"""
+        """Analyze relationships between CPAG units"""
         relationships = {
             'dependencies': {},  # Dependencies
             'conflicts': [],     # Conflicts  
@@ -127,14 +127,14 @@ class CPAGRelationshipAnalyzer:
         return relationships
     
     def _extract_conditions_from_unit(self, unit: Dict[str, Any], condition_type: str) -> List[str]:
-        """从单元中提取条件"""
+        """Extract conditions from unit"""
         conditions = unit.get(condition_type, [])
         if isinstance(conditions, str):
             return [conditions]
         return conditions or []
     
     def _get_condition_signature(self, condition: str) -> str:
-        """生成条件签名用于匹配"""
+        """Generate condition signature for matching"""
         # Standardize condition descriptions
         condition = condition.lower().strip()
         
@@ -162,7 +162,7 @@ class CPAGRelationshipAnalyzer:
         return f"generic:{self._extract_target(condition)}"
     
     def _extract_target(self, condition: str) -> str:
-        """从条件中提取目标实体"""
+        """Extract target entity from condition"""
         # Try to extract IP address
         ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', condition)
         if ip_match:
@@ -178,7 +178,7 @@ class CPAGRelationshipAnalyzer:
     def _build_dependencies(self, units: List[Dict[str, Any]], 
                           providers: Dict[str, str], 
                           consumers: Dict[str, List[str]]) -> Dict[str, List[str]]:
-        """构建单元间依赖关系"""
+        """Build inter-unit dependency relationships"""
         dependencies = {}
         
         for unit in units:
@@ -199,7 +199,7 @@ class CPAGRelationshipAnalyzer:
     
     def _find_alternative_paths(self, units: List[Dict[str, Any]], 
                                dependencies: Dict[str, List[str]]) -> List[Dict[str, Any]]:
-        """发现替代路径 (OR关系) - 限制数量避免过度复杂"""
+        """Discover alternative paths (OR relationships) - limit quantity to avoid excessive complexity"""
         alternative_paths = []
         
         # Find units with same target but different preconditions
@@ -231,7 +231,7 @@ class CPAGRelationshipAnalyzer:
     
     def _find_enabling_chains(self, units: List[Dict[str, Any]], 
                              dependencies: Dict[str, List[str]]) -> List[Dict[str, Any]]:
-        """发现启用链 (AND关系) - 限制复杂度"""
+        """Discover enabling chains (AND relationships) - limit complexity"""
         enabling_chains = []
         
         # Find units requiring multiple preconditions, but limit complexity
@@ -256,7 +256,7 @@ class CPAGRelationshipAnalyzer:
         return enabling_chains[:5]
     
     def enhance_cpag_units_with_relationships(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """增强CPAG单元，添加关系信息"""
+        """Enhance CPAG units by adding relationship information"""
         relationships = self.analyze_unit_relationships(cpag_units)
         
         enhanced_units = []
@@ -294,7 +294,7 @@ class CPAGRelationshipAnalyzer:
         return enhanced_units
     
     def _analyze_precondition_logic(self, unit: Dict[str, Any]) -> Dict[str, Any]:
-        """分析单元的前置条件逻辑"""
+        """Analyze the precondition logic of a unit"""
         preconditions = self._extract_conditions_from_unit(unit, 'precondition')
         
         if len(preconditions) <= 1:
@@ -306,7 +306,7 @@ class CPAGRelationshipAnalyzer:
         
         # Check if conditions contain 'or' expressions
         combined_text = ' '.join(preconditions).lower()
-        if 'or' in combined_text or '或' in combined_text:
+        if 'or' in combined_text or 'or' in combined_text:
             logic_type = 'OR'
         
         return {
@@ -328,7 +328,7 @@ class UnifiedCPAGProcessor:
         self.matcher_adapter = MatcherAdapter(matching_config) if use_structured_matching else None
     
     def _convert_to_tcity_format(self, cpag_units: List[Dict[str, Any]], graph_data: Dict[str, Any]) -> Dict[str, Any]:
-        """将CPAG数据转换为tcity格式，基于真实的攻击路径"""
+        """Convert CPAG data to tcity format based on real attack paths"""
         # First deduplicate and aggregate CPAG units
         aggregated_units = self._aggregate_similar_units(cpag_units)
         
@@ -416,16 +416,16 @@ class UnifiedCPAGProcessor:
         for layer_idx, layer_units in enumerate(layers):
             y = start_y + layer_idx * layer_spacing
             
-            # 根据节点数量动态调整间距
+            # Dynamically adjust spacing based on node count
             num_nodes = len(layer_units)
             if num_nodes <= 1:
                 node_spacing = min_node_spacing
                 start_x = canvas_width // 2
             else:
-                # 计算最佳间距，确保不超出画布宽度
-                max_total_width = canvas_width - 200  # 留边距
+                # Calculate optimal spacing ensuring it doesn't exceed canvas width
+                max_total_width = canvas_width - 200  # Leave margins
                 ideal_spacing = max_total_width / (num_nodes - 1) if num_nodes > 1 else min_node_spacing
-                node_spacing = max(min_node_spacing, min(ideal_spacing, 300))  # 限制最大间距
+                node_spacing = max(min_node_spacing, min(ideal_spacing, 300))  # Limit maximum spacing
                 
                 total_width = (num_nodes - 1) * node_spacing
                 start_x = (canvas_width - total_width) // 2
@@ -436,21 +436,21 @@ class UnifiedCPAGProcessor:
                 else:
                     x = start_x + i * node_spacing
                 
-                # 找到对应的单元数据
+                # Find corresponding unit data
                 unit = next((u for u in aggregated_units if u.get('id') == unit_id), None)
                 if not unit:
                     continue
                 
-                # 确定节点类型
+                # Determine node type
                 node_type = self._determine_node_type_from_cpag(unit)
                 
-                # 生成节点标签
+                # Generate node label
                 label = self._generate_node_label(unit)
                 
-                # 计算置信度值
+                # Calculate confidence value
                 b_value = self._calculate_unit_confidence(unit)
                 
-                # 确定节点大小
+                # Determine node size
                 radius = 13
                 if node_type == 'or':
                     radius = 19
@@ -475,14 +475,14 @@ class UnifiedCPAGProcessor:
                 
                 tcity_nodes.append(tcity_node)
         
-        # 生成攻击路径边
+        # Generate attack path edges
         tcity_edges = self._generate_attack_edges(aggregated_units, postcondition_to_units, precondition_to_units)
         
-        # 确定源节点和目标节点
+        # Determine source and target nodes
         source_node = self._find_initial_node(aggregated_units)
         target_node = self._find_target_node(aggregated_units)
         
-        # 创建tcity格式的完整结构
+        # Create complete tcity format structure
         tcity_data = {
             'graph': {
                 'graphTitle': 'Cyber-physical attack graph',
@@ -496,20 +496,20 @@ class UnifiedCPAGProcessor:
         return tcity_data
     
     def _aggregate_similar_units(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """聚合相似的CPAG单元，减少节点数量"""
+        """Aggregate similar CPAG units to reduce node count"""
         aggregated = {}
-        device_actions = {}  # 设备 -> 动作类型 -> 单元列表
+        device_actions = {}  # device -> action type -> unit list
         
         for unit in cpag_units:
-            # Extract key information用于聚合
+            # Extract key information for aggregation
             category = unit.get('category', 'unknown')
             evidence = unit.get('evidence', {})
             device = evidence.get('device', 'unknown') if isinstance(evidence, dict) else 'unknown'
             action_type = unit.get('action', '').lower()
             
-            # 确定聚合键
+            # Determine aggregation key
             if category in ['session', 'reconnaissance', 'control', 'manipulation']:
-                # 按设备和动作类型聚合
+                # Aggregate by device and action type
                 if 'connect' in action_type or 'establish' in action_type:
                     agg_key = f"CONN_{device}"
                 elif 'read' in action_type:
@@ -519,14 +519,14 @@ class UnifiedCPAGProcessor:
                 elif 'manipulate' in action_type or 'modify' in action_type:
                     agg_key = f"MANIP_{device}"
                 else:
-                    # 使用原始ID作为键，不聚合
+                    # Use original ID as key, no aggregation
                     agg_key = unit.get('id', f'unknown_{len(aggregated)}')
             else:
-                # 对于其他类型，使用原始ID
+                # For other types, use original ID
                 agg_key = unit.get('id', f'unknown_{len(aggregated)}')
             
             if agg_key not in aggregated:
-                # 创建聚合单元
+                # Create aggregated unit
                 aggregated_unit = {
                     'id': agg_key,
                     'category': category,
@@ -547,18 +547,18 @@ class UnifiedCPAGProcessor:
                 }
                 aggregated[agg_key] = aggregated_unit
             
-            # 更新聚合统计
+            # Update aggregation statistics
             agg_unit = aggregated[agg_key]
             if isinstance(evidence, dict) and 'count' in evidence:
                 agg_unit['evidence']['count'] += evidence.get('count', 0)
             agg_unit['evidence']['aggregated_count'] += 1
             
-            # 累积置信度计算
+            # Cumulative confidence calculation
             unit_confidence = self._calculate_original_unit_confidence(unit)
             agg_unit['confidence']['combined'] += unit_confidence
             agg_unit['confidence']['count'] += 1
             
-            # 合并前置条件和后置条件（去重）
+            # Merge preconditions and postconditions (deduplicated)
             if 'precondition' in unit:
                 existing_precond = set(str(p) for p in agg_unit.get('precondition', []))
                 for precond in unit['precondition']:
@@ -573,30 +573,30 @@ class UnifiedCPAGProcessor:
                         agg_unit['postcondition'].append(postcond)
                         existing_postcond.add(str(postcond))
         
-        # 计算每个聚合单元的最终置信度
+        # Calculate final confidence for each aggregated unit
         for agg_unit in aggregated.values():
             confidence_data = agg_unit['confidence']
             if confidence_data['count'] > 0:
-                # 计算平均置信度，并根据数据量进行调整
+                # Calculate average confidence and adjust based on data volume
                 avg_confidence = confidence_data['combined'] / confidence_data['count']
                 evidence_count = agg_unit['evidence'].get('count', 0)
                 
-                # 根据证据数量调整置信度 (更多证据 = 更高置信度)
-                evidence_boost = min(0.2, evidence_count / 1000 * 0.1)  # 最多增加0.2
+                # Adjust confidence based on evidence count (more evidence = higher confidence)
+                evidence_boost = min(0.2, evidence_count / 1000 * 0.1)  # Maximum increase of 0.2
                 final_confidence = min(1.0, avg_confidence + evidence_boost)
                 
                 agg_unit['confidence']['combined'] = final_confidence
             else:
-                agg_unit['confidence']['combined'] = 0.5  # 默认值
+                agg_unit['confidence']['combined'] = 0.5  # Default value
         
-        # 进一步合并非常相似的节点
+        # Further merge highly similar nodes
         final_aggregated = self._merge_highly_similar_nodes(list(aggregated.values()))
         
         print(f"Aggregation: {len(cpag_units)} units -> {len(final_aggregated)} aggregated units")
         return final_aggregated
     
     def _get_generic_action_name(self, category: str, action_type: str, device: str) -> str:
-        """生成通用的动作名称"""
+        """Generate generic action names"""
         if category == 'session':
             if 'connect' in action_type or 'establish' in action_type:
                 return f"Connect to {device}"
@@ -617,9 +617,9 @@ class UnifiedCPAGProcessor:
             return f"Action on {device}"
     
     def _merge_highly_similar_nodes(self, units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """合并高度相似的节点"""
+        """Merge highly similar nodes"""
         merged = []
-        device_categories = {}  # 设备 -> 类别 -> 单元
+        device_categories = {}  # device -> category -> unit
         
         for unit in units:
             evidence = unit.get('evidence', {})
@@ -632,22 +632,22 @@ class UnifiedCPAGProcessor:
                 device_categories[key] = []
             device_categories[key].append(unit)
         
-        # 对每个设备-类别组合，如果有多个单元，合并成一个
+        # For each device-category combination, if there are multiple units, merge them into one
         for key, group_units in device_categories.items():
             if len(group_units) == 1:
                 merged.append(group_units[0])
             else:
-                # 合并多个单元
-                merged_unit = group_units[0].copy()  # 使用第一个作为基础
+                # Merge multiple units
+                merged_unit = group_units[0].copy()  # Use the first one as base
                 
-                # 合并统计信息
+                # Merge statistical information
                 total_count = sum(u.get('evidence', {}).get('count', 0) for u in group_units if isinstance(u.get('evidence'), dict))
                 total_aggregated = sum(u.get('evidence', {}).get('aggregated_count', 0) for u in group_units if isinstance(u.get('evidence'), dict))
                 
                 merged_unit['evidence']['count'] = total_count
                 merged_unit['evidence']['aggregated_count'] = total_aggregated
                 
-                # 合并前置条件和后置条件
+                # Merge preconditions and postconditions
                 all_precond = set()
                 all_postcond = set()
                 
@@ -665,35 +665,35 @@ class UnifiedCPAGProcessor:
         return merged
     
     def _determine_node_type_from_cpag(self, unit: Dict[str, Any]) -> str:
-        """根据CPAG单元确定tcity节点类型"""
+        """Determine tcity node type based on CPAG unit"""
         category = unit.get('category', '').lower()
         unit_id = unit.get('id', '').lower()
         action = unit.get('action', '').lower()
         preconditions = unit.get('precondition', [])
         
-        # 分析前置条件来判断节点类型
+        # Analyze preconditions to determine node type
         has_physical_access = any('physical access' in str(precond).lower() for precond in preconditions if precond)
         
-        # 根据CPAG类别映射节点类型
+        # Map node types based on CPAG categories
         if category == 'session':
             if has_physical_access:
-                return 'physical'  # 需要物理访问的连接
+                return 'physical'  # Connection requiring physical access
             else:
-                return 'cyber'     # 网络连接
+                return 'cyber'     # Network connection
         elif category == 'reconnaissance':
-            return 'cyber'         # 侦察行为
+            return 'cyber'         # Reconnaissance behavior
         elif category == 'control':
-            return 'action'        # 控制动作
+            return 'action'        # Control action
         elif category == 'impact':
-            return 'impact'        # 影响节点
+            return 'impact'        # Impact node
         elif category == 'manipulation':
-            return 'action'        # 操纵动作
+            return 'action'        # Manipulation action
         elif 'attacker' in unit_id:
-            return 'init'          # 攻击者起始点
+            return 'init'          # Attacker starting point
         elif 'target' in unit_id:
-            return 'impact'        # 目标节点
+            return 'impact'        # Target node
         else:
-            # 基于动作内容进一步判断
+            # Further determine based on action content
             if any(keyword in action for keyword in ['physical', 'access', 'bypass']):
                 return 'physical-action'
             elif any(keyword in action for keyword in ['connect', 'establish', 'network']):
@@ -701,19 +701,19 @@ class UnifiedCPAGProcessor:
             elif any(keyword in action for keyword in ['read', 'write', 'control', 'modify']):
                 return 'action'
             else:
-                return 'cyber'  # 默认类型
+                return 'cyber'  # Default type
     
     def _generate_node_label(self, unit: Dict[str, Any]) -> str:
-        """生成节点标签"""
-        # 优先使用action作为标签，如果没有则使用id的简化版本
+        """Generate node labels"""
+        # Prefer using action as label, if not available use simplified version of id
         action = unit.get('action', '')
         if action:
-            # 截断过长的标签
+            # Truncate overly long labels
             if len(action) > 30:
                 return action[:27] + '...'
             return action
         
-        # 从ID生成友好的标签
+        # Generate friendly labels from ID
         unit_id = unit.get('id', '')
         if '_' in unit_id:
             parts = unit_id.split('_')
@@ -725,12 +725,12 @@ class UnifiedCPAGProcessor:
     def _create_attack_graph_layers(self, cpag_units: List[Dict[str, Any]], 
                                    postcondition_to_units: Dict[str, List[str]], 
                                    precondition_to_units: Dict[str, List[str]]) -> List[List[str]]:
-        """创建攻击图的分层结构"""
+        """Create hierarchical structure of attack graph"""
         layers = []
         placed_units = set()
         unit_to_layer = {}
         
-        # 找到没有前置条件的单元（初始节点）
+        # Find units without preconditions (initial nodes)
         initial_units = []
         for unit in cpag_units:
             preconditions = unit.get('precondition', [])
@@ -738,19 +738,19 @@ class UnifiedCPAGProcessor:
                 initial_units.append(unit.get('id'))
         
         if not initial_units:
-            # 如果没找到初始节点，选择第一个作为起点
+            # If no initial node found, choose the first one as starting point
             initial_units = [cpag_units[0].get('id')] if cpag_units else []
         
-        # 第一层：初始节点
+        # First layer: initial nodes
         if initial_units:
             layers.append(initial_units)
             placed_units.update(initial_units)
             for unit_id in initial_units:
                 unit_to_layer[unit_id] = 0
         
-        # 迭代构建后续层次
+        # Iteratively build subsequent layers
         current_layer = 0
-        max_iterations = len(cpag_units)  # 防止无限循环
+        max_iterations = len(cpag_units)  # Prevent infinite loop
         
         while len(placed_units) < len(cpag_units) and current_layer < max_iterations:
             next_layer_units = []
@@ -760,13 +760,13 @@ class UnifiedCPAGProcessor:
                 if unit_id in placed_units:
                     continue
                 
-                # 检查此单元的前置条件是否已满足
+                # Check if preconditions of this unit are satisfied
                 preconditions = unit.get('precondition', [])
                 can_place = True
                 
                 for precond in preconditions:
                     if isinstance(precond, str) and precond.strip():
-                        # 检查是否有已放置的单元可以满足此前置条件
+                        # Check if there are placed units that can satisfy this precondition
                         providers = postcondition_to_units.get(precond, [])
                         if not any(provider in placed_units for provider in providers):
                             can_place = False
@@ -782,7 +782,7 @@ class UnifiedCPAGProcessor:
                 for unit_id in next_layer_units:
                     unit_to_layer[unit_id] = current_layer
             else:
-                # 如果没有新节点可以放置，放置剩余的节点到下一层
+                # If no new nodes can be placed, place remaining nodes to next layer
                 remaining_units = [u.get('id') for u in cpag_units if u.get('id') not in placed_units]
                 if remaining_units:
                     layers.append(remaining_units)
@@ -794,7 +794,7 @@ class UnifiedCPAGProcessor:
     def _generate_attack_edges(self, cpag_units: List[Dict[str, Any]], 
                               postcondition_to_units: Dict[str, List[str]], 
                               precondition_to_units: Dict[str, List[str]]) -> List[Dict[str, Any]]:
-        """生成攻击路径边"""
+        """Generate attack path edges"""
         edges = []
         
         for unit in cpag_units:
@@ -806,16 +806,16 @@ class UnifiedCPAGProcessor:
             
             for precond in preconditions:
                 if isinstance(precond, str) and precond.strip():
-                    # 找到提供此前置条件的单元
+                    # Find units that provide this precondition
                     providers = postcondition_to_units.get(precond, [])
                     
                     for provider_id in providers:
-                        if provider_id != unit_id:  # 避免自环
+                        if provider_id != unit_id:  # Avoid self-loops
                             edge = {
                                 'value': '1.0',
                                 'source': provider_id,
                                 'target': unit_id,
-                                'label': '',  # 可以添加条件标签
+                                'label': '',  # Can add condition labels
                                 'properties': {}
                             }
                             edges.append(edge)
@@ -823,13 +823,13 @@ class UnifiedCPAGProcessor:
         return edges
     
     def _find_initial_node(self, cpag_units: List[Dict[str, Any]]) -> Optional[str]:
-        """找到初始攻击节点"""
+        """Find initial attack node"""
         for unit in cpag_units:
             unit_id = unit.get('id', '').lower()
             category = unit.get('category', '').lower()
             preconditions = unit.get('precondition', [])
             
-            # 寻找攻击者起始点或没有前置条件的节点
+            # Find attacker starting points or nodes without preconditions
             if ('attacker' in unit_id or 
                 not preconditions or 
                 all(not str(p).strip() for p in preconditions)):
@@ -838,8 +838,8 @@ class UnifiedCPAGProcessor:
         return cpag_units[0].get('id') if cpag_units else None
     
     def _find_target_node(self, cpag_units: List[Dict[str, Any]]) -> Optional[str]:
-        """找到目标节点"""
-        # 寻找impact类别的节点或包含target的节点
+        """Find target node"""
+        # Find nodes of impact category or nodes containing target
         for unit in cpag_units:
             unit_id = unit.get('id', '').lower()
             category = unit.get('category', '').lower()
@@ -850,55 +850,55 @@ class UnifiedCPAGProcessor:
         return cpag_units[-1].get('id') if cpag_units else None
     
     def _calculate_unit_confidence(self, unit: Dict[str, Any]) -> float:
-        """计算聚合单元的置信度"""
+        """Calculate confidence of aggregated unit"""
         confidence_data = unit.get('confidence', {})
         if isinstance(confidence_data, dict) and 'combined' in confidence_data:
             return confidence_data['combined']
         else:
-            # 如果没有预计算的置信度，基于证据计算
+            # If no precomputed confidence, calculate based on evidence
             return self._calculate_original_unit_confidence(unit)
     
     def _calculate_original_unit_confidence(self, unit: Dict[str, Any]) -> float:
-        """计算原始CPAG单元的置信度"""
+        """Calculate confidence of original CPAG unit"""
         category = unit.get('category', 'unknown').lower()
         evidence = unit.get('evidence', {})
         
-        # 首先检查evidence中是否有confidence值
+        # First check if there's confidence value in evidence
         if isinstance(evidence, dict) and 'confidence' in evidence:
             return float(evidence['confidence'])
         
-        # 基础置信度（基于类别）
+        # Base confidence (based on category)
         base_confidence = {
-            'session': 0.8,        # 会话建立 - 较高置信度
-            'reconnaissance': 0.9,  # 侦察行为 - 高置信度
-            'control': 0.95,       # 控制动作 - 很高置信度
-            'manipulation': 0.95,  # 操纵行为 - 很高置信度
-            'impact': 0.85,        # 影响评估 - 高置信度
-            'unknown': 0.5         # 未知类型 - 中等置信度
+            'session': 0.8,        # Session establishment - high confidence
+            'reconnaissance': 0.9,  # Reconnaissance behavior - high confidence
+            'control': 0.95,       # Control action - very high confidence
+            'manipulation': 0.95,  # Manipulation behavior - very high confidence
+            'impact': 0.85,        # Impact assessment - high confidence
+            'unknown': 0.5         # Unknown type - medium confidence
         }.get(category, 0.5)
         
-        # 根据证据数量调整
+        # Adjust based on evidence count
         if isinstance(evidence, dict) and 'count' in evidence:
             count = evidence.get('count', 0)
             if count > 100:
-                base_confidence = min(1.0, base_confidence + 0.1)  # 大量证据增加置信度
+                base_confidence = min(1.0, base_confidence + 0.1)  # Large amount of evidence increases confidence
             elif count > 10:
-                base_confidence = min(1.0, base_confidence + 0.05) # 适量证据略微增加
+                base_confidence = min(1.0, base_confidence + 0.05) # Moderate evidence slightly increases
             elif count < 5:
-                base_confidence = max(0.1, base_confidence - 0.1)  # 少量证据降低置信度
+                base_confidence = max(0.1, base_confidence - 0.1)  # Small amount of evidence reduces confidence
         
-        # 基于ID中的协议信息调整置信度
+        # Adjust confidence based on protocol information in ID
         unit_id = unit.get('id', '').lower()
         if 'enip' in unit_id or 'cip' in unit_id:
-            base_confidence = min(1.0, base_confidence + 0.05)  # 工业协议增加置信度
+            base_confidence = min(1.0, base_confidence + 0.05)  # Industrial protocols increase confidence
         elif 'modbus' in unit_id:
-            base_confidence = min(1.0, base_confidence + 0.1)   # Modbus高置信度
+            base_confidence = min(1.0, base_confidence + 0.1)   # Modbus high confidence
         
         return base_confidence
     
     def _conditions_match(self, precond: Dict[str, Any], postcond: Dict[str, Any]) -> bool:
-        """简单的条件匹配逻辑"""
-        # 这里可以实现更复杂的匹配逻辑
+        """Simple condition matching logic"""
+        # Can implement more complex matching logic here
         precond_type = precond.get('type', '')
         postcond_type = postcond.get('type', '')
         
@@ -1240,7 +1240,7 @@ class UnifiedCPAGProcessor:
                 'edges': len(graph_data.get('edges', [])),
                 'output_files': output_files,
                 'graph_data': graph_data,
-                'units': cpag_units  # 添加 units 字段
+                'units': cpag_units  # Add units field
             }
             
         except Exception as e:
@@ -1349,13 +1349,13 @@ class UnifiedCPAGProcessor:
     
     def _build_industrial_cpag_units(self, df: pd.DataFrame, device_map: Optional[Dict[str, str]], rules: Optional[List[str]], custom_params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """Build CPAG units from industrial sensor/actuator data - Enhanced with dynamic generation"""
-        # 使用优化的处理器
+        # Use optimized processor
         try:
             from .unified_cpag_processor_optimized import OptimizedCPAGProcessor
             optimized_processor = OptimizedCPAGProcessor(self)
             return optimized_processor.build_industrial_cpag_units_optimized(df, device_map, rules, custom_params)
         except ImportError:
-            # 如果优化版本不可用，使用原始方法
+            # If optimized version not available, use original method
             print("Warning: Optimized processor not available, using original method")
             return self._build_industrial_cpag_units_original(df, device_map, rules)
     
@@ -1818,15 +1818,15 @@ class UnifiedCPAGProcessor:
         return {'nodes': nodes, 'edges': edges}
     
     def _create_optimized_industrial_attack_chains(self, cpag_units: List[Dict[str, Any]], existing_edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """创建优化的工业攻击链，避免冗余"""
+        """Create optimized industrial attack chains, avoiding redundancy"""
         optimized_edges = []
         edge_set = set()
         
-        # 添加现有边到集合中
+        # Add existing edges to the set
         for edge in existing_edges:
             edge_set.add((edge['source'], edge['target'], edge['relation']))
         
-        # 1. 处理明确的依赖关系（优先级最高）
+        # 1. Handle explicit dependency relationships (highest priority)
         for unit in cpag_units:
             unit_id = unit['id']
             
@@ -1842,13 +1842,13 @@ class UnifiedCPAGProcessor:
                         })
                         edge_set.add(edge_key)
         
-        # 2. 添加有限的PLC->设备控制链（最多3条）
+        # 2. Add limited PLC->device control chains (maximum 3)
         plc_units = [unit for unit in cpag_units if 'PLC' in unit.get('evidence', {}).get('device', '')]
         device_control_units = [unit for unit in cpag_units if unit.get('evidence', {}).get('operation') == 'control']
         
         compromise_count = 0
         for plc_unit in plc_units:
-            for control_unit in device_control_units[:2]:  # 限制每个PLC最多控制2个设备
+            for control_unit in device_control_units[:2]:  # Limit each PLC to control max 2 devices
                 if plc_unit['id'] != control_unit['id'] and compromise_count < 3:
                     edge_key = (plc_unit['id'], control_unit['id'], 'compromises')
                     if edge_key not in edge_set:
@@ -1860,12 +1860,12 @@ class UnifiedCPAGProcessor:
                         edge_set.add(edge_key)
                         compromise_count += 1
         
-        # 3. 添加有限的替代路径（OR关系）
+        # 3. Add limited alternative paths (OR relationships)
         for unit in cpag_units:
             unit_id = unit['id']
             
             if 'alternatives' in unit and unit['alternatives']:
-                # 每个单元最多显示1个主要替代路径
+                # Each unit shows at most 1 main alternative path
                 alt_info = unit['alternatives'][0]
                 if 'alternatives' in alt_info and alt_info['alternatives']:
                     alt_unit = alt_info['alternatives'][0]
@@ -1882,13 +1882,13 @@ class UnifiedCPAGProcessor:
         return optimized_edges
     
     def _create_logical_relationship_edges(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """为AND/OR逻辑关系创建边"""
+        """Create edges for AND/OR logical relationships"""
         logical_edges = []
         
         for unit in cpag_units:
             unit_id = unit['id']
             
-            # 处理依赖关系（AND关系）
+            # Handle dependency relationships (AND relationships)
             if 'dependencies' in unit and unit['dependencies']:
                 for dep_unit in unit['dependencies']:
                     logical_edges.append({
@@ -1898,7 +1898,7 @@ class UnifiedCPAGProcessor:
                         'logic_type': 'AND'
                     })
             
-            # 处理替代路径（OR关系）
+            # Handle alternative paths (OR relationships)
             if 'alternatives' in unit and unit['alternatives']:
                 for alt_info in unit['alternatives']:
                     for alt_unit in alt_info['alternatives']:
@@ -1909,7 +1909,7 @@ class UnifiedCPAGProcessor:
                             'logic_type': 'OR'
                         })
             
-            # 处理多重前置条件（AND关系）
+            # Handle multiple preconditions (AND relationships)
             if 'requires_all' in unit and unit['requires_all']:
                 for req_unit in unit['requires_all']:
                     logical_edges.append({
@@ -2251,15 +2251,15 @@ class UnifiedCPAGProcessor:
         return {'nodes': nodes, 'edges': edges}
     
     def _build_optimized_tree_edges(self, cpag_units: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """构建优化的树形边结构，避免冗余"""
+        """Build optimized tree-like edge structure, avoiding redundancy"""
         edges = []
-        edge_set = set()  # 用于去重：(source, target, relation)
+        edge_set = set()  # For deduplication: (source, target, relation)
         
-        # 1. 首先处理明确的依赖关系（树的主干）
+        # 1. First handle explicit dependency relationships (tree backbone)
         for unit in cpag_units:
             unit_id = unit['id']
             
-            # 处理dependencies - 这是主要的AND关系
+            # Handle dependencies - these are the main AND relationships
             if 'dependencies' in unit and unit['dependencies']:
                 for dep_unit in unit['dependencies']:
                     edge_key = (dep_unit, unit_id, 'requires')
@@ -2296,14 +2296,14 @@ class UnifiedCPAGProcessor:
                         })
                         edge_set.add(edge_key)
         
-        # 2. 添加OR关系（替代路径），但限制数量避免过度复杂
+        # 2. Add OR relationships (alternative paths), but limit quantity to avoid excessive complexity
         for unit in cpag_units:
             unit_id = unit['id']
             
             if 'alternatives' in unit and unit['alternatives']:
-                # 每个单元只显示最多2个替代路径，避免图过于复杂
+                # Each unit shows at most 2 alternative paths to avoid overly complex graphs
                 for alt_info in unit['alternatives'][:2]:
-                    for alt_unit in alt_info['alternatives'][:1]:  # 每个替代信息只取第一个
+                    for alt_unit in alt_info['alternatives'][:1]:  # Only take the first alternative for each alternative info
                         edge_key = (alt_unit, unit_id, 'alternative_to')
                         if edge_key not in edge_set:
                             # Calculate confidence for alternative edge
@@ -2338,20 +2338,20 @@ class UnifiedCPAGProcessor:
                             })
                             edge_set.add(edge_key)
         
-        # 3. 如果没有生成足够的边，基于攻击逻辑创建基础树形结构
-        if len(edges) < len(cpag_units) * 0.3:  # 如果边太少，说明关系分析不充分
+        # 3. If not enough edges are generated, create basic tree structure based on attack logic
+        if len(edges) < len(cpag_units) * 0.3:  # If too few edges, it indicates insufficient relationship analysis
             edges.extend(self._create_fallback_tree_structure(cpag_units, edge_set))
         
         return edges
     
     def _create_fallback_tree_structure(self, cpag_units: List[Dict[str, Any]], existing_edges: set) -> List[Dict[str, Any]]:
-        """当关系分析不充分时，创建基础的树形结构"""
+        """Create basic tree structure when relationship analysis is insufficient"""
         fallback_edges = []
         
-        # 按目标IP和攻击阶段组织单元
+        # Organize units by target IP and attack stages
         target_groups = {}
         for unit in cpag_units:
-            # 提取目标IP
+            # Extract target IP
             action = unit.get('action', '')
             import re
             ip_match = re.search(r"(\d{1,3}(?:\.\d{1,3}){3})", action)
@@ -2364,9 +2364,9 @@ class UnifiedCPAGProcessor:
             if category in target_groups[target_ip]:
                 target_groups[target_ip][category].append(unit)
         
-        # 为每个目标创建攻击链：session -> reconnaissance -> state_change
+        # Create attack chains for each target: session -> reconnaissance -> state_change
         for target_ip, categories in target_groups.items():
-            # 创建攻击阶段链
+            # Create attack stage chains
             prev_units = categories['session']
             
             # session -> reconnaissance
@@ -2608,17 +2608,17 @@ class UnifiedCPAGProcessor:
             user = neo4j_config.get('user', 'neo4j')
             password = neo4j_config.get('password', 'password')
             
-            # 智能Neo4j连接 - 尝试多个可能的URI直到找到可工作的
+            # Smart Neo4j connection - try multiple possible URIs until finding a working one
             candidate_uris = [
-                uri,  # 首先尝试传入的URI
-                'bolt://localhost:7689',  # 本地映射端口
-                'bolt://localhost:7687',  # 默认端口
-                'bolt://neo4j:7687',     # Docker内部地址
-                'bolt://127.0.0.1:7689', # 备用本地地址
-                'bolt://127.0.0.1:7687'  # 备用默认地址
+                uri,  # First try the input URI
+                'bolt://localhost:7689',  # Local mapped port
+                'bolt://localhost:7687',  # Default port
+                'bolt://neo4j:7687',     # Docker internal address
+                'bolt://127.0.0.1:7689', # Backup local address
+                'bolt://127.0.0.1:7687'  # Backup default address
             ]
             
-            # 去重并保持顺序
+            # Deduplicate and maintain order
             seen = set()
             unique_uris = []
             for candidate_uri in candidate_uris:

@@ -1,0 +1,378 @@
+{
+  "system_info": {
+    "name": "SWaT Water Treatment System Rules",
+    "description": "Custom rules for SWaT (Secure Water Treatment) system monitoring and security",
+    "version": "1.0",
+    "applicable_stages": ["Stage_1", "Stage_2", "Stage_3", "Stage_4", "Stage_5", "Stage_6"]
+  },
+  "rules": [
+    {
+      "id": "SWAT_001",
+      "name": "Raw Water Tank Level Critical",
+      "description": "Monitor critical water levels in raw water tank to prevent dry running",
+      "category": "process_safety",
+      "priority": "critical",
+      "stage": "Stage_1",
+      "conditions": [
+        {
+          "field": "LIT101",
+          "operator": "less_than",
+          "value": 250,
+          "unit": "mm",
+          "duration": "30s"
+        }
+      ],
+      "action": "emergency_stop",
+      "severity": "critical",
+      "response_actions": ["stop_pumps_P101_P102", "alert_operator", "activate_emergency_procedure"]
+    },
+    {
+      "id": "SWAT_002",
+      "name": "Chemical Dosing Anomaly Detection",
+      "description": "Detect abnormal chemical analyzer readings that may indicate contamination or equipment failure",
+      "category": "water_quality",
+      "priority": "critical",
+      "stage": "Stage_2",
+      "conditions": [
+        {
+          "field": "AIT201",
+          "operator": "outside_range",
+          "value": [6.5, 8.5],
+          "unit": "pH",
+          "duration": "2m"
+        },
+        {
+          "logical_operator": "OR",
+          "field": "AIT202",
+          "operator": "greater_than",
+          "value": 500,
+          "unit": "ppm",
+          "duration": "1m"
+        }
+      ],
+      "action": "isolate_contamination",
+      "severity": "critical",
+      "response_actions": ["stop_chemical_pumps", "close_MV201", "alert_water_quality_team"]
+    },
+    {
+      "id": "SWAT_003",
+      "name": "Ultrafiltration Membrane Pressure Alert",
+      "description": "Monitor differential pressure across UF membranes to detect fouling or damage",
+      "category": "equipment_health",
+      "priority": "high",
+      "stage": "Stage_3",
+      "conditions": [
+        {
+          "field": "DPIT301",
+          "operator": "greater_than",
+          "value": 0.5,
+          "unit": "bar",
+          "duration": "5m"
+        }
+      ],
+      "action": "initiate_cleaning",
+      "severity": "high",
+      "response_actions": ["reduce_feed_flow", "prepare_backwash", "notify_maintenance"]
+    },
+    {
+      "id": "SWAT_004",
+      "name": "UV Disinfection System Failure",
+      "description": "Detect UV system failure that compromises water disinfection",
+      "category": "disinfection_safety",
+      "priority": "critical",
+      "stage": "Stage_4",
+      "conditions": [
+        {
+          "field": "UV401",
+          "operator": "equals",
+          "value": 0,
+          "duration": "10s"
+        },
+        {
+          "logical_operator": "AND",
+          "field": "FIT401",
+          "operator": "greater_than",
+          "value": 0.1,
+          "unit": "m3/h"
+        }
+      ],
+      "action": "divert_flow",
+      "severity": "critical",
+      "response_actions": ["divert_to_alternative_treatment", "stop_distribution", "immediate_alert"]
+    },
+    {
+      "id": "SWAT_005",
+      "name": "RO System High Pressure Warning",
+      "description": "Monitor RO system pressures to prevent membrane damage",
+      "category": "membrane_protection",
+      "priority": "high",
+      "stage": "Stage_5",
+      "conditions": [
+        {
+          "field": "PIT501",
+          "operator": "greater_than",
+          "value": 10,
+          "unit": "bar",
+          "duration": "1m"
+        }
+      ],
+      "action": "pressure_relief",
+      "severity": "high",
+      "response_actions": ["reduce_pump_speed", "open_relief_valve", "alert_operator"]
+    },
+    {
+      "id": "SWAT_006",
+      "name": "Product Water Quality Deviation",
+      "description": "Detect deviations in final product water quality",
+      "category": "product_quality",
+      "priority": "critical",
+      "stage": "Stage_6",
+      "conditions": [
+        {
+          "field": "LIT601",
+          "operator": "less_than",
+          "value": 100,
+          "unit": "mm",
+          "duration": "1m"
+        },
+        {
+          "logical_operator": "OR",
+          "field": "LIT602",
+          "operator": "greater_than",
+          "value": 1500,
+          "unit": "mm"
+        }
+      ],
+      "action": "quality_hold",
+      "severity": "high",
+      "response_actions": ["hold_product_release", "quality_retest", "investigate_cause"]
+    },
+    {
+      "id": "SWAT_007",
+      "name": "Multi-Stage Process Coordination",
+      "description": "Ensure proper coordination between process stages",
+      "category": "process_integration",
+      "priority": "medium",
+      "stage": "Multi_Stage",
+      "conditions": [
+        {
+          "field": "FIT101",
+          "operator": "less_than",
+          "value": 1.0,
+          "unit": "m3/h",
+          "duration": "5m"
+        },
+        {
+          "logical_operator": "AND",
+          "field": "P301",
+          "operator": "equals",
+          "value": 2,
+          "duration": "5m"
+        }
+      ],
+      "action": "coordinate_stages",
+      "severity": "medium",
+      "response_actions": ["adjust_downstream_rates", "balance_process_flow"]
+    },
+    {
+      "id": "SWAT_008",
+      "name": "Pump Cascade Failure Detection",
+      "description": "Detect cascading pump failures that could disrupt water treatment",
+      "category": "equipment_failure",
+      "priority": "high",
+      "stage": "Multi_Stage",
+      "conditions": [
+        {
+          "field": "pump_failure_count",
+          "operator": "greater_than",
+          "value": 2,
+          "timeframe": "10m"
+        }
+      ],
+      "action": "emergency_protocol",
+      "severity": "high",
+      "response_actions": ["activate_backup_systems", "reduce_plant_load", "emergency_notification"]
+    },
+    {
+      "id": "SWAT_009",
+      "name": "Abnormal PLC Communication Pattern",
+      "description": "Detect unusual communication patterns between PLCs that may indicate cyber attacks",
+      "category": "cybersecurity",
+      "priority": "high",
+      "stage": "Control_System",
+      "conditions": [
+        {
+          "field": "plc_communication_frequency",
+          "operator": "outside_normal_range",
+          "baseline_period": "7d",
+          "deviation_threshold": 3.0
+        },
+        {
+          "logical_operator": "OR",
+          "field": "plc_command_sequence",
+          "operator": "anomalous_pattern",
+          "pattern_type": "unusual_command_sequence"
+        }
+      ],
+      "action": "security_investigation",
+      "severity": "high",
+      "response_actions": ["log_detailed_communications", "isolate_suspicious_plc", "notify_cyber_security"]
+    },
+    {
+      "id": "SWAT_010",
+      "name": "Water Treatment Process Efficiency Monitor",
+      "description": "Monitor overall treatment efficiency and detect performance degradation",
+      "category": "performance_optimization",
+      "priority": "medium",
+      "stage": "System_Wide",
+      "conditions": [
+        {
+          "field": "treatment_efficiency",
+          "operator": "less_than",
+          "value": 85,
+          "unit": "percent",
+          "calculation": "product_water_quality / feed_water_quality",
+          "duration": "1h"
+        }
+      ],
+      "action": "optimization_review",
+      "severity": "medium",
+      "response_actions": ["analyze_process_parameters", "schedule_maintenance_review"]
+    },
+    {
+      "id": "SWAT_011",
+      "name": "Attack Detection - Sensor Spoofing",
+      "description": "Detect potential sensor spoofing attacks based on correlation analysis",
+      "category": "cyber_attack_detection",
+      "priority": "critical",
+      "stage": "Multi_Stage",
+      "conditions": [
+        {
+          "field": "sensor_correlation_coefficient",
+          "operator": "less_than",
+          "value": 0.7,
+          "sensors": ["LIT101", "FIT101", "P101"],
+          "duration": "2m"
+        }
+      ],
+      "action": "cyber_incident_response",
+      "severity": "critical",
+      "response_actions": ["switch_to_backup_sensors", "manual_control_mode", "cyber_incident_alert"]
+    },
+    {
+      "id": "SWAT_012",
+      "name": "Attack Detection - Process Manipulation",
+      "description": "Detect attempts to manipulate critical process parameters",
+      "category": "cyber_attack_detection",
+      "priority": "critical",
+      "stage": "Multi_Stage",
+      "conditions": [
+        {
+          "field": "process_parameter_change_rate",
+          "operator": "greater_than",
+          "value": 10,
+          "unit": "percent_per_minute",
+          "parameters": ["LIT101", "AIT201", "DPIT301", "PIT501"],
+          "duration": "1m"
+        }
+      ],
+      "action": "process_lockdown",
+      "severity": "critical",
+      "response_actions": ["freeze_current_setpoints", "disable_remote_commands", "emergency_operator_notification"]
+    }
+  ],
+  "rule_groups": [
+    {
+      "name": "Critical Safety Systems",
+      "rules": ["SWAT_001", "SWAT_002", "SWAT_004"],
+      "logical_operator": "OR",
+      "priority": "critical",
+      "escalation_time": "immediate"
+    },
+    {
+      "name": "Equipment Protection",
+      "rules": ["SWAT_003", "SWAT_005", "SWAT_008"],
+      "logical_operator": "OR",
+      "priority": "high",
+      "escalation_time": "5m"
+    },
+    {
+      "name": "Water Quality Assurance",
+      "rules": ["SWAT_002", "SWAT_006", "SWAT_010"],
+      "logical_operator": "AND",
+      "priority": "high",
+      "escalation_time": "10m"
+    },
+    {
+      "name": "Cyber Security Monitoring",
+      "rules": ["SWAT_009", "SWAT_011", "SWAT_012"],
+      "logical_operator": "OR",
+      "priority": "critical",
+      "escalation_time": "immediate"
+    }
+  ],
+  "process_parameters": {
+    "normal_operating_ranges": {
+      "LIT101": {"min": 300, "max": 1200, "unit": "mm"},
+      "FIT101": {"min": 0.5, "max": 3.0, "unit": "m3/h"},
+      "AIT201": {"min": 6.8, "max": 7.5, "unit": "pH"},
+      "AIT202": {"min": 200, "max": 400, "unit": "ppm"},
+      "DPIT301": {"min": 0.1, "max": 0.4, "unit": "bar"},
+      "PIT501": {"min": 6.0, "max": 9.0, "unit": "bar"},
+      "UV401": {"min": 80, "max": 100, "unit": "percent_intensity"}
+    },
+    "critical_thresholds": {
+      "LIT101_critical_low": 250,
+      "LIT101_critical_high": 1300,
+      "DPIT301_critical_high": 0.5,
+      "PIT501_critical_high": 10.0,
+      "UV401_failure": 0
+    }
+  },
+  "attack_patterns": {
+    "sensor_spoofing_indicators": [
+      "sudden_value_jumps",
+      "stuck_at_value",
+      "impossible_physical_values",
+      "loss_of_correlation"
+    ],
+    "actuator_manipulation_indicators": [
+      "unauthorized_state_changes",
+      "rapid_cycling",
+      "conflicting_commands",
+      "override_without_authorization"
+    ],
+    "network_intrusion_indicators": [
+      "unusual_communication_patterns",
+      "unknown_source_addresses",
+      "protocol_violations",
+      "command_injection_attempts"
+    ]
+  },
+  "response_procedures": {
+    "emergency_shutdown": {
+      "steps": ["stop_all_pumps", "close_inlet_valves", "open_drain_valves", "activate_alarms"],
+      "manual_confirmation_required": true
+    },
+    "cyber_incident_response": {
+      "steps": ["isolate_affected_systems", "switch_to_manual_mode", "preserve_evidence", "notify_authorities"],
+      "auto_execution": false
+    },
+    "water_quality_incident": {
+      "steps": ["stop_distribution", "isolate_contaminated_water", "initiate_testing", "notify_health_authorities"],
+      "regulatory_notification": true
+    }
+  },
+  "evaluation_settings": {
+    "enable_correlation_analysis": true,
+    "correlation_window": "15m",
+    "baseline_learning_period": "7d",
+    "anomaly_detection_sensitivity": "medium",
+    "false_positive_threshold": 0.02,
+    "cyber_attack_detection": true,
+    "process_model_validation": true,
+    "real_time_monitoring": true,
+    "historical_trend_analysis": true,
+    "predictive_maintenance_alerts": true
+  }
+}
