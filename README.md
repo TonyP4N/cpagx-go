@@ -63,6 +63,7 @@ make dev-setup
 # Build and run
 make build
 make run
+```
 
 ## Usage
 
