@@ -1,7 +1,7 @@
 # Web框架
 fastapi==0.104.1
 uvicorn[standard]==0.24.0
-python-multipart==0.0.18
+python-multipart==0.0.22
 pydantic==2.5.0
 
 # 任务队列和缓存
