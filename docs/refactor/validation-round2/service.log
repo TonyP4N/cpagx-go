@@ -1,0 +1,17 @@
+test_actual_core_empty_source_is_failed_without_artifacts (test_synthetic_http.SyntheticHTTP.test_actual_core_empty_source_is_failed_without_artifacts) ... ok
+test_capacity_rejection_and_redis_failure_are_not_swallowed (test_synthetic_http.SyntheticHTTP.test_capacity_rejection_and_redis_failure_are_not_swallowed) ... ok
+test_completed_delivery_is_verified_and_idempotent (test_synthetic_http.SyntheticHTTP.test_completed_delivery_is_verified_and_idempotent) ... ok
+test_core_failure_visible (test_synthetic_http.SyntheticHTTP.test_core_failure_visible) ... ok
+test_duplicate_active_preserves_status_and_staging (test_synthetic_http.SyntheticHTTP.test_duplicate_active_preserves_status_and_staging) ... ok
+test_invalid_identifier_bounded (test_synthetic_http.SyntheticHTTP.test_invalid_identifier_bounded) ... ok
+test_legacy_empty_submission_is_rejected (test_synthetic_http.SyntheticHTTP.test_legacy_empty_submission_is_rejected) ... ok
+test_opt_in_and_profile_required (test_synthetic_http.SyntheticHTTP.test_opt_in_and_profile_required) ... ok
+test_queue_failure_explicit (test_synthetic_http.SyntheticHTTP.test_queue_failure_explicit) ... ok
+test_real_core_http_artifacts_and_batch (test_synthetic_http.SyntheticHTTP.test_real_core_http_artifacts_and_batch) ... ok
+test_recoverable_records_publish_warning_and_correct_raw_evidence (test_synthetic_http.SyntheticHTTP.test_recoverable_records_publish_warning_and_correct_raw_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.148s
+
+OK
+InfluxDB client initialized successfully: http://localhost:8086

@@ -1,0 +1,10 @@
+test_evaluation_independence_required (test_contracts.ContractTests.test_evaluation_independence_required) ... ok
+test_nine_strict_schema_documents (test_contracts.ContractTests.test_nine_strict_schema_documents) ... ok
+test_reject_invalid_contracts (test_contracts.ContractTests.test_reject_invalid_contracts) ... ok
+test_export_against_independent_jsonschema (test_contracts.IndependentSchemaTests.test_export_against_independent_jsonschema) ... ok
+test_all_nine_examples_shared_with_go (test_contracts.SharedExampleTests.test_all_nine_examples_shared_with_go) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.141s
+
+OK

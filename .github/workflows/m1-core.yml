@@ -23,6 +23,10 @@ jobs:
         env:
           PYTHONPATH: services/analysis/src
         run: python -m unittest discover -s tests/parsers -v
+      - name: Synthetic packet envelope tests
+        env:
+          PYTHONPATH: services/analysis/src
+        run: python -m unittest discover -s tests/packets -v
       - name: Legacy unsupported-path regression
         run: python -m unittest discover -s tests/legacy -v
   go:
@@ -61,3 +65,27 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt
       - run: python -m unittest discover -s tests/service -v
+
+  m4-postgres-prototype:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_DB: m4_validation
+          POSTGRES_PASSWORD: m4-disposable-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d m4_validation"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Isolated repository fault tests (not production executor)
+        working-directory: internal/jobs/integration
+        env:
+          M4_TEST_DATABASE_URL: postgres://postgres:m4-disposable-only@localhost:5432/m4_validation?sslmode=disable
+        run: go test -race -count=1 -v ./...
