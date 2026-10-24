@@ -1,5 +1,4 @@
 """M1 import/normalize/export only; no alignment, inference or evaluation."""
-import csv
 import hashlib
 import json
 from pathlib import Path
@@ -8,6 +7,7 @@ import uuid
 
 from . import __version__, SCHEMA_VERSION
 from .contracts import validate, ContractError
+from .evidence import EvidenceIndex
 
 VOLATILE = {'run_id', 'ingest_time'}
 
@@ -32,29 +32,15 @@ def file_hash(path):
     return digest.hexdigest()
 
 def resolve_evidence(ref, files):
-    """Resolve only known digest references; never accept a path from evidence."""
+    """Resolve a reference against a reusable index (or a verified one-shot path)."""
     digest = ref['file_sha256']
     if digest not in files:
         raise ContractError('unresolved evidence file digest')
-    path = Path(files[digest])
-    if file_hash(path) != digest:
-        raise ContractError('evidence file changed')
-    if ref['frame_number'] is None and ref['record_number'] is None:
-        raise ContractError('evidence requires a frame or logical record number')
-    record = ref['record_number']
-    if record is not None:
-        if isinstance(record,bool) or not isinstance(record,int) or record < 1:
-            raise ContractError('invalid logical record number')
-        with path.open(newline='',encoding='utf-8-sig') as source:
-            rows = csv.DictReader(source) if path.suffix.lower()=='.csv' else (json.loads(line) for line in source)
-            row = next((row for index,row in enumerate(rows,1) if index==record),None)
-        if row is None:
-            raise ContractError('evidence logical record does not exist')
-        if ref['column'] is not None and ref['column'] not in row:
-            raise ContractError('evidence column does not exist')
-    else:
-        raise ContractError('raw frame evidence is unsupported by the M1 adapters')
-    return path
+    source = files[digest]
+    index = source if isinstance(source, EvidenceIndex) else EvidenceIndex(source, digest)
+    index.resolve(ref)
+    return index.path
+
 
 def run(network, process, profile, output, *, synthetic, source='synthetic fixture', release='m1', authorization_ref='repository synthetic fixtures'):
     if synthetic is not True:
@@ -63,17 +49,18 @@ def run(network, process, profile, output, *, synthetic, source='synthetic fixtu
     network, process, output = Path(network), Path(process), Path(output)
     config = json.loads(Path(profile).read_text()) if not isinstance(profile,dict) else profile
     # Fingerprints use content hashes and roles, never local paths or volatile fields.
-    files = [{'name':p.name,'sha256':file_hash(p),'size_bytes':p.stat().st_size,'kind':kind}
-             for kind,p in [('network',network),('process',process)]]
+    indexes = {kind: EvidenceIndex(p) for kind,p in [('network',network),('process',process)]}
+    files = [{'name':index.path.name,'sha256':index.digest,'size_bytes':index.size_bytes,'kind':kind}
+             for kind,index in indexes.items()]
     input_fp = fingerprint([{k:v for k,v in f.items() if k != 'name'} for f in files])
     config_fp = hashlib.sha256(canonical(config)).hexdigest()
-    parsed = [('network',parse_network(network,synthetic=True)),('process',parse_process(process,config,synthetic=True))]
+    parsed = [('network',parse_network(network,synthetic=True, evidence=indexes['network'])),('process',parse_process(process,config,synthetic=True,evidence=indexes['process']))]
     for kind, result in parsed:
         quality = result['quality']
-        if quality['status'] == 'unsupported' or (not result['events'] and quality['status'] == 'partial'):
-            raise ValueError(kind + ': unsupported or malformed synthetic input: ' + '; '.join(quality['reasons']))
+        if quality['status'] == 'unsupported' or not result['events']:
+            raise ValueError(kind + ': unsupported or malformed synthetic input: ' + '; '.join(quality['reasons'] or ['no_events']))
     warnings=[kind+': '+reason for kind,result in parsed for reason in result['quality']['reasons']]
-    sources = {file_hash(p):p for p in [network,process]}
+    sources = {index.digest:index for index in indexes.values()}
     events=[]
     for kind,result in parsed:
         for original in result['events']:
@@ -83,6 +70,10 @@ def run(network, process, profile, output, *, synthetic, source='synthetic fixtu
             event['event_id'] = kind + '-' + fingerprint({k:v for k,v in event.items() if k != 'event_id'})
             validate('NetworkEvent' if kind=='network' else 'ProcessObservation',event)
             resolve_evidence(event['source_ref'],sources)
+            if kind == 'process':
+                raw = indexes[kind].resolve(event['source_ref'])
+                if raw.get(config['timestamp_column']) != event['source_ref']['raw_time']:
+                    raise ContractError('evidence raw time differs')
             events.append((kind,event))
     events.sort(key=lambda pair:(pair[1]['event_time'] or '',pair[1]['event_id']))
     normalized=[e for _,e in events]
@@ -96,6 +87,8 @@ def run(network, process, profile, output, *, synthetic, source='synthetic fixtu
     validate('DatasetManifest',dataset); validate('GraphArtifact',graph)
     payloads={'dataset.json':dataset,'events.json':normalized,'graph.json':graph,'quality.json':{k:v['quality'] for k,v in parsed}}
     # Exclusive directory reservation prevents replacement of any prior attempt.
+    for index in indexes.values():
+        index.verify()
     output.mkdir(parents=True,exist_ok=False)
     artifacts=[]
     for name,payload in payloads.items():
@@ -109,6 +102,8 @@ def run(network, process, profile, output, *, synthetic, source='synthetic fixtu
               'result_hashes':{'events':fingerprint(normalized),'graph':fingerprint(graph)},
               'limitations':['Synthetic M1 only; independent timelines; no alignment, correlation, causal claims or detection evaluation.']}
     validate('RunManifest',manifest)
+    for index in indexes.values():
+        index.verify()
     with (output/'run_manifest.json').open('xb') as target:
         target.write(canonical(manifest)+b'\n')
     return manifest

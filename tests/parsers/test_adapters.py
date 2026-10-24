@@ -101,6 +101,14 @@ class AdapterTests(unittest.TestCase):
         self.assertFalse(parse_process(FIX / 'process.csv', self.profile, synthetic=False)['events'][0]['synthetic'])
 
 
+    def test_invalid_utf8_is_partial_without_events(self):
+        for suffix, parser in [('.jsonl', parse_network), ('.csv', lambda p: parse_process(p, self.profile))]:
+            path = Path(self.temp(suffix, ''))
+            path.write_bytes(b'\xff')
+            result = parser(path)
+            self.assertEqual(result['events'], [])
+            self.assertEqual(result['quality']['status'], 'partial')
+
     def test_unsupported_process(self):
         self.assertEqual(parse_process('unknown.xlsx', self.profile)['quality']['status'], 'unsupported')
         self.assertEqual(parse_process(FIX / 'process.csv', {})['quality']['status'], 'unsupported')

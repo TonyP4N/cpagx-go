@@ -1,0 +1,20 @@
+[
+  {
+    "records_per_source": 100,
+    "events": 300,
+    "elapsed_seconds": 0.303,
+    "peak_python_mib": 2.358
+  },
+  {
+    "records_per_source": 1000,
+    "events": 3000,
+    "elapsed_seconds": 2.878,
+    "peak_python_mib": 16.106
+  },
+  {
+    "records_per_source": 5000,
+    "events": 15000,
+    "elapsed_seconds": 14.935,
+    "peak_python_mib": 70.642
+  }
+]

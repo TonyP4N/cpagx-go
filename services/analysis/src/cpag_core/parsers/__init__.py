@@ -1,5 +1,6 @@
 """Explicit adapters; no raw packet decoding or cross-source alignment."""
 import csv
+import io
 import hashlib
 import json
 import math
@@ -62,17 +63,17 @@ def _unsupported(reason):
     return {'events': [], 'quality': {'status': 'unsupported', 'reasons': [reason], 'event_count': 0}}
 
 
-def parse_network(path, *, synthetic=True):
+def parse_network(path, *, synthetic=True, evidence=None):
     """Read explicitly synthetic normalized JSONL adapter records, never PCAP bytes."""
     path = Path(path)
     if path.suffix.lower() in {'.pcap', '.pcapng', '.cap'}:
         return _unsupported('raw_packet_adapter_pending_independent_validation')
     if path.suffix.lower() != '.jsonl' or synthetic is not True:
         return _unsupported('only_synthetic_normalized_jsonl_supported')
-    digest = _file_hash(path)
+    digest = evidence.digest if evidence is not None else _file_hash(path)
     events, errors = [], []
     try:
-        with path.open(encoding='utf-8') as stream:
+        with (io.StringIO(evidence.text) if evidence is not None else path.open(encoding='utf-8')) as stream:
             for number, line in enumerate(stream, 1):
                 try:
                     obj = json.loads(line, parse_constant=_strict_constant)
@@ -99,7 +100,7 @@ def parse_network(path, *, synthetic=True):
     return {'events': events, 'quality': _quality(errors, len(events))}
 
 
-def parse_process(path, profile, *, synthetic=True):
+def parse_process(path, profile, *, synthetic=True, evidence=None):
     """CSV logical records with explicit per-column definitions; no interpolation."""
     path = Path(path)
     if path.suffix.lower() != '.csv':
@@ -113,10 +114,10 @@ def parse_process(path, profile, *, synthetic=True):
         return _unsupported('invalid_column_profile')
     if any(_label_column(c) or _label_column(v.get('tag')) for c, v in columns.items()) or _label_column(profile['timestamp_column']):
         return _unsupported('label_fields_forbidden_in_analysis_input')
-    digest = _file_hash(path)
+    digest = evidence.digest if evidence is not None else _file_hash(path)
     events, errors = [], []
     try:
-        with path.open(encoding='utf-8-sig', newline='') as stream:
+        with (io.StringIO(evidence.text, newline='') if evidence is not None else path.open(encoding='utf-8-sig', newline='')) as stream:
             reader = csv.reader(stream, strict=True)
             header = next(reader, [])
             if any(_label_column(c) for c in header):

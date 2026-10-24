@@ -20,9 +20,9 @@ from api.v2 import synthetic
 client = TestClient(app)
 
 class SyntheticHTTP(unittest.TestCase):
-    def files(self, profile=None, network=None):
+    def files(self, profile=None, network=None, process=None):
         return {'network_file': ('network.jsonl', network if network is not None else (ROOT/'tests/fixtures/synthetic/network.normalized.jsonl').read_bytes()),
-                'process_file': ('process.csv', (ROOT/'tests/fixtures/synthetic/process.csv').read_bytes()),
+                'process_file': ('process.csv', process if process is not None else (ROOT/'tests/fixtures/synthetic/process.csv').read_bytes()),
                 'profile_file': ('profile.json', profile if profile is not None else (ROOT/'profiles/synthetic-demo.json').read_bytes())}
 
     def submit(self, **kwargs):
@@ -89,7 +89,7 @@ class SyntheticHTTP(unittest.TestCase):
     def test_core_failure_visible(self):
         response = self.submit(network=b'{bad\n')
         identifier = response.json()['task_id']
-        # Invalid network lines can produce quality warnings while valid process observations survive.
+        # Service-level failure mapping; real malformed/empty-source execution is tested below.
         with patch('cpag_core.pipeline.run', side_effect=ValueError('invalid synthetic input')):
             with self.assertRaises(ValueError):
                 self.execute(identifier)
@@ -98,6 +98,42 @@ class SyntheticHTTP(unittest.TestCase):
         self.assertEqual(client.get('/cpag/artifacts/'+identifier).json()['files'], [])
         self.assertTrue((synthetic.task_dir(identifier)/'sources'/'network.jsonl').is_file())
         self.assertFalse((synthetic.UPLOADS/identifier).exists())
+
+    def test_actual_core_empty_source_is_failed_without_artifacts(self):
+        for inputs in ({'process': b'time,level,pump\n'}, {'network': b''}):
+            response = self.submit(**inputs)
+            if inputs.get('network') == b'':
+                self.assertEqual(response.status_code, 400)
+                continue
+            self.assertEqual(response.status_code, 202, response.text)
+            identifier = response.json()['task_id']
+            with self.assertRaisesRegex(ValueError, 'network:|process:'):
+                self.execute(identifier)
+            self.assertEqual(client.get('/cpag/status/'+identifier).json()['status'], 'failed')
+            self.assertEqual(client.get('/cpag/result/'+identifier+'/json').status_code, 409)
+            self.assertEqual(client.get('/cpag/artifacts/'+identifier).json()['files'], [])
+
+    def test_recoverable_records_publish_warning_and_correct_raw_evidence(self):
+        network = b'{broken\n' + (ROOT/'tests/fixtures/synthetic/network.normalized.jsonl').read_bytes()
+        process = b'time,level,pump\n\n2026-01-01T00:00:00Z,7,"ON\nOFF"\n'
+        identifier = self.submit(network=network, process=process).json()['task_id']
+        self.execute(identifier)
+        result = client.get('/cpag/result/'+identifier+'/json').json()['data']
+        manifest = json.loads(synthetic.artifact_path(identifier, 'run_manifest.json').read_text())
+        self.assertEqual(manifest['status'], 'succeeded_with_warnings')
+        from cpag_core.evidence import EvidenceIndex
+        sources = synthetic.task_dir(identifier)/'sources'
+        indexes = [EvidenceIndex(sources/'network.jsonl'), EvidenceIndex(sources/'process.csv')]
+        indexes = {index.digest:index for index in indexes}
+        for event in result['events']:
+            row = indexes[event['source_ref']['file_sha256']].resolve(event['source_ref'])
+            if 'tag' in event:
+                self.assertEqual(event['source_ref']['record_number'], 2)
+                self.assertEqual(row['level'], '7')
+                self.assertEqual(row['pump'], 'ON\nOFF')
+            else:
+                self.assertEqual(row['source'], event['endpoints']['source'])
+        self.assertEqual(client.get('/cpag/status/'+identifier).json()['status'], 'completed')
 
     def test_legacy_empty_submission_is_rejected(self):
         self.assertEqual(client.post('/cpag/generate').status_code, 400)

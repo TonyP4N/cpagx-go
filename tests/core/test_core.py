@@ -85,3 +85,105 @@ class SourceFailureTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'process:'):
                 run(FIX/'network.normalized.jsonl',FIX/'process.csv',{},out,synthetic=True)
             self.assertFalse(out.exists())
+
+class IndexedEvidenceTests(unittest.TestCase):
+    def test_invalid_jsonl_before_valid_and_raw_content(self):
+        from cpag_core.evidence import EvidenceIndex
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'network.jsonl'
+            path.write_text('{invalid\n'+(FIX/'network.normalized.jsonl').read_text())
+            index=EvidenceIndex(path)
+            from cpag_core.parsers import parse_network
+            event=parse_network(path,evidence=index)['events'][0]
+            self.assertEqual(event['source_ref']['record_number'],2)
+            raw=index.resolve(event['source_ref'])
+            self.assertEqual(raw,json.loads(path.read_text().splitlines()[1]))
+            out=Path(tmp)/'out'
+            manifest=run(path,FIX/'process.csv',ROOT/'profiles/synthetic-demo.json',out,synthetic=True)
+            self.assertEqual(manifest['status'],'succeeded_with_warnings')
+
+    def test_csv_blank_and_multiline_positions_and_raw_values(self):
+        from cpag_core.evidence import EvidenceIndex
+        from cpag_core.parsers import parse_process
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'process.csv'
+            path.write_text('time,level,pump\n\n2026-01-01T00:00:00Z,0,"ON\nOFF"\n')
+            index=EvidenceIndex(path)
+            profile=json.loads((ROOT/'profiles/synthetic-demo.json').read_text())
+            events=parse_process(path,profile,evidence=index)['events']
+            self.assertEqual(len(events),2)
+            for event in events:
+                self.assertEqual(event['source_ref']['record_number'],2)
+                self.assertEqual(index.resolve(event['source_ref']),{'time':'2026-01-01T00:00:00Z','level':'0','pump':'ON\nOFF'})
+
+    def test_empty_either_source_rejected(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for kind,content in [('network',''),('process','time,level,pump\n')]:
+                path=Path(tmp)/('empty.jsonl' if kind=='network' else 'empty.csv');path.write_text(content)
+                out=Path(tmp)/kind
+                with self.assertRaisesRegex(ValueError,kind+':'):
+                    run(path if kind=='network' else FIX/'network.normalized.jsonl',path if kind=='process' else FIX/'process.csv',ROOT/'profiles/synthetic-demo.json',out,synthetic=True)
+                self.assertFalse(out.exists())
+
+    def test_mutation_before_during_index_and_publication(self):
+        from cpag_core.evidence import EvidenceIndex
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/'network.jsonl';original=(FIX/'network.normalized.jsonl').read_bytes();path.write_bytes(original)
+            digest=file_hash(path);path.write_bytes(original+b'\n')
+            with self.assertRaises(ContractError):EvidenceIndex(path,digest)
+            path.write_bytes(original)
+            real_read=Path.read_bytes
+            def mutate_read(p):
+                data=real_read(p)
+                if p==path:p.write_bytes(data+b'\n')
+                return data
+            with patch.object(Path,'read_bytes',mutate_read):
+                with self.assertRaises(ContractError):EvidenceIndex(path)
+            path.write_bytes(original)
+            index=EvidenceIndex(path);path.write_bytes(original+b'\n')
+            with self.assertRaises(ContractError):index.verify()
+            path.write_bytes(original)
+            import cpag_core.pipeline as pipeline
+            real_validate=pipeline.validate
+            def mutate_validate(name,value):
+                real_validate(name,value)
+                if name=='RunManifest':path.write_bytes(original+b'\n')
+            out=Path(tmp)/'out'
+            with patch.object(pipeline,'validate',mutate_validate):
+                with self.assertRaises(ContractError):run(path,FIX/'process.csv',ROOT/'profiles/synthetic-demo.json',out,synthetic=True)
+            self.assertFalse((out/'run_manifest.json').exists())
+            path.write_bytes(original)
+            def mutate_graph(name,value):
+                real_validate(name,value)
+                if name=='GraphArtifact':path.write_bytes(original+b'\n')
+            out2=Path(tmp)/'before-publication'
+            with patch.object(pipeline,'validate',mutate_graph):
+                with self.assertRaises(ContractError):run(path,FIX/'process.csv',ROOT/'profiles/synthetic-demo.json',out2,synthetic=True)
+            self.assertFalse(out2.exists())
+
+
+class RawEvidenceValidationTests(unittest.TestCase):
+    def test_csv_raw_time_mismatch_fails_before_publication(self):
+        from unittest.mock import patch
+        from cpag_core.parsers import parse_process
+        def wrong_time(*args, **kwargs):
+            parsed = parse_process(*args, **kwargs)
+            parsed['events'][0]['source_ref']['raw_time'] = '2026-01-01T00:00:01Z'
+            return parsed
+        with tempfile.TemporaryDirectory() as tmp:
+            out = Path(tmp)/'out'
+            with patch('cpag_core.parsers.parse_process', wrong_time):
+                with self.assertRaisesRegex(ContractError, 'raw time differs'):
+                    run(FIX/'network.normalized.jsonl', FIX/'process.csv', ROOT/'profiles/synthetic-demo.json', out, synthetic=True)
+            self.assertFalse(out.exists())
+
+    def test_invalid_utf8_is_explicit_and_never_published(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            for kind, suffix in [('network', '.jsonl'), ('process', '.csv')]:
+                path = Path(tmp)/(kind+suffix)
+                path.write_bytes(b'\xff')
+                out = Path(tmp)/('out-'+kind)
+                with self.assertRaisesRegex(ContractError, 'not valid UTF-8'):
+                    run(path if kind=='network' else FIX/'network.normalized.jsonl', path if kind=='process' else FIX/'process.csv', ROOT/'profiles/synthetic-demo.json', out, synthetic=True)
+                self.assertFalse(out.exists())

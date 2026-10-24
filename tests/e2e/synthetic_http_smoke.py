@@ -27,11 +27,11 @@ def call(path, body=None, content_type=None):
     except urllib.error.HTTPError as error:
         return error.code, error.read()
 
-def upload(network=None, confirmed=True):
+def upload(network=None, confirmed=True, process=None):
     boundary = 'cpag-' + uuid.uuid4().hex
     parts = []
     inputs = [('network_file', 'network.jsonl', network if network is not None else (ROOT/'tests/fixtures/synthetic/network.normalized.jsonl').read_bytes()),
-              ('process_file', 'process.csv', (ROOT/'tests/fixtures/synthetic/process.csv').read_bytes()),
+              ('process_file', 'process.csv', process if process is not None else (ROOT/'tests/fixtures/synthetic/process.csv').read_bytes()),
               ('profile_file', 'profile.json', (ROOT/'profiles/synthetic-demo.json').read_bytes())]
     for field, name, data in inputs:
         parts.append(f'--{boundary}\r\nContent-Disposition: form-data; name="{field}"; filename="{name}"\r\nContent-Type: application/octet-stream\r\n\r\n'.encode() + data + b'\r\n')
@@ -85,6 +85,30 @@ def main():
         assert poll(bad.get('id') or bad['task_id'])['status'] == 'failed'
     else:
         assert 400 <= code < 500, (code, raw)
+    for inputs in ({'process': b'time,level,pump\n'}, {'network': b''}):
+        code, raw = upload(**inputs)
+        if inputs.get('network') == b'':
+            assert code == 400, (code, raw)
+            continue
+        assert code in (200, 202), (code, raw)
+        empty_id = json.loads(raw)['task_id']
+        assert poll(empty_id)['status'] == 'failed'
+        assert call('/result/' + empty_id + '/json')[0] == 409
+        code, raw = call('/artifacts/' + empty_id)
+        assert code == 200 and json.loads(raw)['files'] == []
+    code, raw = upload(network=b'{broken\n' + (ROOT/'tests/fixtures/synthetic/network.normalized.jsonl').read_bytes(),
+                       process=b'time,level,pump\n\n2026-01-01T00:00:00Z,7,"ON\nOFF"\n')
+    assert code in (200, 202), (code, raw)
+    recovered_id = json.loads(raw)['task_id']
+    assert poll(recovered_id)['status'] == 'completed'
+    code, raw = call('/download/' + recovered_id + '/run_manifest.json')
+    assert code == 200 and json.loads(raw)['status'] == 'succeeded_with_warnings'
+    code, raw = call('/download/' + recovered_id + '/events.json')
+    assert code == 200
+    for event in json.loads(raw):
+        assert event['source_ref']['record_number'] >= 2
+        if 'tag' in event:
+            assert event['source_ref']['record_number'] == 2
     print(json.dumps({'synthetic_only': True, 'task_id': task_id, 'status': finished['status'], 'downloaded': [entry['filename'] for entry in inventory['files']], 'checksum_verified': list(checks), 'negative_cases': 'passed'}, indent=2))
 
 if __name__ == '__main__':
