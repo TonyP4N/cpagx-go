@@ -1,0 +1,19 @@
+{
+  "synthetic_only": true,
+  "task_id": "4617c4cc-bc2b-412a-b4c6-0cd6975b65ee",
+  "status": "completed",
+  "downloaded": [
+    "graph.json",
+    "events.json",
+    "dataset.json",
+    "quality.json",
+    "run_manifest.json"
+  ],
+  "checksum_verified": [
+    "dataset.json",
+    "events.json",
+    "graph.json",
+    "quality.json"
+  ],
+  "negative_cases": "passed"
+}

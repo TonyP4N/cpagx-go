@@ -27,6 +27,8 @@ jobs:
         env:
           PYTHONPATH: services/analysis/src
         run: python -m unittest discover -s tests/packets -v
+      - name: Worker process supervision tests
+        run: python -m unittest discover -s tests/worker -v
       - name: Legacy unsupported-path regression
         run: python -m unittest discover -s tests/legacy -v
   go:
@@ -89,3 +91,16 @@ jobs:
         env:
           M4_TEST_DATABASE_URL: postgres://postgres:m4-disposable-only@localhost:5432/m4_validation?sslmode=disable
         run: go test -race -count=1 -v ./...
+
+  m4-worker-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Isolated Worker, PostgreSQL and real-process fault matrix
+        run: scripts/m4/validate-worker.sh

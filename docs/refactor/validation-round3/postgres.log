@@ -1,0 +1,5 @@
+=== RUN   TestPostgresFaults
+--- PASS: TestPostgresFaults (0.10s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	1.514s
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]

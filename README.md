@@ -7,7 +7,9 @@ CPAGx-Go is a microservices platform for analyzing cyber-physical attack graphs 
 
 ## M1 重构入口（2026-10-24）
 
-最新进展见 [第二轮 M1 收尾、M2/M4 技术交付](docs/refactor/round2-completion-20261024.md) 与 [后续实施计划](docs/refactor/m1-closeout-and-next-plan.md)。
+最新进展见 [第三轮协议适配与 Worker 接入](docs/refactor/round3-completion-20261024.md)。
+
+前轮记录见 [第二轮 M1 收尾、M2/M4 技术交付](docs/refactor/round2-completion-20261024.md) 与 [后续实施计划](docs/refactor/m1-closeout-and-next-plan.md)。
 
 首轮已完成内容、修复清单、验证结果及待办边界见 [阶段性重构完成说明](docs/refactor/completion-summary-20261024.md)。
 
