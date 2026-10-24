@@ -101,6 +101,8 @@ async def generate_cpag(
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+    if pcap_file is None and csv_file is None:
+        raise HTTPException(status_code=400, detail="An input file is required")
     temp_file_path = None
     temp_csv_path = None
     
@@ -123,8 +125,9 @@ async def generate_cpag(
     if custom_params:
         try:
             params_dict = json.loads(custom_params)
-        except:
-            params_dict = {}
+        except json.JSONDecodeError:
+            cleanup_temp_files([temp_file_path, temp_csv_path])
+            raise HTTPException(status_code=400, detail="Invalid custom_params JSON")
 
     # Start Celery task (if files are available)
     if temp_file_path or temp_csv_path:
@@ -173,189 +176,46 @@ async def generate_cpag(
         version=VERSION,
     )
 
+@app.get("/cpag/status/batch")
+async def get_batch_task_status(task_ids: str = ""):
+    identifiers = [value.strip() for value in task_ids.split(',') if value.strip()]
+    if len(identifiers) > 100:
+        raise HTTPException(400, "At most 100 task identifiers")
+    result = {}
+    for identifier in identifiers:
+        try:
+            result[identifier] = await get_task_status(identifier)
+        except HTTPException as exc:
+            result[identifier] = {"task_id": identifier, "status": "not_found" if exc.status_code == 404 else "invalid", "version": VERSION}
+    return result
+
 @app.get("/cpag/status/{task_id}")
 async def get_task_status(task_id: str):
-    """Get task status with Redis caching"""
-    import redis
-    
-    # Connect to Redis
-    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+    from .synthetic import task_dir
     try:
-        redis_client = redis.from_url(redis_url)
-        
-        # Check Redis connection
-        if redis_client is None:
-            raise Exception("Failed to connect to Redis")
-            
-        # Get task status from Redis
-        task_key = f"task_status:{task_id}"
-        task_data = redis_client.get(task_key)
-        
-        if task_data:
-            task_info = json.loads(task_data)
-            return task_info
-        
-        # If not in Redis, check filesystem (compatibility)
-        task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-        if os.path.exists(task_dir):
-            # Check result files
-            cpag_files = [
-                os.path.join(task_dir, 'cpag_units.json'),
-                os.path.join(task_dir, 'cpag_enhanced.json'),
-                os.path.join(task_dir, 'cpag_tcity.json')
-            ]
-            
-            for cpag_file in cpag_files:
-                if os.path.exists(cpag_file):
-                    status_info = {
-                        "task_id": task_id,
-                        "status": "completed",
-                        "result_url": f"/cpag/result/{task_id}",
-                        "version": "v2"
-                    }
-                    # Cache to Redis
-                    redis_client.setex(task_key, 3600, json.dumps(status_info))
-                    return status_info
-            
-            # Check error files
-            error_file = os.path.join(task_dir, 'error.log')
-            if os.path.exists(error_file):
-                with open(error_file, 'r', encoding='utf-8') as f:
-                    error_msg = f.read()
-                error_info = {
-                    "task_id": task_id,
-                    "status": "failed",
-                    "error": error_msg,
-                    "version": "v2"
-                }
-                # 缓存到Redis
-                redis_client.setex(task_key, 3600, json.dumps(error_info))
-                return error_info
-            
-            return {
-                "task_id": task_id,
-                "status": "processing",
-                "version": VERSION
-            }
-        else:
-            raise HTTPException(status_code=404, detail="Task not found")
-    
-    except Exception as e:
-        # If Redis is not available, fallback to filesystem
-        task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-        if os.path.exists(task_dir):
-            return {
-                "task_id": task_id,
-                "status": "processing",
-                "version": VERSION
-            }
-        else:
-            raise HTTPException(status_code=404, detail="Task not found")
-
-@app.get("/cpag/status/batch")
-async def get_batch_task_status(task_ids: str):
-    """批量获取任务状态 - 使用Redis缓存"""
-    import redis
-    
-    # Parse task ID list
-    task_id_list = task_ids.split(',') if task_ids else []
-    if not task_id_list:
-        return {}
-    
-    # Connect to Redis
-    redis_url = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
-    try:
-        redis_client = redis.from_url(redis_url)
-        
-        # Check Redis connection
-        if redis_client is None:
-            raise Exception("Failed to connect to Redis")
-        
-        results = {}
-        
-        # Batch get task status
-        for task_id in task_id_list:
-            task_id = task_id.strip()
-            if not task_id:
-                continue
-                
-            task_key = f"task_status:{task_id}"
-            task_data = redis_client.get(task_key)
-            
-            if task_data:
-                task_info = json.loads(task_data)
-                results[task_id] = task_info
-            else:
-                # If not in Redis, check filesystem (compatibility)
-                task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-                if os.path.exists(task_dir):
-                    # Check result files
-                    cpag_files = [
-                        os.path.join(task_dir, 'cpag_units.json'),
-                        os.path.join(task_dir, 'cpag_enhanced.json'),
-                        os.path.join(task_dir, 'cpag_tcity.json')
-                    ]
-                    
-                    status_info = {
-                        "task_id": task_id,
-                        "status": "processing",
-                        "version": "v2"
-                    }
-                    
-                    for cpag_file in cpag_files:
-                        if os.path.exists(cpag_file):
-                            status_info["status"] = "completed"
-                            status_info["result_url"] = f"/cpag/result/{task_id}"
-                            break
-                    
-                    # Check error files
-                    error_file = os.path.join(task_dir, 'error.log')
-                    if os.path.exists(error_file):
-                        with open(error_file, 'r', encoding='utf-8') as f:
-                            error_msg = f.read()
-                        status_info["status"] = "failed"
-                        status_info["error"] = error_msg
-                    
-                    # Cache to Redis
-                    redis_client.setex(task_key, 3600, json.dumps(status_info))
-                    results[task_id] = status_info
-                else:
-                    results[task_id] = {
-                        "task_id": task_id,
-                        "status": "not_found",
-                        "version": "v2"
-                    }
-        
-        return results
-    
-    except Exception as e:
-        # If Redis is not available, fallback to filesystem
-        results = {}
-        for task_id in task_id_list:
-            task_id = task_id.strip()
-            if not task_id:
-                continue
-                
-            task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-            if os.path.exists(task_dir):
-                results[task_id] = {
-                    "task_id": task_id,
-                    "status": "processing",
-                    "version": VERSION
-                }
-            else:
-                results[task_id] = {
-                    "task_id": task_id,
-                    "status": "not_found",
-                    "version": VERSION
-                }
-        
-        return results
+        task_dir(task_id)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
+    if manifest:
+        return manifest
+    if redis_client:
+        try:
+            value = redis_client.get(f"task_status:{task_id}")
+            if value:
+                return json.loads(value)
+        except Exception:
+            pass
+    raise HTTPException(404, "Task not found")
 
 @app.get("/cpag/result/{task_id}")
 async def get_task_result(task_id: str):
     """获取任务结果 - 返回可下载的文件"""
-    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
+    from .synthetic import task_dir as bounded_dir
+    try:
+        task_dir = str(bounded_dir(task_id))
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
     
     # Prioritize reading files recorded in manifest
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
@@ -386,6 +246,18 @@ async def get_task_result(task_id: str):
 @app.get("/cpag/result/{task_id}/json")
 async def get_task_result_json(task_id: str):
     """获取任务结果 - 返回 JSON 数据"""
+    from .synthetic import task_dir as bounded_dir, artifact_path
+    try:
+        bounded_dir(task_id)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
+    if manifest and manifest.get('synthetic'):
+        if manifest['status'] != 'completed':
+            raise HTTPException(409, manifest)
+        data = {name: json.loads(artifact_path(task_id, name + '.json').read_text())
+                for name in ['graph', 'quality', 'events', 'run_manifest']}
+        return {"task_id": task_id, "status": "completed", "synthetic": True, "data": data}
     import redis
     
     # First try to get from Redis
@@ -466,17 +338,14 @@ async def get_task_list():
 @app.get("/cpag/download/{task_id}/{filename}")
 async def download_file(task_id: str, filename: str):
     """下载任务文件"""
-    task_dir = os.path.join(OUTPUT_BASE_DIR, task_id)
-    file_path = os.path.join(task_dir, filename)
-    
-    if not os.path.exists(file_path):
-        raise HTTPException(status_code=404, detail="File not found")
-    
-    return FileResponse(
-        path=file_path,
-        filename=filename,
-        media_type='application/octet-stream'
-    )
+    from .synthetic import artifact_path
+    try:
+        path = artifact_path(task_id, filename)
+    except ValueError as exc:
+        raise HTTPException(400, str(exc))
+    except FileNotFoundError:
+        raise HTTPException(404, "File not found")
+    return FileResponse(path=str(path), filename=filename, media_type='application/octet-stream')
 
 @app.get("/cpag/queue/status")
 async def get_queue_status():
@@ -501,20 +370,9 @@ async def get_queue_status():
     }
 
 
-# Include CPAG router
-from fastapi import APIRouter
-cpag_router = APIRouter(prefix="/cpag")
-
-# Add routes to router
-cpag_router.add_api_route("/generate", generate_cpag, methods=["POST"])
-cpag_router.add_api_route("/status/{task_id}", get_task_status, methods=["GET"])
-cpag_router.add_api_route("/status/batch", get_batch_task_status, methods=["GET"])
-cpag_router.add_api_route("/result/{task_id}", get_task_result, methods=["GET"])
-cpag_router.add_api_route("/tasks", get_task_list, methods=["GET"])
-cpag_router.add_api_route("/download/{task_id}/{filename}", download_file, methods=["GET"])
-
-# Include router to main application
-app.include_router(cpag_router)
+# Register the explicitly opted-in synthetic execution bridge once.
+from .synthetic import register as register_synthetic
+register_synthetic(app)
 
 if __name__ == "__main__":
     import uvicorn

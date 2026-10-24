@@ -13,7 +13,7 @@ celery_app = Celery(
     'cpag_generator',
     broker=os.getenv('RABBITMQ_URL', 'amqp://guest:guest@localhost:5672/'),
     backend=os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-    include=['api.v1.tasks', 'api.v2.tasks']
+    include=['api.v1.tasks', 'api.v2.tasks', 'api.v2.synthetic']
 )
 
 celery_app.conf.update(

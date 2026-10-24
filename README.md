@@ -5,6 +5,16 @@
 
 CPAGx-Go is a microservices platform for analyzing cyber-physical attack graphs from network traffic. Built for security researchers and SOC analysts to visualize attack paths in industrial control systems.
 
+## M1 重构入口（2026-10-24）
+
+已完成内容、修复清单、验证结果及待办边界统一见 [阶段性重构完成说明](docs/refactor/completion-summary-20261024.md)。
+
+后续已启动本地全栈并验证合成任务提交、队列执行、结果下载与重复投递，见 [全栈验证与启动说明](docs/refactor/full-stack-validation.md)。
+
+当前分支新增可独立运行的纯 Python 核心、九类版本化数据契约和合成样例。使用方式见 [核心说明](services/analysis/README.md)，实施及验证结果见 [本轮交付记录](docs/refactor/acceptance.md)。本轮只验证软件行为；尚未取得 SWaT 原始双源数据，未验证真实时间对齐、关联或准确性。公开规则不是独立标准答案。
+
+旧 V2 普通 PCAP 占位解析已禁用，返回明确的 `UNSUPPORTED_CLASSIC_PCAP`。旧服务、队列和界面仍为迁移前实现，不等于新核心已接管 HTTP 请求。下方原有功能和部署说明属于旧版，不能据此认定已通过工业验证；实际入口与遗留问题见 [基线记录](docs/refactor/legacy-baseline.md)。
+
 ## Features
 
 - **Real-time PCAP processing** with ENIP/CIP protocol support

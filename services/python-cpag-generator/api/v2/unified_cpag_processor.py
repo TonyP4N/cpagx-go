@@ -1983,7 +1983,7 @@ class UnifiedCPAGProcessor:
                         cip_reqs.append(cip_req)
                         
         except Exception as e:
-            print(f"Error parsing PCAP-NG: {e}")
+            raise RuntimeError(f"PCAPNG_PARSE_FAILED: {e}") from e
         
         return pd.DataFrame(cip_reqs)
     
@@ -2519,51 +2519,13 @@ class UnifiedCPAGProcessor:
         return output_files
     
     def _parse_classic_pcap(self, file_path: str, max_pkts: int, target_cip: int) -> pd.DataFrame:
-        """Parse classic PCAP file for ENIP/CIP traffic"""
-        # This is a simplified implementation
-        # In practice, you might want to use existing libraries or adapt cpag_pipeline
-        cip_reqs = []
-        
-        try:
-            with open(file_path, 'rb') as f:
-                # Skip PCAP header
-                f.read(24)
-                
-                packet_count = 0
-                while packet_count < max_pkts and len(cip_reqs) < target_cip:
-                    # Read packet header
-                    pkt_hdr = f.read(16)
-                    if len(pkt_hdr) < 16:
-                        break
-                    
-                    ts_sec, ts_usec, incl_len, orig_len = struct.unpack("<IIII", pkt_hdr)
-                    pkt_data = f.read(incl_len)
-                    
-                    if len(pkt_data) < incl_len:
-                        break
-                    
-                    packet_count += 1
-                    
-                    # Basic packet parsing (simplified)
-                    # In practice, you'd implement full Ethernet/IP/TCP parsing
-                    # For now, create placeholder data
-                    if packet_count % 100 == 0:  # Sample every 100th packet
-                        cip_reqs.append({
-                            'src': f"192.168.1.{(packet_count % 254) + 1}",
-                            'sport': 12345,
-                            'dst': f"192.168.1.{((packet_count + 50) % 254) + 1}",
-                            'dport': 44818,
-                            'service': 0x4C if packet_count % 2 == 0 else 0x4D,
-                            'service_name': 'CIP Read Tag' if packet_count % 2 == 0 else 'CIP Write Tag',
-                            'path': f"Tag_{packet_count % 10}"
-                        })
-                        
-        except Exception as e:
-            print(f"Error parsing classic PCAP: {e}")
-        
-        return pd.DataFrame(cip_reqs)
-    
-    
+        """Reject the legacy placeholder parser until a validated parser replaces it."""
+        raise NotImplementedError(
+            "UNSUPPORTED_CLASSIC_PCAP: legacy V2 classic PCAP parsing is disabled; "
+            "the previous implementation fabricated endpoints and CIP labels. "
+            "No network events or graph artifacts were generated."
+        )
+
     def _save_csv_results(self, output_dir: str, df: pd.DataFrame, cpag_units: List, graph_data: Dict) -> Dict[str, str]:
         """Save CSV processing results"""
         output_files = {}

@@ -45,9 +45,9 @@ func SetupRoutes(r *gin.Engine, handler *Handler, proxy *VersionProxy) {
 		// CPAG生成相关路由
 		cpag := api.Group("/cpag")
 		{
-			cpag.POST("/generate", handler.GenerateCPAG)   // 生成CPAG
-			cpag.GET("/status/:id", handler.GetCPAGStatus) // 获取生成状态
-			cpag.GET("/result/:id", handler.GetCPAGResult) // 获取生成结果
+			cpag.POST("/generate", proxy.ProxyToVersion("v1"))  // 生成CPAG
+			cpag.GET("/status/:id", proxy.ProxyToVersion("v1")) // 获取生成状态
+			cpag.GET("/result/:id", proxy.ProxyToVersion("v1")) // 获取生成结果
 		}
 
 		// 图数据可视化相关路由

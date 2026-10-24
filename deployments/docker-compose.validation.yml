@@ -1,0 +1,50 @@
+# Isolated local verification infrastructure; no production volumes or ports.
+services:
+  redis:
+    image: mirror.gcr.io/library/redis:7.4.2-alpine
+    ports: ["127.0.0.1:16379:6379"]
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+  rabbitmq:
+    image: mirror.gcr.io/library/rabbitmq:3.13.7-management
+    ports: ["127.0.0.1:15673:5672", "127.0.0.1:15674:15672"]
+    environment:
+      RABBITMQ_DEFAULT_USER: cpag_validation
+      RABBITMQ_DEFAULT_PASS: local-validation-only
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  neo4j:
+    image: mirror.gcr.io/library/neo4j:5.15.0-community
+    ports: ["127.0.0.1:17474:7474", "127.0.0.1:17687:7687"]
+    environment:
+      NEO4J_AUTH: neo4j/local-validation-only
+      NEO4J_server_memory_heap_initial__size: 256m
+      NEO4J_server_memory_heap_max__size: 512m
+      NEO4J_server_memory_pagecache_size: 256m
+    healthcheck:
+      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "local-validation-only", "RETURN 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+  influxdb:
+    image: mirror.gcr.io/library/influxdb:2.7.11
+    ports: ["127.0.0.1:18086:8086"]
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: cpag_validation
+      DOCKER_INFLUXDB_INIT_PASSWORD: local-validation-only
+      DOCKER_INFLUXDB_INIT_ORG: cpag_validation
+      DOCKER_INFLUXDB_INIT_BUCKET: cpag_validation
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: local-validation-token-only
+    healthcheck:
+      test: ["CMD", "influx", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20

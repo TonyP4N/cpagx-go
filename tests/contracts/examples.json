@@ -1,0 +1,155 @@
+{
+  "Claim": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "claim_id": "synthetic-example",
+    "relation_type": "synthetic-example",
+    "evidence_refs": [],
+    "assumptions": [],
+    "counterevidence": [],
+    "rule_id": "synthetic-example",
+    "status": "observed"
+  },
+  "DatasetManifest": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "dataset_id": "synthetic-example",
+    "source": "synthetic-example",
+    "release": "synthetic-example",
+    "files": [],
+    "collection_range": {
+      "start": null,
+      "end": null
+    },
+    "timezone_basis": "synthetic-example",
+    "authorization_ref": "synthetic-example"
+  },
+  "EvaluationRecord": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "evaluation_id": "synthetic-example",
+    "run_id": "synthetic-example",
+    "data_split": "synthetic-example",
+    "label_source": "synthetic-example",
+    "annotation_version": "synthetic-example",
+    "matching_strategy": "synthetic-example",
+    "metrics": {},
+    "error_analysis": [],
+    "independent_labels": true
+  },
+  "Asset": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "asset_id": "synthetic-example",
+    "role": "synthetic-example",
+    "aliases": [],
+    "process_stage": "synthetic-example",
+    "valid_time": {
+      "start": null,
+      "end": null
+    },
+    "config_version": "synthetic-example"
+  },
+  "RunManifest": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "run_id": "synthetic-example",
+    "attempt_id": 0,
+    "input_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+    "config_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+    "tool_versions": {
+      "core": "synthetic-example",
+      "python": "synthetic-example"
+    },
+    "mode": "offline",
+    "artifacts": [],
+    "result_hashes": {
+      "events": "0000000000000000000000000000000000000000000000000000000000000000",
+      "graph": "0000000000000000000000000000000000000000000000000000000000000000"
+    },
+    "limitations": [],
+    "status": "succeeded",
+    "warnings": []
+  },
+  "ProcessObservation": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "event_id": "synthetic-example",
+    "source_ref": {
+      "file_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "frame_number": 1,
+      "record_number": 1,
+      "column": "synthetic-example",
+      "raw_time": "synthetic-example"
+    },
+    "event_time": null,
+    "ingest_time": null,
+    "quality": {
+      "status": "synthetic-example",
+      "reasons": []
+    },
+    "tag": "synthetic-example",
+    "value": 0,
+    "unit": "synthetic-example",
+    "asset_id": "synthetic-example",
+    "value_type": "analog"
+  },
+  "GraphArtifact": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "graph_id": "synthetic-example",
+    "nodes": [],
+    "edges": [],
+    "claims": [],
+    "input_fingerprint": "0000000000000000000000000000000000000000000000000000000000000000",
+    "core_version": "synthetic-example",
+    "statistics": {
+      "nodes": 0,
+      "edges": 0
+    },
+    "truncation": {
+      "truncated": true,
+      "reason": "synthetic-example"
+    }
+  },
+  "DerivedEvent": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "event_id": "synthetic-example",
+    "evidence_refs": [],
+    "rule_version": "synthetic-example",
+    "event_type": "synthetic-example",
+    "time_range": {
+      "start": null,
+      "end": null
+    },
+    "parameters": {},
+    "result": {}
+  },
+  "NetworkEvent": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "event_id": "synthetic-example",
+    "source_ref": {
+      "file_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "frame_number": 1,
+      "record_number": 1,
+      "column": "synthetic-example",
+      "raw_time": "synthetic-example"
+    },
+    "event_time": null,
+    "ingest_time": null,
+    "quality": {
+      "status": "synthetic-example",
+      "reasons": []
+    },
+    "endpoints": {
+      "source": "synthetic-example",
+      "destination": "synthetic-example"
+    },
+    "protocol": "synthetic-example",
+    "operation": "synthetic-example",
+    "correlation_id": "synthetic-example",
+    "response_status": "synthetic-example"
+  }
+}

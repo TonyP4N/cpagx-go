@@ -1,0 +1,61 @@
+{
+  "date": "2026-10-24",
+  "scope": "synthetic software and local builds only",
+  "results": [
+    {
+      "check": "core",
+      "exit_code": 0,
+      "log": "core.log"
+    },
+    {
+      "check": "contracts",
+      "exit_code": 0,
+      "log": "contracts.log"
+    },
+    {
+      "check": "parsers",
+      "exit_code": 0,
+      "log": "parsers.log"
+    },
+    {
+      "check": "legacy",
+      "exit_code": 0,
+      "log": "legacy.log"
+    },
+    {
+      "check": "integration",
+      "exit_code": 0,
+      "log": "integration.log"
+    },
+    {
+      "check": "go-test",
+      "exit_code": 0,
+      "log": "go-test.log"
+    },
+    {
+      "check": "go-build",
+      "exit_code": 0,
+      "log": "go-build.log"
+    },
+    {
+      "check": "go-vet",
+      "exit_code": 0,
+      "log": "go-vet.log"
+    },
+    {
+      "check": "go-cli",
+      "exit_code": 0,
+      "log": "go-cli.log"
+    },
+    {
+      "check": "frontend",
+      "exit_code": 0,
+      "log": "frontend.log"
+    },
+    {
+      "check": "diff-check",
+      "exit_code": 0,
+      "log": "diff-check.log"
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+test_cli_export_and_immutable_attempt (test_m1_cli.CLITests.test_cli_export_and_immutable_attempt) ... ok
+test_cli_requires_explicit_synthetic_and_valid_inputs (test_m1_cli.CLITests.test_cli_requires_explicit_synthetic_and_valid_inputs) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.223s
+
+OK

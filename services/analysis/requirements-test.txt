@@ -1,0 +1,2 @@
+# Independent JSON Schema validation; core runtime has no third-party dependencies.
+jsonschema==4.23.0

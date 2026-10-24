@@ -1,0 +1,5 @@
+time,level,pump,note
+2026-01-01T00:00:00Z,0,OFF,"synthetic multiline
+note"
+2026-01-01T00:00:01Z,,ON,missing level
+2026-01-01T00:00:02Z,NaN,OFF,nonfinite

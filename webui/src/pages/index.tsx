@@ -23,6 +23,7 @@ import {
 
 import VersionSelector from '../components/VersionSelector';
 import TaskList from '../components/TaskList';
+import SyntheticRun from '../components/SyntheticRun';
 import { useTabState, useNavigation } from '../hooks/useRouteState';
 
 interface TaskStatus {
@@ -372,6 +373,7 @@ export default function HomePage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-6 min-h-[calc(100vh-200px)]">
         
+        <SyntheticRun />
         {/* Upload Tab */}
         {activeTab === 'upload' && (
           <div className="grid lg:grid-cols-3 gap-8 min-h-[calc(100vh-300px)]" style={{ gridTemplateRows: '1fr', display: 'grid' }}>

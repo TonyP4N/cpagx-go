@@ -1,0 +1,9 @@
+{
+  "synthetic_only": true,
+  "task_id": "8e54c15d-4d36-4570-9f91-7a9dab23b8f9",
+  "queued_without_worker": true,
+  "completed_after_worker_restart": true,
+  "duplicate_delivery_preserved_manifest": true,
+  "source_checksums_verified": true,
+  "batch_status_http": 200
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EvaluationRecord.schema.json",
+  "title": "EvaluationRecord",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "evaluation_id": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "data_split": {
+      "type": "string"
+    },
+    "label_source": {
+      "type": "string"
+    },
+    "annotation_version": {
+      "type": "string"
+    },
+    "matching_strategy": {
+      "type": "string"
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "number",
+          "null"
+        ]
+      }
+    },
+    "error_analysis": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "independent_labels": {
+      "const": true
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "evaluation_id",
+    "run_id",
+    "data_split",
+    "label_source",
+    "annotation_version",
+    "matching_strategy",
+    "metrics",
+    "error_analysis",
+    "independent_labels"
+  ],
+  "additionalProperties": false
+}

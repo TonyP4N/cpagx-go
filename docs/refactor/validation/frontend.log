@@ -1,0 +1,35 @@
+
+> cpagx-webui@1.0.0 build
+> next build
+
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+  ▲ Next.js 14.2.35
+
+   Linting and checking validity of types ...
+   Creating an optimized production build ...
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ✓ Compiled successfully
+   Collecting page data ...
+   Generating static pages (0/4) ...
+   Generating static pages (1/4)
+   Generating static pages (2/4)
+   Generating static pages (3/4)
+ ✓ Generating static pages (4/4)
+   Finalizing page optimization ...
+   Collecting build traces ...
+ ⚠ rewrites, redirects, and headers are not applied when exporting your application, detected (rewrites). See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+
+Route (pages)                             Size     First Load JS
+┌ ○ /                                     43.2 kB         128 kB
+├   /_app                                 0 B            85.3 kB
+├ ○ /404                                  181 B          85.5 kB
+└ ○ /graph                                215 kB          300 kB
++ First Load JS shared by all             90.9 kB
+  ├ chunks/framework-64ad27b21261a9ce.js  44.9 kB
+  ├ chunks/main-90ae43f61599f565.js       38.5 kB
+  └ other shared chunks (total)           7.52 kB
+
+○  (Static)  prerendered as static content
