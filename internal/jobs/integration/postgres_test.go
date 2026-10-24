@@ -38,6 +38,13 @@ func TestPostgresFaults(t *testing.T) {
 	if _, err = db.ExecContext(ctx, string(migration)); err != nil {
 		t.Fatal(err)
 	}
+	migration2, err := os.ReadFile("../migrations/002_worker_api.sql")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = db.ExecContext(ctx, string(migration2)); err != nil {
+		t.Fatal(err)
+	}
 	// Runner supplies a disposable dedicated database; never use a production DSN.
 	if _, err = db.ExecContext(ctx, "TRUNCATE m4_jobs"); err != nil {
 		t.Fatal(err)

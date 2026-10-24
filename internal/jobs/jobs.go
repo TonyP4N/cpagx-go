@@ -3,7 +3,10 @@ package jobs
 
 import (
 	"context"
+	"crypto/rand"
 	"database/sql"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path"
@@ -19,6 +22,7 @@ type Claim struct {
 	ID      string
 	Attempt int
 	Worker  string
+	Token   string
 }
 
 func (r Repository) Enqueue(ctx context.Context, id string, maxAttempts int) error {
@@ -40,13 +44,18 @@ func (r Repository) Claim(ctx context.Context, worker string, lease time.Duratio
 		return Claim{}, err
 	}
 	var c Claim
+	tokenBytes := make([]byte, 32)
+	if _, err := rand.Read(tokenBytes); err != nil {
+		return c, err
+	}
+	token := hex.EncodeToString(tokenBytes)
 	err = r.DB.QueryRowContext(ctx, `WITH candidate AS (
  SELECT id FROM m4_jobs WHERE attempt<max_attempts AND
  ((state='queued' AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<=clock_timestamp()))
  ORDER BY available_at,id FOR UPDATE SKIP LOCKED LIMIT 1)
- UPDATE m4_jobs j SET state='running',attempt=j.attempt+1,worker=$1,
+ UPDATE m4_jobs j SET state='running',attempt=j.attempt+1,worker=$1,attempt_token=$3,
  lease_until=clock_timestamp()+($2 * interval '1 millisecond') FROM candidate c WHERE j.id=c.id
- RETURNING j.id,j.attempt,j.worker`, worker, lease.Milliseconds()).Scan(&c.ID, &c.Attempt, &c.Worker)
+ RETURNING j.id,j.attempt,j.worker,j.attempt_token`, worker, lease.Milliseconds(), token).Scan(&c.ID, &c.Attempt, &c.Worker, &c.Token)
 	return c, err
 }
 func affected(result sql.Result, err error) error {
@@ -66,14 +75,14 @@ func (r Repository) Heartbeat(ctx context.Context, c Claim, lease time.Duration)
 	if lease < time.Second || lease > time.Hour {
 		return errors.New("invalid lease")
 	}
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET lease_until=clock_timestamp()+($4 * interval '1 millisecond') WHERE id=$1 AND attempt=$2 AND worker=$3 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, lease.Milliseconds()))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET lease_until=clock_timestamp()+($4 * interval '1 millisecond') WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$5 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, lease.Milliseconds(), c.Token))
 }
 
 // Fail retries with bounded exponential backoff (1s..256s); final failure is terminal.
 func (r Repository) Fail(ctx context.Context, c Claim, message string, retryable bool) error {
 	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state=CASE WHEN $5 AND attempt<max_attempts THEN 'queued' ELSE 'failed' END,
  available_at=clock_timestamp()+(power(2,least(attempt-1,8))*interval '1 second'),lease_until=NULL,last_error=$4
- WHERE id=$1 AND attempt=$2 AND worker=$3 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, message, retryable))
+ WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, message, retryable, c.Token))
 }
 
 // Cancel requests stopping a running worker; only AcknowledgeCancel can confirm exit.
@@ -85,7 +94,7 @@ func (r Repository) Cancel(ctx context.Context, id string) error {
 // AcknowledgeCancel must be called only after the attempt's subprocess has exited.
 // Recovery also must independently confirm no process remains before acknowledging.
 func (r Repository) AcknowledgeCancel(ctx context.Context, c Claim) error {
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND state='cancelling'`, c.ID, c.Attempt, c.Worker))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='cancelling'`, c.ID, c.Attempt, c.Worker, c.Token))
 }
 
 // ArtifactKey gives each attempt a distinct relative immutable destination.
@@ -107,5 +116,48 @@ func (r Repository) Complete(ctx context.Context, c Claim, key, sha string) erro
 	if key != expected {
 		return errors.New("artifact key mismatch")
 	}
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, key, sha))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, key, sha, c.Token))
+}
+
+// EnqueuePayload stores the validated immutable input description.
+func (r Repository) EnqueuePayload(ctx context.Context, id string, max int, payload json.RawMessage) error {
+	if id == "" || max < 1 || max > 100 {
+		return errors.New("invalid job")
+	}
+	_, err := r.DB.ExecContext(ctx, `INSERT INTO m4_jobs(id,max_attempts,payload) VALUES($1,$2,$3)`, id, max, string(payload))
+	return err
+}
+
+type Status struct {
+	ID             string          `json:"id"`
+	State          string          `json:"state"`
+	Attempt        int             `json:"attempt"`
+	Payload        json.RawMessage `json:"payload"`
+	ArtifactPath   *string         `json:"artifact_path"`
+	ArtifactSHA256 *string         `json:"artifact_sha256"`
+}
+
+func (r Repository) Status(ctx context.Context, id string) (Status, error) {
+	var s Status
+	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256 FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256)
+	return s, err
+}
+
+func (r Repository) CheckClaim(ctx context.Context, c Claim) error {
+	var ok bool
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='running' AND lease_until>clock_timestamp())`, c.ID, c.Attempt, c.Worker, c.Token).Scan(&ok)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return ErrStale
+	}
+	return nil
+}
+
+// IsCompleted allows an identical authenticated completion to be retried after response loss.
+func (r Repository) IsCompleted(ctx context.Context, c Claim, sha string) (bool, error) {
+	var ok bool
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='succeeded' AND artifact_sha256=$5)`, c.ID, c.Attempt, c.Worker, c.Token, sha).Scan(&ok)
+	return ok, err
 }
