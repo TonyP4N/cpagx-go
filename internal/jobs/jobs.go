@@ -96,7 +96,7 @@ func (r Repository) Cancel(ctx context.Context, id string) error {
 // AcknowledgeCancel must be called only after the attempt's subprocess has exited.
 // Recovery also must independently confirm no process remains before acknowledging.
 func (r Repository) AcknowledgeCancel(ctx context.Context, c Claim) error {
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='cancelling'`, c.ID, c.Attempt, c.Worker, c.Token))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='cancelling' AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt`, c.ID, c.Attempt, c.Worker, c.Token))
 }
 
 // ArtifactKey gives each attempt a distinct relative immutable destination.
@@ -118,7 +118,7 @@ func (r Repository) Complete(ctx context.Context, c Claim, key, sha string) erro
 	if key != expected {
 		return errors.New("artifact key mismatch")
 	}
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, key, sha, c.Token))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.container_id!='' AND a.exited_at IS NULL)`, c.ID, c.Attempt, c.Worker, key, sha, c.Token))
 }
 
 // EnqueuePayload stores the validated immutable input description.
@@ -131,20 +131,37 @@ func (r Repository) EnqueuePayload(ctx context.Context, id string, max int, payl
 }
 
 type Status struct {
-	ID                string          `json:"id"`
-	State             string          `json:"state"`
-	Attempt           int             `json:"attempt"`
-	Payload           json.RawMessage `json:"payload"`
-	ArtifactPath      *string         `json:"artifact_path"`
-	ArtifactSHA256    *string         `json:"artifact_sha256"`
-	RecoveryDeadline  *time.Time      `json:"recovery_deadline"`
-	RecoveryCheckedAt *time.Time      `json:"recovery_checked_at"`
-	RecoveryReason    *string         `json:"recovery_reason"`
+	LeaseValid          bool            `json:"lease_valid"`
+	ID                  string          `json:"id"`
+	State               string          `json:"state"`
+	Attempt             int             `json:"attempt"`
+	Payload             json.RawMessage `json:"payload"`
+	ArtifactPath        *string         `json:"artifact_path"`
+	ArtifactSHA256      *string         `json:"artifact_sha256"`
+	RecoveryDeadline    *time.Time      `json:"recovery_deadline"`
+	RecoveryCheckedAt   *time.Time      `json:"recovery_checked_at"`
+	RecoveryReason      *string         `json:"recovery_reason"`
+	MissingExitAttempts []int           `json:"missing_exit_attempts"`
+	AttemptHistory      []AttemptStatus `json:"attempt_history"`
 }
 
 func (r Repository) Status(ctx context.Context, id string) (Status, error) {
 	var s Status
-	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason)
+	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason,(state='running' AND lease_until>clock_timestamp()) FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason, &s.LeaseValid)
+	if err == nil {
+		s.AttemptHistory, err = r.History(ctx, id)
+		for n := 1; n <= s.Attempt; n++ {
+			found := false
+			for _, a := range s.AttemptHistory {
+				if a.Attempt == n && a.ExitedAt != nil {
+					found = true
+				}
+			}
+			if !found {
+				s.MissingExitAttempts = append(s.MissingExitAttempts, n)
+			}
+		}
+	}
 	return s, err
 }
 
@@ -165,4 +182,21 @@ func (r Repository) IsCompleted(ctx context.Context, c Claim, sha string) (bool,
 	var ok bool
 	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='succeeded' AND artifact_sha256=$5)`, c.ID, c.Attempt, c.Worker, c.Token, sha).Scan(&ok)
 	return ok, err
+}
+
+// CheckPublication prevents any container attempt publication before its external
+// coordinator has durably recorded irreversible container removal.
+func (r Repository) CheckPublication(ctx context.Context, c Claim) error {
+	if err := r.CheckClaim(ctx, c); err != nil {
+		return err
+	}
+	var pending bool
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE job_id=$1 AND attempt=$2 AND container_id!='' AND exited_at IS NULL)`, c.ID, c.Attempt).Scan(&pending)
+	if err != nil {
+		return err
+	}
+	if pending {
+		return ErrStale
+	}
+	return nil
 }

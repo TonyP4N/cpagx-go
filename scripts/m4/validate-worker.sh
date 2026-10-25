@@ -21,7 +21,7 @@ export GOMODCACHE="${GOMODCACHE:-${TMPDIR:-/tmp}/cpag-go-mod}"
 docker compose -p cpag-m4-worker-validation -f "$compose_file" up -d --wait
 export M4_TEST_DATABASE_URL="postgres://postgres:m4-disposable-only@127.0.0.1:$CPAG_M4_PG_PORT/m4_validation?sslmode=disable"
 go -C "$repo_root/internal/jobs/integration" test -race -count=1 -v ./...
-docker compose -p cpag-m4-worker-validation -f "$compose_file" exec -T postgres psql -U postgres -d m4_validation -c 'TRUNCATE m4_jobs'
+docker compose -p cpag-m4-worker-validation -f "$compose_file" exec -T postgres psql -U postgres -d m4_validation -c 'TRUNCATE m4_jobs CASCADE'
 go -C "$repo_root/internal/jobs/integration" build -o "$work_dir/api" ./cmd/m4-job-api
 go -C "$repo_root/internal/jobs/integration" build -o "$work_dir/recovery" ./cmd/m4-recovery
 mkdir "$work_dir/shared"

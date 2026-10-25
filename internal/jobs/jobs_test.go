@@ -37,9 +37,8 @@ func TestRecoveryRejectsNonpositiveInterval(t *testing.T) {
 	}
 }
 
-func TestLatestReceiptCannotProveAllAttempts(t *testing.T) {
-	err := VerifyExit(t.TempDir(), Claim{ID: "multi", Attempt: 2, Worker: "worker", Token: strings.Repeat("a", 64)})
-	if err == nil || !strings.Contains(err.Error(), "all-attempt exit proof not implemented") {
-		t.Fatal(err)
+func TestMissingAttemptReceiptRejected(t *testing.T) {
+	if err := VerifyExit(t.TempDir(), Claim{ID: "multi", Attempt: 2, Worker: "worker", Token: strings.Repeat("a", 64)}); err == nil {
+		t.Fatal("missing exit proof accepted")
 	}
 }

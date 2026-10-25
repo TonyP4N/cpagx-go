@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SourceReference.json",
+  "title": "SourceReference",
+  "type": "object",
+  "properties": {
+    "file_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "frame_number": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "record_number": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 1
+    },
+    "column": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "raw_time": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "file_sha256",
+    "frame_number",
+    "record_number",
+    "column",
+    "raw_time"
+  ],
+  "additionalProperties": false
+}

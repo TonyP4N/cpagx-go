@@ -31,7 +31,7 @@ func main() {
 	if err = db.PingContext(ctx); err != nil {
 		log.Fatal(err)
 	}
-	h, err := jobapi.New(jobs.Repository{DB: db}, os.Getenv("CPAG_SHARED_ROOT"), os.Getenv("CPAG_WORKER_TOKEN"))
+	h, err := jobapi.NewWithCoordinator(jobs.Repository{DB: db}, os.Getenv("CPAG_SHARED_ROOT"), os.Getenv("CPAG_WORKER_TOKEN"), os.Getenv("CPAG_COORDINATOR_TOKEN"), os.Getenv("CPAG_CONTROL_ROOT"))
 	if err != nil {
 		log.Fatal(err)
 	}

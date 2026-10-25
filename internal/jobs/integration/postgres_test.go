@@ -48,7 +48,7 @@ func TestPostgresFaults(t *testing.T) {
 		}
 	}
 	// Runner supplies a disposable dedicated database; never use a production DSN.
-	if _, err = db.ExecContext(ctx, "TRUNCATE m4_jobs"); err != nil {
+	if _, err = db.ExecContext(ctx, "TRUNCATE m4_jobs CASCADE"); err != nil {
 		t.Fatal(err)
 	}
 	r := jobs.Repository{DB: db}
@@ -89,6 +89,8 @@ func TestPostgresFaults(t *testing.T) {
 		t.Fatal(cancelling)
 	}
 	stale(r.AcknowledgeCancel(ctx, c))
+	_, err = db.ExecContext(ctx, "UPDATE m4_job_attempts SET exited_at=clock_timestamp() WHERE job_id=$1", n.ID)
+	must(err)
 	must(r.AcknowledgeCancel(ctx, n))
 	key, err = jobs.ArtifactKey(n, sha)
 	must(err)

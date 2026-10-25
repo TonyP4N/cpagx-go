@@ -25,14 +25,16 @@ type Ref struct {
 	SHA  string `json:"sha256"`
 }
 type Payload struct {
+	Kind        string `json:"kind,omitempty"`
 	Network     Ref    `json:"network"`
 	Process     Ref    `json:"process"`
 	Profile     Ref    `json:"profile"`
 	Fingerprint string `json:"config_fingerprint"`
 }
 type Server struct {
-	Repo         jobs.Repository
-	Root, Secret string
+	Repo                           jobs.Repository
+	Root, Secret                   string
+	CoordinatorSecret, ControlRoot string
 }
 
 var identity = regexp.MustCompile(`^[A-Za-z0-9_-]{1,100}$`)
@@ -63,7 +65,30 @@ func New(repo jobs.Repository, root, secret string) (http.Handler, error) {
 			return nil, errors.New("shared directories must not be symlinks")
 		}
 	}
-	return &Server{repo, real, secret}, nil
+	return &Server{Repo: repo, Root: real, Secret: secret, ControlRoot: real}, nil
+}
+
+// Coordinator credentials are separate from claim/heartbeat credentials and never
+// enter the computation container. Control root must remain host-only.
+func NewWithCoordinator(repo jobs.Repository, root, secret, coordinator, controlRoot string) (http.Handler, error) {
+	h, err := New(repo, root, secret)
+	if err != nil {
+		return nil, err
+	}
+	server := h.(*Server)
+	if coordinator != "" {
+		if len(coordinator) < 24 || coordinator == secret {
+			return nil, errors.New("distinct coordinator secret of at least 24 characters required")
+		}
+		server.CoordinatorSecret = coordinator
+	}
+	if controlRoot != "" {
+		server.ControlRoot, err = filepath.Abs(controlRoot)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return server, nil
 }
 func reply(w http.ResponseWriter, status int, v any) {
 	w.Header().Set("Content-Type", "application/json")
@@ -130,6 +155,9 @@ func (s *Server) check(ref Ref) (int64, error) {
 	return n, nil
 }
 func (s *Server) validPayload(p Payload) error {
+	if p.Kind != "" && p.Kind != "packet" {
+		return errors.New("unsupported payload kind")
+	}
 	if !shaPattern.MatchString(p.Fingerprint) {
 		return errors.New("invalid config fingerprint")
 	}
@@ -186,6 +214,12 @@ func (s *Server) validPayload(p Payload) error {
 		}
 		return nil
 	}
+	if p.Kind == "packet" {
+		obj, ok := config.(map[string]any)
+		if !ok || obj["synthetic"] != true || obj["adapter"] != "synthetic-packet-1" {
+			return errors.New("invalid packet profile")
+		}
+	}
 	if err = numericCheck(config); err != nil {
 		return err
 	}
@@ -210,7 +244,12 @@ func (s *Server) validPayload(p Payload) error {
 	return nil
 }
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+s.Secret)) != 1 {
+	coordinatorOp := strings.HasSuffix(r.URL.Path, "/execution") || strings.HasSuffix(r.URL.Path, "/exit") || strings.HasSuffix(r.URL.Path, "/attempts")
+	expected := s.Secret
+	if coordinatorOp {
+		expected = s.CoordinatorSecret
+	}
+	if expected == "" || subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+expected)) != 1 {
 		reply(w, 401, map[string]string{"error": "unauthorized"})
 		return
 	}
@@ -339,6 +378,31 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reply(w, 200, st)
 		return
 	}
+	if len(parts) == 4 && parts[3] == "attempts" && r.Method == "GET" {
+		rows, err := s.Repo.DB.QueryContext(r.Context(), `SELECT attempt,worker,attempt_token,location,container_id,exited_at FROM m4_job_attempts WHERE job_id=$1 ORDER BY attempt`, id)
+		if err != nil {
+			fail(err)
+			return
+		}
+		defer rows.Close()
+		result := []map[string]any{}
+		for rows.Next() {
+			var attempt int
+			var worker, token, location, containerID string
+			var exited *time.Time
+			if err = rows.Scan(&attempt, &worker, &token, &location, &containerID, &exited); err != nil {
+				fail(err)
+				return
+			}
+			result = append(result, map[string]any{"id": id, "attempt": attempt, "worker": worker, "token": token, "location": location, "container_id": containerID, "exited_at": exited})
+		}
+		if err = rows.Err(); err != nil {
+			fail(err)
+			return
+		}
+		reply(w, 200, result)
+		return
+	}
 	if len(parts) != 4 || r.Method != "POST" {
 		http.NotFound(w, r)
 		return
@@ -358,13 +422,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var q struct {
-		Attempt     int    `json:"attempt"`
-		Worker      string `json:"worker"`
-		Token       string `json:"token"`
-		Lease       int    `json:"lease_seconds"`
-		Message     string `json:"message"`
-		Retryable   bool   `json:"retryable"`
-		ManifestSHA string `json:"manifest_sha256"`
+		Attempt     int               `json:"attempt"`
+		Worker      string            `json:"worker"`
+		Token       string            `json:"token"`
+		Lease       int               `json:"lease_seconds"`
+		Message     string            `json:"message"`
+		Retryable   bool              `json:"retryable"`
+		ManifestSHA string            `json:"manifest_sha256"`
+		Location    string            `json:"location"`
+		ContainerID string            `json:"container_id"`
+		Scope       string            `json:"scope"`
+		Removed     bool              `json:"removed"`
+		Exited      bool              `json:"exited"`
+		InspectedID string            `json:"inspected_id"`
+		Running     *bool             `json:"running"`
+		PID         *int              `json:"pid"`
+		Labels      map[string]string `json:"labels"`
 	}
 	if err := decode(w, r, &q); err != nil {
 		fail(err)
@@ -373,12 +446,16 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := jobs.Claim{ID: id, Attempt: q.Attempt, Worker: q.Worker, Token: q.Token}
 	var err error
 	switch op {
+	case "execution":
+		err = s.Repo.RegisterExecution(r.Context(), c, q.Location, q.ContainerID)
+	case "exit":
+		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
 	case "heartbeat":
 		err = s.Repo.Heartbeat(r.Context(), c, time.Duration(q.Lease)*time.Second)
 	case "fail":
 		err = s.Repo.Fail(r.Context(), c, q.Message, q.Retryable)
 	case "ack-cancel":
-		err = jobs.VerifyExit(s.Root, c)
+		err = s.Repo.RefreshExitEvidence(r.Context(), s.ControlRoot, c.ID)
 		if err == nil {
 			err = s.Repo.AcknowledgeCancel(r.Context(), c)
 		}
@@ -428,7 +505,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		return err
 	}
 	if !done {
-		if err = s.Repo.CheckClaim(r.Context(), c); err != nil {
+		if err = s.Repo.CheckPublication(r.Context(), c); err != nil {
 			return err
 		}
 	}
@@ -471,7 +548,14 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 			return errors.New("artifact size mismatch")
 		}
 	}
-	for _, name := range []string{"dataset.json", "events.json", "graph.json", "quality.json", "run_manifest.json"} {
+	required := []string{"dataset.json", "events.json", "graph.json", "quality.json", "run_manifest.json"}
+	if p.Kind == "packet" {
+		required = append(required, "packet_observations.json")
+	}
+	if len(m.Artifacts) != len(required) {
+		return errors.New("wrapper artifact set mismatch")
+	}
+	for _, name := range required {
 		if !seen[name] {
 			return errors.New("missing required core artifact")
 		}
@@ -514,12 +598,12 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if core.Input != hex.EncodeToString(inputSum[:]) {
 		return errors.New("core input fingerprint mismatch")
 	}
-	if core.Schema != "1.0.0" || core.Mode != "offline" || core.Config != p.Fingerprint || !core.Synthetic || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != 4 {
+	if core.Schema != "1.0.0" || core.Mode != "offline" || core.Config != p.Fingerprint || !core.Synthetic || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != len(required)-1 {
 		return errors.New("invalid core manifest")
 	}
 	coreSeen := map[string]bool{}
 	for _, a := range core.Artifacts {
-		if coreSeen[a.Path] || !map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] {
+		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json")) {
 			return errors.New("invalid core artifact set")
 		}
 		coreSeen[a.Path] = true
@@ -531,6 +615,11 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		}
 		if !matched {
 			return errors.New("core artifact mismatch")
+		}
+	}
+	if p.Kind == "packet" {
+		if err = s.validatePacket(base, p); err != nil {
+			return err
 		}
 	}
 	key, err := jobs.ArtifactKey(c, sha)

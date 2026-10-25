@@ -1,0 +1,26 @@
+ Network cpag-m4-validation_default Creating 
+ Network cpag-m4-validation_default Created 
+ Container cpag-m4-validation-postgres-1 Creating 
+ Container cpag-m4-validation-postgres-1 Created 
+ Container cpag-m4-validation-postgres-1 Starting 
+ Container cpag-m4-validation-postgres-1 Started 
+ Container cpag-m4-validation-postgres-1 Waiting 
+ Container cpag-m4-validation-postgres-1 Healthy 
+=== RUN   TestHistoricalContainerCancellation
+--- PASS: TestHistoricalContainerCancellation (0.15s)
+=== RUN   TestMigrationPreservesPublishedHistory
+--- PASS: TestMigrationPreservesPublishedHistory (0.03s)
+=== RUN   TestPostgresFaults
+--- PASS: TestPostgresFaults (0.09s)
+=== RUN   TestIndependentRecovery
+--- PASS: TestIndependentRecovery (0.36s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	2.070s
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-recovery	[no test files]
+ Container cpag-m4-validation-postgres-1 Stopping 
+ Container cpag-m4-validation-postgres-1 Stopped 
+ Container cpag-m4-validation-postgres-1 Removing 
+ Container cpag-m4-validation-postgres-1 Removed 
+ Network cpag-m4-validation_default Removing 
+ Network cpag-m4-validation_default Removed 

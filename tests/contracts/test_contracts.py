@@ -5,9 +5,9 @@ import unittest
 from cpag_core.contracts import validate, ContractError, SCHEMAS
 
 class ContractTests(unittest.TestCase):
-    def test_nine_strict_schema_documents(self):
+    def test_ten_strict_schema_documents(self):
         paths=list(SCHEMAS.glob('*.schema.json'))
-        self.assertEqual(len(paths),9)
+        self.assertEqual(len(paths),10)
         for path in paths:
             schema=json.loads(path.read_text())
             self.assertFalse(schema['additionalProperties'])
@@ -47,7 +47,7 @@ class IndependentSchemaTests(unittest.TestCase):
         import tempfile
         from cpag_core.pipeline import run
         root=Path(__file__).resolve().parents[2]
-        schemas={p.name:json.loads(p.read_text()) for p in SCHEMAS.glob('*.schema.json')}
+        schemas={p.name:json.loads(p.read_text()) for p in SCHEMAS.glob('*.json')}
         registry=Registry().with_resources((name,Resource.from_contents(schema)) for name,schema in schemas.items())
         def check(name,value):
             schema=schemas[name+'.schema.json']
@@ -66,12 +66,12 @@ class IndependentSchemaTests(unittest.TestCase):
                 with self.assertRaises(ContractError):validate(name,event)
 
 class SharedExampleTests(unittest.TestCase):
-    def test_all_nine_examples_shared_with_go(self):
+    def test_all_ten_examples_shared_with_go(self):
         examples=json.loads((Path(__file__).with_name('examples.json')).read_text())
-        self.assertEqual(len(examples),9)
+        self.assertEqual(len(examples),10)
         from jsonschema import Draft202012Validator, FormatChecker
         from referencing import Registry, Resource
-        schemas={p.name:json.loads(p.read_text()) for p in SCHEMAS.glob('*.schema.json')}
+        schemas={p.name:json.loads(p.read_text()) for p in SCHEMAS.glob('*.json')}
         registry=Registry().with_resources((name,Resource.from_contents(schema)) for name,schema in schemas.items())
         for name,value in examples.items():
             validate(name,value)
@@ -80,3 +80,22 @@ class SharedExampleTests(unittest.TestCase):
                 Draft202012Validator(schema,format_checker=FormatChecker(),registry=registry).validate(value)
             value['schema_version']='unsupported'
             with self.assertRaises(ContractError):validate(name,value)
+
+class SharedPacketNegativeTests(unittest.TestCase):
+    def test_shared_packet_mutations_rejected_by_runtime_and_independent_schema(self):
+        from jsonschema import Draft202012Validator
+        from referencing import Registry, Resource
+        examples=json.loads(Path(__file__).with_name('examples.json').read_text())
+        cases=json.loads(Path(__file__).with_name('packet-negative-mutations.json').read_text())
+        schemas={p.name:json.loads(p.read_text()) for p in SCHEMAS.glob('*.json')}
+        registry=Registry().with_resources((name,Resource.from_contents(schema)) for name,schema in schemas.items())
+        for case in cases:
+            with self.subTest(case=case['label']):
+                value=copy.deepcopy(examples[case['schema']]);parent=value
+                parts=case['path'].strip('/').split('/')
+                for key in parts[:-1]:parent=parent[int(key)] if isinstance(parent,list) else parent[key]
+                if case['operation']=='delete':del parent[parts[-1]]
+                else:parent[parts[-1]]=case['value']
+                with self.assertRaises(ContractError):validate(case['schema'],value)
+                validator=Draft202012Validator(schemas[case['schema']+'.schema.json'],registry=registry)
+                with self.assertRaises(Exception):validator.validate(value)

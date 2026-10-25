@@ -46,7 +46,7 @@ func TestIndependentRecovery(t *testing.T) {
 			}
 		}
 	}
-	if _, err = db.Exec("TRUNCATE m4_jobs"); err != nil {
+	if _, err = db.Exec("TRUNCATE m4_jobs CASCADE"); err != nil {
 		t.Fatal(err)
 	}
 	repo := jobs.Repository{DB: db}
@@ -215,8 +215,8 @@ func TestIndependentRecovery(t *testing.T) {
 	must(os.MkdirAll(filepath.Dir(latestPath), 0700))
 	latestBytes, _ := json.Marshal(latestProof)
 	must(os.WriteFile(latestPath, latestBytes, 0600))
-	if e := jobs.VerifyExit(root, raced); e == nil || !strings.Contains(e.Error(), "all-attempt") {
-		t.Fatal("latest receipt accepted as all-attempt proof", e)
+	if e := jobs.VerifyExit(root, raced); e != nil {
+		t.Fatal("valid latest receipt failed individual verification", e)
 	}
 	must(repo.Cancel(ctx, raced.ID))
 	_, err = db.Exec("UPDATE m4_jobs SET recovery_deadline=clock_timestamp()-interval '1 second' WHERE id=$1", raced.ID)
@@ -224,8 +224,24 @@ func TestIndependentRecovery(t *testing.T) {
 	must(repo.Recover(ctx, root))
 	multiStatus, err := repo.Status(ctx, raced.ID)
 	must(err)
-	if multiStatus.State != "cancelling" || multiStatus.RecoveryReason == nil || !strings.Contains(*multiStatus.RecoveryReason, "all-attempt") {
+	if multiStatus.State != "cancelling" || multiStatus.RecoveryReason == nil || !strings.Contains(*multiStatus.RecoveryReason, "[1]") {
 		t.Fatal("multiple attempts automatically cancelled", multiStatus)
+	}
+	// Persist the older exit independently; a new Repository instance recovers all history.
+	olderProof := latestProof
+	olderProof.Attempt = old.Attempt
+	olderProof.Worker = old.Worker
+	olderProof.Token = old.Token
+	olderPath := filepath.Join(root, "jobs", old.ID, "attempt-1.worker", "exit.json")
+	must(os.MkdirAll(filepath.Dir(olderPath), 0700))
+	olderBytes, _ := json.Marshal(olderProof)
+	must(os.WriteFile(olderPath, olderBytes, 0600))
+	restarted := jobs.Repository{DB: db}
+	must(restarted.Recover(ctx, root))
+	multiStatus, err = restarted.Status(ctx, raced.ID)
+	must(err)
+	if multiStatus.State != "cancelled" {
+		t.Fatal("complete historical exits did not cancel", multiStatus)
 	}
 	must(repo.Enqueue(ctx, "expired", 1))
 	expired, err := repo.Claim(ctx, "gone", time.Second)

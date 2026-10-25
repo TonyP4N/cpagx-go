@@ -148,6 +148,12 @@ func check(dir string, s map[string]any, v any, path string) error {
 				return fail("below minimum")
 			}
 		}
+		if maximum, ok := s["maximum"].(float64); ok {
+			number, _ := value.Float64()
+			if number > maximum {
+				return fail("above maximum")
+			}
+		}
 	}
 	return nil
 }

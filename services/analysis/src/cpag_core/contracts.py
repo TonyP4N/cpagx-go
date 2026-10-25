@@ -56,5 +56,8 @@ def _validate(schema, value, path):
             raise ContractError(f'{path}: invalid date-time') from error
     elif isinstance(value,str) and 'pattern' in schema and not re.search(schema['pattern'],value):
         raise ContractError(f'{path}: invalid pattern')
-    elif isinstance(value,(int,float)) and 'minimum' in schema and value < schema['minimum']:
-        raise ContractError(f'{path}: below minimum')
+    elif isinstance(value,(int,float)):
+        if 'minimum' in schema and value < schema['minimum']:
+            raise ContractError(f'{path}: below minimum')
+        if 'maximum' in schema and value > schema['maximum']:
+            raise ContractError(f'{path}: above maximum')

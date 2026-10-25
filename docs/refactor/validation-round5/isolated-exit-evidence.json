@@ -1,0 +1,272 @@
+[
+  {
+    "attempt": 1,
+    "container_id": "cb4753e709520129a1ae08f764d9e08cdf6bfa3890465fbb14691f99ca77c934",
+    "exited": true,
+    "id": "isolated-after_copy-51ed1e3680f242ada55dbaebca033bcb",
+    "inspected_id": "cb4753e709520129a1ae08f764d9e08cdf6bfa3890465fbb14691f99ca77c934",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-after_copy-51ed1e3680f242ada55dbaebca033bcb",
+      "cpag.worker": "host-after_copy"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-after_copy"
+  },
+  {
+    "attempt": 1,
+    "container_id": "64f86a3ec323704d586fc98a9a478c06a662c491e6b8d1d6f47a7cdbd9ca1de6",
+    "exited": true,
+    "id": "isolated-after_publish-e22df13168f949f485d9fbf5f78cb6c4",
+    "inspected_id": "64f86a3ec323704d586fc98a9a478c06a662c491e6b8d1d6f47a7cdbd9ca1de6",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-after_publish-e22df13168f949f485d9fbf5f78cb6c4",
+      "cpag.worker": "host-after_publish"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-after_publish"
+  },
+  {
+    "attempt": 1,
+    "container_id": "f3615ad9d1ba10b29b1d8930fa481f3cc8245b0283f1eda2041751a525505cb1",
+    "exited": true,
+    "id": "isolated-before_start-ac05d9c260944b19972a4113e1ef1af3",
+    "inspected_id": "f3615ad9d1ba10b29b1d8930fa481f3cc8245b0283f1eda2041751a525505cb1",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-before_start-ac05d9c260944b19972a4113e1ef1af3",
+      "cpag.worker": "host-before_start"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-before_start"
+  },
+  {
+    "attempt": 1,
+    "container_id": "160a8ceb1f80434da23fb0c12084092f13d14edae87e6eda9fd6ee51c2af82aa",
+    "exited": true,
+    "id": "isolated-cancel-507eb89d5c8f4bfa9fe0fe410b41146d",
+    "inspected_id": "160a8ceb1f80434da23fb0c12084092f13d14edae87e6eda9fd6ee51c2af82aa",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-cancel-507eb89d5c8f4bfa9fe0fe410b41146d",
+      "cpag.worker": "host-cancel"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-cancel"
+  },
+  {
+    "attempt": 1,
+    "container_id": "8dd484ec2145bf2fb33a30600e6f7f377568f1b31865d468702464177c49c37b",
+    "exited": true,
+    "id": "isolated-disk-39f4c122be5d41be9ce2ac7a7a296576",
+    "inspected_id": "8dd484ec2145bf2fb33a30600e6f7f377568f1b31865d468702464177c49c37b",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-disk-39f4c122be5d41be9ce2ac7a7a296576",
+      "cpag.worker": "host-disk"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-disk"
+  },
+  {
+    "attempt": 1,
+    "container_id": "9630a1847e111b6ad625171be324132c08a073d768b3b3c213ec120923e3841a",
+    "exited": true,
+    "id": "isolated-during_copy-79cbad9ca7d9435ca914c60e923323a6",
+    "inspected_id": "9630a1847e111b6ad625171be324132c08a073d768b3b3c213ec120923e3841a",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-during_copy-79cbad9ca7d9435ca914c60e923323a6",
+      "cpag.worker": "host-during_copy"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-during_copy"
+  },
+  {
+    "attempt": 1,
+    "container_id": "a82d0afd186f12d76decf0b52d8439a8865f727b00fbeb326de7e1536ec2961e",
+    "exited": true,
+    "id": "isolated-during_execution-0a702440f0d14db1932dbe04d239b41a",
+    "inspected_id": "a82d0afd186f12d76decf0b52d8439a8865f727b00fbeb326de7e1536ec2961e",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-during_execution-0a702440f0d14db1932dbe04d239b41a",
+      "cpag.worker": "host-during_execution"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-during_execution"
+  },
+  {
+    "attempt": 1,
+    "container_id": "611d3135cb9d8c39cdff8f5c66a1997ea5d741246db8e8d7aa9fe1830f82ea0f",
+    "exited": true,
+    "id": "isolated-exit-11e636ace8954ed4aafee085b90666cf",
+    "inspected_id": "611d3135cb9d8c39cdff8f5c66a1997ea5d741246db8e8d7aa9fe1830f82ea0f",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-exit-11e636ace8954ed4aafee085b90666cf",
+      "cpag.worker": "host-exit"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-exit"
+  },
+  {
+    "attempt": 1,
+    "container_id": "69cfa30daea06c3017ef65d18c099e4b98a38adbf83c4682d282d9ce8d1853a0",
+    "exited": true,
+    "id": "isolated-forged-packet-f4168ad7e4ef44658ad4fda131ca3769",
+    "inspected_id": "69cfa30daea06c3017ef65d18c099e4b98a38adbf83c4682d282d9ce8d1853a0",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-forged-packet-f4168ad7e4ef44658ad4fda131ca3769",
+      "cpag.worker": "host-forged-packet"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-forged-packet"
+  },
+  {
+    "attempt": 1,
+    "container_id": "fa25c7a765b29c576ef51926c17a14e1e0d5314f00e433c48d3301f07254e82c",
+    "exited": true,
+    "id": "isolated-handoff-enospc-cc2e47dd9bb645aca1dde0d16522fe56",
+    "inspected_id": "fa25c7a765b29c576ef51926c17a14e1e0d5314f00e433c48d3301f07254e82c",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-handoff-enospc-cc2e47dd9bb645aca1dde0d16522fe56",
+      "cpag.worker": "host-handoff-enospc"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-handoff-enospc"
+  },
+  {
+    "attempt": 1,
+    "container_id": "2db2a98661e0cbd02d897b9cadde2731ab470f3cfdb9438363651ab8effd60fd",
+    "exited": true,
+    "id": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+    "inspected_id": "2db2a98661e0cbd02d897b9cadde2731ab470f3cfdb9438363651ab8effd60fd",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+      "cpag.worker": "host-multi-restart"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-multi-restart"
+  },
+  {
+    "attempt": 2,
+    "container_id": "905c32c5feae709ba99bee7d16013bda74d3835851d23ecb72a727b6f246c67c",
+    "exited": true,
+    "id": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+    "inspected_id": "905c32c5feae709ba99bee7d16013bda74d3835851d23ecb72a727b6f246c67c",
+    "labels": {
+      "cpag.attempt": "2",
+      "cpag.job": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+      "cpag.worker": "host-multi-second"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-multi-second"
+  },
+  {
+    "attempt": 1,
+    "container_id": "dd898605c988a1d1b58138acaafdb55b1d83fee4f9c5a2d3d88eac0535bf7461",
+    "exited": true,
+    "id": "isolated-packet-36efa4da08804b4aa04e78be1238b136",
+    "inspected_id": "dd898605c988a1d1b58138acaafdb55b1d83fee4f9c5a2d3d88eac0535bf7461",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-packet-36efa4da08804b4aa04e78be1238b136",
+      "cpag.worker": "host-packet"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-packet"
+  },
+  {
+    "attempt": 1,
+    "container_id": "e0c0765180091951215c9459bb158b158db3479520b750400a2dceb362b4fe7d",
+    "exited": true,
+    "id": "isolated-start-race-2afef795f4374b81a9fb73cf309b228f",
+    "inspected_id": "e0c0765180091951215c9459bb158b158db3479520b750400a2dceb362b4fe7d",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-start-race-2afef795f4374b81a9fb73cf309b228f",
+      "cpag.worker": "host-start-race"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-start-race"
+  },
+  {
+    "attempt": 1,
+    "container_id": "184f52fe566f0f1f4f128029b9064f35641bd4707841f3280de96058cc5ad262",
+    "exited": true,
+    "id": "isolated-success-d3a5d650451b4dfc9e5f5e3ecfa677e2",
+    "inspected_id": "184f52fe566f0f1f4f128029b9064f35641bd4707841f3280de96058cc5ad262",
+    "labels": {
+      "cpag.attempt": "1",
+      "cpag.job": "isolated-success-d3a5d650451b4dfc9e5f5e3ecfa677e2",
+      "cpag.worker": "host-success"
+    },
+    "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+    "pid": 0,
+    "removed": true,
+    "running": false,
+    "scope": "container",
+    "worker": "host-success"
+  }
+]

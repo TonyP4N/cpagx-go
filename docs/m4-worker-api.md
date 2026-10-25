@@ -60,3 +60,9 @@ Conservative gate: attempt numbers greater than one cannot automatically become
 `cancelled`, even with a valid latest exit receipt. HTTP ACK rejects that proof;
 independent recovery retains `cancelling` with an all-attempt-proof pending reason.
 All-attempt exit confirmation is not implemented and needs manual investigation.
+
+Round5 replaces the round4 `attempt>1` blanket rejection with persistent
+`004_attempt_history.sql`. All attempts must have exit evidence; missing historical
+identities remain pending. See `docs/refactor/round5-attempt-history.md` for the
+coordinator-only execution/exit API, immutable removed-container requirement,
+host-only control root, read-only lease status and cancellation/publication gates.

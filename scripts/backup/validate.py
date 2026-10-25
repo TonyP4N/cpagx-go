@@ -18,13 +18,15 @@ REPO=Path(__file__).resolve().parents[2]
 sys.path[:0]=[str(REPO/'services/worker'),str(REPO/'services/analysis/src')]
 import bundle
 from cpag_worker.worker import API,Worker,digest
-from cpag_core.pipeline import run
+from cpag_core.pipeline import run, canonical
+from cpag_core.packet_job import query_evidence
+import hashlib
 
 CONTAINER='cpag-m4-backup-validation'
 PG_PORT='55443'
 API_PORT='18098'
 IMAGE='mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94'
-REPORT=REPO/'docs/refactor/validation-round4'
+REPORT=Path(os.environ.get('CPAG_BACKUP_REPORT_DIR',str(REPO/'docs/refactor/validation-round5')))
 
 
 def execute(*args,**kwargs):return subprocess.run(args,check=True,**kwargs)
@@ -87,6 +89,22 @@ def main():
             api.post('/v1/jobs',{'id':'backup-failed','max_attempts':1,'payload':bad})
             assert Worker(api,shared,'backup-worker',lease=5,heartbeat=.2).once()=='failed'
             assert [status(x)['state'] for x in ('backup-success','backup-cancelled','backup-failed')]==['succeeded','cancelled','failed']
+            # Actual packet task through the same API/worker/publication contract.
+            packet_payload=copy.deepcopy(payload);packet_payload['kind']='packet'
+            capture=shared/'inputs/synthetic.pcap'
+            shutil.copyfile(REPO/'docs/refactor/validation-round4/protocol-synthetic.pcap',capture)
+            packet_profile=shared/'inputs/packet-profile.json'
+            config={'synthetic':True,'adapter':'synthetic-packet-1'}
+            packet_profile.write_bytes(canonical(config)+b'\n')
+            for role,path in [('network',capture),('profile',packet_profile)]:
+                packet_payload[role]={'path':path.relative_to(shared).as_posix(),'sha256':digest(path)}
+            packet_payload['config_fingerprint']=hashlib.sha256(canonical(config)).hexdigest()
+            api.post('/v1/jobs',{'id':'backup-packet','max_attempts':1,'payload':packet_payload})
+            packet_status=Worker(api,shared,'backup-packet-worker',lease=5,heartbeat=.2,
+                          command=[sys.executable,'-m','cpag_core.packet_job']).once()
+            record=status('backup-packet')
+            assert packet_status=='succeeded',{'worker_result':packet_status,'state':record['state'],'last_error':record.get('last_error')}
+            assert status('backup-packet')['state']=='succeeded'
             (shared/'orphan-retained.txt').write_text('unreferenced synthetic diagnostic; retain\n')
             snapshot=bundle.backup(CONTAINER,'m4_validation',shared,work/'bundle')
             assert snapshot['source_audit']['valid']
@@ -98,9 +116,34 @@ def main():
             assert (restored/'orphan-retained.txt').read_bytes()==(shared/'orphan-retained.txt').read_bytes()
             env.update(M4_DATABASE_URL=env['M4_DATABASE_URL'].replace('/m4_validation?','/m4_restore_validation?'),CPAG_SHARED_ROOT=str(restored))
             start_api()
-            for job,state in [('backup-success','succeeded'),('backup-cancelled','cancelled'),('backup-failed','failed')]:
+            for job,state in [('backup-success','succeeded'),('backup-cancelled','cancelled'),('backup-failed','failed'),('backup-packet','succeeded')]:
                 assert status(job)['state']==state
             rows=bundle.rows_now(CONTAINER,'m4_restore_validation')
+            packet_row=next(row for row in rows if row['id']=='backup-packet')
+            packet_output=(restored/packet_row['artifact_path']).parent
+            packet_capture=restored/packet_row['payload']['network']['path']
+            packet_events=json.loads((packet_output/'events.json').read_text())
+            packet_query=query_evidence(packet_output,packet_capture,packet_events[0]['event_id'],'cip.path')
+            assert packet_query['observation']['fields']['cip.path']['hex']=='200124013001'
+            assert len(packet_query['node']['evidence_refs'])==3
+            (REPORT/'backup-packet-restored-query.json').write_text(json.dumps(packet_query,indent=2)+'\n')
+            packet_missing=work/'packet-missing';shutil.copytree(restored,packet_missing)
+            (packet_missing/packet_row['payload']['network']['path']).unlink()
+            packet_missing_report=bundle.audit(rows,packet_missing);assert not packet_missing_report['valid']
+            query_failures={}
+            try:query_evidence((packet_missing/packet_row['artifact_path']).parent,packet_missing/packet_row['payload']['network']['path'],packet_events[0]['event_id'],'cip.path')
+            except (OSError,ValueError) as error:query_failures['missing_capture']=type(error).__name__
+            else:raise AssertionError('packet query accepted missing capture')
+            packet_tamper=work/'packet-tamper';shutil.copytree(restored,packet_tamper)
+            altered=packet_tamper/packet_row['payload']['network']['path'];altered.chmod(0o600)
+            data=bytearray(altered.read_bytes());data[-1]^=1;altered.write_bytes(data)
+            packet_tamper_report=bundle.audit(rows,packet_tamper);assert not packet_tamper_report['valid']
+            try:query_evidence((packet_tamper/packet_row['artifact_path']).parent,altered,packet_events[0]['event_id'],'cip.path')
+            except (OSError,ValueError) as error:query_failures['tampered_capture']=type(error).__name__
+            else:raise AssertionError('packet query accepted tampered capture')
+            (REPORT/'backup-packet-query-negatives.json').write_text(json.dumps(query_failures,indent=2)+'\n')
+            for name,report in [('backup-packet-missing-audit.json',packet_missing_report),('backup-packet-tamper-audit.json',packet_tamper_report)]:
+                (REPORT/name).write_text(json.dumps(report,indent=2)+'\n')
             missing=work/'missing-copy';shutil.copytree(restored,missing)
             manifest=next(r for r in rows if r['state']=='succeeded')['artifact_path']
             (missing/manifest).unlink()
@@ -115,6 +158,8 @@ def main():
                      'independent_postgres_port':int(PG_PORT),'independent_api_port':int(API_PORT),
                      'states_verified':['succeeded','cancelled','failed'],'real_worker_execution':True,
                      'restored_api_read_verified':True,'dump_and_files_checksums_verified':True,
+                     'packet_job_restored_query_verified':True,'packet_missing_tamper_detected':True,
+                     'attempt_history_equal':result['attempt_history_equal'],'attempt_history_count':len(snapshot['attempts']),
                      'original_record_and_graph_refs_verified':True,'orphan_retained':True,
                      'missing_file_detected':True,'tampered_input_detected':True,
                      'scope':'disposable synthetic Docker PostgreSQL + host worker; not production restore'}

@@ -1,0 +1,12 @@
+{
+  "date": "2026-10-26",
+  "synthetic_only": true,
+  "url": "http://127.0.0.1:18100/",
+  "method": "actual in-app browser interaction",
+  "checks": [
+    {"action": "click protocol association request endpoint", "field": "cip.path", "frames": [1], "result": "verified"},
+    {"action": "select encapsulation.context", "frames": [2, 3], "result": "verified, both retransmission references retained"}
+  ],
+  "screenshot": "evidence-web.png",
+  "limits": "Minimal opt-in local viewer; no production authentication or aligned dual-source timeline."
+}

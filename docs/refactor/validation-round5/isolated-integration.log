@@ -1,0 +1,89 @@
+ Network cpag-m5-isolated_default Creating 
+ Network cpag-m5-isolated_default Created 
+ Volume cpag-m5-isolated_validation_data Creating 
+ Volume cpag-m5-isolated_validation_data Created 
+ Container cpag-m5-isolated-postgres-1 Creating 
+ Container cpag-m5-isolated-postgres-1 Created 
+ Container cpag-m5-isolated-postgres-1 Starting 
+ Container cpag-m5-isolated-postgres-1 Started 
+ Container cpag-m5-isolated-postgres-1 Waiting 
+ Container cpag-m5-isolated-postgres-1 Healthy 
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+UPDATE 0
+CREATE TABLE
+INSERT 0 0
+CREATE FUNCTION
+DROP TRIGGER
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+CREATE TRIGGER
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 374B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+#2 DONE 0.9s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 19.29kB done
+#4 DONE 0.0s
+
+#5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+#5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+#5 CACHED
+
+#6 [2/4] COPY services/analysis/src /app/services/analysis/src
+#6 DONE 0.0s
+
+#7 [3/4] COPY schemas /app/schemas
+#7 DONE 0.0s
+
+#8 [4/4] COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:5a5b9633056b17b0d9f1fa847c5875471afb0ce40a19ed187237b659c4b3c096
+#9 exporting manifest sha256:5a5b9633056b17b0d9f1fa847c5875471afb0ce40a19ed187237b659c4b3c096 done
+#9 exporting config sha256:d5e004576495143815c9aaf789658eaf81b0c55b2b8e430ffcd9ea95ed158dcf done
+#9 exporting attestation manifest sha256:fa5d0463a7a7f8f6f8911ca84253243cd37fc64f453f2bf7cb04d7c6e89183e9 done
+#9 exporting manifest list sha256:a5b5c9ddc2940283413c84dd6aed9c6eace154795c6f40a177184ee5e02a5ad5 done
+#9 naming to docker.io/library/cpag-isolated:round5 done
+#9 unpacking to docker.io/library/cpag-isolated:round5 0.0s done
+#9 DONE 0.1s
+PASS packet task actual container -> six-artifact durable publication -> API complete
+PASS rehashed forged packet semantics rejected by host full capture redecode before durable handoff
+PASS actual API claim -> isolated compute -> validated durable handoff -> idempotent complete
+PASS compute sees read-only inputs and bounded output; no credentials/control/socket mount
+PASS live cancellation waits for actual Docker stop and external exit evidence
+PASS disk cannot publish/complete
+PASS exit cannot publish/complete
+PASS simulated host durable-handoff ENOSPC injection prevents complete and cleans partial staging; user disk not filled
+PASS host hard-exit before_start recovered from recorded Docker identity; no partial success
+PASS host hard-exit during_execution recovered from recorded Docker identity; no partial success
+PASS host hard-exit during_copy recovered from recorded Docker identity; no partial success
+PASS host hard-exit after_copy recovered from recorded Docker identity; no partial success
+PASS host hard-exit after_publish recovered from recorded Docker identity; no partial success
+PASS created-container removal prevents paused original controller from starting after cancellation
+PASS two actual attempts, expired dead controller, API+Go recovery restarts, cancel all executions, old complete fenced
+scripts/m4/isolated/validate-isolated.sh: line 32: 21867 Killed: 9               "$work_dir/api" > "$work_dir/api.log" 2>&1
+Evidence workspace: /var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T//cpag-isolated.xvdB6d
+ Container cpag-m5-isolated-postgres-1 Stopping 
+ Container cpag-m5-isolated-postgres-1 Stopped 
+ Container cpag-m5-isolated-postgres-1 Removing 
+ Container cpag-m5-isolated-postgres-1 Removed 
+ Network cpag-m5-isolated_default Removing 
+ Volume cpag-m5-isolated_validation_data Removing 
+ Volume cpag-m5-isolated_validation_data Removed 
+ Network cpag-m5-isolated_default Removed 

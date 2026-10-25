@@ -29,6 +29,12 @@ jobs:
         run: python -m unittest discover -s tests/packets -v
       - name: Worker process supervision tests
         run: python -m unittest discover -s tests/worker -v
+      - name: Evidence web and bounded replay skeleton
+        env:
+          PYTHONPATH: services/analysis/src
+        run: |
+          python -m unittest discover -s tests/evidence_web -v
+          python -m unittest discover -s tests/replay -v
       - name: Backup reference validation
         env:
           PYTHONPATH: services/analysis/src
@@ -141,4 +147,17 @@ jobs:
         if: always()
         with:
           name: backup-restore-evidence
-          path: docs/refactor/validation-round4/backup-integration-summary.json
+          path: docs/refactor/validation-round5/backup-integration-summary.json
+
+  isolated-executor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Real isolated task publication and historical-attempt recovery
+        run: bash scripts/m4/isolated/validate-isolated.sh

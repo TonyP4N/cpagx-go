@@ -17,7 +17,10 @@ func main() {
 	if os.Getenv("CPAG_ENABLE_M4") != "1" {
 		log.Fatal("CPAG_ENABLE_M4=1 required")
 	}
-	root := os.Getenv("CPAG_SHARED_ROOT")
+	root := os.Getenv("CPAG_CONTROL_ROOT")
+	if root == "" {
+		root = os.Getenv("CPAG_SHARED_ROOT")
+	}
 	dsn := os.Getenv("M4_DATABASE_URL")
 	if root == "" || dsn == "" {
 		log.Fatal("CPAG_SHARED_ROOT and M4_DATABASE_URL required")
