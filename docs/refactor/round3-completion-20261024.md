@@ -33,7 +33,7 @@ Worker 每次启动独立核心进程。守护进程通过父管道 EOF 发现 W
 
 ## 测试结果与复现
 
-本轮 78 个 Python 测试通过：core 12、contracts 5、parsers 13、packets 19、integration 2、legacy 5、service 11、worker 11。Go test/build/vet 通过；真实 PostgreSQL 仓储测试另以 `go test -race` 执行，通过。新增 CI 定义包含 Worker 子进程和独立全流程，但本轮未确认远端 CI 结果。
+本轮 78 个 Python 测试通过：core 12、contracts 5、parsers 13、packets 19、integration 2、legacy 5、service 11、worker 11。Go test/build/vet 通过；真实 PostgreSQL 仓储测试另以 `go test -race` 执行，通过。远端 CI 已于 2026-10-25 复核：该提交的 6 项作业全部成功，见 [Actions 40081915810](https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810)；逐项状态见 [CI 核验记录](validation-round4/prior-ci.json)。
 
 - [逐项检查清单](validation-round3/checks.json)
 - [一键真实 Worker / 数据库恢复日志](validation-round3/worker-reproducible.log)

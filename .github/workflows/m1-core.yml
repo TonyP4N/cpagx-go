@@ -29,6 +29,10 @@ jobs:
         run: python -m unittest discover -s tests/packets -v
       - name: Worker process supervision tests
         run: python -m unittest discover -s tests/worker -v
+      - name: Backup reference validation
+        env:
+          PYTHONPATH: services/analysis/src
+        run: python -m unittest discover -s tests/backup -v
       - name: Legacy unsupported-path regression
         run: python -m unittest discover -s tests/legacy -v
   go:
@@ -104,3 +108,37 @@ jobs:
           python-version: '3.11'
       - name: Isolated Worker, PostgreSQL and real-process fault matrix
         run: scripts/m4/validate-worker.sh
+
+  linux-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Real container resource and double-crash probes
+        run: python scripts/m4/linux-isolation/validate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-isolation-evidence
+          path: docs/refactor/validation-round4/linux/results.json
+
+  backup-restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/analysis/requirements-test.txt
+      - name: Independent PostgreSQL and artifact bundle restore
+        run: python scripts/backup/validate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backup-restore-evidence
+          path: docs/refactor/validation-round4/backup-integration-summary.json
