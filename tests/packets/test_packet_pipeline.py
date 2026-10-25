@@ -84,7 +84,7 @@ class PacketPipelineTests(unittest.TestCase):
             self.assert_associations(result,'unsupported','rejected_stream_in_connection_epoch')
 
     def test_boundaries_no_cross_epoch(self):
-        for flag in (1,2,4):
+        for flag in (2,4):
             control=bytearray(frame(b'',200)); control[47]=flag
             result=self.run_frames([frame(GET),bytes(control),frame(REPLY,reverse=True)])
             self.assertEqual(result['graph']['edges'],[])
@@ -159,3 +159,61 @@ class PacketPipelineTests(unittest.TestCase):
         self.assertFalse(checks['ipv4']['valid_for_captured_bytes'])
         self.assertFalse(checks['tcp']['valid_for_captured_bytes'])
         self.assertEqual(checks['tcp']['stored_hex'],'0000')
+
+    def test_fin_ack_half_close_duplicate_fin_and_full_close_keep_observations(self):
+        def control(flags,seq,reverse=False):
+            raw=bytearray(frame(b'',seq,reverse));raw[47]=flags;return bytes(raw)
+        for frames in ([frame(GET),frame(REPLY,reverse=True),control(17,148),control(16,146,True)],
+                       [frame(GET),control(17,148),frame(REPLY,reverse=True)],
+                       [frame(GET),control(17,148),control(17,148),control(16,146,True),frame(REPLY,reverse=True)],
+                       [frame(GET),frame(REPLY,reverse=True),control(17,148),control(17,146,True),control(16,149)]):
+            result=self.run_frames(frames)
+            self.assertEqual(len(result['events']),2)
+            self.assertEqual(len(result['graph']['edges']),1)
+            self.assertEqual(result['unsupported'],[])
+
+    def test_reset_late_data_and_tuple_reuse_no_cross_connection_pair(self):
+        def control(flags,seq,reverse=False,ack=0):
+            raw=bytearray(frame(b'',seq,reverse));raw[47]=flags;raw[42:46]=ack.to_bytes(4,'big');return bytes(raw)
+        result=self.run_frames([frame(GET),control(4,148),frame(REPLY,reverse=True)])
+        self.assertEqual(len(result['events']),1)
+        self.assertEqual(result['graph']['edges'],[])
+        self.assertIn('payload_after_connection_close',result['unsupported'][0]['reason'])
+        # Same tuple/context/service in a new SYN epoch must not match old request.
+        result=self.run_frames([frame(GET),control(17,148),control(17,146,True),
+                                control(2,900),control(18,1900,True,901),frame(REPLY,1901,True)])
+        self.assertEqual(len(result['events']),2)
+        self.assertEqual(result['graph']['edges'],[])
+        # Two complete epochs each associate within their own boundary.
+        result=self.run_frames([frame(GET),frame(REPLY,reverse=True),control(4,148),
+                                control(2,900),control(2,900),control(18,1900,True,901),
+                                frame(GET,901),frame(REPLY,1901,True)])
+        self.assertEqual(len(result['events']),4)
+        self.assertEqual(len(result['graph']['edges']),2)
+        epochs=[o['epoch'] for o in result['observations']]
+        self.assertEqual(epochs,[0,0,1,1])
+
+    def test_sender_payload_after_fin_rejected_without_erasing_prior_request(self):
+        fin=bytearray(frame(b'',148));fin[47]=17
+        result=self.run_frames([frame(GET),bytes(fin),frame(GET,149),frame(REPLY,reverse=True)])
+        self.assertEqual(len(result['events']),2)
+        self.assertEqual(result['graph']['edges'],[])
+        self.assertTrue(any(x['reason']=='payload_after_connection_close' for x in result['unsupported']))
+
+    def test_complete_handshake_close_and_same_sequence_reuse(self):
+        def control(flags,seq,reverse=False,ack=0):
+            raw=bytearray(frame(b'',seq,reverse));raw[47]=flags;raw[42:46]=ack.to_bytes(4,'big');return bytes(raw)
+        handshake=[control(2,99),control(2,99),control(18,99,True,100),control(16,100,False,100)]
+        close=[control(17,148),control(16,146,True,149),control(17,146,True,149),control(16,149,False,147)]
+        result=self.run_frames(handshake+[frame(GET),frame(REPLY,reverse=True)]+close)
+        self.assertEqual(len(result['events']),2)
+        self.assertEqual(len(result['graph']['edges']),1)
+        self.assertEqual({o['epoch'] for o in result['observations']},{1})
+        # Reusing the exact same SYN sequence numbers/context still opens epoch 2.
+        result=self.run_frames(handshake+[frame(GET)]+close+handshake+[frame(REPLY,reverse=True)])
+        self.assertEqual(len(result['events']),2)
+        self.assertEqual(result['graph']['edges'],[])
+        self.assertEqual([o['epoch'] for o in result['observations']],[1,2])
+        result=self.run_frames(handshake+[frame(GET),frame(REPLY,reverse=True)]+close+[frame(GET,149)])
+        self.assertEqual(len(result['events']),2)
+        self.assertTrue(any(x['reason']=='payload_after_connection_close' for x in result['unsupported']))

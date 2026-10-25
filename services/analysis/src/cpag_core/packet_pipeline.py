@@ -105,7 +105,9 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
     bounds = stream_limits or StreamLimits()
     index = PacketEvidence(path, synthetic=synthetic, limits=limits)
     frames = index.envelope['frames']
-    streams, epochs, closed = {}, defaultdict(int), set()
+    streams, connections = {}, {}
+    controls = []
+    rejected_epochs = set()
     rejected, observations = [], []
     def check_time():
         if time.monotonic() - started > bounds.max_processing_seconds:
@@ -122,10 +124,45 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
         endpoints = ((t['source_ip'], t['source_port']), (t['destination_ip'], t['destination_port']))
         flow = tuple(sorted(endpoints))
         flags = t['tcp_flags']
+        if flow not in connections and len(connections) >= bounds.max_streams:
+            raise CaptureError('connection_cache_limit')
+        connection = connections.setdefault(flow, {'epoch':0,'syns':{},'fin':{},'reset':False,'data':False})
         if flags & 2:
-            epochs[flow] += 1
-            closed.discard(flow)
-        epoch = epochs[flow]
+            seq = t['sequence_number']
+            same_syn = connection['syns'].get(endpoints) == seq
+            peer_syn = connection['syns'].get(endpoints[::-1])
+            handshake_reply = bool(flags & 16) and peer_syn is not None and t['acknowledgment_number'] == (peer_syn+1) % 2**32
+            if not ((same_syn or handshake_reply) and not connection['data'] and not connection['reset'] and not connection['fin']):
+                connection = {'epoch':connection['epoch']+1,'syns':{},'fin':{},'reset':False,'data':False}
+                connections[flow] = connection
+            connection['syns'][endpoints] = seq
+        epoch = connection['epoch']
+        if flags & 7:
+            controls.append({'source_ref':ref,'epoch':epoch,'tcp_flags':flags,'endpoints':endpoints})
+        # Control-only ACK/FIN/RST frames never invalidate previously observed bytes.
+        # FIN closes just its sender; a peer can still send the response (half-close).
+        invalid = None
+        if t['tcp_payload_length']:
+            if flags & 7:
+                invalid = 'control_packet_payload_unsupported'
+            elif connection['reset'] or endpoints in connection['fin']:
+                invalid = 'payload_after_connection_close'
+            elif flags & 0x20:
+                invalid = 'tcp_urgent_unsupported'
+        if flags & 1:
+            previous_fin = connection['fin'].get(endpoints)
+            if previous_fin is not None and previous_fin != t['sequence_number']:
+                reject('conflicting_fin_sequence', [ref])
+            connection['fin'][endpoints] = t['sequence_number']
+        if flags & 4:
+            connection['reset'] = True
+        if invalid:
+            reject(invalid,[ref])
+            rejected_epochs.add((flow,epoch))
+            continue
+        if not t['tcp_payload_length']:
+            continue
+        connection['data'] = True
         key = (flow, epoch, endpoints)
         if key not in streams:
             if len(streams) >= bounds.max_streams:
@@ -136,18 +173,6 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
         timestamp = f['raw_timestamp'] / f['ticks_per_second']
         if abs(timestamp-s['first_time']) > bounds.max_capture_seconds:
             s['errors'].add('capture_time_limit')
-        if flags & 0x20:
-            s['errors'].add('tcp_urgent_unsupported')
-        if flags & 7:
-            s['control_refs'].append(ref)
-            if t['tcp_payload_length']:
-                s['errors'].add('control_packet_payload_unsupported')
-        if flow in closed:
-            s['errors'].add('payload_after_connection_close')
-        if flags & 5:
-            closed.add(flow)
-        if not t['tcp_payload_length']:
-            continue
         if f['captured_length'] != f['original_length']:
             s['errors'].add('capture_truncated'); continue
         raw = index.data[f['byte_offset']:f['byte_offset'] + f['captured_length']]
@@ -246,7 +271,11 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
     bad_frames = {r['frame_number'] for item in rejected for r in item['source_refs']}
     blocked = {(tuple(sorted(v['endpoints'])), v['epoch']) for v in observations
                if any(r['frame_number'] in bad_frames for r in v['source_refs'])}
+    blocked.update(rejected_epochs)
     # Rejects can belong to the opposite direction, so derive blocked epochs explicitly.
+    for control in controls:
+        if control['source_ref']['frame_number'] in bad_frames:
+            blocked.add((tuple(sorted(control['endpoints'])), control['epoch']))
     for (flow, epoch, _), s in streams.items():
         if any(r['frame_number'] in bad_frames for r in s['all_refs']):
             blocked.add((flow, epoch))
@@ -314,6 +343,7 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
     index._verified()
     return {'adapter_version':'synthetic-packet-1', 'synthetic':True, 'file_sha256':index.digest,
             'events':events, 'graph':graph, 'observations':observations, 'unsupported':rejected,
+            'connection_controls':controls,
             'quality':{'status':'partial', 'reasons':['synthetic_only','real_data_unvalidated','bounded_subset']}}
 
 

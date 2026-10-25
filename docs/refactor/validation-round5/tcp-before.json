@@ -1,0 +1,97 @@
+{
+  "baseline": "d4974c0397e9b2a00f3bc8469eabd60a16fc69d2",
+  "synthetic": true,
+  "cases": [
+    {
+      "case": "request_response",
+      "events": 2,
+      "edges": 1,
+      "unsupported": []
+    },
+    {
+      "case": "fin_ack",
+      "events": 1,
+      "edges": 0,
+      "unsupported": [
+        {
+          "reason": "payload_after_connection_close",
+          "source_refs": [
+            {
+              "file_sha256": "0181384fbe507cb3cc2bea24cab006816d3290eafa73b18d3c917ef409cf6cc3",
+              "frame_number": 2,
+              "record_number": null,
+              "column": null,
+              "raw_time": "2000001"
+            },
+            {
+              "file_sha256": "0181384fbe507cb3cc2bea24cab006816d3290eafa73b18d3c917ef409cf6cc3",
+              "frame_number": 4,
+              "record_number": null,
+              "column": null,
+              "raw_time": "4000001"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "case": "bidirectional_close",
+      "events": 0,
+      "edges": 0,
+      "unsupported": [
+        {
+          "reason": "payload_after_connection_close",
+          "source_refs": [
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 1,
+              "record_number": null,
+              "column": null,
+              "raw_time": "1000001"
+            },
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 3,
+              "record_number": null,
+              "column": null,
+              "raw_time": "3000001"
+            },
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 6,
+              "record_number": null,
+              "column": null,
+              "raw_time": "6000001"
+            }
+          ]
+        },
+        {
+          "reason": "payload_after_connection_close",
+          "source_refs": [
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 2,
+              "record_number": null,
+              "column": null,
+              "raw_time": "2000001"
+            },
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 4,
+              "record_number": null,
+              "column": null,
+              "raw_time": "4000001"
+            },
+            {
+              "file_sha256": "fbe2cd8d65acc77d515db29374b61a4bc9cf80cd25da3c005cfa3c098998ba77",
+              "frame_number": 5,
+              "record_number": null,
+              "column": null,
+              "raw_time": "5000001"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
