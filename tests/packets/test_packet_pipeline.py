@@ -8,6 +8,7 @@ from test_packet_protocol import GET, REPLY, frame
 from cpag_core.packet_pipeline import analyze_capture, PacketEvidence, StreamLimits
 from cpag_core.parsers.packet_envelope import CaptureError
 from cpag_core.contracts import validate
+from cpag_core.pipeline import fingerprint
 
 
 class PacketPipelineTests(unittest.TestCase):
@@ -45,6 +46,32 @@ class PacketPipelineTests(unittest.TestCase):
         result=self.run_frames([frame(GET+GET),frame(REPLY,reverse=True)])
         self.assertEqual(len(result['events']),3)
         self.assertEqual(result['graph']['edges'],[])
+        self.assert_associations(result,'ambiguous','duplicate_requests')
+
+    def assert_associations(self, result, status, reason):
+        for obs,event in zip(result['observations'],result['events']):
+            self.assertEqual(obs['association_status'],status)
+            self.assertEqual(obs['association_reason'],reason)
+            self.assertIn('association_'+status+':'+reason,event['quality']['reasons'])
+            original={k:v for k,v in obs.items() if k not in ('association_status','association_reason')}
+            self.assertEqual(event['event_id'],'packet-'+fingerprint(original))
+
+    def test_explicit_association_states(self):
+        for frames,status,reason in [
+            ([frame(GET),frame(REPLY,reverse=True)],'matched','unique_request_response'),
+            ([frame(GET)],'missing','response_missing'),
+            ([frame(REPLY,reverse=True)],'missing','request_missing'),
+            ([frame(GET),frame(REPLY+REPLY,reverse=True)],'ambiguous','duplicate_responses'),
+            ([frame(GET+GET),frame(REPLY+REPLY,reverse=True)],'ambiguous','duplicate_requests_and_responses'),
+            ([frame(GET+GET)],'ambiguous','duplicate_requests'),
+        ]:
+            with self.subTest(reason=reason):
+                self.assert_associations(self.run_frames(frames),status,reason)
+        zero_get=bytearray(GET); zero_get[12:20]=b'\0'*8
+        zero_reply=bytearray(REPLY); zero_reply[12:20]=b'\0'*8
+        result=self.run_frames([frame(bytes(zero_get)),frame(bytes(zero_reply),reverse=True)])
+        self.assert_associations(result,'unsupported','zero_sender_context')
+        self.assertEqual(result['graph']['edges'],[])
 
     def test_gap_conflict_incomplete_wrap(self):
         for pieces,reason in [([frame(GET[:20]),frame(GET[21:],121)],'stream_gap'),
@@ -54,6 +81,7 @@ class PacketPipelineTests(unittest.TestCase):
             result=self.run_frames(pieces+[frame(REPLY,reverse=True)])
             self.assertEqual(result['graph']['edges'],[])
             self.assertTrue(any(reason in e['reason'] for e in result['unsupported']),result)
+            self.assert_associations(result,'unsupported','rejected_stream_in_connection_epoch')
 
     def test_boundaries_no_cross_epoch(self):
         for flag in (1,2,4):
@@ -114,6 +142,7 @@ class PacketPipelineTests(unittest.TestCase):
         unknown=bytearray(frame(b'')); unknown[12:14]=b'\x86\xdd'
         result=self.run_frames([frame(GET),bytes(unknown),frame(REPLY,reverse=True)])
         self.assertEqual(result['graph']['edges'],[])
+        self.assert_associations(result,'unsupported','unknown_transport_in_capture')
         control=bytearray(frame(GET)); control[47]=1
         result=self.run_frames([bytes(control),frame(REPLY,reverse=True)])
         self.assertEqual(result['graph']['edges'],[])

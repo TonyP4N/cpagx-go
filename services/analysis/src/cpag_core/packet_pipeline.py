@@ -253,6 +253,10 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
     groups = defaultdict(list)
     unknown_transport = any('source_port' not in f['transport'] for f in frames)
     events = []
+    def association(i, status, reason):
+        observations[i]['association_status'] = status
+        observations[i]['association_reason'] = reason
+        events[i]['quality']['reasons'].append('association_'+status+':'+reason)
     for i, obs in enumerate(observations):
         endpoints = obs['endpoints']
         key = (endpoints if obs['direction']=='request' else endpoints[::-1], obs['epoch'],
@@ -261,17 +265,35 @@ def analyze_capture(path, *, synthetic=False, limits=None, stream_limits=None):
             groups[key].append(i)
         event = {'schema_version':'1.0.0', 'synthetic':True, 'event_id':'packet-'+fingerprint(obs),
                  'source_ref':obs['source_refs'][0], 'event_time':None, 'ingest_time':None,
-                 'quality':{'status':'partial', 'reasons':obs['quality']},
+                 'quality':{'status':'partial', 'reasons':list(obs['quality'])},
                  'endpoints':dict(zip(('source','destination'), (f'{ip}:{port}' for ip,port in endpoints))),
                  'protocol':'ENIP/CPF/CIP', 'operation':obs['operation'], 'correlation_id':None,
                  'response_status':str(obs['general_status']) if 'general_status' in obs else None}
         events.append(event)
+        # Add annotations after event identity is computed: raw observation hash
+        # semantics remain unchanged by this association explanation layer.
+        if unknown_transport:
+            association(i, 'unsupported', 'unknown_transport_in_capture')
+        elif (tuple(sorted(endpoints)), obs['epoch']) in blocked:
+            association(i, 'unsupported', 'rejected_stream_in_connection_epoch')
+        elif obs['sender_context'] == '0000000000000000':
+            association(i, 'unsupported', 'zero_sender_context')
     claims, edges = [], []
     for members in groups.values():
         req = [i for i in members if observations[i]['direction']=='request']
         res = [i for i in members if observations[i]['direction']=='response']
+        if len(req) > 1 or len(res) > 1:
+            reason = ('duplicate_requests_and_responses' if len(req)>1 and len(res)>1
+                      else 'duplicate_requests' if len(req)>1 else 'duplicate_responses')
+            for i in members:
+                association(i, 'ambiguous', reason)
+        elif not req or not res:
+            for i in members:
+                association(i, 'missing', 'request_missing' if not req else 'response_missing')
         if len(req) == len(res) == 1:
             a,b = req[0],res[0]
+            association(a, 'matched', 'unique_request_response')
+            association(b, 'matched', 'unique_request_response')
             claim_id = 'association-'+fingerprint([events[a]['event_id'], events[b]['event_id']])
             claims.append({'schema_version':'1.0.0', 'synthetic':True, 'claim_id':claim_id,
                            'relation_type':'protocol_request_response_association', 'status':'observed',

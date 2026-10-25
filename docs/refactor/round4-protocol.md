@@ -90,3 +90,5 @@ Mature parser reuse decision and primary sources: [ADR 004](adr/004-bounded-pack
 Remaining: real authorized captures, mature decoder differential validation,
 production TCP state/checksum handling and API/UI integration. This is a bounded
 synthetic evidence path, not full TCP or industrial protocol completion.
+
+Association outcome annotations: every decoded observation now carries `association_status` and `association_reason`; its NetworkEvent quality reasons include the same outcome. Unique pairs are `matched/unique_request_response`. An absent counterpart is `missing/request_missing` or `missing/response_missing`. Duplicate requests/responses are `ambiguous`, including duplicate-only groups with no counterpart. Pairing blocked by unknown transport, a rejected stream in the epoch, or a zero sender context is `unsupported` with a distinct reason. Rejected undecodable streams remain in the `unsupported` evidence list. These derived annotations do not change event IDs or raw PDU/frame/file hashes.

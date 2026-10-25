@@ -12,6 +12,7 @@ test_boundaries_no_cross_epoch (test_packet_pipeline.PacketPipelineTests.test_bo
 test_checksum_query_reports_captured_bytes_only (test_packet_pipeline.PacketPipelineTests.test_checksum_query_reports_captured_bytes_only) ... ok
 test_coalescing_and_ambiguous_context (test_packet_pipeline.PacketPipelineTests.test_coalescing_and_ambiguous_context) ... ok
 test_end_to_end_segmented_out_of_order_retransmitted_evidence (test_packet_pipeline.PacketPipelineTests.test_end_to_end_segmented_out_of_order_retransmitted_evidence) ... ok
+test_explicit_association_states (test_packet_pipeline.PacketPipelineTests.test_explicit_association_states) ... ok
 test_gap_conflict_incomplete_wrap (test_packet_pipeline.PacketPipelineTests.test_gap_conflict_incomplete_wrap) ... ok
 test_limits_and_optin (test_packet_pipeline.PacketPipelineTests.test_limits_and_optin) ... ok
 test_named_fields_split_between_frames_and_tamper (test_packet_pipeline.PacketPipelineTests.test_named_fields_split_between_frames_and_tamper) ... ok
@@ -29,6 +30,6 @@ test_transport_and_header_boundaries (test_packet_protocol.ProtocolTests.test_tr
 test_unsupported_service_path_and_bad_lengths (test_packet_protocol.ProtocolTests.test_unsupported_service_path_and_bad_lengths) ... ok
 
 ----------------------------------------------------------------------
-Ran 29 tests in 0.078s
+Ran 30 tests in 0.075s
 
 OK

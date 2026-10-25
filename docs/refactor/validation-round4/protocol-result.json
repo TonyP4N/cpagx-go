@@ -22,7 +22,8 @@
           "synthetic_only",
           "bounded_stream_subset",
           "connection_epoch_unverified",
-          "network_checksums_not_validated"
+          "network_checksums_not_validated",
+          "association_matched:unique_request_response"
         ]
       },
       "endpoints": {
@@ -53,7 +54,8 @@
           "synthetic_only",
           "bounded_stream_subset",
           "connection_epoch_unverified",
-          "network_checksums_not_validated"
+          "network_checksums_not_validated",
+          "association_matched:unique_request_response"
         ]
       },
       "endpoints": {
@@ -497,7 +499,9 @@
         "bounded_stream_subset",
         "connection_epoch_unverified",
         "network_checksums_not_validated"
-      ]
+      ],
+      "association_status": "matched",
+      "association_reason": "unique_request_response"
     },
     {
       "session_handle": 1,
@@ -722,7 +726,9 @@
         "bounded_stream_subset",
         "connection_epoch_unverified",
         "network_checksums_not_validated"
-      ]
+      ],
+      "association_status": "matched",
+      "association_reason": "unique_request_response"
     }
   ],
   "unsupported": [],
