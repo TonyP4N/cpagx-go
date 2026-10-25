@@ -57,4 +57,4 @@
 | 成套备份恢复 | `2c962f7` |
 | 协议缺失/歧义明确状态 | `4a98c89` |
 
-本地最终检查：Python core 12、contracts 5、integration 2、parsers 13、packets 30、worker 11、legacy 5、service 11、backup 7，共 96 项通过；Go 全仓 test/build/vet 通过。另有真实 PostgreSQL race/HTTP/API 故障矩阵、Linux 7 项以及独立数据库+文件恢复的集成验证，不能与上述单元测试重复计为工业样本。原始记录均在 `validation-round4/`。CI 新增 Linux 隔离和备份恢复两项任务，共八项；本轮远端状态需以对应提交的实际 Actions 结果为准，推送后登记。
+本地最终检查：Python core 12、contracts 5、integration 2、parsers 13、packets 30、worker 11、legacy 5、service 11、backup 7，共 96 项通过；Go 全仓 test/build/vet 通过。另有真实 PostgreSQL race/HTTP/API 故障矩阵、Linux 7 项以及独立数据库+文件恢复的集成验证，不能与上述单元测试重复计为工业样本。原始记录均在 `validation-round4/`。CI 新增 Linux 隔离和备份恢复两项任务，共八项；本轮代码及验收提交 `b895a190ee5f7ec593fddc4419f3fff07dddf18b` 的八项远端 CI 均已通过：[Actions 40207070196](https://github.com/TonyP4N/cpagx-go/actions/runs/40207070196)。完整 job 链接与 success 状态保存在 `validation-round4/ci.json`；后续仅补登此结果的文档提交不改变被测代码。
