@@ -1,0 +1,3 @@
+{"case": "duplicate invocation while attempt namespace exists", "result": "failed", "terminal_requests": ["/v1/jobs/test-job/fail"]}
+{"case": "completion outcome unknown", "result": "failed", "terminal_requests": ["/v1/jobs/test-job/complete", "/v1/jobs/test-job/fail"]}
+{"case": "legacy CLI --once API unavailable", "exit_code": 0, "diagnostic": "none"}

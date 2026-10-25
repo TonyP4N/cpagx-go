@@ -244,7 +244,7 @@ func (s *Server) validPayload(p Payload) error {
 	return nil
 }
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	coordinatorOp := strings.HasSuffix(r.URL.Path, "/execution") || strings.HasSuffix(r.URL.Path, "/exit") || strings.HasSuffix(r.URL.Path, "/attempts")
+	coordinatorOp := r.URL.Path == "/v1/executions" || strings.HasSuffix(r.URL.Path, "/execution") || strings.HasSuffix(r.URL.Path, "/exit") || strings.HasSuffix(r.URL.Path, "/attempts") || strings.HasSuffix(r.URL.Path, "/not-started")
 	expected := s.Secret
 	if coordinatorOp {
 		expected = s.CoordinatorSecret
@@ -262,6 +262,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			status = 404
 		}
 		reply(w, status, map[string]string{"error": err.Error()})
+	}
+	if r.URL.Path == "/v1/executions" && r.Method == "GET" {
+		items, err := s.Repo.DiscoverExecutions(r.Context(), r.URL.Query().Get("location"))
+		if err != nil {
+			fail(err)
+			return
+		}
+		reply(w, 200, items)
+		return
 	}
 	parts := strings.Split(strings.Trim(r.URL.Path, "/"), "/")
 	if r.URL.Path == "/v1/jobs" && r.Method == "POST" {
@@ -327,8 +336,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/v1/claim" && r.Method == "POST" {
 		var q struct {
-			Worker string `json:"worker"`
-			Lease  int    `json:"lease_seconds"`
+			Worker   string `json:"worker"`
+			Lease    int    `json:"lease_seconds"`
+			Executor string `json:"executor"`
+			Location string `json:"location"`
 		}
 		if err := decode(w, r, &q); err != nil {
 			fail(err)
@@ -338,7 +349,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fail(errors.New("invalid worker"))
 			return
 		}
-		c, err := s.Repo.Claim(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second)
+		var c jobs.Claim
+		var err error
+		if q.Executor == "" && q.Location == "" {
+			c, err = s.Repo.Claim(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second)
+		} else {
+			c, err = s.Repo.ClaimExecution(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second, q.Executor, q.Location)
+		}
 		if err == sql.ErrNoRows {
 			w.WriteHeader(204)
 			return
@@ -361,7 +378,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fail(err)
 			return
 		}
-		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease})
+		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease, "executor": q.Executor, "location": q.Location})
 		return
 	}
 	if len(parts) < 3 || parts[0] != "v1" || parts[1] != "jobs" || !identity.MatchString(parts[2]) {
@@ -379,7 +396,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(parts) == 4 && parts[3] == "attempts" && r.Method == "GET" {
-		rows, err := s.Repo.DB.QueryContext(r.Context(), `SELECT attempt,worker,attempt_token,location,container_id,exited_at FROM m4_job_attempts WHERE job_id=$1 ORDER BY attempt`, id)
+		rows, err := s.Repo.DB.QueryContext(r.Context(), `SELECT attempt,worker,attempt_token,location,container_id,exited_at,executor_kind,start_revoked_at FROM m4_job_attempts WHERE job_id=$1 ORDER BY attempt`, id)
 		if err != nil {
 			fail(err)
 			return
@@ -388,13 +405,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		result := []map[string]any{}
 		for rows.Next() {
 			var attempt int
-			var worker, token, location, containerID string
+			var worker, token, location, containerID, executor string
+			var revoked *time.Time
 			var exited *time.Time
-			if err = rows.Scan(&attempt, &worker, &token, &location, &containerID, &exited); err != nil {
+			if err = rows.Scan(&attempt, &worker, &token, &location, &containerID, &exited, &executor, &revoked); err != nil {
 				fail(err)
 				return
 			}
-			result = append(result, map[string]any{"id": id, "attempt": attempt, "worker": worker, "token": token, "location": location, "container_id": containerID, "exited_at": exited})
+			result = append(result, map[string]any{"id": id, "attempt": attempt, "worker": worker, "token": token, "location": location, "container_id": containerID, "exited_at": exited, "executor": executor, "start_revoked_at": revoked})
 		}
 		if err = rows.Err(); err != nil {
 			fail(err)
@@ -446,6 +464,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c := jobs.Claim{ID: id, Attempt: q.Attempt, Worker: q.Worker, Token: q.Token}
 	var err error
 	switch op {
+	case "not-started":
+		err = s.Repo.RevokeUnstarted(r.Context(), c, q.Location)
 	case "execution":
 		err = s.Repo.RegisterExecution(r.Context(), c, q.Location, q.ContainerID)
 	case "exit":

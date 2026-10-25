@@ -1,0 +1,11 @@
+{
+  "valid": true,
+  "existing_report_unchanged": true,
+  "existing_database_rows_unchanged": true,
+  "new_destination_refused_existing_database": {
+    "valid": false,
+    "phase": "create_new_database",
+    "reason": "Command '['docker', 'exec', 'cpag-m4-backup-validation', 'createdb', '-U', 'postgres', 'm4_restore_validation']' returned non-zero exit status 1.",
+    "orphan_policy": "retain_and_report; partial restore retained for inspection"
+  }
+}

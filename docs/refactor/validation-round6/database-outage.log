@@ -1,0 +1,46 @@
+ Network cpag-round6-go-recovery_default Creating
+ Network cpag-round6-go-recovery_default Created
+ Volume cpag-round6-go-recovery_validation_data Creating
+ Volume cpag-round6-go-recovery_validation_data Created
+ Container cpag-round6-go-recovery-postgres-1 Creating
+ Container cpag-round6-go-recovery-postgres-1 Created
+ Container cpag-round6-go-recovery-postgres-1 Starting
+ Container cpag-round6-go-recovery-postgres-1 Started
+ Container cpag-round6-go-recovery-postgres-1 Waiting
+ Container cpag-round6-go-recovery-postgres-1 Healthy
+=== RUN   TestHistoricalContainerCancellation
+    history_test.go:187: REPRO baseline cancelling-only ACK after cancellation: HTTP409
+    history_test.go:253: PASS valid receipt database failure propagates instead of per-item continue
+    history_test.go:346: PASS actual ELOOP receipt diagnosed locally; later good attempt exit recorded
+--- PASS: TestHistoricalContainerCancellation (0.26s)
+=== RUN   TestMigrationPreservesPublishedHistory
+--- PASS: TestMigrationPreservesPublishedHistory (0.03s)
+=== RUN   TestPostgresFaults
+--- PASS: TestPostgresFaults (0.09s)
+=== RUN   TestIndependentRecovery
+--- PASS: TestIndependentRecovery (0.36s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	1.954s
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-recovery	[no test files]
+INSERT 0 1
+ Container cpag-round6-go-recovery-postgres-1 Stopping
+ Container cpag-round6-go-recovery-postgres-1 Stopped
+PASS actual PostgreSQL outage: independent daemon reports dependency failure, no API running
+ Container cpag-round6-go-recovery-postgres-1 Starting
+ Container cpag-round6-go-recovery-postgres-1 Started
+ Container cpag-round6-go-recovery-postgres-1 Waiting
+ Container cpag-round6-go-recovery-postgres-1 Healthy
+2026/10/26 01:14:16 recovery pass failed: failed to connect to `user=postgres database=m4_validation`: 127.0.0.1:55447 (127.0.0.1): dial error: dial tcp 127.0.0.1:55447: connect: connection refused
+PASS actual database return: same recovery process fenced expired final attempt without API/new claims
+INSERT 0 1
+failed|1|fenced
+PASS restarted recovery OS process fenced a new expired attempt and preserved previous fenced history
+ Container cpag-round6-go-recovery-postgres-1 Stopping
+ Container cpag-round6-go-recovery-postgres-1 Stopped
+ Container cpag-round6-go-recovery-postgres-1 Removing
+ Container cpag-round6-go-recovery-postgres-1 Removed
+ Volume cpag-round6-go-recovery_validation_data Removing
+ Network cpag-round6-go-recovery_default Removing
+ Volume cpag-round6-go-recovery_validation_data Removed
+ Network cpag-round6-go-recovery_default Removed

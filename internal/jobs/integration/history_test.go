@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -98,6 +99,35 @@ func TestHistoricalContainerCancellation(t *testing.T) {
 	makeExit := func(c jobs.Claim, id string) map[string]any {
 		return map[string]any{"location": "docker:test", "container_id": id, "scope": "container", "exited": true, "removed": true, "inspected_id": id, "running": false, "pid": 0, "labels": map[string]string{"cpag.job": c.ID, "cpag.attempt": string(rune('0' + c.Attempt)), "cpag.worker": c.Worker}}
 	}
+	leaseBefore := time.Time{}
+	must(db.QueryRow("SELECT lease_until FROM m4_jobs WHERE id=$1", second.ID).Scan(&leaseBefore))
+	discover := func(secret, location string) (int, []map[string]any) {
+		req, e := http.NewRequest("GET", server.URL+"/v1/executions?location="+location, nil)
+		must(e)
+		req.Header.Set("Authorization", "Bearer "+secret)
+		resp, e := http.DefaultClient.Do(req)
+		must(e)
+		defer resp.Body.Close()
+		var items []map[string]any
+		if resp.StatusCode == 200 {
+			must(json.NewDecoder(resp.Body).Decode(&items))
+		}
+		return resp.StatusCode, items
+	}
+	if code, _ := discover(workerSecret, "docker:test"); code != 401 {
+		t.Fatal("worker discovered private execution tokens", code)
+	}
+	if code, items := discover(coordinator, "docker:test"); code != 200 || len(items) != 2 {
+		t.Fatal("daemon history discovery missing", code, items)
+	}
+	if code, items := discover(coordinator, "docker:other"); code != 200 || len(items) != 0 {
+		t.Fatal("cross-daemon discovery leak", code, items)
+	}
+	leaseAfter := time.Time{}
+	must(db.QueryRow("SELECT lease_until FROM m4_jobs WHERE id=$1", second.ID).Scan(&leaseAfter))
+	if !leaseBefore.Equal(leaseAfter) {
+		t.Fatal("discovery renewed orphan lease")
+	}
 	noRemoval := makeExit(first, id1)
 	noRemoval["removed"] = false
 	if code := post("exit", coordinator, first, noRemoval); code != 400 {
@@ -132,12 +162,123 @@ func TestHistoricalContainerCancellation(t *testing.T) {
 	if status.State != "cancelled" || len(status.AttemptHistory) != 2 || len(status.MissingExitAttempts) != 0 {
 		t.Fatal(status)
 	}
+	// Reproduce the baseline's terminal retry: its cancelling-only guard maps
+	// zero affected rows to ErrStale/HTTP409 after recovery already cancelled.
+	baseline := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		result, e := db.Exec(`UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='cancelling' AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt`, second.ID, second.Attempt, second.Worker, second.Token)
+		if e != nil {
+			http.Error(w, e.Error(), 500)
+			return
+		}
+		n, _ := result.RowsAffected()
+		if n != 1 {
+			w.WriteHeader(409)
+			return
+		}
+		w.WriteHeader(200)
+	}))
+	baselineResponse, e := http.Post(baseline.URL, "application/json", strings.NewReader("{}"))
+	must(e)
+	baselineResponse.Body.Close()
+	baseline.Close()
+	if baselineResponse.StatusCode != 409 {
+		t.Fatal("baseline ACK guard did not reproduce", baselineResponse.StatusCode)
+	}
+	t.Log("REPRO baseline cancelling-only ACK after cancellation: HTTP409")
+	if code := post("ack-cancel", workerSecret, second, map[string]any{}); code != 200 {
+		t.Fatal("terminal ACK retry not idempotent", code)
+	}
+	if code := post("ack-cancel", workerSecret, second, map[string]any{}); code != 200 {
+		t.Fatal(code)
+	}
+	wrongIdentity := second
+	wrongIdentity.Token = "wrong-token"
+	if code := post("ack-cancel", workerSecret, wrongIdentity, map[string]any{}); code != 409 {
+		t.Fatal("terminal ACK accepted wrong token", code)
+	}
+	// Create/register cancellation window: only removed coordinator proof can bind
+	// a previously empty execution, and that retired binding cannot later start.
+	must(repo.Enqueue(ctx, "registration-window", 3))
+	window, e := repo.Claim(ctx, "window", time.Minute)
+	must(e)
+	must(repo.Cancel(ctx, window.ID))
+	windowID := strings.Repeat("4", 64)
+	if code := post("exit", workerSecret, window, makeExit(window, windowID)); code != 401 {
+		t.Fatal("worker bound missing execution", code)
+	}
+	if code := post("exit", coordinator, window, makeExit(window, windowID)); code != 200 {
+		t.Fatal("removed unregistered execution did not converge", code)
+	}
+	if e = repo.RegisterExecution(ctx, window, "docker:test", windowID); e != jobs.ErrStale {
+		t.Fatal("retired registration acquired start rights", e)
+	}
+	if code := post("exit", coordinator, window, makeExit(window, strings.Repeat("5", 64))); code != 409 {
+		t.Fatal("retired container ID was replaced", code)
+	}
+	wrongWindow := window
+	wrongWindow.Token = "wrong-window-token"
+	if code := post("exit", coordinator, wrongWindow, makeExit(window, windowID)); code != 400 && code != 409 {
+		t.Fatal("wrong historical token accepted", code)
+	}
+	must(repo.AcknowledgeCancel(ctx, window))
+	must(repo.AcknowledgeCancel(ctx, window))
 	sha := strings.Repeat("a", 64)
 	key, err := jobs.ArtifactKey(first, sha)
 	must(err)
 	if e := repo.Complete(ctx, first, key, sha); e != jobs.ErrStale {
 		t.Fatal("old exit granted publication", e)
 	}
+	// A PostgreSQL dependency failure while recording a valid receipt must escape
+	// the pass; semantic invalid proof remains a diagnosed per-attempt condition.
+	must(repo.Enqueue(ctx, "dependency-fixture", 1))
+	dependency, e := repo.Claim(ctx, "dependency", time.Minute)
+	must(e)
+	dependencyID := strings.Repeat("6", 64)
+	must(repo.RegisterExecution(ctx, dependency, "docker:test", dependencyID))
+	receipt := makeExit(dependency, dependencyID)
+	receipt["id"] = dependency.ID
+	receipt["attempt"] = dependency.Attempt
+	receipt["worker"] = dependency.Worker
+	receipt["token"] = dependency.Token
+	receiptPath := filepath.Join(control, "jobs", dependency.ID, "attempt-1.worker", "exit.json")
+	must(os.MkdirAll(filepath.Dir(receiptPath), 0700))
+	receiptBytes, _ := json.Marshal(receipt)
+	must(os.WriteFile(receiptPath, receiptBytes, 0600))
+	_, e = db.Exec(`CREATE FUNCTION m4_test_record_failure() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RAISE EXCEPTION 'dependency failure fixture'; END $$; CREATE TRIGGER m4_test_record_failure BEFORE UPDATE ON m4_job_attempts FOR EACH ROW WHEN (OLD.job_id='dependency-fixture') EXECUTE FUNCTION m4_test_record_failure()`)
+	must(e)
+	e = repo.RefreshExitEvidence(ctx, control, dependency.ID)
+	if e == nil || !strings.Contains(e.Error(), "dependency failure fixture") {
+		t.Fatal("receipt DB failure was swallowed", e)
+	}
+	t.Log("PASS valid receipt database failure propagates instead of per-item continue")
+	_, e = db.Exec(`DROP TRIGGER m4_test_record_failure ON m4_job_attempts; DROP FUNCTION m4_test_record_failure()`)
+	must(e)
+	must(repo.RefreshExitEvidence(ctx, control, dependency.ID))
+	// Invalid evidence cannot poison other attempts and remains visible in status.
+	must(repo.Enqueue(ctx, "invalid-proof-fixture", 1))
+	invalid, e := repo.Claim(ctx, "invalid", time.Minute)
+	must(e)
+	invalidID := strings.Repeat("7", 64)
+	must(repo.RegisterExecution(ctx, invalid, "docker:test", invalidID))
+	badReceipt := makeExit(invalid, invalidID)
+	badReceipt["id"] = invalid.ID
+	badReceipt["attempt"] = invalid.Attempt
+	badReceipt["worker"] = invalid.Worker
+	badReceipt["token"] = invalid.Token
+	badReceipt["removed"] = false
+	badPath := filepath.Join(control, "jobs", invalid.ID, "attempt-1.worker", "exit.json")
+	must(os.MkdirAll(filepath.Dir(badPath), 0700))
+	badBytes, _ := json.Marshal(badReceipt)
+	must(os.WriteFile(badPath, badBytes, 0600))
+	must(repo.RefreshExitEvidence(ctx, control, invalid.ID))
+	invalidStatus, e := repo.Status(ctx, invalid.ID)
+	must(e)
+	if invalidStatus.AttemptHistory[0].ExitError == nil || !strings.Contains(*invalidStatus.AttemptHistory[0].ExitError, "inspect") || invalidStatus.AttemptHistory[0].ExitedAt != nil {
+		t.Fatal("invalid proof diagnostic missing", invalidStatus)
+	}
+	// Remove these live fixture claims from the queue without manufacturing exits.
+	must(repo.Fail(ctx, dependency, "fixture finished", false))
+	must(repo.Fail(ctx, invalid, "fixture finished", false))
 	// Missing imported earlier history is visible and never inferred as exited.
 	must(repo.Enqueue(ctx, "legacy-gap", 3))
 	_, err = db.Exec(`UPDATE m4_jobs SET state='running',attempt=3,worker='legacy',attempt_token='old-token',lease_until=clock_timestamp()+interval '1 minute' WHERE id='legacy-gap'`)
@@ -172,6 +313,148 @@ func TestHistoricalContainerCancellation(t *testing.T) {
 	if publishedStatus.AttemptHistory[0].PublicationState != "published" || publishedStatus.AttemptHistory[0].ArtifactSHA256 == nil || *publishedStatus.AttemptHistory[0].ArtifactSHA256 != sha {
 		t.Fatal("publication history lost", publishedStatus)
 	}
+	// A local ELOOP receipt must not prevent a later good receipt from recording.
+	must(repo.Enqueue(ctx, "file-local-fixture", 2))
+	fileOne, e := repo.Claim(ctx, "file-one", time.Minute)
+	must(e)
+	fileID1 := strings.Repeat("a", 64)
+	fileID2 := strings.Repeat("b", 64)
+	must(repo.RegisterExecution(ctx, fileOne, "docker:test", fileID1))
+	must(repo.Fail(ctx, fileOne, "retry", true))
+	_, e = db.Exec(`UPDATE m4_jobs SET available_at=clock_timestamp() WHERE id=$1`, fileOne.ID)
+	must(e)
+	fileTwo, e := repo.Claim(ctx, "file-two", time.Minute)
+	must(e)
+	must(repo.RegisterExecution(ctx, fileTwo, "docker:test", fileID2))
+	badLoop := filepath.Join(control, "jobs", fileOne.ID, "attempt-1.worker", "exit.json")
+	goodFile := filepath.Join(control, "jobs", fileTwo.ID, "attempt-2.worker", "exit.json")
+	must(os.MkdirAll(filepath.Dir(badLoop), 0700))
+	must(os.MkdirAll(filepath.Dir(goodFile), 0700))
+	must(os.Symlink("exit.json", badLoop))
+	goodReceipt := makeExit(fileTwo, fileID2)
+	for k, v := range map[string]any{"id": fileTwo.ID, "attempt": fileTwo.Attempt, "worker": fileTwo.Worker, "token": fileTwo.Token} {
+		goodReceipt[k] = v
+	}
+	goodBytes, _ := json.Marshal(goodReceipt)
+	must(os.WriteFile(goodFile, goodBytes, 0600))
+	must(repo.RefreshExitEvidence(ctx, control, fileOne.ID))
+	local, e := repo.Status(ctx, fileOne.ID)
+	must(e)
+	if local.AttemptHistory[0].ExitError == nil || local.AttemptHistory[0].ExitedAt != nil || local.AttemptHistory[1].ExitedAt == nil {
+		t.Fatal("local path failure poisoned later receipt", local)
+	}
+	t.Log("PASS actual ELOOP receipt diagnosed locally; later good attempt exit recorded")
+	if e = repo.RefreshExitEvidence(ctx, filepath.Join(control, "missing-root"), fileOne.ID); e == nil {
+		t.Fatal("shared root outage was hidden")
+	}
+	must(os.Remove(badLoop))
+	oldReceipt := makeExit(fileOne, fileID1)
+	for k, v := range map[string]any{"id": fileOne.ID, "attempt": fileOne.Attempt, "worker": fileOne.Worker, "token": fileOne.Token} {
+		oldReceipt[k] = v
+	}
+	oldBytes, _ := json.Marshal(oldReceipt)
+	must(os.WriteFile(badLoop, oldBytes, 0600))
+	must(repo.RefreshExitEvidence(ctx, control, fileOne.ID))
+	must(repo.Cancel(ctx, fileOne.ID))
+	must(repo.AcknowledgeCancel(ctx, fileTwo))
+	// Claim response discarded before any create-intent: isolated mode/location
+	// are already durable and discovery can revoke the unregistered start gate.
+	must(repo.Enqueue(ctx, "gated-lost-response", 2))
+	claimBody, _ := json.Marshal(map[string]any{"worker": "gated-lost", "lease_seconds": 30, "executor": "isolated-v2", "location": "docker:test"})
+	request, e := http.NewRequest("POST", server.URL+"/v1/claim", bytes.NewReader(claimBody))
+	must(e)
+	request.Header.Set("Authorization", "Bearer "+workerSecret)
+	response, e := http.DefaultClient.Do(request)
+	must(e)
+	response.Body.Close()
+	if response.StatusCode != 200 {
+		t.Fatal(response.StatusCode)
+	}
+	var lost jobs.Claim
+	lost.ID = "gated-lost-response"
+	must(db.QueryRow(`SELECT attempt,worker,attempt_token FROM m4_jobs WHERE id=$1`, lost.ID).Scan(&lost.Attempt, &lost.Worker, &lost.Token))
+	foundLost := false
+	items, e := repo.DiscoverExecutions(ctx, "docker:test")
+	must(e)
+	for _, item := range items {
+		if item["id"] == lost.ID && item["executor"] == "isolated-v2" && item["container_id"] == "" {
+			foundLost = true
+		}
+	}
+	if !foundLost {
+		t.Fatal("lost claim absent from durable discovery")
+	}
+	must(repo.Cancel(ctx, lost.ID))
+	if code := post("not-started", workerSecret, lost, map[string]any{"location": "docker:test"}); code != 401 {
+		t.Fatal("worker revoked coordinator gate", code)
+	}
+	if code := post("not-started", coordinator, lost, map[string]any{"location": "docker:test"}); code != 200 {
+		t.Fatal("lost claim did not converge", code)
+	}
+	if e = repo.RegisterExecution(ctx, lost, "docker:test", strings.Repeat("8", 64)); e != jobs.ErrStale {
+		t.Fatal("revoked lost claim registered", e)
+	}
+	if e = repo.Heartbeat(ctx, lost, time.Minute); e != jobs.ErrStale {
+		t.Fatal("revoked claim renewed lease", e)
+	}
+	if e = repo.CheckClaim(ctx, lost); e != jobs.ErrStale {
+		t.Fatal("revoked attempt still owned claim", e)
+	}
+	if e = repo.CheckPublication(ctx, lost); e != jobs.ErrStale {
+		t.Fatal("not-started acquired publication", e)
+	}
+	must(repo.AcknowledgeCancel(ctx, lost))
+	must(repo.AcknowledgeCancel(ctx, lost))
+	lostStatus, e := repo.Status(ctx, lost.ID)
+	must(e)
+	if lostStatus.State != "cancelled" || lostStatus.LeaseValid || lostStatus.AttemptHistory[0].StartRevokedAt == nil {
+		t.Fatal(lostStatus)
+	}
+	if e = repo.RevokeUnstarted(ctx, first, "docker:test"); e != jobs.ErrStale {
+		t.Fatal("legacy inferred not-started", e)
+	}
+	// Actual concurrent register/revoke has exactly one winner. A later removed
+	// receipt can enrich a not-started record but can never reopen its gate.
+	must(repo.Enqueue(ctx, "gated-register-race", 2))
+	gated, e := repo.ClaimExecution(ctx, "gated-race", time.Minute, "isolated-v2", "docker:test")
+	must(e)
+	if e = repo.CheckPublication(ctx, gated); e != jobs.ErrStale {
+		t.Fatal("unregistered isolated attempt acquired publication", e)
+	}
+	unregisteredKey, e := jobs.ArtifactKey(gated, sha)
+	must(e)
+	if e = repo.Complete(ctx, gated, unregisteredKey, sha); e != jobs.ErrStale {
+		t.Fatal("unregistered isolated completion accepted", e)
+	}
+	gatedID := strings.Repeat("9", 64)
+	var registerErr, revokeErr error
+	var gateGroup sync.WaitGroup
+	gateGroup.Add(2)
+	go func() {
+		defer gateGroup.Done()
+		registerErr = repo.RegisterExecution(ctx, gated, "docker:test", gatedID)
+	}()
+	go func() { defer gateGroup.Done(); revokeErr = repo.RevokeUnstarted(ctx, gated, "docker:test") }()
+	gateGroup.Wait()
+	if (registerErr == nil) == (revokeErr == nil) {
+		t.Fatal("register/revoke did not have one winner", registerErr, revokeErr)
+	}
+	if registerErr != nil && registerErr != jobs.ErrStale {
+		t.Fatal(registerErr)
+	}
+	if revokeErr != nil && revokeErr != jobs.ErrStale {
+		t.Fatal(revokeErr)
+	}
+	if code := post("exit", coordinator, gated, makeExit(gated, gatedID)); code != 200 {
+		t.Fatal("removed receipt did not retire gated execution", code)
+	}
+	if revokeErr == nil {
+		if e = repo.CheckPublication(ctx, gated); e != jobs.ErrStale {
+			t.Fatal("cleanup reopened revoked publication", e)
+		}
+	}
+	must(repo.Cancel(ctx, gated.ID))
+	must(repo.AcknowledgeCancel(ctx, gated))
 	// A retry Claim and cancellation serialize on the job row; cancellation can
 	// never bypass the prior attempted execution's proof.
 	must(repo.Enqueue(ctx, "retry-cancel-race", 3))
@@ -194,6 +477,23 @@ func TestHistoricalContainerCancellation(t *testing.T) {
 	must(e)
 	if race.State != "cancelling" || len(race.MissingExitAttempts) == 0 || len(race.AttemptHistory) != race.Attempt {
 		t.Fatal("cancel/retry race bypassed historical exit", race)
+	}
+
+	// Suppress one trigger insert to verify a zero-row history mode update rolls
+	// back the claim instead of returning an untracked executable identity.
+	must(repo.Enqueue(ctx, "missing-ledger-fixture", 1))
+	_, e = db.Exec(`CREATE FUNCTION m4_test_skip_history() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN RETURN NULL; END $$; CREATE TRIGGER m4_test_skip_history BEFORE INSERT ON m4_job_attempts FOR EACH ROW WHEN (NEW.job_id='missing-ledger-fixture') EXECUTE FUNCTION m4_test_skip_history()`)
+	must(e)
+	_, claimError := repo.ClaimExecution(ctx, "missing-ledger", time.Minute, "isolated-v2", "docker:test")
+	if claimError != jobs.ErrStale {
+		t.Fatal("untracked claim returned executable identity", claimError)
+	}
+	_, e = db.Exec(`DROP TRIGGER m4_test_skip_history ON m4_job_attempts; DROP FUNCTION m4_test_skip_history()`)
+	must(e)
+	unclaimed, e := repo.Status(ctx, "missing-ledger-fixture")
+	must(e)
+	if unclaimed.Attempt != 0 || unclaimed.State != "queued" || len(unclaimed.AttemptHistory) != 0 {
+		t.Fatal("failed history update leaked committed claim", unclaimed)
 	}
 
 }

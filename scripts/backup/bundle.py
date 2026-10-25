@@ -10,6 +10,8 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+import stat
+import tempfile
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO/'services/analysis/src'))
@@ -42,33 +44,52 @@ def safe(root, rel):
 
 
 def inventory(root):
+    """Inventory every entry or fail; never treat a missing/unreadable tree as empty."""
+    root=Path(root)
+    if root.is_symlink() or not root.is_dir():raise ValueError('file tree root missing, not a directory or symlink')
     result={}
-    for p in sorted(root.rglob('*')):
-        if p.is_symlink(): raise ValueError('symlink in file tree')
-        if p.is_dir(): continue
-        if not p.is_file(): raise ValueError('non-regular source')
-        result[p.relative_to(root).as_posix()]={'sha256':sha(p),'size_bytes':p.stat().st_size}
+    def walk(directory):
+        # scandir raises on inaccessible/disappeared directories. Path.rglob can
+        # suppress traversal errors, which cannot establish a complete backup.
+        with os.scandir(directory) as entries:
+            for entry in sorted(entries,key=lambda item:item.name):
+                path=Path(entry.path);mode=entry.stat(follow_symlinks=False).st_mode
+                if stat.S_ISLNK(mode):raise ValueError('symlink in file tree')
+                if stat.S_ISDIR(mode):walk(path)
+                elif stat.S_ISREG(mode):
+                    result[path.relative_to(root).as_posix()]={'sha256':sha(path),'size_bytes':path.stat().st_size}
+                else:raise ValueError('non-regular source')
+    walk(root)
     return result
 
 
 def audit(rows, root):
     """Verify all database-referenced inputs and successful publication chains."""
-    used=set(); errors=[]
+    used=set(); errors=[];jobs=[];seen_jobs=set()
     def verify(rel, digest, size=None):
-        used.add(rel)
+        if not isinstance(rel,str) or not rel:raise ValueError('invalid file reference path')
         p=safe(root,rel)
+        used.add(rel)
         if not p.is_file(): raise ValueError('missing file: '+rel)
         if sha(p)!=digest or (size is not None and p.stat().st_size!=size): raise ValueError('checksum/size mismatch: '+rel)
         return p
-    for row in rows:
+    if not isinstance(rows,list):
+        rows=[];errors.append({'scope':'jobs','reason':'job snapshot must be an array'})
+    for position,row in enumerate(rows):
+        job_id=row.get('id') if isinstance(row,dict) and isinstance(row.get('id'),str) else None
         try:
+            if not isinstance(row,dict) or not job_id:raise ValueError('job must be an object with nonempty id')
+            if job_id in seen_jobs:raise ValueError('duplicate job identity')
+            seen_jobs.add(job_id)
             if row['state'] not in TERMINAL: raise ValueError('active/nonterminal task: '+row['id'])
-            payload=row.get('payload') or {}
+            payload=row.get('payload')
+            if not isinstance(payload,dict):raise ValueError('job payload must be an object')
             packet=payload.get('kind')=='packet'
             if payload.get('kind') not in (None,'','packet'):raise ValueError('unknown task kind')
             for role in ('network','process','profile'):
                 ref=payload.get(role)
-                if ref: verify(ref['path'],ref['sha256'])
+                if not isinstance(ref,dict):raise ValueError('missing or invalid input reference: '+role)
+                verify(ref['path'],ref['sha256'])
             if row['state']=='succeeded':
                 manifest=verify(row['artifact_path'],row['artifact_sha256'])
                 wrapper=json.loads(manifest.read_text())
@@ -149,30 +170,72 @@ def audit(rows, root):
                 if graph['statistics']!={'nodes':len(nodes),'edges':len(edge_ids)}:raise ValueError('graph statistics mismatch')
                 for source in indexes.values():
                     source._verified() if isinstance(source,PacketEvidence) else source.verify()
-        except (OSError,ValueError,KeyError,TypeError) as exc:
-            errors.append({'job_id':row.get('id'),'reason':str(exc)})
-    files=inventory(root)
-    return {'valid':not errors,'errors':errors,'referenced_files':sorted(used),
+            jobs.append({'row_index':position,'job_id':job_id,'valid':True})
+        except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError) as exc:
+            errors.append({'row_index':position,'job_id':job_id,'reason':str(exc)})
+            jobs.append({'row_index':position,'job_id':job_id,'valid':False})
+    inventory_complete=True
+    try:files=inventory(root)
+    except (OSError,ValueError) as exc:
+        files={};inventory_complete=False;errors.append({'scope':'file_tree','reason':str(exc)})
+    return {'valid':not errors,'errors':errors,'jobs':jobs,'inventory_complete':inventory_complete,'referenced_files':sorted(used),
             'unreferenced_files':sorted(set(files)-used),
             'orphan_policy':'retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically'}
 
 
 def audit_attempts(rows, attempts):
-    """Check history identities and published references without exposing tokens."""
-    jobs={r['id']:r for r in rows};seen={};errors=[]
-    for attempt in attempts:
-        job_id=attempt.get('job_id');number=attempt.get('attempt')
+    """Check all history entries independently without exposing execution tokens."""
+    jobs={};seen={};errors=[]
+    if not isinstance(rows,list):rows=[];errors.append({'scope':'jobs','reason':'job snapshot must be an array'})
+    if not isinstance(attempts,list):attempts=[];errors.append({'scope':'attempts','reason':'attempt snapshot must be an array'})
+    for position,row in enumerate(rows):
         try:
-            if job_id not in jobs or type(number) is not int or number<1:raise ValueError('invalid history job/attempt')
+            if not isinstance(row,dict) or not isinstance(row.get('id'),str) or not row['id']:
+                raise ValueError('invalid history job identity')
+            if row['id'] in jobs:raise ValueError('duplicate history job identity')
+            current=row.get('attempt',0)
+            if type(current) is not int or not 0<=current<=100:raise ValueError('invalid job attempt count')
+            jobs[row['id']]=row
+        except (ValueError,KeyError,TypeError) as error:errors.append({'row_index':position,'reason':str(error)})
+    for position,attempt in enumerate(attempts):
+        job_id=attempt.get('job_id') if isinstance(attempt,dict) else None
+        number=attempt.get('attempt') if isinstance(attempt,dict) else None
+        try:
+            if not isinstance(attempt,dict) or not isinstance(job_id,str) or job_id not in jobs or type(number) is not int or number<1:
+                raise ValueError('invalid history job/attempt')
             if (job_id,number) in seen:raise ValueError('duplicate attempt history')
             row=jobs[job_id]
-            if number>row['attempt']:raise ValueError('history beyond current attempt')
+            if number>row.get('attempt',0):raise ValueError('history beyond current attempt')
             if not attempt.get('worker') or not attempt.get('attempt_token'):raise ValueError('history execution identity missing')
             if number==row['attempt'] and (attempt['worker']!=row['worker'] or attempt['attempt_token']!=row['attempt_token']):
                 raise ValueError('latest attempt identity mismatch')
             receipt=attempt.get('exit_receipt')
+            revoked=attempt.get('start_revoked_at')
+            not_started=isinstance(receipt,dict) and (receipt.get('scope')=='not-started' or receipt.get('start_revoked') is True)
+            if not_started:
+                if (attempt.get('executor_kind')!='isolated-v2' or not isinstance(revoked,str) or not revoked
+                    or attempt.get('container_id')!='' or receipt.get('scope')!='not-started'
+                    or receipt.get('start_revoked') is not True or not isinstance(attempt.get('location'),str)
+                    or not attempt['location'] or receipt.get('location')!=attempt['location']):
+                    raise ValueError('invalid not-started revocation evidence')
+            if revoked is not None:
+                if attempt.get('executor_kind') not in ('legacy','isolated-v2') or not isinstance(revoked,str) or not revoked:
+                    raise ValueError('invalid revoked execution metadata')
+                if attempt.get('publication_state')=='published':raise ValueError('revoked attempt cannot publish')
+                if not not_started:
+                    # A later genuine removal receipt may replace not-started
+                    # proof while the start gate remains permanently revoked.
+                    if (not isinstance(receipt,dict) or receipt.get('scope')!='container'
+                        or not attempt.get('container_id') or receipt.get('container_id')!=attempt['container_id']
+                        or receipt.get('location')!=attempt.get('location') or receipt.get('removed') is not True
+                        or receipt.get('exited') is not True or receipt.get('inspected_id')!=attempt['container_id']
+                        or receipt.get('running') is not False or type(receipt.get('pid')) is not int or receipt['pid']!=0
+                        or receipt.get('labels',{}).get('cpag.job')!=job_id
+                        or receipt.get('labels',{}).get('cpag.attempt')!=str(number)
+                        or receipt.get('labels',{}).get('cpag.worker')!=attempt['worker']):
+                        raise ValueError('revoked execution requires bound removal evidence')
             if receipt is not None:
-                if receipt.get('id')!=job_id or receipt.get('attempt')!=number or receipt.get('worker')!=attempt['worker'] or receipt.get('token')!=attempt['attempt_token']:
+                if not isinstance(receipt,dict) or receipt.get('id')!=job_id or receipt.get('attempt')!=number or receipt.get('worker')!=attempt['worker'] or receipt.get('token')!=attempt['attempt_token']:
                     raise ValueError('history exit receipt identity mismatch')
                 if attempt.get('exited_at') is None:raise ValueError('history exit receipt lacks exited_at')
             if attempt.get('publication_state')=='published':
@@ -180,11 +243,11 @@ def audit_attempts(rows, attempts):
                     raise ValueError('history publication mismatch')
             elif number==row['attempt'] and row['state']=='succeeded':raise ValueError('success lacks published attempt history')
             seen[(job_id,number)]=attempt
-        except (KeyError,TypeError,ValueError) as error:errors.append({'job_id':job_id,'attempt':number,'reason':str(error)})
-    for row in rows:
+        except (KeyError,TypeError,ValueError,AttributeError) as error:errors.append({'row_index':position,'job_id':job_id,'attempt':number,'reason':str(error)})
+    for row in jobs.values():
         if {n for j,n in seen if j==row['id']}!=set(range(1,row.get('attempt',0)+1)):
             errors.append({'job_id':row['id'],'reason':'incomplete attempt history'})
-    return {'valid':not errors,'errors':errors,'attempt_count':len(attempts)}
+    return {'valid':not errors,'errors':errors,'attempt_count':len(attempts),'verified_attempt_count':len(seen)}
 
 
 def pg(container, db, command, *args, **kwargs):
@@ -208,31 +271,60 @@ def backup(container, db, root, destination):
     if destination.exists() or destination.is_relative_to(root): raise ValueError('new bundle outside shared root required')
     if db!='m4_validation': raise ValueError('backup source must be disposable m4_validation')
     # Hold SHARE lock across dump and copy. Writers cannot change jobs while the exported snapshot is in use.
+    created_destination=False;phase='database_snapshot'
     conn=subprocess.Popen(['docker','exec','-i',container,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
         query="BEGIN; SET LOCAL lock_timeout='5s'; LOCK TABLE m4_jobs, m4_job_attempts IN SHARE MODE; SELECT 'SNAPSHOT:'||pg_export_snapshot(); SELECT 'ROWS:'||coalesce(json_agg(row_to_json(j) ORDER BY id),'[]'::json)::text FROM m4_jobs j; SELECT 'ATTEMPTS:'||coalesce(json_agg(row_to_json(a) ORDER BY job_id,attempt),'[]'::json)::text FROM m4_job_attempts a;\n"
         conn.stdin.write(query);conn.stdin.flush()
         snapshot=conn.stdout.readline().strip();raw_rows=conn.stdout.readline().strip();raw_attempts=conn.stdout.readline().strip()
         if not snapshot.startswith('SNAPSHOT:') or not raw_rows.startswith('ROWS:') or not raw_attempts.startswith('ATTEMPTS:'): raise ValueError('could not establish database snapshot')
-        rows=json.loads(raw_rows[5:]);attempts=json.loads(raw_attempts[9:]);before=audit(rows,root)
+        rows=json.loads(raw_rows[5:]);attempts=json.loads(raw_attempts[9:]);phase='source_audit';before=audit(rows,root)
         if not before['valid']: raise ValueError('source reference audit failed: '+json.dumps(before['errors']))
         history=audit_attempts(rows,attempts)
         if not history['valid']:raise ValueError('source attempt history invalid: '+json.dumps(history['errors']))
-        destination.mkdir(mode=0o700)
-        files=inventory(root)
+        destination.mkdir(mode=0o700);created_destination=True
+        phase='copy_files';files=inventory(root)
         shutil.copytree(root,destination/'files',symlinks=False)
         if inventory(destination/'files')!=files or inventory(root)!=files: raise ValueError('source changed during backup')
+        # The source may have changed between the first reference audit and the
+        # inventory captured for copying. Hash agreement between two copies alone
+        # cannot establish agreement with the exported database snapshot.
+        phase='copied_reference_audit';copied=audit(rows,destination/'files')
+        if not copied['valid']:raise ValueError('copied reference audit failed: '+json.dumps(copied['errors']))
+        phase='database_dump'
         with (destination/'database.dump').open('xb') as dump:
             pg(container,db,'pg_dump','-Fc','--snapshot='+snapshot[9:],stdout=dump)
+        phase='final_integrity'
+        if inventory(destination/'files')!=files or inventory(root)!=files:raise ValueError('files changed during database dump')
+        phase='bundle_publication'
         bundle={'format_version':2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
-                'database_sha256':sha(destination/'database.dump'),'source_audit':before,'attempt_audit':history,
+                'database_sha256':sha(destination/'database.dump'),'source_audit':before,'copied_audit':copied,'attempt_audit':history,
                 'consistency':'exported PostgreSQL snapshot + SHARE lock; terminal tasks only; file pre/post hashes'}
-        (destination/'bundle.json').write_text(json.dumps(bundle,sort_keys=True,indent=2)+'\n')
+        write_report(destination/'bundle.json',bundle)
         return bundle
+    except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
+        if created_destination:
+            try:write_report(destination/'backup-failure.json',{'valid':False,'phase':phase,'reason':str(error),
+                'orphan_policy':'retain_and_report; incomplete bundle retained, no valid bundle published'})
+            except OSError:pass
+        raise
     finally:
         if conn.poll() is None:
             try: conn.stdin.write('ROLLBACK;\n\\q\n');conn.stdin.flush();conn.communicate(timeout=5)
             except (BrokenPipeError,subprocess.TimeoutExpired): conn.kill();conn.wait()
+
+
+def write_report(path, value):
+    """Replace only a reserved report, atomically; partial JSON never means success."""
+    temporary=None
+    try:
+        with tempfile.NamedTemporaryFile(mode='w',encoding='utf-8',dir=path.parent,
+                                         prefix=path.name+'.pending-',delete=False) as stream:
+            temporary=Path(stream.name)
+            json.dump(value,stream,indent=2);stream.write('\n');stream.flush();os.fsync(stream.fileno())
+        os.replace(temporary,path)
+    finally:
+        if temporary is not None and temporary.exists():temporary.unlink()
 
 
 def restore(container, bundle_dir, destination):
@@ -240,6 +332,11 @@ def restore(container, bundle_dir, destination):
     report=destination.parent/(destination.name+'-audit.json')
     if destination.exists() or report.exists() or destination.is_relative_to(bundle_dir):
         raise ValueError('restore destination and report must be new and outside bundle')
+    # Atomic reservation prevents a concurrent/repeated invocation from replacing
+    # another invocation's successful or failed terminal audit.
+    report.parent.mkdir(parents=True,exist_ok=True)
+    with open(report,'x',opener=lambda path,flags:os.open(path,flags,0o600)) as stream:
+        json.dump({'valid':False,'phase':'reserved','status':'in_progress'},stream);stream.write('\n')
     phase='bundle_integrity'
     try:
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
@@ -267,12 +364,16 @@ def restore(container, bundle_dir, destination):
         if inventory(destination)!=bundle['files']:raise ValueError('restored file inventory differs from bundle')
         result.update(phase='completed',database='m4_restore_validation',metadata_equal=True,
                       file_inventory_equal=True,attempt_history_equal=True)
-        report.write_text(json.dumps(result,indent=2)+'\n')
+        write_report(report,result)
         return result
-    except (OSError,ValueError,KeyError,TypeError,subprocess.SubprocessError) as error:
-        report.parent.mkdir(parents=True,exist_ok=True)
-        report.write_text(json.dumps({'valid':False,'phase':phase,'reason':str(error),
-            'orphan_policy':'retain_and_report; partial restore retained for inspection'},indent=2)+'\n')
+    except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
+        try:
+            write_report(report,{'valid':False,'phase':phase,'reason':str(error),
+                'orphan_policy':'retain_and_report; partial restore retained for inspection'})
+        except OSError:
+            # The pre-reserved report remains invalid if capacity prevents the
+            # failure update too. Preserve the original operation error.
+            pass
         raise
 
 

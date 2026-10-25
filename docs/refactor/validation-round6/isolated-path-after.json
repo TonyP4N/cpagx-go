@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "api_and_docker_mocked": true,
+  "same_daemon_scope": true,
+  "record_id": "../outside",
+  "external_to_jobs_reads": [],
+  "outgoing_paths": [
+    "/v1/executions?location=docker%3Adaemon%3Ab7b11b68899dba9c48e72ca8",
+    "/v1/jobs/legitimate/attempts"
+  ],
+  "outcomes": [
+    {
+      "id": "../outside",
+      "attempt": 1,
+      "pending": "malformed_execution_record",
+      "retryable": true,
+      "error_type": "ValueError"
+    }
+  ]
+}

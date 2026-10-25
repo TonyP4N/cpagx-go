@@ -1,0 +1,15 @@
+{
+  "baseline_logic": "2f08784 backup unchanged",
+  "synthetic": true,
+  "database_calls_mocked": true,
+  "backup_returned_success": true,
+  "recorded_source_audit_valid": true,
+  "copied_files_audit_valid": false,
+  "errors": [
+    {
+      "row_index": 0,
+      "job_id": "test",
+      "reason": "checksum/size mismatch: network.jsonl"
+    }
+  ]
+}

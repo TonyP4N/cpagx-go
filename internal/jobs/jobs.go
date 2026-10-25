@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"path"
 	"regexp"
+	"strings"
 	"time"
 )
 
@@ -36,6 +37,15 @@ func (r Repository) Enqueue(ctx context.Context, id string, maxAttempts int) err
 // Claim atomically locks and fences one eligible task. Expired final attempts are terminal.
 // Durations are bounded; all lease comparisons use database time.
 func (r Repository) Claim(ctx context.Context, worker string, lease time.Duration) (Claim, error) {
+	return r.claim(ctx, worker, lease, "", "")
+}
+func (r Repository) ClaimExecution(ctx context.Context, worker string, lease time.Duration, executor, location string) (Claim, error) {
+	if executor != "isolated-v2" || !strings.HasPrefix(location, "docker:") || len(location) > 512 {
+		return Claim{}, errors.New("invalid gated executor or location")
+	}
+	return r.claim(ctx, worker, lease, executor, location)
+}
+func (r Repository) claim(ctx context.Context, worker string, lease time.Duration, executor, location string) (Claim, error) {
 	if worker == "" || lease < time.Second || lease > time.Hour {
 		return Claim{}, errors.New("invalid worker or lease")
 	}
@@ -49,13 +59,34 @@ func (r Repository) Claim(ctx context.Context, worker string, lease time.Duratio
 		return c, err
 	}
 	token := hex.EncodeToString(tokenBytes)
-	err = r.DB.QueryRowContext(ctx, `WITH candidate AS (
+	type rowQuery interface {
+		QueryRowContext(context.Context, string, ...any) *sql.Row
+	}
+	var query rowQuery = r.DB
+	var tx *sql.Tx
+	if executor != "" {
+		tx, err = r.DB.BeginTx(ctx, nil)
+		if err != nil {
+			return c, err
+		}
+		defer tx.Rollback()
+		query = tx
+	}
+	err = query.QueryRowContext(ctx, `WITH candidate AS (
  SELECT id FROM m4_jobs WHERE attempt<max_attempts AND
  ((state='queued' AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<=clock_timestamp()))
  ORDER BY available_at,id FOR UPDATE SKIP LOCKED LIMIT 1)
  UPDATE m4_jobs j SET state='running',attempt=j.attempt+1,worker=$1,attempt_token=$3,
  lease_until=clock_timestamp()+($2 * interval '1 millisecond') FROM candidate c WHERE j.id=c.id
  RETURNING j.id,j.attempt,j.worker,j.attempt_token`, worker, lease.Milliseconds(), token).Scan(&c.ID, &c.Attempt, &c.Worker, &c.Token)
+	if err == nil && tx != nil {
+		var result sql.Result
+		result, err = tx.ExecContext(ctx, `UPDATE m4_job_attempts SET executor_kind=$5,location=$6 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4`, c.ID, c.Attempt, c.Worker, c.Token, executor, location)
+		err = affected(result, err)
+		if err == nil {
+			err = tx.Commit()
+		}
+	}
 	return c, err
 }
 func affected(result sql.Result, err error) error {
@@ -75,7 +106,7 @@ func (r Repository) Heartbeat(ctx context.Context, c Claim, lease time.Duration)
 	if lease < time.Second || lease > time.Hour {
 		return errors.New("invalid lease")
 	}
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET lease_until=clock_timestamp()+($4 * interval '1 millisecond') WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$5 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, lease.Milliseconds(), c.Token))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET lease_until=clock_timestamp()+($4 * interval '1 millisecond') WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$5 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.start_revoked_at IS NOT NULL)`, c.ID, c.Attempt, c.Worker, lease.Milliseconds(), c.Token))
 }
 
 // Fail retries with bounded exponential backoff (1s..256s); final failure is terminal.
@@ -96,7 +127,7 @@ func (r Repository) Cancel(ctx context.Context, id string) error {
 // AcknowledgeCancel must be called only after the attempt's subprocess has exited.
 // Recovery also must independently confirm no process remains before acknowledging.
 func (r Repository) AcknowledgeCancel(ctx context.Context, c Claim) error {
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='cancelling' AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt`, c.ID, c.Attempt, c.Worker, c.Token))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state IN ('cancelling','cancelled') AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt`, c.ID, c.Attempt, c.Worker, c.Token))
 }
 
 // ArtifactKey gives each attempt a distinct relative immutable destination.
@@ -118,7 +149,20 @@ func (r Repository) Complete(ctx context.Context, c Claim, key, sha string) erro
 	if key != expected {
 		return errors.New("artifact key mismatch")
 	}
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.container_id!='' AND a.exited_at IS NULL)`, c.ID, c.Attempt, c.Worker, key, sha, c.Token))
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	var locked string
+	if err = tx.QueryRowContext(ctx, `SELECT id FROM m4_jobs WHERE id=$1 FOR UPDATE`, c.ID).Scan(&locked); err != nil {
+		return err
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND (a.start_revoked_at IS NOT NULL OR (a.executor_kind='isolated-v2' AND a.container_id='') OR (a.container_id!='' AND a.exited_at IS NULL)))`, c.ID, c.Attempt, c.Worker, key, sha, c.Token)
+	if err = affected(result, err); err != nil {
+		return err
+	}
+	return tx.Commit()
 }
 
 // EnqueuePayload stores the validated immutable input description.
@@ -147,7 +191,7 @@ type Status struct {
 
 func (r Repository) Status(ctx context.Context, id string) (Status, error) {
 	var s Status
-	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason,(state='running' AND lease_until>clock_timestamp()) FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason, &s.LeaseValid)
+	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason,(state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.start_revoked_at IS NOT NULL)) FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason, &s.LeaseValid)
 	if err == nil {
 		s.AttemptHistory, err = r.History(ctx, id)
 		for n := 1; n <= s.Attempt; n++ {
@@ -167,7 +211,7 @@ func (r Repository) Status(ctx context.Context, id string) (Status, error) {
 
 func (r Repository) CheckClaim(ctx context.Context, c Claim) error {
 	var ok bool
-	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='running' AND lease_until>clock_timestamp())`, c.ID, c.Attempt, c.Worker, c.Token).Scan(&ok)
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.start_revoked_at IS NOT NULL))`, c.ID, c.Attempt, c.Worker, c.Token).Scan(&ok)
 	if err != nil {
 		return err
 	}
@@ -191,7 +235,7 @@ func (r Repository) CheckPublication(ctx context.Context, c Claim) error {
 		return err
 	}
 	var pending bool
-	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE job_id=$1 AND attempt=$2 AND container_id!='' AND exited_at IS NULL)`, c.ID, c.Attempt).Scan(&pending)
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE job_id=$1 AND attempt=$2 AND (start_revoked_at IS NOT NULL OR (executor_kind='isolated-v2' AND container_id='') OR (container_id!='' AND exited_at IS NULL)))`, c.ID, c.Attempt).Scan(&pending)
 	if err != nil {
 		return err
 	}

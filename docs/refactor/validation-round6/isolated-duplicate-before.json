@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "docker_not_used": true,
+  "api_mocked": true,
+  "first_still_staging_inputs": true,
+  "duplicate_result": "failed",
+  "api_calls_while_first_active": [
+    "/v1/jobs/same-claim/fail"
+  ],
+  "reservation_before": 2162709,
+  "reservation_after": 65705
+}

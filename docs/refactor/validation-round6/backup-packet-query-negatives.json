@@ -1,0 +1,4 @@
+{
+  "missing_capture": "FileNotFoundError",
+  "tampered_capture": "ValueError"
+}

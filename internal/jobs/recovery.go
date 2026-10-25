@@ -3,6 +3,7 @@ package jobs
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -82,7 +83,7 @@ func VerifyExit(root string, c Claim) error {
 
 // RefreshExitEvidence imports only receipts bound to the persisted execution.
 func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) error {
-	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,attempt_token,location FROM m4_job_attempts WHERE job_id=$1 AND exited_at IS NULL`, id)
+	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,attempt_token,location FROM m4_job_attempts WHERE job_id=$1 AND exited_at IS NULL ORDER BY attempt`, id)
 	if err != nil {
 		return err
 	}
@@ -105,21 +106,51 @@ func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) er
 	if err != nil {
 		return err
 	}
+	if len(items) == 0 {
+		return nil
+	}
+
+	// Probe the shared dependency once. Per-attempt paths can then fail locally
+	// without preventing unrelated good receipts from being processed.
+	realRoot, rootErr := filepath.EvalSymlinks(root)
+	if rootErr != nil {
+		return fmt.Errorf("receipt root unavailable: %w", rootErr)
+	}
+	rootInfo, rootErr := os.Stat(realRoot)
+	if rootErr != nil {
+		return fmt.Errorf("receipt root unavailable: %w", rootErr)
+	}
+	if !rootInfo.IsDir() {
+		return fmt.Errorf("receipt root is not a directory")
+	}
+
 	for _, a := range items {
 		proof, e := readExit(root, a.c)
 		if e != nil {
+			if err = r.noteExitCheck(ctx, a.c, e); err != nil {
+				return err
+			}
 			continue
 		}
-		if a.location != "legacy-process-group" {
+		if a.location != "legacy-process-group" || proof.Scope == "container" {
 			if e = r.RecordExit(ctx, a.c, proof); e != nil {
-				continue
+				if errors.Is(e, ErrStale) || errors.Is(e, ErrInvalidProof) {
+					if err = r.noteExitCheck(ctx, a.c, e); err != nil {
+						return err
+					}
+					continue
+				}
+				return fmt.Errorf("record exit %s attempt %d: %w", id, a.c.Attempt, e)
 			}
 		} else {
 			if e = VerifyExit(root, a.c); e != nil {
+				if err = r.noteExitCheck(ctx, a.c, e); err != nil {
+					return err
+				}
 				continue
 			}
 			raw, _ := json.Marshal(proof)
-			if _, e = r.DB.ExecContext(ctx, `UPDATE m4_job_attempts SET exited_at=clock_timestamp(),exit_receipt=$5 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND location='legacy-process-group' AND exited_at IS NULL`, id, a.c.Attempt, a.c.Worker, a.c.Token, string(raw)); e != nil {
+			if _, e = r.DB.ExecContext(ctx, `UPDATE m4_job_attempts SET exit_checked_at=clock_timestamp(),exit_error=NULL,exited_at=clock_timestamp(),exit_receipt=$5 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND location='legacy-process-group' AND exited_at IS NULL`, id, a.c.Attempt, a.c.Worker, a.c.Token, string(raw)); e != nil {
 				return e
 			}
 		}
@@ -135,7 +166,7 @@ func (r Repository) Recover(ctx context.Context, root string) error {
 	if err != nil {
 		return err
 	}
-	pendingRows, e := r.DB.QueryContext(ctx, `SELECT DISTINCT job_id FROM m4_job_attempts WHERE exited_at IS NULL`)
+	pendingRows, e := r.DB.QueryContext(ctx, `SELECT DISTINCT job_id FROM m4_job_attempts WHERE exited_at IS NULL ORDER BY job_id`)
 	if e != nil {
 		return e
 	}

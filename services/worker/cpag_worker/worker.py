@@ -68,7 +68,12 @@ class Worker:
             # Exclusive attempt namespace. Core writes artifacts before its final manifest.
             output.parent.mkdir(parents=True,exist_ok=True)
             control = output.parent/(output.name+'.worker')
-            control.mkdir(mode=0o700,exist_ok=False)
+            try:
+                control.mkdir(mode=0o700,exist_ok=False)
+            except FileExistsError:
+                # Another invocation owns this immutable namespace. Never fail
+                # its live claim or overwrite its recovery evidence.
+                return 'reconciliation_required'
             command = self.command or [sys.executable,'-m','cpag_core']
             command = command + ['--network',str(paths['network']),'--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output),'--synthetic']
             # Deliberately pass only runtime environment; no database/API credentials.
@@ -119,7 +124,18 @@ class Worker:
                 publication['artifacts'].append({'path':entry['path'],'sha256':digest(path),'size':path.stat().st_size})
             publication['artifacts'].append({'path':'run_manifest.json','sha256':digest(output/'run_manifest.json'),'size':(output/'run_manifest.json').stat().st_size})
             (output/'manifest.json').write_text(json.dumps(publication,sort_keys=True)+'\n')
-            self.api.post(endpoint+'/complete',{**identity,'manifest_sha256':digest(output/'manifest.json')})
+            try:
+                self.api.post(endpoint+'/complete',{**identity,'manifest_sha256':digest(output/'manifest.json')})
+            except APIError as error:
+                if error.status >= 500:
+                    return 'publication_pending'
+                if error.status == 409:
+                    return 'lost_lease'
+                raise
+            except (OSError, ValueError):
+                # Completion may have committed before the response was lost.
+                # Do not send fail or destroy durable files on an unknown outcome.
+                return 'publication_pending'
             return 'succeeded'
         except (OSError,ValueError,KeyError,APIError,subprocess.TimeoutExpired) as error:
             if guardian and guardian.poll() is None:
@@ -148,9 +164,14 @@ def main():
     signal.signal(signal.SIGTERM,worker.stop)
     signal.signal(signal.SIGINT,worker.stop)
     while not worker.stopping:
-        try: worker.once()
-        except (OSError,ValueError,APIError): pass
-        if args.once: break
+        try:
+            result = worker.once()
+            code = 0 if result in ('succeeded','cancelled','idle') else 75 if result in ('lost_lease','publication_pending','reconciliation_required','stopped') else 1
+            print(json.dumps({'outcome':result,'retryable':code == 75}), flush=True)
+        except (OSError,ValueError,APIError) as error:
+            code = 75
+            print(json.dumps({'outcome':'dependency_unavailable','error_type':type(error).__name__,'retryable':True}), file=sys.stderr, flush=True)
+        if args.once: return code
         for _ in range(20):
             if worker.stopping: break
             time.sleep(.1)

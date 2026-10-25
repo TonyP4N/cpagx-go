@@ -1,0 +1,107 @@
+{
+  "lease_valid": false,
+  "id": "isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3",
+  "state": "cancelled",
+  "attempt": 2,
+  "payload": {
+    "network": {
+      "path": "inputs/isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+    },
+    "process": {
+      "path": "inputs/isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+    },
+    "profile": {
+      "path": "inputs/isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+    },
+    "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+  },
+  "artifact_path": null,
+  "artifact_sha256": null,
+  "recovery_deadline": "2026-10-26T01:24:19.983533+08:00",
+  "recovery_checked_at": "2026-10-26T01:24:20.001507+08:00",
+  "recovery_reason": "all attempt exit evidence recorded",
+  "missing_exit_attempts": null,
+  "attempt_history": [
+    {
+      "executor": "isolated-v2",
+      "start_revoked_at": null,
+      "exit_checked_at": "2026-10-26T01:24:15.812596+08:00",
+      "exit_error": null,
+      "claimed_at": "2026-10-26T01:24:09.719112+08:00",
+      "artifact_sha256": null,
+      "exit_evidence": {
+        "attempt": 1,
+        "child_pid": 0,
+        "container_id": "d64c4eef28251400d7b41ca6330a679d68c1131755fae495dc9b2820b3c8781e",
+        "exited": true,
+        "group_exited": false,
+        "guardian_pid": 0,
+        "id": "isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3",
+        "inspected_id": "d64c4eef28251400d7b41ca6330a679d68c1131755fae495dc9b2820b3c8781e",
+        "labels": {
+          "cpag.attempt": "1",
+          "cpag.execution": "6d2e13ff48d2487db4a8ba38a3f7828f",
+          "cpag.job": "isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3",
+          "cpag.managed": "isolated-v1",
+          "cpag.scope": "dfe699d653ea043aa69473a1",
+          "cpag.worker": "host-multi-restart"
+        },
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:dfe699d653ea043aa69473a1",
+        "pid": 0,
+        "removed": true,
+        "running": false,
+        "scope": "container",
+        "worker": "host-multi-restart"
+      },
+      "attempt": 1,
+      "worker": "host-multi-restart",
+      "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:dfe699d653ea043aa69473a1",
+      "container_id": "d64c4eef28251400d7b41ca6330a679d68c1131755fae495dc9b2820b3c8781e",
+      "exited_at": "2026-10-26T01:24:12.811406+08:00",
+      "publication_state": "fenced",
+      "artifact_path": null
+    },
+    {
+      "executor": "isolated-v2",
+      "start_revoked_at": null,
+      "exit_checked_at": "2026-10-26T01:24:15.942381+08:00",
+      "exit_error": null,
+      "claimed_at": "2026-10-26T01:24:14.497202+08:00",
+      "artifact_sha256": null,
+      "exit_evidence": {
+        "attempt": 2,
+        "child_pid": 0,
+        "container_id": "a879ccef11b5e2f72e0166521e0296c82b1c121ed5c79646792d314d2ae1d6d1",
+        "exited": true,
+        "group_exited": false,
+        "guardian_pid": 0,
+        "id": "isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3",
+        "inspected_id": "a879ccef11b5e2f72e0166521e0296c82b1c121ed5c79646792d314d2ae1d6d1",
+        "labels": {
+          "cpag.attempt": "2",
+          "cpag.execution": "b9e4b130b0274f1caeb5b8739c14894d",
+          "cpag.job": "isolated-multi-restart-7638ba2d3d5246f68d0a8739574afdf3",
+          "cpag.managed": "isolated-v1",
+          "cpag.scope": "dfe699d653ea043aa69473a1",
+          "cpag.worker": "host-multi-second"
+        },
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:dfe699d653ea043aa69473a1",
+        "pid": 0,
+        "removed": true,
+        "running": false,
+        "scope": "container",
+        "worker": "host-multi-second"
+      },
+      "attempt": 2,
+      "worker": "host-multi-second",
+      "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:dfe699d653ea043aa69473a1",
+      "container_id": "a879ccef11b5e2f72e0166521e0296c82b1c121ed5c79646792d314d2ae1d6d1",
+      "exited_at": "2026-10-26T01:24:15.942381+08:00",
+      "publication_state": "fenced",
+      "artifact_path": null
+    }
+  ]
+}

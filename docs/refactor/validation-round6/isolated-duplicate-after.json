@@ -1,0 +1,10 @@
+{
+  "synthetic": true,
+  "docker_not_used": true,
+  "api_mocked": true,
+  "first_still_staging_inputs": true,
+  "duplicate_result": "reconcile_required",
+  "api_calls_while_first_active": [],
+  "reservation_before": 2162709,
+  "reservation_after": 2162709
+}

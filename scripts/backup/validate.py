@@ -26,7 +26,7 @@ CONTAINER='cpag-m4-backup-validation'
 PG_PORT='55443'
 API_PORT='18098'
 IMAGE='mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94'
-REPORT=Path(os.environ.get('CPAG_BACKUP_REPORT_DIR',str(REPO/'docs/refactor/validation-round5')))
+REPORT=Path(os.environ.get('CPAG_BACKUP_REPORT_DIR',str(REPO/'docs/refactor/validation-round6')))
 
 
 def execute(*args,**kwargs):return subprocess.run(args,check=True,**kwargs)
@@ -55,7 +55,7 @@ def main():
                      GOMODCACHE=os.environ.get('GOMODCACHE',str(Path(tempfile.gettempdir())/'cpag-go-mod')))
             execute('go','build','-o',str(work/'api'),'./cmd/m4-job-api',cwd=REPO/'internal/jobs/integration',env=env)
             env.update(CPAG_ENABLE_M4='1',M4_DATABASE_URL='postgres://postgres:m4-disposable-only@127.0.0.1:'+PG_PORT+'/m4_validation?sslmode=disable',
-                       CPAG_SHARED_ROOT=str(shared),CPAG_WORKER_TOKEN=secrets.token_urlsafe(32),CPAG_JOB_API_ADDR='127.0.0.1:'+API_PORT)
+                       CPAG_SHARED_ROOT=str(shared),CPAG_WORKER_TOKEN=secrets.token_urlsafe(32),CPAG_COORDINATOR_TOKEN=secrets.token_urlsafe(32),CPAG_JOB_API_ADDR='127.0.0.1:'+API_PORT)
             os.environ['PYTHONPATH']=env['PYTHONPATH']
             def start_api():
                 nonlocal api_process
@@ -70,6 +70,7 @@ def main():
                 raise RuntimeError('API readiness timeout')
             start_api()
             api=API('http://127.0.0.1:'+API_PORT,env['CPAG_WORKER_TOKEN'])
+            coordinator=API(api.url,env['CPAG_COORDINATOR_TOKEN'])
             def status(job):
                 request=urllib.request.Request(api.url+'/v1/jobs/'+job,headers={'Authorization':'Bearer '+api.token})
                 with urllib.request.urlopen(request,timeout=3) as source:return json.load(source)
@@ -105,6 +106,16 @@ def main():
             record=status('backup-packet')
             assert packet_status=='succeeded',{'worker_result':packet_status,'state':record['state'],'last_error':record.get('last_error')}
             assert status('backup-packet')['state']=='succeeded'
+            # Persist a real gated never-started cancellation proof through backup.
+            api.post('/v1/jobs',{'id':'backup-not-started','max_attempts':1,'payload':payload})
+            gated=api.post('/v1/claim',{'worker':'backup-gated','lease_seconds':5,'executor':'isolated-v2',
+                                       'location':'docker:backup-validation:no-start'})
+            assert gated['id']=='backup-not-started'
+            gated_identity={key:gated[key] for key in ('attempt','worker','token')}
+            api.post('/v1/jobs/backup-not-started/cancel',{})
+            coordinator.post('/v1/jobs/backup-not-started/not-started',{**gated_identity,'location':gated['location']})
+            api.post('/v1/jobs/backup-not-started/ack-cancel',gated_identity)
+            assert status('backup-not-started')['state']=='cancelled'
             (shared/'orphan-retained.txt').write_text('unreferenced synthetic diagnostic; retain\n')
             snapshot=bundle.backup(CONTAINER,'m4_validation',shared,work/'bundle')
             assert snapshot['source_audit']['valid']
@@ -116,9 +127,34 @@ def main():
             assert (restored/'orphan-retained.txt').read_bytes()==(shared/'orphan-retained.txt').read_bytes()
             env.update(M4_DATABASE_URL=env['M4_DATABASE_URL'].replace('/m4_validation?','/m4_restore_validation?'),CPAG_SHARED_ROOT=str(restored))
             start_api()
-            for job,state in [('backup-success','succeeded'),('backup-cancelled','cancelled'),('backup-failed','failed'),('backup-packet','succeeded')]:
+            for job,state in [('backup-success','succeeded'),('backup-cancelled','cancelled'),('backup-failed','failed'),('backup-packet','succeeded'),('backup-not-started','cancelled')]:
                 assert status(job)['state']==state
             rows=bundle.rows_now(CONTAINER,'m4_restore_validation')
+            # A repeat cannot replace either a terminal report or an existing DB.
+            audit_path=restored.parent/(restored.name+'-audit.json')
+            original_report=audit_path.read_bytes()
+            try:bundle.restore(CONTAINER,work/'bundle',restored)
+            except (ValueError,OSError):pass
+            else:raise AssertionError('repeat restore accepted existing destination')
+            assert audit_path.read_bytes()==original_report
+            collision=work/'restore-existing-database'
+            try:bundle.restore(CONTAINER,work/'bundle',collision)
+            except subprocess.CalledProcessError:pass
+            else:raise AssertionError('repeat restore overwrote existing database')
+            collision_report=json.loads(Path(str(collision)+'-audit.json').read_text())
+            assert collision_report['valid'] is False and collision_report['phase']=='create_new_database'
+            assert bundle.rows_now(CONTAINER,'m4_restore_validation')==rows
+            (REPORT/'backup-repeat-restore-audit.json').write_text(json.dumps({'valid':True,
+                'existing_report_unchanged':True,'existing_database_rows_unchanged':True,
+                'new_destination_refused_existing_database':collision_report},indent=2)+'\n')
+            batch=bundle.audit([{'id':'injected-malformed','state':'failed','payload':'bad'},*rows],restored)
+            assert not batch['valid'] and len(batch['jobs'])==len(rows)+1
+            assert sum(job['valid'] for job in batch['jobs'])==len(rows)
+            (REPORT/'backup-mixed-batch-audit.json').write_text(json.dumps(batch,indent=2)+'\n')
+            history=bundle.attempts_now(CONTAINER,'m4_restore_validation')
+            history_report=bundle.audit_attempts(rows,[None,*history])
+            assert not history_report['valid'] and history_report['verified_attempt_count']==len(history)
+            (REPORT/'backup-mixed-history-audit.json').write_text(json.dumps(history_report,indent=2)+'\n')
             packet_row=next(row for row in rows if row['id']=='backup-packet')
             packet_output=(restored/packet_row['artifact_path']).parent
             packet_capture=restored/packet_row['payload']['network']['path']
@@ -159,6 +195,8 @@ def main():
                      'states_verified':['succeeded','cancelled','failed'],'real_worker_execution':True,
                      'restored_api_read_verified':True,'dump_and_files_checksums_verified':True,
                      'packet_job_restored_query_verified':True,'packet_missing_tamper_detected':True,
+                     'repeat_restore_preserves_terminal_report_and_database':True,'malformed_job_and_history_do_not_abort_batch':True,
+                     'not_started_revocation_proof_restored':True,
                      'attempt_history_equal':result['attempt_history_equal'],'attempt_history_count':len(snapshot['attempts']),
                      'original_record_and_graph_refs_verified':True,'orphan_retained':True,
                      'missing_file_detected':True,'tampered_input_detected':True,

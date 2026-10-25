@@ -157,3 +157,170 @@ class BundleTests(unittest.TestCase):
         result=bundle.audit_attempts([row],history)
         self.assertFalse(result['valid'])
         self.assertNotIn('synthetic-new',json.dumps(result));self.assertNotIn('forged',json.dumps(result))
+
+    def mock_bundle(self):
+        source=Path(self.tmp.name)/'bundle';source.mkdir();shutil.copytree(self.root,source/'files')
+        (source/'database.dump').write_bytes(b'fake dump for injected database calls only')
+        manifest={'format_version':2,'synthetic_validation_only':True,'rows':[self.row],'attempts':[],
+                  'database_sha256':bundle.sha(source/'database.dump'),'files':bundle.inventory(source/'files')}
+        (source/'bundle.json').write_text(json.dumps(manifest))
+        return source,Path(self.tmp.name)/'restored'
+
+    def test_missing_or_unreadable_tree_never_reports_valid(self):
+        missing=self.root/'missing'
+        report=bundle.audit([],missing)
+        self.assertFalse(report['valid']);self.assertFalse(report['inventory_complete'])
+        with self.assertRaises(ValueError):bundle.inventory(missing)
+        with patch.object(bundle.os,'scandir',side_effect=PermissionError('injected denied subtree')):
+            report=bundle.audit([],self.root)
+        self.assertFalse(report['valid']);self.assertIn('denied',report['errors'][0]['reason'])
+
+    def test_malformed_job_does_not_abort_later_valid_job_audit(self):
+        report=bundle.audit([{'id':'malformed','state':'failed','payload':'not-object'},None,self.row],self.root)
+        self.assertFalse(report['valid'])
+        self.assertEqual([r['valid'] for r in report['jobs']],[False,False,True])
+        self.assertIn(self.row['artifact_path'],report['referenced_files'])
+        for state in ('failed','cancelled'):
+            self.assertFalse(bundle.audit([{'id':'missing','state':state,'payload':{}}],self.root)['valid'])
+
+    def test_malformed_history_does_not_abort_later_entries(self):
+        row={**self.row,'attempt':1,'worker':'worker','attempt_token':'synthetic'}
+        valid={'job_id':row['id'],'attempt':1,'worker':'worker','attempt_token':'synthetic','publication_state':'published',
+               'artifact_path':row['artifact_path'],'artifact_sha256':row['artifact_sha256']}
+        report=bundle.audit_attempts([None,row],[None,{'job_id':'missing'},valid])
+        self.assertFalse(report['valid']);self.assertEqual(report['verified_attempt_count'],1)
+
+    def test_restore_copy_capacity_and_truncation_fail_without_valid_marker(self):
+        import errno
+        source,dest=self.mock_bundle()
+        with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
+             patch.object(bundle.shutil,'copytree',side_effect=OSError(errno.ENOSPC,'injected no space')):
+            with self.assertRaises(OSError):bundle.restore('unused',source,dest)
+        report=json.loads(Path(str(dest)+'-audit.json').read_text())
+        self.assertFalse(report['valid']);self.assertEqual(report['phase'],'restore_files')
+        Path(str(dest)+'-audit.json').unlink()
+        original_copy=shutil.copytree
+        def truncated_copy(src,target,*args,**kwargs):
+            original_copy(src,target,*args,**kwargs)
+            if Path(target).resolve()==dest.resolve():(Path(target)/self.row['artifact_path']).write_bytes(b'')
+        with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
+             patch.object(bundle,'rows_now',return_value=[self.row]),patch.object(bundle,'attempts_now',return_value=[]),\
+             patch.object(bundle.shutil,'copytree',side_effect=truncated_copy):
+            with self.assertRaisesRegex(ValueError,'restored references invalid'):bundle.restore('unused',source,dest)
+        self.assertFalse(json.loads(Path(str(dest)+'-audit.json').read_text())['valid'])
+
+    def test_report_capacity_failure_leaves_reserved_invalid_report(self):
+        import errno
+        source,dest=self.mock_bundle()
+        with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
+             patch.object(bundle.shutil,'copytree',side_effect=OSError(errno.ENOSPC,'injected copy full')),\
+             patch.object(bundle,'write_report',side_effect=OSError(errno.ENOSPC,'injected report full')):
+            with self.assertRaises(OSError):bundle.restore('unused',source,dest)
+        report=json.loads(Path(str(dest)+'-audit.json').read_text())
+        self.assertFalse(report['valid']);self.assertEqual(report['status'],'in_progress')
+
+    def test_database_metadata_change_detected_and_repeat_cannot_flip_report(self):
+        source,dest=self.mock_bundle();changed={**self.row,'state':'failed'}
+        with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
+             patch.object(bundle,'rows_now',return_value=[changed]):
+            with self.assertRaisesRegex(ValueError,'metadata differs'):bundle.restore('unused',source,dest)
+        report_path=Path(str(dest)+'-audit.json');before=report_path.read_bytes()
+        with patch.object(bundle.subprocess,'run') as call:
+            with self.assertRaisesRegex(ValueError,'must be new'):bundle.restore('unused',source,dest)
+            call.assert_not_called()
+        self.assertEqual(report_path.read_bytes(),before)
+        self.assertFalse(json.loads(before)['valid'])
+
+    def test_concurrent_restore_cannot_overwrite_success_report(self):
+        import threading
+        source,dest=self.mock_bundle();entered=threading.Event();release=threading.Event();outcomes={}
+        def createdb(*args,**kwargs):entered.set();self.assertTrue(release.wait(timeout=5))
+        def first():
+            try:outcomes['first']=bundle.restore('unused',source,dest)['valid']
+            except Exception as error:outcomes['first']=type(error).__name__
+        with patch.object(bundle.subprocess,'run',side_effect=createdb),patch.object(bundle,'pg'),\
+             patch.object(bundle,'rows_now',return_value=[self.row]),patch.object(bundle,'attempts_now',return_value=[]):
+            thread=threading.Thread(target=first);thread.start();self.assertTrue(entered.wait(timeout=5))
+            try:
+                with self.assertRaisesRegex(ValueError,'must be new'):bundle.restore('unused',source,dest)
+            finally:release.set();thread.join(timeout=5)
+            self.assertFalse(thread.is_alive());self.assertTrue(outcomes['first'],outcomes)
+        report_path=Path(str(dest)+'-audit.json');before=report_path.read_bytes()
+        self.assertTrue(json.loads(before)['valid'])
+        with self.assertRaisesRegex(ValueError,'must be new'):bundle.restore('unused',source,dest)
+        self.assertEqual(report_path.read_bytes(),before)
+
+    def backup_connection(self):
+        import io
+        from unittest.mock import Mock
+        connection=Mock();connection.stdin=io.StringIO()
+        connection.stdout=io.StringIO('SNAPSHOT:mock\nROWS:'+json.dumps([self.row])+'\nATTEMPTS:[]\n')
+        connection.poll.return_value=0
+        return connection
+
+    def test_source_change_before_copy_inventory_cannot_publish_inconsistent_bundle(self):
+        original=bundle.inventory;calls=0
+        def changed_inventory(root):
+            nonlocal calls
+            if Path(root).resolve()==self.root.resolve():
+                calls+=1
+                if calls==2:
+                    p=self.root/self.row['payload']['network']['path'];p.write_bytes(p.read_bytes()+b' ')
+            return original(root)
+        destination=Path(self.tmp.name)/'snapshot-bundle'
+        with patch.object(bundle.subprocess,'Popen',return_value=self.backup_connection()),\
+             patch.object(bundle,'inventory',side_effect=changed_inventory),patch.object(bundle,'pg') as dump:
+            with self.assertRaisesRegex(ValueError,'copied reference audit failed'):
+                bundle.backup('mocked','m4_validation',self.root,destination)
+            dump.assert_not_called()
+        self.assertFalse((destination/'bundle.json').exists())
+        report=json.loads((destination/'backup-failure.json').read_text())
+        self.assertFalse(report['valid']);self.assertEqual(report['phase'],'copied_reference_audit')
+
+    def test_dump_time_source_change_and_backup_capacity_cannot_publish(self):
+        import errno
+        destination=Path(self.tmp.name)/'snapshot-bundle'
+        def changed_dump(*args,**kwargs):
+            kwargs['stdout'].write(b'mocked dump')
+            p=self.root/self.row['payload']['network']['path'];p.write_bytes(p.read_bytes()+b' ')
+        with patch.object(bundle.subprocess,'Popen',return_value=self.backup_connection()),patch.object(bundle,'pg',side_effect=changed_dump):
+            with self.assertRaisesRegex(ValueError,'during database dump'):
+                bundle.backup('mocked','m4_validation',self.root,destination)
+        self.assertFalse((destination/'bundle.json').exists())
+        self.assertEqual(json.loads((destination/'backup-failure.json').read_text())['phase'],'final_integrity')
+        # Restore source bytes before the independent injected capacity case.
+        p=self.root/self.row['payload']['network']['path'];p.write_bytes(p.read_bytes()[:-1])
+        destination2=Path(self.tmp.name)/'capacity-bundle'
+        with patch.object(bundle.subprocess,'Popen',return_value=self.backup_connection()),\
+             patch.object(bundle.shutil,'copytree',side_effect=OSError(errno.ENOSPC,'injected no space')):
+            with self.assertRaises(OSError):bundle.backup('mocked','m4_validation',self.root,destination2)
+        self.assertFalse((destination2/'bundle.json').exists())
+        self.assertFalse(json.loads((destination2/'backup-failure.json').read_text())['valid'])
+
+    def test_not_started_proof_is_bound_to_gated_execution_and_stays_revoked(self):
+        row={**self.row,'state':'cancelled','attempt':1,'worker':'worker','attempt_token':'synthetic'}
+        identity={'id':row['id'],'attempt':1,'worker':'worker','token':'synthetic','location':'docker:synthetic:scope'}
+        attempt={'job_id':row['id'],'attempt':1,'worker':'worker','attempt_token':'synthetic','location':identity['location'],
+                 'container_id':'','executor_kind':'isolated-v2','start_revoked_at':'2026-10-26T00:00:00Z',
+                 'exited_at':'2026-10-26T00:00:00Z','publication_state':'fenced',
+                 'exit_receipt':{**identity,'scope':'not-started','start_revoked':True}}
+        self.assertTrue(bundle.audit_attempts([row],[attempt])['valid'])
+        for key,value in [('executor_kind','legacy'),('start_revoked_at',None),('container_id','unexpected'),('location','docker:other'),('publication_state','published')]:
+            changed=copy.deepcopy(attempt);changed[key]=value
+            self.assertFalse(bundle.audit_attempts([row],[changed])['valid'],key)
+        for key,value in [('start_revoked',False),('location','docker:other'),('token','wrong'),('scope','unknown')]:
+            changed=copy.deepcopy(attempt);changed['exit_receipt'][key]=value
+            self.assertFalse(bundle.audit_attempts([row],[changed])['valid'],key)
+        # Host cleanup may later prove the pre-start orphan removed. It does not
+        # clear start_revoked_at or grant this attempt permission to publish.
+        cleanup=copy.deepcopy(attempt);cleanup['container_id']='synthetic-container'
+        cleanup['exit_receipt']={**identity,'scope':'container','container_id':'synthetic-container','removed':True,'exited':True,
+            'inspected_id':'synthetic-container','running':False,'pid':0,
+            'labels':{'cpag.job':row['id'],'cpag.attempt':'1','cpag.worker':'worker'}}
+        self.assertTrue(bundle.audit_attempts([row],[cleanup])['valid'])
+        # An unregistered legacy orphan may receive a bound removal-only proof;
+        # it remains revoked and cannot be mistaken for gated not-started proof.
+        cleanup['executor_kind']='legacy'
+        self.assertTrue(bundle.audit_attempts([row],[cleanup])['valid'])
+        cleanup['exit_receipt']['labels']['cpag.job']='other'
+        self.assertFalse(bundle.audit_attempts([row],[cleanup])['valid'])

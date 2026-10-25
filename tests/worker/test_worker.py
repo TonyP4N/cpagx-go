@@ -55,6 +55,47 @@ class WorkerTests(unittest.TestCase):
             manifest=json.loads((root/claim['output_dir']/'manifest.json').read_text())
             for item in manifest['artifacts']:
                 self.assertEqual(item['sha256'],hashlib.sha256((root/claim['output_dir']/item['path']).read_bytes()).hexdigest())
+    def test_once_cli_reports_unavailable_dependency(self):
+        from unittest.mock import patch
+        from contextlib import redirect_stderr
+        from io import StringIO
+        from cpag_worker.worker import main
+        captured=StringIO()
+        with patch.object(sys,'argv',['worker','--enable-m4-worker','--once']), patch.dict(os.environ,{'CPAG_WORKER_TOKEN':'never-log-this','CPAG_API_URL':'http://offline','CPAG_SHARED_ROOT':'/tmp'}), patch.object(Worker,'once',side_effect=OSError('offline')), redirect_stderr(captured):
+            self.assertEqual(main(),75)
+        diagnostic=json.loads(captured.getvalue())
+        self.assertEqual(diagnostic['outcome'],'dependency_unavailable')
+        self.assertTrue(diagnostic['retryable'])
+        self.assertNotIn('never-log-this',captured.getvalue())
+
+    def test_duplicate_invocation_does_not_fail_existing_attempt(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);claim=fixture(root);api=FakeAPI()
+            control=root/'jobs/test-job/attempt-1.worker';control.mkdir(parents=True)
+            evidence=control/'exit.json';evidence.write_text('existing identity')
+            self.assertEqual(Worker(api,root,'unit').attempt(claim),'reconciliation_required')
+            self.assertEqual(api.calls,[])
+            self.assertEqual(evidence.read_text(),'existing identity')
+
+    def test_ambiguous_completion_does_not_send_fail(self):
+        from unittest.mock import patch
+        for error,expected in [(OSError('response lost'),'publication_pending'),
+                               (APIError(503,{}),'publication_pending'),
+                               (APIError(409,{}),'lost_lease')]:
+            with self.subTest(error=error), tempfile.TemporaryDirectory() as tmp:
+                root=Path(tmp);claim=fixture(root)
+                class CompletionAPI(FakeAPI):
+                    def post(self,path,body):
+                        value=super().post(path,body)
+                        if path.endswith('/complete'):raise error
+                        return value
+                api=CompletionAPI()
+                with patch.dict(os.environ, {'PYTHONPATH':str(ROOT/'services/analysis/src')}):
+                    result=Worker(api,root,'unit',heartbeat=.05).attempt(claim)
+                self.assertEqual(result,expected)
+                self.assertFalse(any(path.endswith('/fail') for path,_ in api.calls))
+                self.assertTrue((root/claim['output_dir']/'manifest.json').is_file())
+
     def hanging(self,state='running',timeout=.3):
         context=tempfile.TemporaryDirectory(); self.addCleanup(context.cleanup)
         root=Path(context.name);claim=fixture(root);api=FakeAPI(state)

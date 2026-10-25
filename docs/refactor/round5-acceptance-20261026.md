@@ -91,3 +91,7 @@ TCP修复提交 `aef9e1f`。最终Python回归114项通过（含37项packet、6�
 功能与验收提交：`77583bbc267c38054fd75994faa93f72235ace00`（包含前序TCP修复 `aef9e1f404fc33e9dfc9860c868a77e390fcf525`）。已推送同一分支。
 
 [远端CI 40212461327](https://github.com/TonyP4N/cpagx-go/actions/runs/40212461327)：九项全部success：core、go、frontend、service-regression、m4-postgres-prototype、m4-worker-integration、linux-isolation、backup-restore、isolated-executor。对应不可变代码SHA与各job链接保存于 `validation-round5/ci.json`。本条是CI完成后的文档补记，后续文档提交不改变该已验代码。
+
+## 第六轮复核补记
+
+保留上述九项CI成功记录。后续稳定性排查在同一基线复现了恢复扫描被单条缺容器/损坏记录/异daemon阻断，以及兼容Worker、取消重试和备份一致性覆盖缺口。具体复现与修复见 [第六轮验收](round6-acceptance-20261026.md)。第五轮通过不应解释为这些场景当时已经覆盖。

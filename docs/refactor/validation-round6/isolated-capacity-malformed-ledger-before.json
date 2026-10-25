@@ -1,0 +1,12 @@
+{
+  "synthetic": true,
+  "docker_not_used": true,
+  "api_mocked": true,
+  "ledger": "reservations object present but root absent",
+  "attempt_result": null,
+  "unhandled_exception": "KeyError",
+  "api_paths": [
+    "/v1/jobs/malformed-ledger/not-started",
+    "/v1/jobs/malformed-ledger/fail"
+  ]
+}
