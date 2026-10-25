@@ -47,7 +47,7 @@
 | 未启动撤销证明的备份恢复 | executor/location/revocation/identity保持一致 | 真实isolated-v2 cancelled任务恢复，summary字段true | 通过 |
 | 混合坏/好备份记录、重复及并发restore | 不隐藏后续诊断、不覆盖已存在目标或终态报告 | backup单元+实际重复恢复、DB行内容比较 | 通过 |
 | 升级前bare-daemon本地执行记录 | 在同control精确身份下仍可收尾，拒其他daemon/scope | 实际旧location兼容取消场景 | 通过 |
-| 默认旧入口/原核心回归 | 默认不切换、现有测试无回退 | Go测试/build/vet，core/parser/packet/legacy/service/网页/回放回归及CI | 本地通过；远端结果下节补记 |
+| 默认旧入口/原核心回归 | 默认不切换、现有测试无回退 | Go测试/build/vet，core/parser/packet/legacy/service/网页/回放回归及CI | 本地及远端通过 |
 
 ## 单机支持范围与仍未解决边界
 
@@ -94,4 +94,6 @@
 
 ## 最终提交与CI
 
-本地共143项Python测试通过（含16项隔离恢复、20项备份及14项兼容Worker测试）；Go全仓test/build/vet通过。实际PostgreSQL竞态、独立恢复器数据库故障/重启、兼容Worker/API中断、隔离容器完整矩阵及独立数据库成套恢复均通过。日志去除了行尾空白，测试结果未改写。最终代码提交和远端CI核验结果在推送后补记。
+本地共143项Python测试通过（含16项隔离恢复、20项备份及14项兼容Worker测试）；Go全仓test/build/vet通过。实际PostgreSQL竞态、独立恢复器数据库故障/重启、兼容Worker/API中断、隔离容器完整矩阵及独立数据库成套恢复均通过。日志去除了行尾空白，测试结果未改写。功能与验收代码提交：`61d22b5e386b6254e7e5eb949924c222f72afa97`，已推送原分支。
+
+[远端CI 40216400959](https://github.com/TonyP4N/cpagx-go/actions/runs/40216400959) 九项全部success：core、go、frontend、service-regression、m4-postgres-prototype、m4-worker-integration、linux-isolation、backup-restore、isolated-executor。不可变headSha和各job链接见 `validation-round6/ci.json`。本条是CI完成后的文档补记，不改变已验代码。
