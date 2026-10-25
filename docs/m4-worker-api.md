@@ -37,3 +37,26 @@ Completion reads `output_dir/manifest.json`, whose fields are `config_fingerprin
 The shared root is a trust boundary: mode bits are defense in depth, not protection against another process running as the same filesystem owner. Use isolated service identities/permissions and retention controls for published files. API reads verify bytes at completion; consuming a published artifact must also verify its recorded checksum. Cancellation of an unreachable worker remains cancelling until a worker/operator independently proves the process exited; there is no unsafe automatic cancellation acknowledgement.
 
 The input snapshot and newly published manifest bytes are file-synced before closing. The manifest bytes are hashed again after the final read and before creating its content-addressed copy. This does not make filesystem publication and the PostgreSQL commit one transaction; directory fsync, power-loss behavior and orphan reconciliation still require separate acceptance. The complete endpoint rechecks persisted files on identical successful retries rather than treating task status alone as integrity proof. Cancel returns the actual resulting state, including already terminal jobs.
+
+Independent recovery additionally requires `003_recovery.sql`. Run a separate
+`go run ./cmd/m4-recovery` from `internal/jobs/integration` with `CPAG_ENABLE_M4=1`,
+`M4_DATABASE_URL` and `CPAG_SHARED_ROOT`. This Go service intentionally has direct
+PostgreSQL access and continues when the HTTP API is down; Python workers and core
+receive no database credentials. Recovery checks immediately and every second.
+Cancellation has a five second recovery deadline; reaching it starts evidence
+inspection, not a claim of process exit. Status exposes `recovery_deadline`,
+`recovery_checked_at`, and `recovery_reason`. A missing guardian or inaccessible
+remote/shared root leaves `cancelling` with a pending reason until evidence exists.
+
+Receipt trust scope: `cancelled` assumes the trusted CPAG core keeps descendants
+in the guardian's process group. Escaped `setsid`/`setpgid` descendants and hostile
+same-UID core behavior are outside this receipt guarantee. Linux namespace cleanup
+is separately tested but its evidence is not yet bound into cancellation receipts.
+Only never-claimed queued jobs cancel immediately. A queued job with a prior
+attempt requires that attempt's exit proof and stays `cancelling` if unavailable.
+The current single-row identity does not attest all older overwritten attempts;
+see the historical-attempt limit in `docs/refactor/round4-recovery.md`.
+Conservative gate: attempt numbers greater than one cannot automatically become
+`cancelled`, even with a valid latest exit receipt. HTTP ACK rejects that proof;
+independent recovery retains `cancelling` with an all-attempt-proof pending reason.
+All-attempt exit confirmation is not implemented and needs manual investigation.

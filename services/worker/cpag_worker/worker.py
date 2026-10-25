@@ -68,14 +68,15 @@ class Worker:
             # Exclusive attempt namespace. Core writes artifacts before its final manifest.
             output.parent.mkdir(parents=True,exist_ok=True)
             control = output.parent/(output.name+'.worker')
-            control.mkdir(exist_ok=False)
+            control.mkdir(mode=0o700,exist_ok=False)
             command = self.command or [sys.executable,'-m','cpag_core']
             command = command + ['--network',str(paths['network']),'--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output),'--synthetic']
             # Deliberately pass only runtime environment; no database/API credentials.
             env = {key:value for key,value in os.environ.items() if key in ('PATH','PYTHONPATH','LANG','LC_ALL','SYSTEMROOT','TMPDIR')}
-            config = {'command':command,'env':env,'timeout':self.timeout,'kill_grace':1,'log_bytes':self.log_bytes,'memory_bytes':self.memory_bytes,'file_bytes':self.file_bytes,'cpu_seconds':self.cpu_seconds,'pid_file':str(control/'child.pid'),'exit_file':str(control/'exit.json'),'stdout':str(control/'stdout.log'),'stderr':str(control/'stderr.log')}
+            config = {'identity':{'id':claim['id'],'attempt':claim['attempt'],'worker':self.worker,'token':claim['token']},'command':command,'env':env,'timeout':self.timeout,'kill_grace':1,'log_bytes':self.log_bytes,'memory_bytes':self.memory_bytes,'file_bytes':self.file_bytes,'cpu_seconds':self.cpu_seconds,'pid_file':str(control/'child.pid'),'exit_file':str(control/'exit.json'),'stdout':str(control/'stdout.log'),'stderr':str(control/'stderr.log')}
             config_file = control/'supervisor.json'
-            config_file.write_text(json.dumps(config))
+            with open(config_file, 'x', opener=lambda path, flags: os.open(path, flags, 0o600)) as stream:
+                json.dump(config, stream)
             guardian = subprocess.Popen([sys.executable,str(Path(__file__).with_name('guardian.py')),str(config_file)],stdin=subprocess.PIPE,stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True,env=env)
             next_heartbeat = time.monotonic()
             while guardian.poll() is None:

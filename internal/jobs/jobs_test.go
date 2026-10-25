@@ -1,8 +1,10 @@
 package jobs
 
 import (
+	"context"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestArtifactKey(t *testing.T) {
@@ -22,5 +24,22 @@ func TestArtifactKey(t *testing.T) {
 	}
 	if _, err := ArtifactKey(Claim{ID: "run1", Attempt: 1}, "bad"); err == nil {
 		t.Fatal("accepted invalid digest")
+	}
+}
+
+func TestRecoveryRejectsNonpositiveInterval(t *testing.T) {
+	for _, interval := range []time.Duration{0, -time.Second} {
+		var reported error
+		Repository{}.RunRecovery(context.Background(), "", interval, func(err error) { reported = err })
+		if reported == nil {
+			t.Fatal("invalid interval accepted")
+		}
+	}
+}
+
+func TestLatestReceiptCannotProveAllAttempts(t *testing.T) {
+	err := VerifyExit(t.TempDir(), Claim{ID: "multi", Attempt: 2, Worker: "worker", Token: strings.Repeat("a", 64)})
+	if err == nil || !strings.Contains(err.Error(), "all-attempt exit proof not implemented") {
+		t.Fatal(err)
 	}
 }

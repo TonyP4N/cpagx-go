@@ -85,10 +85,12 @@ func (r Repository) Fail(ctx context.Context, c Claim, message string, retryable
  WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp()`, c.ID, c.Attempt, c.Worker, message, retryable, c.Token))
 }
 
-// Cancel requests stopping a running worker; only AcknowledgeCancel can confirm exit.
+// Cancel requests stopping any previously attempted computation, including a
+// queued retry whose expired predecessor may still run. Only never-claimed queued
+// jobs cancel immediately; attempted jobs require exit evidence before ACK.
 // Repeated cancellation preserves terminal state and is idempotent.
 func (r Repository) Cancel(ctx context.Context, id string) error {
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state=CASE WHEN state='queued' THEN 'cancelled' WHEN state='running' THEN 'cancelling' ELSE state END WHERE id=$1`, id))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state=CASE WHEN state='queued' AND attempt=0 THEN 'cancelled' WHEN state='running' OR (state='queued' AND attempt>0) THEN 'cancelling' ELSE state END, lease_until=CASE WHEN state='queued' AND attempt>0 THEN clock_timestamp() ELSE lease_until END, recovery_deadline=CASE WHEN state='running' OR (state='queued' AND attempt>0) THEN clock_timestamp()+interval '5 seconds' ELSE recovery_deadline END WHERE id=$1`, id))
 }
 
 // AcknowledgeCancel must be called only after the attempt's subprocess has exited.
@@ -129,17 +131,20 @@ func (r Repository) EnqueuePayload(ctx context.Context, id string, max int, payl
 }
 
 type Status struct {
-	ID             string          `json:"id"`
-	State          string          `json:"state"`
-	Attempt        int             `json:"attempt"`
-	Payload        json.RawMessage `json:"payload"`
-	ArtifactPath   *string         `json:"artifact_path"`
-	ArtifactSHA256 *string         `json:"artifact_sha256"`
+	ID                string          `json:"id"`
+	State             string          `json:"state"`
+	Attempt           int             `json:"attempt"`
+	Payload           json.RawMessage `json:"payload"`
+	ArtifactPath      *string         `json:"artifact_path"`
+	ArtifactSHA256    *string         `json:"artifact_sha256"`
+	RecoveryDeadline  *time.Time      `json:"recovery_deadline"`
+	RecoveryCheckedAt *time.Time      `json:"recovery_checked_at"`
+	RecoveryReason    *string         `json:"recovery_reason"`
 }
 
 func (r Repository) Status(ctx context.Context, id string) (Status, error) {
 	var s Status
-	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256 FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256)
+	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason)
 	return s, err
 }
 

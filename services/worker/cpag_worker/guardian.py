@@ -62,7 +62,33 @@ def supervise(config):
     child.wait()
     for thread in threads:
         thread.join(timeout=2)
-    Path(config['exit_file']).write_text(json.dumps({'returncode':child.returncode,'reason':reason}))
+    # A PID alone is never exit evidence (PID reuse and remote workers). The
+    # guardian checks its own group after wait; zombies cannot compute.
+    def group_exited():
+        if sys.platform.startswith('linux'):
+            for item in Path('/proc').iterdir():
+                if not item.name.isdigit(): continue
+                try:
+                    fields = (item/'stat').read_text().rsplit(')', 1)[1].split()
+                    if int(fields[2]) == child.pid and fields[0] != 'Z': return False
+                except (FileNotFoundError, ProcessLookupError): pass
+            return True
+        try: os.killpg(child.pid, 0)
+        except ProcessLookupError: return True
+        return False
+    for _ in range(100):
+        if group_exited(): break
+        time.sleep(.05)
+    else: return  # No proof: recovery must retain cancelling.
+    proof = {**config['identity'], 'returncode':child.returncode,'reason':reason,
+             'group_exited':True,'child_pid':child.pid,'guardian_pid':os.getpid()}
+    target = Path(config['exit_file'])
+    temporary = target.with_suffix('.tmp')
+    with temporary.open('x') as stream:
+        json.dump(proof, stream)
+        stream.flush()
+        os.fsync(stream.fileno())
+    os.replace(temporary, target)
 
 if __name__ == '__main__':
     supervise(json.loads(Path(sys.argv[1]).read_text()))

@@ -8,8 +8,10 @@ compose_file="$repo_root/deployments/compose.m4-worker-validation.yml"
 export CPAG_M4_PG_PORT="${CPAG_M4_PG_PORT:-55440}"
 api_port="${CPAG_M4_API_PORT:-18095}"
 api_pid=''
+recovery_pid=''
 cleanup() {
   if [[ -n "$api_pid" ]]; then kill "$api_pid" 2>/dev/null || true; wait "$api_pid" 2>/dev/null || true; fi
+  if [[ -n "$recovery_pid" ]]; then kill "$recovery_pid" 2>/dev/null || true; wait "$recovery_pid" 2>/dev/null || true; fi
   docker compose -p cpag-m4-worker-validation -f "$compose_file" down --volumes
   rm -rf "$work_dir"
 }
@@ -21,6 +23,7 @@ export M4_TEST_DATABASE_URL="postgres://postgres:m4-disposable-only@127.0.0.1:$C
 go -C "$repo_root/internal/jobs/integration" test -race -count=1 -v ./...
 docker compose -p cpag-m4-worker-validation -f "$compose_file" exec -T postgres psql -U postgres -d m4_validation -c 'TRUNCATE m4_jobs'
 go -C "$repo_root/internal/jobs/integration" build -o "$work_dir/api" ./cmd/m4-job-api
+go -C "$repo_root/internal/jobs/integration" build -o "$work_dir/recovery" ./cmd/m4-recovery
 mkdir "$work_dir/shared"
 export CPAG_SHARED_ROOT="$work_dir/shared"
 database_url="$M4_TEST_DATABASE_URL"
@@ -62,3 +65,10 @@ for directory in (root/'jobs').iterdir():
         assert record['artifact_sha256'] and (root/record['artifact_path']).is_file()
 print('PASS database container restart: API reconnects and reads persisted terminal metadata and published manifests')
 PY
+
+CPAG_ENABLE_M4=1 M4_DATABASE_URL="$database_url" "$work_dir/recovery" > "$work_dir/recovery.log" 2>&1 &
+recovery_pid=$!
+export CPAG_TEST_API_PID="$api_pid"
+"$python" "$repo_root/scripts/m4/recovery_http_outage.py"
+wait "$api_pid" 2>/dev/null || true
+api_pid=''

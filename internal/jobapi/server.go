@@ -378,7 +378,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "fail":
 		err = s.Repo.Fail(r.Context(), c, q.Message, q.Retryable)
 	case "ack-cancel":
-		err = s.Repo.AcknowledgeCancel(r.Context(), c)
+		err = jobs.VerifyExit(s.Root, c)
+		if err == nil {
+			err = s.Repo.AcknowledgeCancel(r.Context(), c)
+		}
 	case "complete":
 		err = s.complete(r, c, q.ManifestSHA)
 	default:
