@@ -1,0 +1,24 @@
+# Opt-in single-attempt boundary. Does not alter default compose.
+# Runs a synthetic Worker timeout probe without external services.
+services:
+  attempt:
+    build:
+      context: ../..
+      dockerfile: deployments/linux-isolation/Dockerfile
+    user: "65532:65532"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 256m
+    memswap_limit: 256m
+    cpus: 0.5
+    pids_limit: 64
+    restart: "no"
+    network_mode: none
+    command: [python, /app/isolation/probe.py, worker]
+    environment:
+      CPAG_CONTAINER_SECONDS: "8"
+      PROBE_TIMEOUT: "1"
+    tmpfs:
+      - /runtime:rw,nosuid,nodev,size=96m,mode=1777
+      - /tmp:rw,nosuid,nodev,size=8m,mode=1777

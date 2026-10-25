@@ -1,0 +1,28 @@
+name: cpag-r4-demo
+services:
+  attempt:
+    build:
+      context: /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go
+      dockerfile: deployments/linux-isolation/Dockerfile
+    cap_drop:
+      - ALL
+    cpus: 0.5
+    command:
+      - python
+      - /app/isolation/probe.py
+      - worker
+    environment:
+      CPAG_CONTAINER_SECONDS: "8"
+      PROBE_TIMEOUT: "1"
+    mem_limit: "268435456"
+    memswap_limit: "268435456"
+    network_mode: none
+    pids_limit: 64
+    read_only: true
+    restart: "no"
+    security_opt:
+      - no-new-privileges:true
+    tmpfs:
+      - /runtime:rw,nosuid,nodev,size=96m,mode=1777
+      - /tmp:rw,nosuid,nodev,size=8m,mode=1777
+    user: 65532:65532
