@@ -1,3 +1,4 @@
+test_injector_namespace_death_requires_action_and_exit_proof (test_probe_evidence.DoubleKillEvidenceTests.test_injector_namespace_death_requires_action_and_exit_proof) ... ok
 test_container_failure_or_unbounded_elapsed (test_probe_evidence.ProbeEvidenceTests.test_container_failure_or_unbounded_elapsed) ... ok
 test_missing_corrupt_duplicate_logs (test_probe_evidence.ProbeEvidenceTests.test_missing_corrupt_duplicate_logs) ... ok
 test_ready_not_accepted_as_startup_timeout (test_probe_evidence.ProbeEvidenceTests.test_ready_not_accepted_as_startup_timeout) ... ok
@@ -8,6 +9,6 @@ test_valid_after_exit (test_probe_evidence.ProbeEvidenceTests.test_valid_after_e
 test_wrong_or_missing_proof_rejected (test_probe_evidence.ProbeEvidenceTests.test_wrong_or_missing_proof_rejected) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 0.001s
+Ran 9 tests in 0.001s
 
 OK

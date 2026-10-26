@@ -5,7 +5,7 @@ from pathlib import Path
 import subprocess
 import time
 import uuid
-from evidence import timeout_proof
+from evidence import timeout_proof, doublekill_proof
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -52,12 +52,18 @@ def run_probe(mode, iteration, image, observer_delay):
                 raise AssertionError('startup evidence deadline exceeded (12s)')
             assert all(type(record['before'].get(k)) is int and record['before'][k] > 1
                        for k in ('child','guardian','worker','escaped'))
-            record['kill'] = json.loads(docker('exec',name,'python','-c',
-                "from pathlib import Path; import os,signal,json; s=json.loads(Path('/runtime/started.json').read_text()); "
+            # PID 1 tears down the exec process too. Preserve its flushed action
+            # acknowledgement and inspect final state rather than require exec=0.
+            injection = subprocess.run(['docker','exec',name,'python','-c',
+                "from pathlib import Path; import os,signal,json,time; s=json.loads(Path('/runtime/started.json').read_text()); "
                 "fields=Path('/proc/'+str(s['child'])+'/stat').read_text().rsplit(')',1)[1].split(); "
-                "assert int(fields[1])==s['guardian']; print(json.dumps(s),flush=True); "
-                "os.kill(s['guardian'],signal.SIGKILL); os.kill(s['worker'],signal.SIGKILL)"))
-            assert record['kill'] == record['before']
+                "assert int(fields[1])==s['guardian']; os.kill(s['guardian'],signal.SIGKILL); "
+                "print(json.dumps({'identity':s,'guardian_sigkill_sent':True}),flush=True); "
+                "os.kill(s['worker'],signal.SIGKILL); time.sleep(2)"],
+                text=True, capture_output=True, timeout=15)
+            record['injector_returncode'] = injection.returncode
+            record['injector_stdout'] = injection.stdout
+            record['injector_stderr'] = injection.stderr
         if mode == 'cpu':
             time.sleep(1)
             record['cpu_before'] = docker('exec',name,'cat','/sys/fs/cgroup/cpu.stat')
@@ -78,7 +84,7 @@ def run_probe(mode, iteration, image, observer_delay):
         if mode == 'cpu': assert record['exit'] == 124
         if is_timeout:
             record['proof'] = timeout_proof(record, require_startup=mode != 'slow-start')
-        if mode == 'doublekill': assert record['exit'] == 137
+        if mode == 'doublekill': record['kill'] = doublekill_proof(record)
         record['pass'] = True
     except Exception as exc:
         record['error'] = f'{type(exc).__name__}: {exc}'

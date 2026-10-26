@@ -1,0 +1,428 @@
+[
+  {
+    "probe": "doublekill",
+    "iteration": 1,
+    "container": "cpag-r10-76e3e83ba3",
+    "pass": true,
+    "last_startup_observation_error": "Command '['docker', 'exec', 'cpag-r10-76e3e83ba3', 'cat', '/runtime/started.json']' returned non-zero exit status 1.",
+    "before": {
+      "child": 74,
+      "guardian": 55,
+      "escaped": 90,
+      "worker": 19
+    },
+    "injector_returncode": 137,
+    "injector_stdout": "{\"identity\": {\"child\": 74, \"guardian\": 55, \"escaped\": 90, \"worker\": 19}, \"guardian_sigkill_sent\": true}\n",
+    "injector_stderr": "",
+    "exit": 137,
+    "state": {
+      "Status": "exited",
+      "Running": false,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 0,
+      "ExitCode": 137,
+      "Error": "",
+      "StartedAt": "2026-10-26T04:14:52.209179011Z",
+      "FinishedAt": "2026-10-26T04:14:56.708485721Z"
+    },
+    "limits": {
+      "Binds": null,
+      "ContainerIDFile": "",
+      "LogConfig": {
+        "Type": "json-file",
+        "Config": {}
+      },
+      "NetworkMode": "none",
+      "PortBindings": {},
+      "RestartPolicy": {
+        "Name": "no",
+        "MaximumRetryCount": 0
+      },
+      "AutoRemove": false,
+      "VolumeDriver": "",
+      "VolumesFrom": null,
+      "ConsoleSize": [
+        0,
+        0
+      ],
+      "CapAdd": null,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CgroupnsMode": "private",
+      "Dns": null,
+      "DnsOptions": [],
+      "DnsSearch": [],
+      "ExtraHosts": null,
+      "GroupAdd": null,
+      "IpcMode": "private",
+      "Cgroup": "",
+      "Links": null,
+      "OomScoreAdj": 0,
+      "PidMode": "",
+      "Privileged": false,
+      "PublishAllPorts": false,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges"
+      ],
+      "Tmpfs": {
+        "/output": "rw,nosuid,nodev,size=8m,mode=1777",
+        "/runtime": "rw,nosuid,nodev,size=16m,mode=1777"
+      },
+      "UTSMode": "",
+      "UsernsMode": "",
+      "ShmSize": 67108864,
+      "Runtime": "runc",
+      "Isolation": "",
+      "CpuShares": 0,
+      "Memory": 134217728,
+      "NanoCpus": 250000000,
+      "CgroupParent": "",
+      "BlkioWeight": 0,
+      "BlkioWeightDevice": [],
+      "BlkioDeviceReadBps": [],
+      "BlkioDeviceWriteBps": [],
+      "BlkioDeviceReadIOps": [],
+      "BlkioDeviceWriteIOps": [],
+      "CpuPeriod": 0,
+      "CpuQuota": 0,
+      "CpuRealtimePeriod": 0,
+      "CpuRealtimeRuntime": 0,
+      "CpusetCpus": "",
+      "CpusetMems": "",
+      "Devices": [],
+      "DeviceCgroupRules": null,
+      "DeviceRequests": null,
+      "MemoryReservation": 0,
+      "MemorySwap": 134217728,
+      "MemorySwappiness": null,
+      "OomKillDisable": null,
+      "PidsLimit": 32,
+      "Ulimits": [],
+      "CpuCount": 0,
+      "CpuPercent": 0,
+      "IOMaximumIOps": 0,
+      "IOMaximumBandwidth": 0,
+      "MaskedPaths": [
+        "/proc/acpi",
+        "/proc/asound",
+        "/proc/interrupts",
+        "/proc/kcore",
+        "/proc/keys",
+        "/proc/latency_stats",
+        "/proc/sched_debug",
+        "/proc/scsi",
+        "/proc/timer_list",
+        "/proc/timer_stats",
+        "/sys/devices/virtual/powercap",
+        "/sys/firmware"
+      ],
+      "ReadonlyPaths": [
+        "/proc/bus",
+        "/proc/fs",
+        "/proc/irq",
+        "/proc/sys",
+        "/proc/sysrq-trigger"
+      ]
+    },
+    "logs": "",
+    "kill": {
+      "identity": {
+        "child": 74,
+        "guardian": 55,
+        "escaped": 90,
+        "worker": 19
+      },
+      "guardian_sigkill_sent": true
+    },
+    "cleanup": "passed"
+  },
+  {
+    "probe": "doublekill",
+    "iteration": 2,
+    "container": "cpag-r10-4ba7c4f671",
+    "pass": true,
+    "last_startup_observation_error": "Command '['docker', 'exec', 'cpag-r10-4ba7c4f671', 'cat', '/runtime/started.json']' returned non-zero exit status 1.",
+    "before": {
+      "child": 75,
+      "guardian": 56,
+      "escaped": 97,
+      "worker": 19
+    },
+    "injector_returncode": 137,
+    "injector_stdout": "{\"identity\": {\"child\": 75, \"guardian\": 56, \"escaped\": 97, \"worker\": 19}, \"guardian_sigkill_sent\": true}\n",
+    "injector_stderr": "",
+    "exit": 137,
+    "state": {
+      "Status": "exited",
+      "Running": false,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 0,
+      "ExitCode": 137,
+      "Error": "",
+      "StartedAt": "2026-10-26T04:14:56.943876221Z",
+      "FinishedAt": "2026-10-26T04:15:01.574361209Z"
+    },
+    "limits": {
+      "Binds": null,
+      "ContainerIDFile": "",
+      "LogConfig": {
+        "Type": "json-file",
+        "Config": {}
+      },
+      "NetworkMode": "none",
+      "PortBindings": {},
+      "RestartPolicy": {
+        "Name": "no",
+        "MaximumRetryCount": 0
+      },
+      "AutoRemove": false,
+      "VolumeDriver": "",
+      "VolumesFrom": null,
+      "ConsoleSize": [
+        0,
+        0
+      ],
+      "CapAdd": null,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CgroupnsMode": "private",
+      "Dns": null,
+      "DnsOptions": [],
+      "DnsSearch": [],
+      "ExtraHosts": null,
+      "GroupAdd": null,
+      "IpcMode": "private",
+      "Cgroup": "",
+      "Links": null,
+      "OomScoreAdj": 0,
+      "PidMode": "",
+      "Privileged": false,
+      "PublishAllPorts": false,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges"
+      ],
+      "Tmpfs": {
+        "/output": "rw,nosuid,nodev,size=8m,mode=1777",
+        "/runtime": "rw,nosuid,nodev,size=16m,mode=1777"
+      },
+      "UTSMode": "",
+      "UsernsMode": "",
+      "ShmSize": 67108864,
+      "Runtime": "runc",
+      "Isolation": "",
+      "CpuShares": 0,
+      "Memory": 134217728,
+      "NanoCpus": 250000000,
+      "CgroupParent": "",
+      "BlkioWeight": 0,
+      "BlkioWeightDevice": [],
+      "BlkioDeviceReadBps": [],
+      "BlkioDeviceWriteBps": [],
+      "BlkioDeviceReadIOps": [],
+      "BlkioDeviceWriteIOps": [],
+      "CpuPeriod": 0,
+      "CpuQuota": 0,
+      "CpuRealtimePeriod": 0,
+      "CpuRealtimeRuntime": 0,
+      "CpusetCpus": "",
+      "CpusetMems": "",
+      "Devices": [],
+      "DeviceCgroupRules": null,
+      "DeviceRequests": null,
+      "MemoryReservation": 0,
+      "MemorySwap": 134217728,
+      "MemorySwappiness": null,
+      "OomKillDisable": null,
+      "PidsLimit": 32,
+      "Ulimits": [],
+      "CpuCount": 0,
+      "CpuPercent": 0,
+      "IOMaximumIOps": 0,
+      "IOMaximumBandwidth": 0,
+      "MaskedPaths": [
+        "/proc/acpi",
+        "/proc/asound",
+        "/proc/interrupts",
+        "/proc/kcore",
+        "/proc/keys",
+        "/proc/latency_stats",
+        "/proc/sched_debug",
+        "/proc/scsi",
+        "/proc/timer_list",
+        "/proc/timer_stats",
+        "/sys/devices/virtual/powercap",
+        "/sys/firmware"
+      ],
+      "ReadonlyPaths": [
+        "/proc/bus",
+        "/proc/fs",
+        "/proc/irq",
+        "/proc/sys",
+        "/proc/sysrq-trigger"
+      ]
+    },
+    "logs": "",
+    "kill": {
+      "identity": {
+        "child": 75,
+        "guardian": 56,
+        "escaped": 97,
+        "worker": 19
+      },
+      "guardian_sigkill_sent": true
+    },
+    "cleanup": "passed"
+  },
+  {
+    "probe": "doublekill",
+    "iteration": 3,
+    "container": "cpag-r10-39d2021e3f",
+    "pass": true,
+    "last_startup_observation_error": "Command '['docker', 'exec', 'cpag-r10-39d2021e3f', 'cat', '/runtime/started.json']' returned non-zero exit status 1.",
+    "before": {
+      "child": 80,
+      "guardian": 61,
+      "escaped": 96,
+      "worker": 18
+    },
+    "injector_returncode": 137,
+    "injector_stdout": "{\"identity\": {\"child\": 80, \"guardian\": 61, \"escaped\": 96, \"worker\": 18}, \"guardian_sigkill_sent\": true}\n",
+    "injector_stderr": "",
+    "exit": 137,
+    "state": {
+      "Status": "exited",
+      "Running": false,
+      "Paused": false,
+      "Restarting": false,
+      "OOMKilled": false,
+      "Dead": false,
+      "Pid": 0,
+      "ExitCode": 137,
+      "Error": "",
+      "StartedAt": "2026-10-26T04:15:01.782899709Z",
+      "FinishedAt": "2026-10-26T04:15:06.184329003Z"
+    },
+    "limits": {
+      "Binds": null,
+      "ContainerIDFile": "",
+      "LogConfig": {
+        "Type": "json-file",
+        "Config": {}
+      },
+      "NetworkMode": "none",
+      "PortBindings": {},
+      "RestartPolicy": {
+        "Name": "no",
+        "MaximumRetryCount": 0
+      },
+      "AutoRemove": false,
+      "VolumeDriver": "",
+      "VolumesFrom": null,
+      "ConsoleSize": [
+        0,
+        0
+      ],
+      "CapAdd": null,
+      "CapDrop": [
+        "ALL"
+      ],
+      "CgroupnsMode": "private",
+      "Dns": null,
+      "DnsOptions": [],
+      "DnsSearch": [],
+      "ExtraHosts": null,
+      "GroupAdd": null,
+      "IpcMode": "private",
+      "Cgroup": "",
+      "Links": null,
+      "OomScoreAdj": 0,
+      "PidMode": "",
+      "Privileged": false,
+      "PublishAllPorts": false,
+      "ReadonlyRootfs": true,
+      "SecurityOpt": [
+        "no-new-privileges"
+      ],
+      "Tmpfs": {
+        "/output": "rw,nosuid,nodev,size=8m,mode=1777",
+        "/runtime": "rw,nosuid,nodev,size=16m,mode=1777"
+      },
+      "UTSMode": "",
+      "UsernsMode": "",
+      "ShmSize": 67108864,
+      "Runtime": "runc",
+      "Isolation": "",
+      "CpuShares": 0,
+      "Memory": 134217728,
+      "NanoCpus": 250000000,
+      "CgroupParent": "",
+      "BlkioWeight": 0,
+      "BlkioWeightDevice": [],
+      "BlkioDeviceReadBps": [],
+      "BlkioDeviceWriteBps": [],
+      "BlkioDeviceReadIOps": [],
+      "BlkioDeviceWriteIOps": [],
+      "CpuPeriod": 0,
+      "CpuQuota": 0,
+      "CpuRealtimePeriod": 0,
+      "CpuRealtimeRuntime": 0,
+      "CpusetCpus": "",
+      "CpusetMems": "",
+      "Devices": [],
+      "DeviceCgroupRules": null,
+      "DeviceRequests": null,
+      "MemoryReservation": 0,
+      "MemorySwap": 134217728,
+      "MemorySwappiness": null,
+      "OomKillDisable": null,
+      "PidsLimit": 32,
+      "Ulimits": [],
+      "CpuCount": 0,
+      "CpuPercent": 0,
+      "IOMaximumIOps": 0,
+      "IOMaximumBandwidth": 0,
+      "MaskedPaths": [
+        "/proc/acpi",
+        "/proc/asound",
+        "/proc/interrupts",
+        "/proc/kcore",
+        "/proc/keys",
+        "/proc/latency_stats",
+        "/proc/sched_debug",
+        "/proc/scsi",
+        "/proc/timer_list",
+        "/proc/timer_stats",
+        "/sys/devices/virtual/powercap",
+        "/sys/firmware"
+      ],
+      "ReadonlyPaths": [
+        "/proc/bus",
+        "/proc/fs",
+        "/proc/irq",
+        "/proc/sys",
+        "/proc/sysrq-trigger"
+      ]
+    },
+    "logs": "",
+    "kill": {
+      "identity": {
+        "child": 80,
+        "guardian": 61,
+        "escaped": 96,
+        "worker": 18
+      },
+      "guardian_sigkill_sent": true
+    },
+    "cleanup": "passed"
+  }
+]

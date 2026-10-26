@@ -34,3 +34,15 @@ def timeout_proof(record, *, require_startup):
     assert record['state']['ExitCode'] == record['exit']
     assert not record['state'].get('OOMKilled'), 'OOM is not timeout proof'
     return value
+
+
+def doublekill_proof(record):
+    """The injector can die with the namespace, but must first report its action."""
+    assert record['injector_returncode'] in (0, 137), 'unexpected injector failure'
+    sent = json.loads(record['injector_stdout'])
+    assert sent.get('guardian_sigkill_sent') is True, 'no guardian kill acknowledgement'
+    assert sent.get('identity') == record['before'], 'injector identity mismatch'
+    assert record['exit'] == 137 and record['state']['ExitCode'] == 137
+    assert record['state']['Running'] is False and record['state']['Pid'] == 0
+    assert record['state']['OOMKilled'] is False, 'OOM is not doublekill proof'
+    return sent

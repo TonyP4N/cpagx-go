@@ -69,4 +69,20 @@ class ProbeEvidenceTests(unittest.TestCase):
             self.value['elapsed_seconds']=elapsed
             with self.assertRaises(AssertionError): self.check()
 
+class DoubleKillEvidenceTests(unittest.TestCase):
+    def test_injector_namespace_death_requires_action_and_exit_proof(self):
+        identity={'child':8,'guardian':7,'worker':2,'escaped':9}
+        record={'before':identity,'injector_returncode':137,
+                'injector_stdout':json.dumps({'identity':identity,'guardian_sigkill_sent':True}),
+                'exit':137,'state':{'ExitCode':137,'Running':False,'Pid':0,'OOMKilled':False}}
+        self.assertEqual(module.doublekill_proof(record)['identity'],identity)
+        for field,value in [('injector_returncode',1),('injector_stdout',''),
+                            ('injector_stdout','{}'),('exit',124)]:
+            changed=copy.deepcopy(record);changed[field]=value
+            with self.subTest(field=field,value=value):
+                with self.assertRaises((AssertionError,ValueError)): module.doublekill_proof(changed)
+        for field,value in [('Running',True),('Pid',99),('OOMKilled',True),('ExitCode',124)]:
+            changed=copy.deepcopy(record);changed['state'][field]=value
+            with self.assertRaises(AssertionError): module.doublekill_proof(changed)
+
 if __name__ == '__main__': unittest.main()
