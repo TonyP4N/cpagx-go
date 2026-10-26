@@ -1,0 +1,58 @@
+{
+  "synthetic_software_validation_only": true,
+  "python_test_count": 70,
+  "suites": {
+    "intake-tests": {
+      "count": 8,
+      "passed": true,
+      "log": "intake-tests.log"
+    },
+    "compatibility-tests": {
+      "count": 6,
+      "passed": true,
+      "log": "compatibility-tests.log"
+    },
+    "evaluation-tests": {
+      "count": 14,
+      "passed": true,
+      "log": "evaluation-tests.log"
+    },
+    "contracts": {
+      "count": 6,
+      "passed": true,
+      "log": "contracts.log"
+    },
+    "core-tests": {
+      "count": 12,
+      "passed": true,
+      "log": "core-tests.log"
+    },
+    "consistency-tests": {
+      "count": 6,
+      "passed": true,
+      "log": "consistency-tests.log"
+    },
+    "integration": {
+      "count": 2,
+      "passed": true,
+      "log": "integration.log"
+    },
+    "legacy": {
+      "count": 5,
+      "passed": true,
+      "log": "legacy.log"
+    },
+    "service": {
+      "count": 11,
+      "passed": true,
+      "log": "service.log"
+    }
+  },
+  "go": [
+    "api",
+    "internal/jobapi",
+    "internal/contracts"
+  ],
+  "go_status": "passed",
+  "worker_equivalence": "three final runs; six executions; exact content and evidence equal"
+}

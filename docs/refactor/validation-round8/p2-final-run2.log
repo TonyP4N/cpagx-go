@@ -1,0 +1,2 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+{"event_count": 8, "events_graph_quality_byte_equal": true, "evidence_equal": true, "packet_separate_contract_valid": true, "valid": true}

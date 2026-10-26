@@ -49,6 +49,14 @@ jobs:
         run: |
           python -m unittest discover -s tests/consistency -v
           python -m unittest discover -s tests/ops -v
+      - name: Intake, compatibility and isolated evaluation contracts
+        env:
+          PYTHONPATH: services/analysis/src:services/worker
+        run: |
+          python -m unittest discover -s tests/intake -v
+          python -m unittest discover -s tests/evaluation -v
+          python -m unittest discover -s tests/compatibility -v
+          python scripts/validation/round8_evaluation_audit.py
       - name: Legacy unsupported-path regression
         run: python -m unittest discover -s tests/legacy -v
   go:

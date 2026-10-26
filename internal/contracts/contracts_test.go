@@ -12,8 +12,8 @@ import (
 func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
-	if err != nil || len(entries) != 10 {
-		t.Fatalf("ten schemas required: %v", err)
+	if err != nil || len(entries) != 14 {
+		t.Fatalf("fourteen schemas required: %v", err)
 	}
 	for _, path := range entries {
 		raw, err := os.ReadFile(path)
@@ -157,5 +157,27 @@ func TestSharedPacketNegativeMutations(t *testing.T) {
 				t.Fatal("shared invalid packet mutation accepted")
 			}
 		})
+	}
+}
+
+// Standalone evaluation contracts do not add API endpoints.
+func TestEvaluationPreparationContracts(t *testing.T) {
+	for filename, name := range map[string]string{"predictions": "EvaluationPredictions", "annotations": "EvaluationAnnotations", "split": "EvaluationSplit", "registration": "EvaluationRegistration"} {
+		raw, err := os.ReadFile("../../fixtures/evaluation/" + filename + ".json")
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := Validate("../../schemas", name, raw); err != nil {
+			t.Fatalf("%s: %v", name, err)
+		}
+		var value map[string]any
+		if err := json.Unmarshal(raw, &value); err != nil {
+			t.Fatal(err)
+		}
+		value["unexpected"] = true
+		bad, _ := json.Marshal(value)
+		if Validate("../../schemas", name, bad) == nil {
+			t.Fatalf("%s accepted unknown field", name)
+		}
 	}
 }

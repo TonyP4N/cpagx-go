@@ -1,0 +1,145 @@
+{
+  "valid": true,
+  "raw_equal": {
+    "events.json": true,
+    "quality.json": true,
+    "graph.json": true,
+    "run_manifest.json": false,
+    "dataset.json": false
+  },
+  "allowed_exact_difference_paths": {
+    "dataset.json": [
+      "/files/0/name",
+      "/files/1/name"
+    ],
+    "run_manifest.json": [
+      "/run_id",
+      "/tool_versions/python",
+      "/artifacts/0/sha256",
+      "/artifacts/0/size_bytes"
+    ],
+    "manifest.json": [
+      "/artifacts/0/sha256",
+      "/artifacts/0/size",
+      "/artifacts/4/sha256",
+      "/artifacts/4/size"
+    ]
+  },
+  "observed_difference_paths": {
+    "dataset.json": [
+      "/files/0/name",
+      "/files/1/name"
+    ],
+    "run_manifest.json": [
+      "/artifacts/0/sha256",
+      "/artifacts/0/size_bytes",
+      "/run_id",
+      "/tool_versions/python"
+    ],
+    "manifest.json": [
+      "/artifacts/0/sha256",
+      "/artifacts/0/size",
+      "/artifacts/4/sha256",
+      "/artifacts/4/size"
+    ]
+  },
+  "observed_difference_values": {
+    "dataset.json": [
+      {
+        "path": "/files/0/name",
+        "legacy": "round7-legacy-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+        "isolated": "network.jsonl"
+      },
+      {
+        "path": "/files/1/name",
+        "legacy": "round7-legacy-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+        "isolated": "process.csv"
+      }
+    ],
+    "run_manifest.json": [
+      {
+        "path": "/artifacts/0/sha256",
+        "legacy": "791f53148ab783dcf9b8094586a68b872a1568751a999646ab5f74279dae8bf6",
+        "isolated": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2"
+      },
+      {
+        "path": "/artifacts/0/size_bytes",
+        "legacy": 719,
+        "isolated": 573
+      },
+      {
+        "path": "/run_id",
+        "legacy": "8baa83de-fb1b-4773-bbc5-45560e644cdb",
+        "isolated": "1e755328-1051-470f-8a8f-48016af4f185"
+      },
+      {
+        "path": "/tool_versions/python",
+        "legacy": "3.11.9",
+        "isolated": "3.12.15"
+      }
+    ],
+    "manifest.json": [
+      {
+        "path": "/artifacts/0/sha256",
+        "legacy": "791f53148ab783dcf9b8094586a68b872a1568751a999646ab5f74279dae8bf6",
+        "isolated": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2"
+      },
+      {
+        "path": "/artifacts/0/size",
+        "legacy": 719,
+        "isolated": 573
+      },
+      {
+        "path": "/artifacts/4/sha256",
+        "legacy": "6dfc36f6056d079db75b33afcfdc0fe3346cf0fdad964637b563cb903f2dfa4c",
+        "isolated": "6922a458b1d69f2c70417a9f53b26f78581fb41af8702954586a66ab5ce3470c"
+      },
+      {
+        "path": "/artifacts/4/size",
+        "legacy": 1261,
+        "isolated": 1262
+      }
+    ]
+  },
+  "event_count": 8,
+  "resolved_evidence_equal": true,
+  "resolved_evidence_sha256": "071276dc4a02798caeeb04fbbfe4d0df2c10ca8c07f15f5874957aa381856537",
+  "artifact_sha256": {
+    "legacy": {
+      "dataset.json": "791f53148ab783dcf9b8094586a68b872a1568751a999646ab5f74279dae8bf6",
+      "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "manifest.json": "28c7e294d4500e4933e1af14e8a35b2d7cdf6c119d056575b79c435864cd4f31",
+      "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "run_manifest.json": "6dfc36f6056d079db75b33afcfdc0fe3346cf0fdad964637b563cb903f2dfa4c"
+    },
+    "isolated": {
+      "dataset.json": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "manifest.json": "b72ddde5e3dd089f0c4d6ef18a978eec1fc0e1a523624eb5cceb198e5ff6929c",
+      "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "run_manifest.json": "6922a458b1d69f2c70417a9f53b26f78581fb41af8702954586a66ab5ce3470c"
+    }
+  },
+  "wrapper_serialization": {
+    "legacy_trailing_lf": true,
+    "isolated_trailing_lf": false
+  },
+  "observed_python_versions": {
+    "legacy": "3.11.9",
+    "isolated": "3.12.15"
+  },
+  "observed_dataset_names": {
+    "legacy": {
+      "network": "round7-legacy-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "process": "round7-legacy-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv"
+    },
+    "isolated": {
+      "network": "network.jsonl",
+      "process": "process.csv"
+    }
+  },
+  "normalization_boundary": "Only the listed exact JSON paths; linked hash/size values independently checked against actual artifacts.",
+  "validation_run_id": "a3e68fdf387e48e7bb1b3d40ee319aff"
+}

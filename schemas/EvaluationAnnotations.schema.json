@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EvaluationAnnotations.schema.json",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "origin": {
+      "enum": [
+        "independent",
+        "prediction_derived"
+      ]
+    },
+    "source_ref": {
+      "type": "string"
+    },
+    "review_ref": {
+      "type": "string"
+    },
+    "annotation_version": {
+      "type": "string"
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "batch": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "asset": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+-]\\d\\d:\\d\\d)$"
+          },
+          "sample_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          }
+        },
+        "required": [
+          "id",
+          "batch",
+          "kind",
+          "asset",
+          "time",
+          "sample_sha256"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "disputed_intervals": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "batch": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+-]\\d\\d:\\d\\d)$"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+-]\\d\\d:\\d\\d)$"
+          }
+        },
+        "required": [
+          "batch",
+          "start",
+          "end"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "origin",
+    "source_ref",
+    "review_ref",
+    "annotation_version",
+    "events",
+    "disputed_intervals"
+  ],
+  "additionalProperties": false
+}

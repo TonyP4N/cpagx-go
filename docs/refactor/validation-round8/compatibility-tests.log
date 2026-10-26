@@ -1,0 +1,11 @@
+test_cli_missing_artifact_rejected_with_nonzero_exit (test_history_readonly.HistoryReadonlyTests.test_cli_missing_artifact_rejected_with_nonzero_exit) ... ok
+test_missing_and_unknown_version_rejected_without_rewrite (test_history_readonly.HistoryReadonlyTests.test_missing_and_unknown_version_rejected_without_rewrite) ... ok
+test_normalized_history_is_read_only_and_verified (test_history_readonly.HistoryReadonlyTests.test_normalized_history_is_read_only_and_verified) ... ok
+test_packet_uses_packet_contract_and_preserves_inputs (test_history_readonly.HistoryReadonlyTests.test_packet_uses_packet_contract_and_preserves_inputs) ... ok
+test_rehashed_valid_but_wrong_node_evidence_rejected (test_history_readonly.HistoryReadonlyTests.test_rehashed_valid_but_wrong_node_evidence_rejected) ... ok
+test_tampered_artifact_and_symlink_rejected (test_history_readonly.HistoryReadonlyTests.test_tampered_artifact_and_symlink_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.094s
+
+OK

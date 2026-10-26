@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EvaluationSplit.schema.json",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "rule_windows_seconds": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0
+      }
+    },
+    "isolation_seconds": {
+      "type": "number",
+      "minimum": 0
+    },
+    "blocks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "partition": {
+            "enum": [
+              "calibration",
+              "holdout"
+            ]
+          },
+          "batch": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+-]\\d\\d:\\d\\d)$"
+          },
+          "end": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "(Z|[+-]\\d\\d:\\d\\d)$"
+          },
+          "sample_sha256": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            }
+          },
+          "normal": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "partition",
+          "batch",
+          "start",
+          "end",
+          "sample_sha256",
+          "normal"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "rule_windows_seconds",
+    "isolation_seconds",
+    "blocks"
+  ],
+  "additionalProperties": false
+}

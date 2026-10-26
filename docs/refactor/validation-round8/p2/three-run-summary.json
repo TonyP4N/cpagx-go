@@ -1,0 +1,61 @@
+{
+  "valid": true,
+  "synthetic_only": true,
+  "same_core_three_runs": [
+    {
+      "run": 1,
+      "directory": "final-run1",
+      "validation_run_id": "a3e68fdf387e48e7bb1b3d40ee319aff",
+      "evidence_sha256": "071276dc4a02798caeeb04fbbfe4d0df2c10ca8c07f15f5874957aa381856537",
+      "hashes": {
+        "legacy": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        },
+        "isolated": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        }
+      }
+    },
+    {
+      "run": 2,
+      "directory": "final-run2",
+      "validation_run_id": "81ecb7561a9b4251b68d878ba711ff6b",
+      "evidence_sha256": "071276dc4a02798caeeb04fbbfe4d0df2c10ca8c07f15f5874957aa381856537",
+      "hashes": {
+        "legacy": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        },
+        "isolated": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        }
+      }
+    },
+    {
+      "run": 3,
+      "directory": "final-run3",
+      "validation_run_id": "02d0221076354f93a0268c49c6138e71",
+      "evidence_sha256": "071276dc4a02798caeeb04fbbfe4d0df2c10ca8c07f15f5874957aa381856537",
+      "hashes": {
+        "legacy": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        },
+        "isolated": {
+          "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+          "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+          "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81"
+        }
+      }
+    }
+  ],
+  "scope": "legacy-v1 process Worker vs isolated-v2 Worker; not Celery runtime equivalence"
+}
