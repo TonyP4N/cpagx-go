@@ -22,7 +22,7 @@ dash==2.15.0
 
 # 文档工具
 mkdocs==1.5.3
-mkdocs-material==9.4.8
+mkdocs-material==9.7.7
 
 # 代码覆盖率
 pytest-cov==4.1.0
