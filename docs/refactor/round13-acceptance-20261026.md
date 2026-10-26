@@ -82,3 +82,11 @@ node scripts/validation/round13_browser.cjs /tmp/cpag-r13-ui output/playwright/r
 | U6 接收清单 | 首个小片段的授权、双源原件、版本/哈希、字段、设备、时间/精度依据逐项给出用途/缺失影响/具备状态；正常/攻击及独立评估材料分列 |
 
 图点击修复将响应和工艺原始节点移至候选连接下方，保留全部GraphArtifact节点；普通鼠标点击可查询，不用测试强制点击。证据区增加端点→目标、操作、响应语义、映射及工艺前后值摘要，原始内容和字段仍可展开查看。最终浏览器及CI结果记录随本轮提交保留。M3有限合成使用闭环达成本轮退出条件，但M2/M3真实退出条件、M4全任务生命周期/备份、M5完整回放及整体目标均未完成。
+
+## 最终功能提交的远端验收
+
+`1aa7f7bae70d3c8573a4de34a05a0a89a31f57ee` 的 [CI 40302730087](https://github.com/TonyP4N/cpagx-go/actions/runs/40302730087) **14项全部首次通过**，包括新增真实Celery+浏览器完整流程，未重跑该提交的任何失败项。原39ef9fd的镜像下载失败仍保留，不与本次混淆。
+
+新增作业消费同次frontend构建的静态站点，启动独立RabbitMQ/Redis/prefork/API，实际上传、等待任务、普通点击图/时间线、核验4条原始引用、下载、反证/未知/歧义、invalid失败、missing/tampered后409清屏、非法ID及窄屏。运行日志、截图和JSON由dual-source-celery-evidence归档；验收不存在mock响应或force click。U1—U6本轮有限软件退出条件满足。最终报告提交的CI链接随交付附上。
+
+本机独立测试队列、API、Worker、浏览器和测试代理均已停止并清理，celery-live.json记录cleanup=passed；原始回归输入和产物留在本机独立临时目录用于追溯，仓库保留报告、日志和必要截图。没有更改生产入口或重新打包RC1。

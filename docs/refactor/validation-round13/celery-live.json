@@ -134,5 +134,6 @@
   ],
   "api_base": "http://127.0.0.1:51964",
   "status": "passed",
-  "ui_url": "http://127.0.0.1:18300/"
+  "ui_url": "http://127.0.0.1:18300/",
+  "cleanup": "passed"
 }
