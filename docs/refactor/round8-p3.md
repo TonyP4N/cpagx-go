@@ -18,7 +18,7 @@ CLI 向标准输出写 JSON，不写预测、原始文件或标注。合同/来�
 
 数据目录分 raw、profiles、annotations。`python -m cpag_core.evaluation_analysis --root DATA --network raw/network.jsonl --process raw/process.csv --profile profiles/profile.json --output NEW_OUTPUT` 仅接受 raw 和 profiles，拒绝 annotations 路径、越界、符号链接、硬链接、已存在输出、标注列/字段和未知配置键。只将允许的两份数据及内存配置传入纯核心。此为可信本地工具的输入约束，不是阻止恶意用户重命名/伪造数据的 OS 沙箱；不会据此宣称所有旧入口都具有相同隔离保障。
 
-P1 的 `input_fingerprint` 按文件角色、内容哈希和大小形成；单 network/process 时与核心相同。P1 `intake_config_fingerprint` 标识接收声明，P3 `config_fingerprint` 标识实际分析 profile；两者不可混用。注册还绑定 split 摘要，预测必须匹配输入与分析配置指纹。
+P1 的 `input_fingerprint` 按文件角色、内容哈希和大小形成；仅当输入字节与角色完全相同，单 network/process 时才与核心相同；原始PCAP与派生normalized JSONL不是同一输入指纹。跨转换的来源链尚未作为本轮新功能实现，不直接把两者指纹互换。P1 `intake_config_fingerprint` 标识接收声明，P3 `config_fingerprint` 标识实际分析 profile；两者不可混用。注册还绑定 split 摘要，预测必须匹配输入与分析配置指纹。
 
 ## 验收
 

@@ -9,7 +9,7 @@ Go 的 `/api/health`、`/api/ping` 和根页面位于 `api/routes.go:64-79`，v1
 | ID | 本轮实际结果；未覆盖处的具体条件 |
 |---|---|
 | G01、G02、G03 | 总集成环境执行 `go test ./api ./internal/jobapi ./internal/contracts` 通过，证据见 `validation-round8/go-compatibility.log`。代码位置与旧代理归属已盘点；版本切换、实际 Python 上游和真实历史下载仍需受控部署与实例。 |
-| G04 | Neo4j 图任务查询/删除/健康/浏览器路由已盘点；无可授权的真实历史图实例及 Neo4j 运行环境，本轮未执行删除或判定兼容通过。旧路由保留。 |
+| G04 | Neo4j 图任务查询/删除/健康/浏览器路由已盘点；未获得可核查的真实历史图实例，且旧图服务未纳入本轮隔离运行验收，本轮未执行删除或判定兼容通过。旧路由保留。 |
 | L01、L02 | `tests/legacy/test_no_fabricated_pcap.py` **5 passed**，只确认失败 PCAP 不被伪造成成功图；未覆盖旧 v1/v2 完整生成、结果读取或数据库持久化。需具体旧任务的 PCAP、CSV、配置与依赖。 |
 | L03 | Celery v1/v2 生成与 v2 指标/清理任务已按源码盘点。真实 broker、结果后端及历史任务实例缺失；未声称旧 Celery 队列执行与 M4 一致。 |
 | S01 | `round7-consistency.py` 的三次本轮执行覆盖 legacy-v1 **process Worker** 与 isolated-v2 Worker 共用核心；非 Celery 运行时等价。本机起初因 iCloud 按需依赖文件导入阻塞，取回原版本文件后 `tests/service` 11项通过（`validation-round8/service.log`）。这覆盖服务测试的模拟队列/内联任务路径，真实 Celery broker 执行仍待受控服务环境核查。 |
