@@ -226,7 +226,11 @@ def register(app):
         if not manifest:
             raise HTTPException(404, 'Task not found')
         if manifest.get('synthetic') and manifest.get('status') == 'completed':
-            verify_http_publication(task_id, manifest)
+            if manifest.get('task_kind') == 'synthetic_dual_source':
+                from .dual_source import verify_http_publication as verify_dual_source
+                verify_dual_source(task_id, manifest)
+            else:
+                verify_http_publication(task_id, manifest)
         result = dict(manifest)
         result['files'] = [{'filename': name, 'download_url': f'/cpag/download/{task_id}/{name}'} for name in manifest.get('files', [])]
         if manifest.get('synthetic') and manifest.get('status') == 'completed':

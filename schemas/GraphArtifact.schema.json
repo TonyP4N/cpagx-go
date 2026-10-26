@@ -27,7 +27,8 @@
           "kind": {
             "enum": [
               "network",
-              "process"
+              "process",
+              "derived_event"
             ]
           },
           "evidence_refs": {
@@ -101,6 +102,22 @@
             "type": "string"
           },
           "claim_id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "string"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "config_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "candidate_state": {
             "type": "string"
           }
         },

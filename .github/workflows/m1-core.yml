@@ -85,6 +85,10 @@ jobs:
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
 
   service-regression:
     runs-on: ubuntu-latest
@@ -263,3 +267,20 @@ jobs:
         with:
           name: dual-source-analysis-evidence
           path: ${{ runner.temp }}/dual-source-example
+
+  dual-source-celery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - name: Actual Celery dual-source task and evidence HTTP flow
+        run: python scripts/validation/round13_celery.py --output "$RUNNER_TEMP/dual-source-celery"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dual-source-celery-evidence
+          path: ${{ runner.temp }}/dual-source-celery

@@ -13,7 +13,7 @@ celery_app = Celery(
     'cpag_generator',
     broker=os.getenv('RABBITMQ_URL', 'amqp://guest:guest@localhost:5672/'),
     backend=os.getenv('REDIS_URL', 'redis://localhost:6379/0'),
-    include=['api.v1.tasks', 'api.v2.tasks', 'api.v2.synthetic']
+    include=['api.v1.tasks', 'api.v2.tasks', 'api.v2.synthetic', 'api.v2.dual_source']
 )
 
 celery_app.conf.update(
@@ -48,6 +48,7 @@ celery_app.conf.update(
     task_routes={
         'api.v1.tasks.generate_cpag': {'queue': 'cpag_generation'},
         'api.v2.tasks.generate_cpag': {'queue': 'cpag_generation'},
+        'api.v2.dual_source.execute_dual_source': {'queue': 'cpag_generation'},
         'api.v2.tasks.collect_metrics': {'queue': 'celery'},
         'api.v2.tasks.health_check': {'queue': 'celery'},
         'api.v2.tasks.cleanup_old_tasks': {'queue': 'celery'},

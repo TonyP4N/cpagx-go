@@ -4,6 +4,7 @@ import useSWR from 'swr';
 import { useDropzone } from 'react-dropzone';
 import toast, { Toaster } from 'react-hot-toast';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { 
   ArrowPathIcon, 
   CloudArrowUpIcon, 
@@ -282,6 +283,9 @@ export default function HomePage() {
             </div>
           </div>
           <div className="flex items-center gap-4">
+            <Link href="/dual-source" className="inline-flex items-center gap-2 rounded-xl px-4 py-2 font-medium shadow-md bg-amber-100 text-amber-900 hover:bg-amber-200" aria-label="打开合成双源验证页面">
+              合成双源验证
+            </Link>
             <VersionSelector 
               currentVersion={currentVersion} 
               onVersionChange={setCurrentVersion} 

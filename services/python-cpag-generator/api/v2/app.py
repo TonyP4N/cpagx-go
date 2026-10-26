@@ -221,7 +221,11 @@ async def get_task_result(task_id: str):
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest and manifest.get('synthetic'):
         from .synthetic import verify_http_publication, artifact_path
-        verify_http_publication(task_id, manifest)
+        if manifest.get('task_kind') == 'synthetic_dual_source':
+            from .dual_source import verify_http_publication as verify_dual_source
+            verify_dual_source(task_id, manifest)
+        else:
+            verify_http_publication(task_id, manifest)
         return FileResponse(path=str(artifact_path(task_id, 'graph.json')),
                             filename=f'cpag-{task_id}.json', media_type='application/json')
     if manifest and isinstance(manifest.get('files'), list):
@@ -259,10 +263,19 @@ async def get_task_result_json(task_id: str):
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest and manifest.get('synthetic'):
         from .synthetic import verify_http_publication
-        verify_http_publication(task_id, manifest)
+        if manifest.get('task_kind') == 'synthetic_dual_source':
+            from .dual_source import verify_http_publication as verify_dual_source
+            verify_dual_source(task_id, manifest)
+            names = ['graph', 'events', 'dataset', 'quality', 'analysis', 'run_manifest']
+        else:
+            verify_http_publication(task_id, manifest)
+            names = ['graph', 'quality', 'events', 'run_manifest']
         data = {name: json.loads(artifact_path(task_id, name + '.json').read_text())
-                for name in ['graph', 'quality', 'events', 'run_manifest']}
-        return {"task_id": task_id, "status": "completed", "synthetic": True, "data": data}
+                for name in names}
+        response = {"task_id": task_id, "status": "completed", "synthetic": True, "data": data}
+        if manifest.get('task_kind') == 'synthetic_dual_source':
+            response['task_kind'] = 'synthetic_dual_source'
+        return response
     import redis
     
     # First try to get from Redis
@@ -348,7 +361,11 @@ async def download_file(task_id: str, filename: str):
         task_dir(task_id)
         manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
         if manifest and manifest.get('synthetic'):
-            verify_http_publication(task_id, manifest)
+            if manifest.get('task_kind') == 'synthetic_dual_source':
+                from .dual_source import verify_http_publication as verify_dual_source
+                verify_dual_source(task_id, manifest)
+            else:
+                verify_http_publication(task_id, manifest)
         path = artifact_path(task_id, filename)
     except ValueError as exc:
         raise HTTPException(400, str(exc))
@@ -382,6 +399,9 @@ async def get_queue_status():
 # Register the explicitly opted-in synthetic execution bridge once.
 from .synthetic import register as register_synthetic
 register_synthetic(app)
+
+from .dual_source import register as register_dual_source
+register_dual_source(app)
 
 if __name__ == "__main__":
     import uvicorn
