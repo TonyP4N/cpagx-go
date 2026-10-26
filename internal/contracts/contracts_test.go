@@ -12,8 +12,8 @@ import (
 func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
-	if err != nil || len(entries) != 14 {
-		t.Fatalf("fourteen schemas required: %v", err)
+	if err != nil || len(entries) != 15 {
+		t.Fatalf("fifteen schemas required: %v", err)
 	}
 	for _, path := range entries {
 		raw, err := os.ReadFile(path)
@@ -178,6 +178,40 @@ func TestEvaluationPreparationContracts(t *testing.T) {
 		bad, _ := json.Marshal(value)
 		if Validate("../../schemas", name, bad) == nil {
 			t.Fatalf("%s accepted unknown field", name)
+		}
+	}
+}
+
+func TestDualSourceProfile(t *testing.T) {
+	raw, err := os.ReadFile("../../profiles/dual-source-synthetic.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = Validate("../../schemas", "DualSourceProfile", raw); err != nil {
+		t.Fatal(err)
+	}
+	var object map[string]any
+	if err = json.Unmarshal(raw, &object); err != nil {
+		t.Fatal(err)
+	}
+	object["attack_labels"] = []any{}
+	bad, _ := json.Marshal(object)
+	if Validate("../../schemas", "DualSourceProfile", bad) == nil {
+		t.Fatal("labels accepted")
+	}
+}
+
+func TestDualSourceServiceBounds(t *testing.T) {
+	raw, _ := os.ReadFile("../../profiles/dual-source-synthetic.json")
+	for _, service := range []any{15, 17, 16.5, "16"} {
+		var object map[string]any
+		if err := json.Unmarshal(raw, &object); err != nil {
+			t.Fatal(err)
+		}
+		object["mappings"].([]any)[0].(map[string]any)["service"] = service
+		bad, _ := json.Marshal(object)
+		if Validate("../../schemas", "DualSourceProfile", bad) == nil {
+			t.Fatalf("invalid service accepted: %v", service)
 		}
 	}
 }

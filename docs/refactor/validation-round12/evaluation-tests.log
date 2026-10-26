@@ -1,0 +1,19 @@
+test_disputes_excluded_and_duration_subtracted (test_evaluation.EvaluationTests.test_disputes_excluded_and_duration_subtracted) ... ok
+test_empty_and_no_normal_denominator (test_evaluation.EvaluationTests.test_empty_and_no_normal_denominator) ... ok
+test_exact_tolerance_and_outside_boundary (test_evaluation.EvaluationTests.test_exact_tolerance_and_outside_boundary) ... ok
+test_hand_calculated (test_evaluation.EvaluationTests.test_hand_calculated) ... ok
+test_independent_jsonschema (test_evaluation.EvaluationTests.test_independent_jsonschema) ... ok
+test_normal_positive_and_wrong_sample_rejected (test_evaluation.EvaluationTests.test_normal_positive_and_wrong_sample_rejected) ... ok
+test_one_to_one_maximum_matching (test_evaluation.EvaluationTests.test_one_to_one_maximum_matching) ... ok
+test_real_data_never_gets_synthetic_scores (test_evaluation.EvaluationTests.test_real_data_never_gets_synthetic_scores) ... ok
+test_registration_and_provenance_rejected (test_evaluation.EvaluationTests.test_registration_and_provenance_rejected) ... ok
+test_splits_reject_overlap_duplicates_and_missing_window (test_evaluation.EvaluationTests.test_splits_reject_overlap_duplicates_and_missing_window) ... ok
+test_labels_disguised_as_data_and_config_rejected (test_isolation.IsolationTests.test_labels_disguised_as_data_and_config_rejected) ... ok
+test_labels_mutation_does_not_change_analysis (test_isolation.IsolationTests.test_labels_mutation_does_not_change_analysis) ... ok
+test_labels_path_traversal_symlink_and_hardlink_rejected (test_isolation.IsolationTests.test_labels_path_traversal_symlink_and_hardlink_rejected) ... ok
+test_output_cannot_overwrite_inputs_or_old_run (test_isolation.IsolationTests.test_output_cannot_overwrite_inputs_or_old_run) ... ok
+
+----------------------------------------------------------------------
+Ran 14 tests in 0.085s
+
+OK

@@ -1,0 +1,5 @@
+--- FAIL: TestDualSourceProfile (0.00s)
+    contracts_test.go:188: DualSourceProfile.mappings[0].service: invalid enum
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/contracts	4.272s
+FAIL

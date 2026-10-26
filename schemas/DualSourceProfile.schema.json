@@ -1,0 +1,284 @@
+{
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "const": true
+    },
+    "profile_id": {
+      "type": "string",
+      "pattern": ".+"
+    },
+    "config_version": {
+      "type": "string",
+      "pattern": ".+"
+    },
+    "rule_version": {
+      "type": "string",
+      "pattern": ".+"
+    },
+    "clocks": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "type": "object",
+          "properties": {
+            "offset_seconds": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -86400,
+              "maximum": 86400
+            },
+            "uncertainty_seconds": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 60
+            },
+            "basis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "offset_seconds",
+            "uncertainty_seconds",
+            "basis"
+          ],
+          "additionalProperties": false
+        },
+        "process": {
+          "type": "object",
+          "properties": {
+            "offset_seconds": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": -86400,
+              "maximum": 86400
+            },
+            "uncertainty_seconds": {
+              "type": [
+                "number",
+                "null"
+              ],
+              "minimum": 0,
+              "maximum": 60
+            },
+            "basis": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "offset_seconds",
+            "uncertainty_seconds",
+            "basis"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "network",
+        "process"
+      ],
+      "additionalProperties": false
+    },
+    "window_seconds": {
+      "type": "number",
+      "minimum": 0.001,
+      "maximum": 60
+    },
+    "max_sample_gap_seconds": {
+      "type": "number",
+      "minimum": 0.001,
+      "maximum": 60
+    },
+    "change_epsilon": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1000
+    },
+    "process": {
+      "type": "object",
+      "properties": {
+        "timestamp_column": {
+          "type": "string",
+          "pattern": ".+"
+        },
+        "columns": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "tag": {
+                "type": "string",
+                "pattern": ".+"
+              },
+              "asset_id": {
+                "type": "string",
+                "pattern": ".+"
+              },
+              "value_type": {
+                "enum": [
+                  "analog",
+                  "state"
+                ]
+              },
+              "unit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "state_map": {
+                "type": "object",
+                "additionalProperties": {
+                  "type": [
+                    "number",
+                    "string",
+                    "boolean"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "tag",
+              "asset_id",
+              "value_type",
+              "unit"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "timezone": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "timezone_evidence": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "timestamp_column",
+        "columns"
+      ],
+      "additionalProperties": false
+    },
+    "mappings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "pattern": ".+"
+          },
+          "destination_ip": {
+            "type": "string",
+            "pattern": ".+"
+          },
+          "service": {
+            "type": "integer",
+            "minimum": 16,
+            "maximum": 16
+          },
+          "path": {
+            "type": "object",
+            "properties": {
+              "class": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "instance": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              },
+              "attribute": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 255
+              }
+            },
+            "required": [
+              "class",
+              "instance",
+              "attribute"
+            ],
+            "additionalProperties": false
+          },
+          "data_hex": {
+            "type": "string",
+            "pattern": "^([a-f0-9]{2})+$"
+          },
+          "asset_id": {
+            "type": "string",
+            "pattern": ".+"
+          },
+          "tag": {
+            "type": "string",
+            "pattern": ".+"
+          },
+          "expected_value": {
+            "type": [
+              "number",
+              "string",
+              "boolean"
+            ]
+          },
+          "tolerance": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1000
+          }
+        },
+        "required": [
+          "rule_id",
+          "destination_ip",
+          "service",
+          "path",
+          "data_hex",
+          "asset_id",
+          "tag",
+          "expected_value",
+          "tolerance"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "profile_id",
+    "config_version",
+    "rule_version",
+    "clocks",
+    "window_seconds",
+    "max_sample_gap_seconds",
+    "change_epsilon",
+    "process",
+    "mappings"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "DualSourceProfile.schema.json"
+}

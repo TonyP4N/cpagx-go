@@ -1,0 +1,17 @@
+test_config_fingerprint_changes (test_core.CoreTests.test_config_fingerprint_changes) ... ok
+test_repeated_runs_evidence_and_checksums (test_core.CoreTests.test_repeated_runs_evidence_and_checksums) ... ok
+test_requires_synthetic_and_resolved_evidence (test_core.CoreTests.test_requires_synthetic_and_resolved_evidence) ... ok
+test_volatile_fields_excluded (test_core.CoreTests.test_volatile_fields_excluded) ... ok
+test_logical_record_and_column_bounds (test_core.EvidenceBoundaryTests.test_logical_record_and_column_bounds) ... ok
+test_csv_blank_and_multiline_positions_and_raw_values (test_core.IndexedEvidenceTests.test_csv_blank_and_multiline_positions_and_raw_values) ... ok
+test_empty_either_source_rejected (test_core.IndexedEvidenceTests.test_empty_either_source_rejected) ... ok
+test_invalid_jsonl_before_valid_and_raw_content (test_core.IndexedEvidenceTests.test_invalid_jsonl_before_valid_and_raw_content) ... ok
+test_mutation_before_during_index_and_publication (test_core.IndexedEvidenceTests.test_mutation_before_during_index_and_publication) ... ok
+test_csv_raw_time_mismatch_fails_before_publication (test_core.RawEvidenceValidationTests.test_csv_raw_time_mismatch_fails_before_publication) ... ok
+test_invalid_utf8_is_explicit_and_never_published (test_core.RawEvidenceValidationTests.test_invalid_utf8_is_explicit_and_never_published) ... ok
+test_invalid_one_source_does_not_hide_behind_valid_other_source (test_core.SourceFailureTests.test_invalid_one_source_does_not_hide_behind_valid_other_source) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.056s
+
+OK

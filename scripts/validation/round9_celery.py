@@ -453,6 +453,11 @@ def main():
     except Exception as exc:
         evidence['status'] = 'failed'
         evidence['error'] = f'{type(exc).__name__}: {exc}'
+        if isinstance(exc, (subprocess.CalledProcessError, subprocess.TimeoutExpired)):
+            for name in ('stdout', 'stderr'):
+                value = getattr(exc, name, None)
+                if value:
+                    evidence['subprocess_' + name] = value.decode(errors='replace') if isinstance(value, bytes) else value
         raise
     finally:
         stop_process(worker)
