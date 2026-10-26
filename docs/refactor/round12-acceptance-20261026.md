@@ -68,3 +68,9 @@ PYTHONPATH=services/analysis/src python3 -m cpag_core.dual_source query --output
 需要材料：授权同批次PCAP/PCAPNG与工艺记录，来源版本/校验与采集点说明，设备IP/CIP字段/标签/单位/状态字典及有效期，两源时区/同步/偏移和误差依据；真实效果另需独立正常/攻击记录、标注、保留集及固定评估准则。历史兼容仍缺实际旧任务输入/配置/状态/产物及必要Neo4j材料。公开规则与本轮合成预期不能代替独立真实标准答案。
 
 RC1标签仍指向 `49e998545b9b7b47f2b1dc9b19e6d8562f780765`，离线包SHA256仍为 `c199dd417e1c59c55563c5535e32d26197b164c95ae17c0ef3bb621f7228b49e`。本轮不修改已有解析器/核心入口/Worker/API/冻结目录，不切默认、不合并主分支、不部署生产。远端CI结果将在实现提交后补记；未通过前不将D5视为完成。
+
+## 提交与远端退出验收
+
+实现提交 `ad51ceb2312098e97b54b88f001cf7aa00704611` 的 [CI 40287532425](https://github.com/TonyP4N/cpagx-go/actions/runs/40287532425) 13项全部首次通过，包含新增dual-source-analysis及既有Go、核心、前端、旧服务、真实Celery队列、PostgreSQL/Worker、隔离、工程恢复、备份和性能作业。作业明细见 `validation-round12/ci-implementation.json`。本次Celery未复现启动失败，既有待办未宣称修复。
+
+已下载远端 `dual-source-analysis-evidence`，重新查询双方原始证据通过，查询结果与远端保存结果一致；analysis.json与本地正式样例字节一致。核验摘要见 `validation-round12/ci-artifact-verification.json`。D1—D5本轮有限合成软件退出条件满足，未发现本次引入的未解释既有回归；这不代表没有任何问题，也不解除原方案真实工业退出条件。
