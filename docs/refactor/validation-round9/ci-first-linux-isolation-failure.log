@@ -1,0 +1,144 @@
+linux-isolation	Real container resource and double-crash probes	﻿2026-10-26T03:41:22.7804839Z ##[group]Run python scripts/m4/linux-isolation/validate.py
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.7806043Z ^[[36;1mpython scripts/m4/linux-isolation/validate.py^[[0m
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8024515Z shell: /usr/bin/bash -e {0}
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8025357Z env:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8026060Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8027226Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8028351Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8029373Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8030378Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8031389Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:22.8032285Z ##[endgroup]
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9074058Z #0 building with "default" instance using docker driver
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9074691Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9074958Z #1 [internal] load build definition from Dockerfile
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9075734Z #1 transferring dockerfile: 400B done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9076205Z #1 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9076419Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:23.9076762Z #2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.6378400Z #2 DONE 2.9s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8487379Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8488337Z #3 [internal] load .dockerignore
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8489110Z #3 transferring context: 2B done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8489651Z #3 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8489918Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8490127Z #4 [internal] load build context
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8490707Z #4 transferring context: 83.56kB done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8491348Z #4 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8491628Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8492444Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8494414Z #5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:26.8621369Z #5 sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 0B / 247B 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.0123877Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 0B / 13.78MB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.0125101Z #5 sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 0B / 412.02kB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.0126070Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0B / 3.85MB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.4623818Z #5 sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 247B / 247B 0.7s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.7333928Z #5 sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 412.02kB / 412.02kB 1.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:27.9148005Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 3.15MB / 13.78MB 1.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.0644184Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 13.78MB / 13.78MB 1.4s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.0645640Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 3.85MB / 3.85MB 1.2s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.1874917Z #5 extracting sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.3815356Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 13.78MB / 13.78MB 1.5s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.3824372Z #5 extracting sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0.1s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.3825929Z #5 extracting sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 0.1s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.3827255Z #5 DONE 1.7s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.5317902Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.5318916Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.5320328Z #5 extracting sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.7416659Z #5 extracting sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 0.4s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.7418226Z #5 DONE 2.1s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9000044Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9001140Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9002200Z #5 extracting sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9003101Z #5 DONE 2.1s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9003262Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:28.9003373Z #6 [2/4] WORKDIR /app
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.2300684Z #6 DONE 0.5s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3308549Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3309281Z #7 [3/4] COPY services/worker/cpag_worker /app/cpag_worker
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3309835Z #7 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3309970Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3310234Z #8 [4/4] COPY scripts/m4/linux-isolation /app/isolation
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3310590Z #8 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3310720Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3310853Z #9 exporting to image
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3311109Z #9 exporting layers 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3311657Z #9 exporting manifest sha256:981b5ba860e4e176f9a401119842d2b4676358c76dbc900560d0db280aba465c done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3312473Z #9 exporting config sha256:7f7e41cbc1ea135c524d043a03565d8e4d365878809c0d727403e3de4e9ca973 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3313734Z #9 exporting attestation manifest sha256:3e323bc6c6d48ffd9512e5dbd46f229e5774b1ed982aa43ca4764f9b2e63c79e done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3314602Z #9 exporting manifest list sha256:26b3be9fb6ff3416ca10fc9797129eada97c2b6b756337309d3870b7f98bcf37 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.3315273Z #9 naming to docker.io/library/cpag-linux-isolation:round4
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.4219434Z #9 naming to docker.io/library/cpag-linux-isolation:round4 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.4220115Z #9 unpacking to docker.io/library/cpag-linux-isolation:round4 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:29.4220842Z #9 DONE 0.1s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:31.6755062Z PASS memory
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:33.7681372Z PASS disk
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:35.6807415Z PASS output
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:37.7480430Z PASS pids
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:41:58.8041398Z PASS cpu
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7301104Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7308854Z   File "<string>", line 1, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7309419Z   File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7312361Z     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7313645Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7314518Z   File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7315292Z     return io.open(self, mode, buffering, encoding, errors, newline)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7315954Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:00.7317073Z FileNotFoundError: [Errno 2] No such file or directory: '/runtime/shared/output.worker/child.pid'
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7202040Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7203573Z   File "<string>", line 1, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7209693Z   File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7218716Z     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7219985Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7221296Z   File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7222084Z     return io.open(self, mode, buffering, encoding, errors, newline)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7223000Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:02.7223879Z FileNotFoundError: [Errno 2] No such file or directory: '/runtime/shared/output.worker/child.pid'
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7235922Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7240091Z   File "<string>", line 1, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7240881Z   File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7243779Z     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7263507Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7273352Z   File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7274458Z     return io.open(self, mode, buffering, encoding, errors, newline)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7275385Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:04.7276498Z FileNotFoundError: [Errno 2] No such file or directory: '/runtime/shared/output.worker/child.pid'
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8205479Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8206865Z   File "<string>", line 1, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8210726Z   File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8214214Z     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8215410Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8216395Z   File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8246472Z     return io.open(self, mode, buffering, encoding, errors, newline)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8247832Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:06.8249110Z FileNotFoundError: [Errno 2] No such file or directory: '/runtime/shared/output.worker/child.pid'
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3228172Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3229157Z   File "<string>", line 1, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3230937Z   File "/usr/local/lib/python3.12/pathlib.py", line 1027, in read_text
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3260206Z     with self.open(mode='r', encoding=encoding, errors=errors) as f:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3261351Z          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3262274Z   File "/usr/local/lib/python3.12/pathlib.py", line 1013, in open
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3263343Z     return io.open(self, mode, buffering, encoding, errors, newline)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3264060Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.3264853Z FileNotFoundError: [Errno 2] No such file or directory: '/runtime/escaped.pid'
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4109705Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4110939Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/m4/linux-isolation/validate.py", line 30, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4112106Z     evidence = docker('exec',name,'python','-c',
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4112653Z                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4113784Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/m4/linux-isolation/validate.py", line 11, in docker
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4114535Z     return subprocess.check_output(['docker',*args],text=True).strip()
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4115001Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4115883Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 466, in check_output
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4117838Z     return run(*popenargs, stdout=PIPE, timeout=timeout, check=True,
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4119927Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4120590Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 571, in run
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4508890Z     raise CalledProcessError(retcode, process.args,
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4513334Z subprocess.CalledProcessError: Command '['docker', 'exec', 'cpag-r4-timeout', 'python', '-c', "from pathlib import Path; import json; p=Path('/runtime/shared/output.worker/child.pid'); print(json.dumps({'child':int(p.read_text()),'escaped':int(Path('/runtime/escaped.pid').read_text()),'worker':int(Path('/runtime/worker.pid').read_text())}))"]' returned non-zero exit status 137.
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4516561Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4517027Z During handling of the above exception, another exception occurred:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4517732Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4518000Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4519098Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/m4/linux-isolation/validate.py", line 35, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4520877Z     raise AssertionError(docker('logs',name))
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4523231Z AssertionError: {"worker_result": "failed", "receipt": {"id": "probe", "attempt": 1, "worker": "linux-probe", "token": "synthetic", "returncode": -15, "reason": "timeout", "group_exited": true, "child_pid": 32, "guardian_pid": 26}}
+linux-isolation	Real container resource and double-crash probes	2026-10-26T03:42:09.4591306Z ##[error]Process completed with exit code 1.

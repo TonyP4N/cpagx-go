@@ -52,3 +52,12 @@ macOS初次prefork使用SpawnPoolWorker，实际收消息后在Celery fast_trace
 | C6 缺失/篡改/恢复 | 四个读取 URL 均 409；恢复原文件后下载 200 | 通过 |
 
 C5 恢复时 Docker 临时端口可能重新分配，测试刷新 broker 地址并重启独立 API/Worker 后提交新任务；这不是原进程透明重连或未处理消息持久性验证。缺失/篡改检测为合成任务产物的读取校验，不能据此推断所有历史任务具有同样保障。
+
+
+## 提交与远端 Linux 证据
+
+实现提交：`a4a8014316abf46f7883523bac5df87f621b1e73`。远端 [CI 40265293222](https://github.com/TonyP4N/cpagx-go/actions/runs/40265293222) 的 11 项作业均通过（隔离作业重跑一次）。新增真实 Celery 作业在 Linux/amd64、Python 3.11.17、Celery 5.3.4 下首次通过；其 JSON 归档为 `validation-round9/celery-linux-ci.json`，全部 C1—C6 与清理检查通过。原始远端日志由 CI artifact 保存。
+
+首次 CI 的既有 linux-isolation 作业失败：2 秒 timeout 探针的 PID 证据尚未读全时进程已超时结束；日志归档 `ci-first-linux-isolation-failure.log`。同提交未改代码，仅重跑该失败作业后通过。此结果只能说明未稳定复现，不宣称已修复；探针启动/取证时序的偶发不稳定另列后续，不能以该次通过证明不存在隔离缺陷。本轮未修改隔离实现或放宽断言。
+
+默认入口、冻结标签和离线包保持不变；仓库后续报告提交仅补远端证据，不回写冻结候选。真实历史输入、版本配置、产物及 Neo4j 只读材料仍缺；本轮仅补合成任务经真实队列和旧 v2 读取 URL 的有限兼容证据。
