@@ -1,0 +1,23 @@
+{
+  "synthetic": true,
+  "checks": {
+    "actual_upload_complete": true,
+    "four_original_references": true,
+    "readable_operation_summary": true,
+    "graph_timeline_evidence_link": true,
+    "controlled_download": true,
+    "error": "counterevidence_present",
+    "missing_response": "response_missing",
+    "mapping_missing": "mapping_missing",
+    "mapping_conflict": "mapping_conflict",
+    "ambiguous": "ambiguous",
+    "invalid_failed": true,
+    "missing_clears_untrusted_result": true,
+    "tampered_clears_untrusted_result": true,
+    "invalid_task_id": true,
+    "mobile_page_no_horizontal_overflow": true
+  },
+  "page_errors": [],
+  "submitted_task_id": "f05b9a16-aa1b-4028-beb0-2f1f5b5e9625",
+  "status": "passed"
+}

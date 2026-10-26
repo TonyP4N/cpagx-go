@@ -1,0 +1,20 @@
+{
+  "synthetic": true,
+  "checks": {
+    "actual_upload_complete": true,
+    "four_original_references": true,
+    "graph_timeline_evidence_link": true,
+    "controlled_download": true,
+    "error": "counterevidence_present",
+    "missing_response": "response_missing",
+    "mapping_missing": "mapping_missing",
+    "mapping_conflict": "mapping_conflict",
+    "ambiguous": "ambiguous",
+    "invalid_failed": true,
+    "missing_clears_untrusted_result": true
+  },
+  "page_errors": [],
+  "submitted_task_id": "54165252-a1da-43ca-af13-35d2c2e71f0e",
+  "status": "failed",
+  "error": "Error: locator.scrollIntoViewIfNeeded: Error: strict mode violation: getByRole('alert') resolved to 2 elements:\n    1) <p role=\"alert\" class=\"rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 break-words\">409：Dual-source publication integrity verificatio…</p> aka getByText('409：Dual-source publication')\n    2) <p role=\"alert\" aria-live=\"assertive\" id=\"__next-route-announcer__\"></p> aka locator('[id=\"__next-route-announcer__\"]')\n\nCall log:\n\u001b[2m  - waiting for getByRole('alert')\u001b[22m\n"
+}

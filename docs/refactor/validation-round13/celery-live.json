@@ -1,0 +1,138 @@
+{
+  "synthetic": true,
+  "runtime": "real RabbitMQ + Redis + Celery prefork + HTTP",
+  "project": "cpag-r13-07c592de",
+  "checks": {
+    "success": {
+      "status": "completed",
+      "response": "success",
+      "candidate_states": [
+        "supported_candidate"
+      ],
+      "unknown_reasons": [],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "error": {
+      "status": "completed",
+      "response": "error",
+      "candidate_states": [
+        "counterevidence_present"
+      ],
+      "unknown_reasons": [],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "missing_response": {
+      "status": "completed",
+      "response": "missing",
+      "candidate_states": [
+        "unknown"
+      ],
+      "unknown_reasons": [
+        "response_missing"
+      ],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "mapping_missing": {
+      "status": "completed",
+      "response": "success",
+      "candidate_states": [],
+      "unknown_reasons": [
+        "mapping_missing"
+      ],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "mapping_conflict": {
+      "status": "completed",
+      "response": "success",
+      "candidate_states": [],
+      "unknown_reasons": [
+        "mapping_conflict"
+      ],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "ambiguous": {
+      "status": "completed",
+      "response": "success",
+      "candidate_states": [
+        "ambiguous",
+        "ambiguous"
+      ],
+      "unknown_reasons": [],
+      "download_files": [
+        "graph.json",
+        "events.json",
+        "dataset.json",
+        "quality.json",
+        "analysis.json",
+        "run_manifest.json"
+      ]
+    },
+    "invalid": {
+      "status": "failed",
+      "error": "unsupported_or_empty_process: "
+    },
+    "missing": {
+      "/cpag/result/99b63ebf-ac1e-41d3-9875-8345bc768792/json": 409,
+      "/cpag/artifacts/99b63ebf-ac1e-41d3-9875-8345bc768792": 409,
+      "/cpag/download/99b63ebf-ac1e-41d3-9875-8345bc768792/graph.json": 409,
+      "/cpag/dual-source/99b63ebf-ac1e-41d3-9875-8345bc768792/evidence?operation=first": 409
+    },
+    "tampered": {
+      "/cpag/result/99b63ebf-ac1e-41d3-9875-8345bc768792/json": 409,
+      "/cpag/artifacts/99b63ebf-ac1e-41d3-9875-8345bc768792": 409,
+      "/cpag/download/99b63ebf-ac1e-41d3-9875-8345bc768792/graph.json": 409,
+      "/cpag/dual-source/99b63ebf-ac1e-41d3-9875-8345bc768792/evidence?operation=first": 409
+    }
+  },
+  "tasks": {
+    "success": "99b63ebf-ac1e-41d3-9875-8345bc768792",
+    "error": "fc078362-85a8-4f3b-bed1-afa4bafbae67",
+    "missing_response": "18f27cb4-439c-4975-80ce-a9764503027e",
+    "mapping_missing": "657562e7-0f0c-4080-b1ec-9f1ccaa7bc68",
+    "mapping_conflict": "09ea4d25-e4f5-4202-b262-f8dd59a878fc",
+    "ambiguous": "3ad9ee39-0898-40ba-9c9f-d8b4bc536166",
+    "invalid": "d35d0502-849a-43cd-9721-533469fa0a52"
+  },
+  "limitations": [
+    "No production or real industrial validation",
+    "Portable artifact restore only; no new PostgreSQL/Celery metadata backup support"
+  ],
+  "api_base": "http://127.0.0.1:51964",
+  "status": "passed",
+  "ui_url": "http://127.0.0.1:18300/"
+}

@@ -30,7 +30,7 @@ def free_port():
         sock.bind(('127.0.0.1',0));return sock.getsockname()[1]
 
 
-def start_ui(base, port):
+def start_ui(base, port, static_dir=None):
     class Proxy(SimpleHTTPRequestHandler):
         def do_GET(self):
             if self.path.startswith('/api/v2/'):
@@ -44,7 +44,7 @@ def start_ui(base, port):
             code,raw=http(base,self.path.removeprefix('/api/v2'),body,self.headers.get('Content-Type'))
             self.send_response(code);self.send_header('Content-Type','application/json');self.send_header('Content-Length',str(len(raw)));self.end_headers();self.wfile.write(raw)
         def log_message(self,*args):pass
-    server=ThreadingHTTPServer(('127.0.0.1',port),functools.partial(Proxy,directory=str(ROOT/'webui/out')))
+    server=ThreadingHTTPServer(('127.0.0.1',port),functools.partial(Proxy,directory=str(static_dir or ROOT/'webui/out')))
     threading.Thread(target=server.serve_forever,daemon=True).start();return server
 
 

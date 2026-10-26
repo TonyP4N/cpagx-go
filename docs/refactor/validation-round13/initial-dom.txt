@@ -1,0 +1,27 @@
+- banner:
+  - heading "合成双源验证" [level=1]
+  - paragraph: 网络报文与过程采样的可核查关联候选
+  - link "返回 CPAG 首页":
+    - /url: /
+- main:
+  - region "合成验证范围":
+    - strong: 仅限合成验证。
+    - text: 这里展示观测事实与假设性关联候选，不作因果、攻击识别或物理动作成功判断。协议成功响应仅表示协议服务响应成功；端点地址不证明操作主体。时间偏移由配置提供，采样间隔不能确定动作发生时刻。
+  - region "提交合成双源任务":
+    - heading "提交合成测试输入" [level=2]
+    - text: 网络原始报文
+    - button "网络原始报文"
+    - text: 过程采样 CSV
+    - button "过程采样 CSV"
+    - text: 合成配置 JSON
+    - button "合成配置 JSON"
+    - checkbox "我确认三份输入均为合成测试数据，配置文件声明 synthetic=true。"
+    - text: 我确认三份输入均为合成测试数据，配置文件声明 synthetic=true。
+    - button "运行合成双源验证" [disabled]
+  - region "打开已有任务":
+    - heading "查看已有任务" [level=2]
+    - textbox "合成双源任务 ID":
+      - /placeholder: 粘贴任务 ID
+    - button "读取任务"
+    - button "刷新当前任务" [disabled]
+- alert

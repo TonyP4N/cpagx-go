@@ -269,18 +269,43 @@ jobs:
           path: ${{ runner.temp }}/dual-source-example
 
   dual-source-celery:
+    needs: frontend
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
-      - name: Actual Celery dual-source task and evidence HTTP flow
-        run: python scripts/validation/round13_celery.py --output "$RUNNER_TEMP/dual-source-celery"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+      - name: Browser acceptance runtime
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
+          "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Actual Celery task and full browser evidence flow
+        run: |
+          python scripts/validation/round13_celery.py --output "$RUNNER_TEMP/dual-source-celery" --serve --ui-port 18300 > "$RUNNER_TEMP/dual-source-startup.log" 2>&1 &
+          validation_pid=$!
+          trap 'kill -TERM "$validation_pid" 2>/dev/null || true; wait "$validation_pid" || true' EXIT
+          for attempt in $(seq 1 180); do
+            if test -f "$RUNNER_TEMP/dual-source-celery/results.json"; then break; fi
+            if ! kill -0 "$validation_pid" 2>/dev/null; then cat "$RUNNER_TEMP/dual-source-startup.log"; exit 1; fi
+            sleep 2
+          done
+          python -c 'import json,os; from pathlib import Path; assert json.loads((Path(os.environ["RUNNER_TEMP"])/"dual-source-celery/results.json").read_text())["status"] == "passed"'
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright" node scripts/validation/round13_browser.cjs "$RUNNER_TEMP/dual-source-celery" "$RUNNER_TEMP/dual-source-browser"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: dual-source-celery-evidence
-          path: ${{ runner.temp }}/dual-source-celery
+          path: |
+            ${{ runner.temp }}/dual-source-celery
+            ${{ runner.temp }}/dual-source-browser
+            ${{ runner.temp }}/dual-source-startup.log
