@@ -1,0 +1,8 @@
+FROM mirror.gcr.io/library/python@sha256:848ba4413eb897e225159b8fc1b02094576cbae4aa73fc13142608ae2c8c0e32
+COPY services/analysis /app/services/analysis
+COPY schemas /app/schemas
+COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+COPY release.json /app/release.json
+ENV PYTHONPATH=/app/services/analysis/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+USER 65532:65532
+ENTRYPOINT ["python", "/app/entry.py"]

@@ -43,6 +43,12 @@ jobs:
         env:
           PYTHONPATH: services/analysis/src
         run: python -m unittest discover -s tests/backup -v
+      - name: Strict executor content comparison regression
+        env:
+          PYTHONPATH: services/analysis/src:services/worker
+        run: |
+          python -m unittest discover -s tests/consistency -v
+          python -m unittest discover -s tests/ops -v
       - name: Legacy unsupported-path regression
         run: python -m unittest discover -s tests/legacy -v
   go:
@@ -167,3 +173,26 @@ jobs:
           python-version: '3.11'
       - name: Real isolated task publication and historical-attempt recovery
         run: bash scripts/m4/isolated/validate-isolated.sh
+
+  engineering-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Actual shared-core legacy and isolated execution
+        run: python scripts/validation/round7-consistency.py
+      - name: Capacity repair and resumed real Docker admission
+        run: bash scripts/ops/validate-capacity-rebuild.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engineering-native-ci-evidence
+          path: |
+            docs/refactor/validation-round7/consistency-summary.json
+            docs/refactor/validation-round7/consistency-result.json
+            docs/refactor/validation-round7/capacity-live-summary.json
