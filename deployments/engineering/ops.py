@@ -136,7 +136,7 @@ def check():
         downloads[kind]={'sha256':hashlib.sha256(data).hexdigest(),'bytes':len(data),'verified_files':len(members)}
     refusals=[]
     legacy_output=ROOT/'shared'/records['legacy']['output_dir']
-    candidates=[('legacy_missing_artifact',legacy_output/'events.json','missing','legacy'),('legacy_tampered_artifact',legacy_output/'graph.json','tamper','legacy'),('legacy_tampered_original',ROOT/'shared'/records['legacy']['network'],'tamper','legacy'),('packet_tampered_published_wrapper',ROOT/'shared'/request('/v1/jobs/'+records['packet']['job'])['artifact_path'],'tamper','packet')]
+    candidates=[('legacy_tampered_download_manifest',legacy_output/'manifest.json','tamper','legacy'),('legacy_missing_artifact',legacy_output/'events.json','missing','legacy'),('legacy_tampered_artifact',legacy_output/'graph.json','tamper','legacy'),('legacy_tampered_original',ROOT/'shared'/records['legacy']['network'],'tamper','legacy'),('packet_tampered_published_wrapper',ROOT/'shared'/request('/v1/jobs/'+records['packet']['job'])['artifact_path'],'tamper','packet')]
     for label,path,fault,kind in candidates:
         original=path.read_bytes();renamed=path.with_name(path.name+'.fault-test')
         try:

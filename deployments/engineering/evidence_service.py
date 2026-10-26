@@ -26,6 +26,8 @@ def verify_publication(record):
     wrapper=checked_path(status['artifact_path'])
     if sha(wrapper)!=status['artifact_sha256']:raise ValueError('published wrapper hash differs')
     output=wrapper.parent;publication=json.loads(wrapper.read_text());payload=status['payload']
+    download_manifest=output/'manifest.json'
+    if download_manifest.is_symlink() or sha(download_manifest)!=status['artifact_sha256']:raise ValueError('download manifest hash differs')
     if record['network']!=payload['network']['path'] or publication['config_fingerprint']!=payload['config_fingerprint']:raise ValueError('configuration identity differs')
     expected_inputs={role:payload[role]['sha256'] for role in ('network','process','profile')}
     if publication['inputs']!=expected_inputs:raise ValueError('input bindings differ')
