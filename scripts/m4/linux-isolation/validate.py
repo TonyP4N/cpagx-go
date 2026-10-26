@@ -1,70 +1,124 @@
-"""Run opt-in Docker/cgroup probes and save inspectable JSON evidence."""
+"""Real Docker/cgroup probes with bounded observation and durable final evidence."""
+import argparse
 import json
 from pathlib import Path
 import subprocess
 import time
+import uuid
+from evidence import timeout_proof
 
 ROOT = Path(__file__).resolve().parents[3]
-OUT = ROOT/'docs/refactor/validation-round4/linux'
-OUT.mkdir(parents=True,exist_ok=True)
-def docker(*args):
-    return subprocess.check_output(['docker',*args],text=True).strip()
-docker('build','-t','cpag-linux-isolation:round4','-f',str(ROOT/'deployments/linux-isolation/Dockerfile'),str(ROOT))
-results = []
-for mode in ('memory','disk','output','pids','cpu','timeout','doublekill'):
-    name = 'cpag-r4-'+mode
+
+
+def docker(*args, timeout=45):
+    return subprocess.check_output(['docker', *args], text=True, stderr=subprocess.PIPE, timeout=timeout).strip()
+
+
+def run_probe(mode, iteration, image, observer_delay):
+    name = 'cpag-r10-' + uuid.uuid4().hex[:10]
+    record = {'probe': mode, 'iteration': iteration, 'container': name, 'pass': False}
     args = ['run','-d','--name',name,'--network','none','--read-only','--cap-drop','ALL',
             '--security-opt','no-new-privileges','--memory','128m','--memory-swap','128m',
             '--cpus','.25','--pids-limit','32','--tmpfs','/runtime:rw,nosuid,nodev,size=16m,mode=1777',
             '--tmpfs','/output:rw,nosuid,nodev,size=8m,mode=1777',
             '-e','CPAG_CONTAINER_SECONDS=20']
-    if mode == 'timeout': args += ['-e','PROBE_TIMEOUT=1']
-    args += ['cpag-linux-isolation:round4','python','/app/isolation/probe.py',
-             'worker' if mode in ('timeout','doublekill') else mode]
-    record = {'probe':mode}
+    is_timeout = mode in ('timeout','late-observer','slow-start')
+    if is_timeout:
+        args += ['-e','PROBE_TIMEOUT=1']
+    if mode == 'slow-start':
+        args += ['-e','PROBE_STARTUP_DELAY=4']
+    args += [image,'python','/app/isolation/probe.py',
+             'worker' if is_timeout or mode == 'doublekill' else mode]
+    created = False
     try:
         docker(*args)
-        if mode in ('doublekill','timeout'):
-            for _ in range(100):
-                try:
-                    evidence = docker('exec',name,'python','-c',
-                        "from pathlib import Path; import json; p=Path('/runtime/shared/output.worker/child.pid'); print(json.dumps({'child':int(p.read_text()),'escaped':int(Path('/runtime/escaped.pid').read_text()),'worker':int(Path('/runtime/worker.pid').read_text())}))")
-                    record['before'] = json.loads(evidence); break
-                except subprocess.CalledProcessError:
-                    if docker('inspect','--format','{{.State.Running}}',name) == 'false':
-                        raise AssertionError(docker('logs',name))
-                    time.sleep(.05)
-            else:
-                record['startup_logs']=docker('logs',name)
-                raise AssertionError('child did not start: '+record['startup_logs'])
+        created = True
+        if mode == 'late-observer':
+            # Wait for real termination first: observation happens strictly after exit.
+            docker('wait', name)
+            time.sleep(observer_delay)
+            record['observed_after_exit'] = True
         if mode == 'doublekill':
-            record['kill'] = docker('exec',name,'python','-c',
-                "from pathlib import Path; import os,signal,json; child=int(Path('/runtime/shared/output.worker/child.pid').read_text()); fields=Path('/proc/'+str(child)+'/stat').read_text().rsplit(')',1)[1].split(); guardian=int(fields[1]); worker=int(Path('/runtime/worker.pid').read_text()); print(json.dumps({'guardian':guardian,'worker':worker}),flush=True); os.kill(guardian,signal.SIGKILL); os.kill(worker,signal.SIGKILL)")
+            deadline = time.monotonic() + 12
+            while time.monotonic() < deadline:
+                try:
+                    record['before'] = json.loads(docker('exec',name,'cat','/runtime/started.json', timeout=max(.1, deadline-time.monotonic())))
+                    break
+                except (subprocess.CalledProcessError, ValueError) as exc:
+                    record['last_startup_observation_error'] = str(exc)
+                    assert docker('inspect','--format','{{.State.Running}}',name) == 'true', 'container exited before readiness'
+                    time.sleep(.1)
+            else:
+                raise AssertionError('startup evidence deadline exceeded (12s)')
+            assert all(type(record['before'].get(k)) is int and record['before'][k] > 1
+                       for k in ('child','guardian','worker','escaped'))
+            record['kill'] = json.loads(docker('exec',name,'python','-c',
+                "from pathlib import Path; import os,signal,json; s=json.loads(Path('/runtime/started.json').read_text()); "
+                "fields=Path('/proc/'+str(s['child'])+'/stat').read_text().rsplit(')',1)[1].split(); "
+                "assert int(fields[1])==s['guardian']; print(json.dumps(s),flush=True); "
+                "os.kill(s['guardian'],signal.SIGKILL); os.kill(s['worker'],signal.SIGKILL)"))
+            assert record['kill'] == record['before']
         if mode == 'cpu':
             time.sleep(1)
             record['cpu_before'] = docker('exec',name,'cat','/sys/fs/cgroup/cpu.stat')
-            start=time.monotonic(); time.sleep(3)
+            start = time.monotonic(); time.sleep(3)
             record['cpu_after'] = docker('exec',name,'cat','/sys/fs/cgroup/cpu.stat')
-            record['interval_seconds']=time.monotonic()-start
+            record['interval_seconds'] = time.monotonic()-start
             def usage(value): return int(dict(line.split() for line in value.splitlines())['usage_usec'])
-            record['cpu_cores']=(usage(record['cpu_after'])-usage(record['cpu_before']))/1e6/record['interval_seconds']
+            record['cpu_cores'] = (usage(record['cpu_after'])-usage(record['cpu_before']))/1e6/record['interval_seconds']
             assert .10 < record['cpu_cores'] < .40, record
         record['exit'] = int(docker('wait',name))
-        record['state']=json.loads(docker('inspect','--format','{{json .State}}',name))
-        record['limits']=json.loads(docker('inspect','--format','{{json .HostConfig}}',name))
-        record['logs']=docker('logs',name)
-        record['top']=subprocess.run(['docker','top',name],text=True,capture_output=True).__dict__['stderr'].strip()
+        record['state'] = json.loads(docker('inspect','--format','{{json .State}}',name))
+        record['limits'] = json.loads(docker('inspect','--format','{{json .HostConfig}}',name))
+        record['logs'] = docker('logs',name)
         assert record['state']['Running'] is False and record['state']['Pid'] == 0
-        if mode == 'memory': assert record['state']['OOMKilled'] or record['exit']==137
+        if mode == 'memory': assert record['state']['OOMKilled'] or record['exit'] == 137
         if mode in ('disk','output'): assert '"errno": 28' in record['logs']
         if mode == 'pids': assert '"errno": 11' in record['logs']
-        if mode == 'cpu': assert record['exit']==124
-        if mode == 'timeout':
-            assert record['exit']==0 and '"reason": "timeout"' in record['logs'], record
-        if mode == 'doublekill': assert record['exit']==137
-        record['pass']=True
+        if mode == 'cpu': assert record['exit'] == 124
+        if is_timeout:
+            record['proof'] = timeout_proof(record, require_startup=mode != 'slow-start')
+        if mode == 'doublekill': assert record['exit'] == 137
+        record['pass'] = True
+    except Exception as exc:
+        record['error'] = f'{type(exc).__name__}: {exc}'
+        if created:
+            for key, command in [('failure_state',('inspect','--format','{{json .State}}',name)),
+                                 ('failure_logs',('logs',name))]:
+                try: record[key] = docker(*command)
+                except Exception as diagnostic: record[key] = 'unavailable: ' + str(diagnostic)
     finally:
-        results.append(record)
-        (OUT/'results.json').write_text(json.dumps(results,indent=2)+'\n')
-        subprocess.run(['docker','rm','-f',name],stdout=subprocess.DEVNULL)
-    print('PASS',mode,flush=True)
+        if created:
+            try:
+                docker('rm','-f',name)
+                record['cleanup'] = 'passed'
+            except Exception as exc:
+                record['cleanup'] = str(exc)
+                record['pass'] = False
+    return record
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output', type=Path, default=ROOT/'docs/refactor/validation-round10/linux-results.json')
+    parser.add_argument('--repeats', type=int, default=3)
+    parser.add_argument('--modes', nargs='+', choices=['memory','disk','output','pids','cpu','timeout','late-observer','slow-start','doublekill'])
+    parser.add_argument('--observer-delay', type=float, default=.2)
+    args = parser.parse_args()
+    assert 1 <= args.repeats <= 10 and 0 <= args.observer_delay <= 10
+    image = 'cpag-linux-isolation:round10'
+    subprocess.run(['docker','build','-t',image,'-f',str(ROOT/'deployments/linux-isolation/Dockerfile'),str(ROOT)], check=True, timeout=180)
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    results = []
+    modes = args.modes or ['memory','disk','output','pids','cpu','timeout','late-observer','slow-start','doublekill']
+    for mode in modes:
+        for iteration in range(args.repeats if mode in ('timeout','late-observer','slow-start','doublekill') else 1):
+            record = run_probe(mode, iteration+1, image, args.observer_delay)
+            results.append(record)
+            args.output.write_text(json.dumps(results, indent=2)+'\n')
+            print('PASS' if record['pass'] else 'FAIL', mode, iteration+1, flush=True)
+    assert all(r['pass'] for r in results), 'Probe failure: inspect ' + str(args.output)
+
+
+if __name__ == '__main__':
+    main()
