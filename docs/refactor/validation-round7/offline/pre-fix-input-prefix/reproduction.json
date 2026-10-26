@@ -1,0 +1,8 @@
+{
+  "source_commit": "a75d2238cb3dc569c4b443ed7dbe2502295607de",
+  "phase": "demo API submit",
+  "observed": "HTTP 400: inputs must be under inputs/",
+  "cause": "new package stored fixtures under shared/samples, API requires shared/inputs",
+  "fix": "change package sample destination and demo lookup only; do not weaken API contract",
+  "validation": "final clean-source offline acceptance required"
+}

@@ -1,0 +1,10 @@
+test_byte_limit_and_real_data_gating (test_replay.ReplayTests.test_byte_limit_and_real_data_gating) ... ok
+test_invalid_contract_does_not_advance (test_replay.ReplayTests.test_invalid_contract_does_not_advance) ... ok
+test_late_revision_expiry_and_future_timestamp (test_replay.ReplayTests.test_late_revision_expiry_and_future_timestamp) ... ok
+test_null_time_capacity_and_conflicting_identity (test_replay.ReplayTests.test_null_time_capacity_and_conflicting_identity) ... ok
+test_prefix_never_reads_future_or_changes_prior_output (test_replay.ReplayTests.test_prefix_never_reads_future_or_changes_prior_output) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

@@ -22,8 +22,8 @@
 时区库的 naive 时间不列入本次共同支持承诺。未知 CSV 布局、缺少映射、标签泄漏字段、
 未知 network 字段、非合成工业源和任意 live 抓包不属于可直接接入的共有输入。
 
-API 每个 network/process/profile 文件引用上限 16 MiB，要求 shared-root 内的不可变
-引用与真实 hash。路径逃逸和符号链接不可作为受支持输入。边界内输入仍可能因格式、
+API 每个 network/process/profile 文件引用上限 16 MiB，提交引用必须位于 shared-root 的 `inputs/` 下并匹配真实 hash；
+API 另行生成每个 job 的不可变快照。路径逃逸和符号链接不可作为受支持输入。边界内输入仍可能因格式、
 质量、限额或资源不足失败，不能把“未超过 byte limit”解释为必然成功。
 
 ## 执行资源和环境
@@ -107,3 +107,14 @@ CPAG_CONSISTENCY_IMAGE=sha256:RELEASE_COMPUTE_IMAGE_ID \
 `CPAG_CONSISTENCY_REPORT_DIR` 可指定报告目录。开发环境不提供已有镜像时，默认只构建
 独立的 `cpag-consistency:round7` 验证 tag，不使用或切换默认部署。离线包目标和固定镜像
 对应的最终环境事实以 Linux 打包报告与本次环境 JSON 的同 ID 核对为准。
+
+本次最终版本 `49e998545b9b7b47f2b1dc9b19e6d8562f780765` 的实际重跑通过，
+run ID 为 `d432d34254654f46ab3456166fc03eae`。
+宿主 OCI immutable image ID 为
+`sha256:99d890615dbf7667af785470e77160b1d2f0ee77d97e6076069d876be0780c53`；
+离线包 portable config ID 为
+`sha256:bf4c9d0208dff86d6e7868c357a9f114697d544dc517f4a8d71bae7f56b556a9`。
+二者是同一镜像在宿主 OCI 与 classic Docker 导入后的不同标识，不能要求字符串相等；
+打包记录负责关联。本次共同 events/graph/quality 字节相同，8 个事件的原始证据相同，
+镜像内 core/schema 文件逐字节 SHA 门与实际容器资源断言通过；packet 原帧独立契约通过。
+包装安装、升级回滚和下载接口由离线包 C/D 单独验收，不以本项 core 一致性替代。

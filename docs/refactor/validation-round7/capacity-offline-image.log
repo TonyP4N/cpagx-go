@@ -1,0 +1,51 @@
+ Network cpag-round7-capacity_default Creating 
+ Network cpag-round7-capacity_default Created 
+ Volume cpag-round7-capacity_validation_data Creating 
+ Volume cpag-round7-capacity_validation_data Created 
+ Container cpag-round7-capacity-postgres-1 Creating 
+ Container cpag-round7-capacity-postgres-1 Created 
+ Container cpag-round7-capacity-postgres-1 Starting 
+ Container cpag-round7-capacity-postgres-1 Started 
+ Container cpag-round7-capacity-postgres-1 Waiting 
+ Container cpag-round7-capacity-postgres-1 Healthy 
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+UPDATE 0
+CREATE TABLE
+INSERT 0 0
+CREATE FUNCTION
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+DROP TRIGGER
+CREATE TRIGGER
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+Capacity validation compute image: sha256:f7e318cff745bc6abda33b04b45c7f032815720f6b96d2332a848aef771607e9
+PASS initial real container published with persistent API attempt exit proof
+{"applied": false, "plan_id": "57fbad5840a209917af7cde392e084283f530263a7e9908c9072f2a84c87c0f3", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/corrupt-c9c562d2af5e437cb38c6f8543df3871-preview.json"}
+{"applied": true, "plan_id": "57fbad5840a209917af7cde392e084283f530263a7e9908c9072f2a84c87c0f3", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/corrupt-c9c562d2af5e437cb38c6f8543df3871-applied.json"}
+PASS corrupt ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+{"applied": false, "plan_id": "d72ef8298fdb5c215563c96d8906a39357a27d57ae9d140b72f6cb68922ae585", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/missing-df9d0746e9c2450d921e7ad138f046fd-preview.json"}
+{"applied": true, "plan_id": "d72ef8298fdb5c215563c96d8906a39357a27d57ae9d140b72f6cb68922ae585", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/missing-df9d0746e9c2450d921e7ad138f046fd-applied.json"}
+PASS missing ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+{"applied": false, "plan_id": "0ef2a3646894e9f810de956c579def425420900caf0f67d5a2a6a61ae6cedac5", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/oversized-7fed132159644fc995f74db274f183f3-preview.json"}
+{"applied": true, "plan_id": "0ef2a3646894e9f810de956c579def425420900caf0f67d5a2a6a61ae6cedac5", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/oversized-7fed132159644fc995f74db274f183f3-applied.json"}
+PASS oversized ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+PASS actual running container/controller owner blocks rebuild with ledger untouched
+PASS actual running Docker attempt with local record+ledger lost is discovered via coordinator and blocks unsafe rebuild
+PASS retained evidence restored; actual orphan removed and API cancellation confirms exit
+Retained capacity repair evidence workspace: /var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T//cpag-capacity.PsUBtZ
+ Container cpag-round7-capacity-postgres-1 Stopping 
+ Container cpag-round7-capacity-postgres-1 Stopped 
+ Container cpag-round7-capacity-postgres-1 Removing 
+ Container cpag-round7-capacity-postgres-1 Removed 
+ Volume cpag-round7-capacity_validation_data Removing 
+ Network cpag-round7-capacity_default Removing 
+ Volume cpag-round7-capacity_validation_data Removed 
+ Network cpag-round7-capacity_default Removed 

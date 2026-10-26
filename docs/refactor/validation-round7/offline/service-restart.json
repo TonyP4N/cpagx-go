@@ -1,0 +1,31 @@
+{
+  "before": {
+    "legacy": {
+      "job": "offline-legacy-1c55082ce03d",
+      "output_dir": "jobs/offline-legacy-1c55082ce03d/attempt-1",
+      "network": "inputs/offline-legacy-1c55082ce03d-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "artifact_sha256": "b3db418ec9efcbe3cf3b65a7d08c79283e9056d3e4a3af027432304f5bf1e55e"
+    },
+    "packet": {
+      "job": "offline-packet-a020f0d82df8",
+      "output_dir": "jobs/offline-packet-a020f0d82df8/attempt-1",
+      "network": "inputs/offline-packet-a020f0d82df8-0-0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d.pcap",
+      "artifact_sha256": "429974e68f5a22ebe9ca0bc7685bc327d08b6e0c8d033faaac5ee6541cedecdf"
+    }
+  },
+  "after": {
+    "legacy": {
+      "job": "offline-legacy-1c55082ce03d",
+      "output_dir": "jobs/offline-legacy-1c55082ce03d/attempt-1",
+      "network": "inputs/offline-legacy-1c55082ce03d-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "artifact_sha256": "b3db418ec9efcbe3cf3b65a7d08c79283e9056d3e4a3af027432304f5bf1e55e"
+    },
+    "packet": {
+      "job": "offline-packet-a020f0d82df8",
+      "output_dir": "jobs/offline-packet-a020f0d82df8/attempt-1",
+      "network": "inputs/offline-packet-a020f0d82df8-0-0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d.pcap",
+      "artifact_sha256": "429974e68f5a22ebe9ca0bc7685bc327d08b6e0c8d033faaac5ee6541cedecdf"
+    }
+  },
+  "same_persisted_jobs": true
+}

@@ -1,0 +1,101 @@
+{
+  "baseline": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+  "default_switched": false,
+  "validation_class": "finite synthetic engineering validation",
+  "shared_task": {
+    "kind": "legacy/default M1",
+    "network": {
+      "suffix": ".jsonl",
+      "encoding": "UTF-8",
+      "record_type": "synthetic_normalized_network",
+      "synthetic_required": true,
+      "field_types": "documented strings or null; no unknown/label fields"
+    },
+    "process": {
+      "suffix": ".csv",
+      "encoding": "UTF-8 or UTF-8 BOM",
+      "records": "logical CSV records, including quoted newlines",
+      "mapping": "explicit timestamp_column and per-column analog/state definitions"
+    },
+    "profile": {
+      "suffix": ".json",
+      "required": "explicit synthetic profile; timestamp and column mappings"
+    },
+    "shared_timestamps_accepted_here": "fixture ISO8601 UTC Z only; no clock alignment",
+    "missing_and_nonfinite": "retained as null plus explicit quality reasons, never silently filled",
+    "fixture": "tests/fixtures/synthetic/network.normalized.jsonl + process.csv + profiles/synthetic-demo.json",
+    "expected_events": 8,
+    "evidence": "file SHA256 + logical record/column/raw time; resolved original records identical"
+  },
+  "packet_new_contract": {
+    "kind": "packet",
+    "network": "strict bounded synthetic classic PCAP or single-interface PCAPNG",
+    "profile": {
+      "synthetic": true,
+      "adapter": "synthetic-packet-1"
+    },
+    "process": "declared compatibility input; not analyzed",
+    "wire_scope": "Ethernet IPv4 TCP 44818 / ENIP SendRRData / canonical CPF / CIP Get or Set Attribute Single canonical 8-bit logical path",
+    "artifact_set": [
+      "dataset.json",
+      "events.json",
+      "graph.json",
+      "quality.json",
+      "run_manifest.json",
+      "packet_observations.json"
+    ],
+    "acceptance_here": "original capture re-decode + schema/hash/ranges + literal CIP path 200124013001 + all 3 request frame refs",
+    "historical_legacy_packet_oracle": false
+  },
+  "input_limits": {
+    "api_max_bytes_each_network_process_profile": 16777216,
+    "reference_paths": "Submission references must be under shared-root inputs/ with matching SHA256; API generates immutable per-job snapshots; symlinks/escape rejected",
+    "non_synthetic_or_unprofiled_industrial_data": "outside supported acceptance"
+  },
+  "legacy_worker_defaults": {
+    "execution": "trusted local POSIX guardian/process group",
+    "memory_bytes": 1073741824,
+    "file_bytes": 67108864,
+    "cpu_seconds": 60,
+    "wall_seconds": 120,
+    "stdout_stderr_each_bytes": 65536,
+    "untrusted_compute_isolation": false
+  },
+  "isolated_defaults": {
+    "runtime": "Linux Docker compute image; finite package target Linux arm64",
+    "user": "65532:65532",
+    "network": "none",
+    "rootfs": "read-only",
+    "memory_and_swap_bytes": 268435456,
+    "cpus": 0.5,
+    "pids_limit": 64,
+    "output_tmpfs_bytes": 16777216,
+    "runtime_tmpfs_bytes": 1048576,
+    "wall_seconds": 120,
+    "host_artifact_budget_bytes": 1073741824,
+    "host_min_free_bytes": 67108864,
+    "host_reservation_formula": "staged input sizes + 2*output_bytes + 2097152",
+    "quota_meaning": "upper admission/transfer bounds, not a guarantee every under-limit input completes"
+  },
+  "actual_run_overrides": {
+    "isolated_wall_seconds": 60,
+    "worker_lease_seconds": 30,
+    "heartbeat_seconds": 0.2,
+    "postgres_port": 55457,
+    "api_port": 18127
+  },
+  "unsupported": [
+    "real industrial validation or production deployment acceptance",
+    "live capture, automatic protocol identification, arbitrary adapters or unprofiled CSV",
+    "general TCP stack, IP fragmentation, VLAN, IPv6, sequence wrap, payload on unsupported control variants",
+    "ENIP/CIP commands or paths outside the named bounded subset",
+    "cross-source timestamp alignment, causal/attack/physical-success inference, detection scores or independent industrial labels",
+    "Windows native guardian/executor; architectures outside the finite package target",
+    "naive timestamps requiring unverified timezone databases as a shared cross-executor guarantee",
+    "resource limit exceedance as a successful or partially published task",
+    "arbitrary shell commands or user supplied compute plugins through the job payload"
+  ],
+  "environment_observation_file": "consistency-environment.json",
+  "exact_difference_policy_file": "consistency-result.json",
+  "actual_difference_values_file": "consistency-exact-differences.json"
+}

@@ -1,0 +1,22 @@
+{
+  "task_states": "succeeded",
+  "packet_query_slices": 1,
+  "downloads": {
+    "legacy": {
+      "sha256": "fe85ece79772347c837a9e2e98afbc31995c176c9cfced84eb25107f3ddfc6a1",
+      "bytes": 2652,
+      "verified_files": 6
+    },
+    "packet": {
+      "sha256": "abf0b095f20bb802ac575a71ac0544fcba61ab27807b5f872708b4b936199564",
+      "bytes": 3979,
+      "verified_files": 7
+    }
+  },
+  "negative_download_refusals": [
+    "legacy_missing_artifact",
+    "legacy_tampered_artifact",
+    "legacy_tampered_original",
+    "packet_tampered_published_wrapper"
+  ]
+}

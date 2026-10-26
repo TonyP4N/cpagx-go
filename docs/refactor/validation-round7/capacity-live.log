@@ -1,0 +1,89 @@
+ Network cpag-round7-capacity_default Creating 
+ Network cpag-round7-capacity_default Created 
+ Volume cpag-round7-capacity_validation_data Creating 
+ Volume cpag-round7-capacity_validation_data Created 
+ Container cpag-round7-capacity-postgres-1 Creating 
+ Container cpag-round7-capacity-postgres-1 Created 
+ Container cpag-round7-capacity-postgres-1 Starting 
+ Container cpag-round7-capacity-postgres-1 Started 
+ Container cpag-round7-capacity-postgres-1 Waiting 
+ Container cpag-round7-capacity-postgres-1 Healthy 
+CREATE TABLE
+CREATE INDEX
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+UPDATE 0
+CREATE TABLE
+INSERT 0 0
+CREATE FUNCTION
+DROP TRIGGER
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+CREATE TRIGGER
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 374B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+#2 DONE 1.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 3.02kB 0.0s done
+#4 DONE 0.0s
+
+#5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+#5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+#5 DONE 0.0s
+
+#6 [2/4] COPY services/analysis/src /app/services/analysis/src
+#6 CACHED
+
+#7 [3/4] COPY schemas /app/schemas
+#7 CACHED
+
+#8 [4/4] COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+#8 CACHED
+
+#9 exporting to image
+#9 exporting layers done
+#9 exporting manifest sha256:5a5b9633056b17b0d9f1fa847c5875471afb0ce40a19ed187237b659c4b3c096 done
+#9 exporting config sha256:d5e004576495143815c9aaf789658eaf81b0c55b2b8e430ffcd9ea95ed158dcf done
+#9 exporting attestation manifest sha256:87706a96ec86fb739b88830d422e46f35bb1f54f0eb1e740f0e718da88f73b06 0.0s done
+#9 exporting manifest list sha256:debd5f720774d16793c1677491463a21281329378a46c0e55c0ff1c2c421090a done
+#9 naming to docker.io/library/cpag-isolated:round5 done
+#9 unpacking to docker.io/library/cpag-isolated:round5 done
+#9 DONE 0.1s
+PASS initial real container published with persistent API attempt exit proof
+{"applied": false, "plan_id": "539d9518014ffc28e583e3987434e47c38854ffe139b384f6baef3c843f4f8d9", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/corrupt-a9640324d2c5491d8282e3f9fcf39ea0-preview.json"}
+{"applied": true, "plan_id": "539d9518014ffc28e583e3987434e47c38854ffe139b384f6baef3c843f4f8d9", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/corrupt-a9640324d2c5491d8282e3f9fcf39ea0-applied.json"}
+PASS corrupt ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+{"applied": false, "plan_id": "c04601d9238e33734608cea654fbed2e62332d20f98da003a4e730999e08703a", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/missing-09feef36cdc842c4828dd803fbe61e84-preview.json"}
+{"applied": true, "plan_id": "c04601d9238e33734608cea654fbed2e62332d20f98da003a4e730999e08703a", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/missing-09feef36cdc842c4828dd803fbe61e84-applied.json"}
+PASS missing ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+{"applied": false, "plan_id": "e6908152e49acf989b6599fff3f5fdacdde8624763362bcab4520e23da13a599", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/oversized-e5c3561fa47745f4bc6895632dcb3f85-preview.json"}
+{"applied": true, "plan_id": "e6908152e49acf989b6599fff3f5fdacdde8624763362bcab4520e23da13a599", "report": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/oversized-e5c3561fa47745f4bc6895632dcb3f85-applied.json"}
+PASS oversized ledger preview/diff + exact-byte backup + confirmed rebuild -> actual new Docker task succeeded
+PASS actual running container/controller owner blocks rebuild with ledger untouched
+PASS actual running Docker attempt with local record+ledger lost is discovered via coordinator and blocks unsafe rebuild
+PASS retained evidence restored; actual orphan removed and API cancellation confirms exit
+Retained capacity repair evidence workspace: /var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T//cpag-capacity.jBcSGJ
+ Container cpag-round7-capacity-postgres-1 Stopping 
+ Container cpag-round7-capacity-postgres-1 Stopped 
+ Container cpag-round7-capacity-postgres-1 Removing 
+ Container cpag-round7-capacity-postgres-1 Removed 
+ Volume cpag-round7-capacity_validation_data Removing 
+ Network cpag-round7-capacity_default Removing 
+ Volume cpag-round7-capacity_validation_data Removed 
+ Network cpag-round7-capacity_default Removed 

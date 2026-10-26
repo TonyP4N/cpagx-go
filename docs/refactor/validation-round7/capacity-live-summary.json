@@ -1,0 +1,26 @@
+[
+  {
+    "label": "corrupt",
+    "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/corrupt-a9640324d2c5491d8282e3f9fcf39ea0-preview.json",
+    "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/corrupt-a9640324d2c5491d8282e3f9fcf39ea0-applied.json",
+    "backup_verified": true,
+    "new_task_succeeded": true,
+    "job": "capacity-corrupt-82625dde2bc84ff88ff68c4b176613c7"
+  },
+  {
+    "label": "missing",
+    "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/missing-09feef36cdc842c4828dd803fbe61e84-preview.json",
+    "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/missing-09feef36cdc842c4828dd803fbe61e84-applied.json",
+    "backup_verified": true,
+    "new_task_succeeded": true,
+    "job": "capacity-missing-92862bed04f5478da23acbcc9871485f"
+  },
+  {
+    "label": "oversized",
+    "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/oversized-e5c3561fa47745f4bc6895632dcb3f85-preview.json",
+    "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/oversized-e5c3561fa47745f4bc6895632dcb3f85-applied.json",
+    "backup_verified": true,
+    "new_task_succeeded": true,
+    "job": "capacity-oversized-c79286a507fb439581cbe46bd3e7fb3c"
+  }
+]

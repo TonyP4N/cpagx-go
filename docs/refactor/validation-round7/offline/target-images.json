@@ -1,0 +1,62 @@
+[
+  {
+    "Containers": "0",
+    "CreatedAt": "2026-10-26 02:30:46 +0000 UTC",
+    "CreatedSince": "About a minute ago",
+    "Digest": "<none>",
+    "ID": "06674b74deab",
+    "Repository": "cpag-isolated",
+    "SharedSize": "N/A",
+    "Size": "53.1MB",
+    "Tag": "baseline-1386a4f",
+    "UniqueSize": "N/A"
+  },
+  {
+    "Containers": "0",
+    "CreatedAt": "2026-10-26 02:30:45 +0000 UTC",
+    "CreatedSince": "About a minute ago",
+    "Digest": "<none>",
+    "ID": "5b1d6e1ae4ca",
+    "Repository": "cpag-engineering",
+    "SharedSize": "N/A",
+    "Size": "119MB",
+    "Tag": "baseline-1386a4f",
+    "UniqueSize": "N/A"
+  },
+  {
+    "Containers": "0",
+    "CreatedAt": "2026-10-26 02:30:43 +0000 UTC",
+    "CreatedSince": "About a minute ago",
+    "Digest": "<none>",
+    "ID": "bf4c9d0208df",
+    "Repository": "cpag-isolated",
+    "SharedSize": "N/A",
+    "Size": "53.1MB",
+    "Tag": "round7",
+    "UniqueSize": "N/A"
+  },
+  {
+    "Containers": "4",
+    "CreatedAt": "2026-10-26 02:30:42 +0000 UTC",
+    "CreatedSince": "About a minute ago",
+    "Digest": "<none>",
+    "ID": "2bb13e7f8893",
+    "Repository": "cpag-engineering",
+    "SharedSize": "N/A",
+    "Size": "119MB",
+    "Tag": "rc1",
+    "UniqueSize": "N/A"
+  },
+  {
+    "Containers": "1",
+    "CreatedAt": "2025-10-15 18:23:03 +0000 UTC",
+    "CreatedSince": "12 months ago",
+    "Digest": "<none>",
+    "ID": "29e645e20571",
+    "Repository": "mirror.gcr.io/library/postgres",
+    "SharedSize": "N/A",
+    "Size": "270MB",
+    "Tag": "17.6-alpine",
+    "UniqueSize": "N/A"
+  }
+]

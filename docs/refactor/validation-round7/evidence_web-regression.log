@@ -1,0 +1,37 @@
+test_graph_node_field_raw_frame_chain (test_evidence_web.WebEvidenceTests.test_graph_node_field_raw_frame_chain) ... ERROR
+test_tamper_and_arbitrary_path_rejected (test_evidence_web.WebEvidenceTests.test_tamper_and_arbitrary_path_rejected) ... ERROR
+
+======================================================================
+ERROR: test_graph_node_field_raw_frame_chain (test_evidence_web.WebEvidenceTests.test_graph_node_field_raw_frame_chain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evidence_web/test_evidence_web.py", line 19, in setUp
+    self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(self.root/'artifacts',self.network))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socketserver.py", line 456, in __init__
+    self.server_bind()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/server.py", line 136, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socketserver.py", line 472, in server_bind
+    self.socket.bind(self.server_address)
+PermissionError: [Errno 1] Operation not permitted
+
+======================================================================
+ERROR: test_tamper_and_arbitrary_path_rejected (test_evidence_web.WebEvidenceTests.test_tamper_and_arbitrary_path_rejected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evidence_web/test_evidence_web.py", line 19, in setUp
+    self.server=ThreadingHTTPServer(('127.0.0.1',0),handler(self.root/'artifacts',self.network))
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socketserver.py", line 456, in __init__
+    self.server_bind()
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/http/server.py", line 136, in server_bind
+    socketserver.TCPServer.server_bind(self)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/socketserver.py", line 472, in server_bind
+    self.socket.bind(self.server_address)
+PermissionError: [Errno 1] Operation not permitted
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.011s
+
+FAILED (errors=2)

@@ -1,0 +1,20 @@
+usage: capacity_rebuild.py [-h] [--root ROOT] [--control CONTROL]
+                           [--api-url API_URL] [--output-bytes OUTPUT_BYTES]
+                           --report REPORT [--apply-plan APPLY_PLAN]
+                           [--confirm CONFIRM]
+
+Preview and explicitly apply a conservative isolated-executor capacity
+rebuild. No files/artifacts or API task states are deleted or modified. Same
+owner->capacity lock ordering as DockerExecutor; unknown evidence blocks
+apply.
+
+options:
+  -h, --help            show this help message and exit
+  --root ROOT
+  --control CONTROL
+  --api-url API_URL
+  --output-bytes OUTPUT_BYTES
+  --report REPORT       new report path outside managed roots
+  --apply-plan APPLY_PLAN
+                        previous preview report; absence means preview only
+  --confirm CONFIRM     exact reviewed plan_id; mandatory for apply

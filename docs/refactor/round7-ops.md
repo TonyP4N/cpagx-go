@@ -131,4 +131,8 @@ docker run --rm --pull=never --network "$CPAG_PROJECT-internal" \
 
 脚本支持 `CPAG_CAPACITY_IMAGE=<最终不可变imageID>` 与 `CPAG_CAPACITY_SKIP_BUILD=1`，用于绑定已导入的最终离线计算镜像。不指定时构建独立 `cpag-capacity:round7` 测试镜像，不覆盖 round5 标签。原生 CI 软件检查与本地 arm64 离线镜像验收必须分别标明。
 
+最终离线候选镜像另行实测：构建源为干净提交 `a75d2238cb3dc569c4b443ed7dbe2502295607de`，以 `CPAG_CAPACITY_SKIP_BUILD=1` 绑定宿主实际运行 ID `sha256:f7e318cff745bc6abda33b04b45c7f032815720f6b96d2332a848aef771607e9`。`validation-round7/capacity-offline-image.log` 及 `capacity-offline-image/capacity-live-summary.json` 保存该次独立验收：三类重建后的新任务均成功，备份核对均通过，运行中 owner 锁与数据库独存活跃执行均阻止不安全应用。离线打包方提供的同一 saved image portable config ID 为 `sha256:8819d054de3a8a385fd66f06c51b269dd1e1fbea97a5f2131ca2ee76d5499486`；不同 Docker 存储后端的 ID 表示分别记录，不混称为同一字符串。本次记录绑定该候选，后续重建镜像须重新验收。
+
 以上均是合成软件的生命周期与存储验收，不是工业数据验证或生产上线验收。本轮范围外事项保留登记，不扩展协议、界面、回放或算法。
+
+最终冻结源码 `49e998545b9b7b47f2b1dc9b19e6d8562f780765` 的镜像再次完整实测通过：OCI ID `sha256:99d890615dbf7667af785470e77160b1d2f0ee77d97e6076069d876be0780c53`，portable config ID `sha256:bf4c9d0208dff86d6e7868c357a9f114697d544dc517f4a8d71bae7f56b556a9`。最终依据为 `validation-round7/capacity-final-image.log` 和 `capacity-final-image/capacity-live-summary.json`：损坏、缺失、超额三类账本均经预览、备份和确认重建后成功接单；活跃 owner 及仅数据库可发现的活跃执行均阻止不安全应用。上段 a75 镜像结果保留为过程记录，不是冻结镜像依据。

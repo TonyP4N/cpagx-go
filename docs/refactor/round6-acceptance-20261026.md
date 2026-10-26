@@ -97,3 +97,5 @@
 本地共143项Python测试通过（含16项隔离恢复、20项备份及14项兼容Worker测试）；Go全仓test/build/vet通过。实际PostgreSQL竞态、独立恢复器数据库故障/重启、兼容Worker/API中断、隔离容器完整矩阵及独立数据库成套恢复均通过。日志去除了行尾空白，测试结果未改写。功能与验收代码提交：`61d22b5e386b6254e7e5eb949924c222f72afa97`，已推送原分支。
 
 [远端CI 40216400959](https://github.com/TonyP4N/cpagx-go/actions/runs/40216400959) 九项全部success：core、go、frontend、service-regression、m4-postgres-prototype、m4-worker-integration、linux-isolation、backup-restore、isolated-executor。不可变headSha和各job链接见 `validation-round6/ci.json`。本条是CI完成后的文档补记，不改变已验代码。
+
+第七轮开始时再次核对：第六轮最终文档提交 `1386a4f68afbe00d83bb355632e9ff7637a227c2` 对应 [CI 40216611399](https://github.com/TonyP4N/cpagx-go/actions/runs/40216611399) 已成功。它作为第七轮保留的核查与回滚基线；本补记不扩大第六轮验收范围。

@@ -1,0 +1,47 @@
+test_missing_and_corrupt_rebuild_backup (test_capacity_rebuild.CapacityTests.test_missing_and_corrupt_rebuild_backup) ... ok
+test_missing_ledger_active_and_api_unknown_block (test_capacity_rebuild.CapacityTests.test_missing_ledger_active_and_api_unknown_block) ... ok
+test_owner_and_capacity_lock_contention (test_capacity_rebuild.CapacityTests.test_owner_and_capacity_lock_contention) ... ok
+test_stale_files_and_confirmation (test_capacity_rebuild.CapacityTests.test_stale_files_and_confirmation) ... ok
+test_symlinks_and_foreign_ledger_rejected (test_capacity_rebuild.CapacityTests.test_symlinks_and_foreign_ledger_rejected) ... ok
+test_terminal_release_and_active_never_release (test_capacity_rebuild.CapacityTests.test_terminal_release_and_active_never_release) ... ok
+test_unknown_attempt_reservation_not_freed (test_capacity_rebuild.CapacityTests.test_unknown_attempt_reservation_not_freed) ... ok
+test_database_only_active_attempt_is_not_omitted (test_capacity_rebuild.DiscoveryRegressions.test_database_only_active_attempt_is_not_omitted) ... FAIL
+test_executor_compatible_identifier (test_capacity_rebuild.DiscoveryRegressions.test_executor_compatible_identifier) ... FAIL
+test_missing_and_corrupt_rebuild_backup (test_capacity_rebuild.DiscoveryRegressions.test_missing_and_corrupt_rebuild_backup) ... ok
+test_missing_ledger_active_and_api_unknown_block (test_capacity_rebuild.DiscoveryRegressions.test_missing_ledger_active_and_api_unknown_block) ... ok
+test_owner_and_capacity_lock_contention (test_capacity_rebuild.DiscoveryRegressions.test_owner_and_capacity_lock_contention) ... ok
+test_scan_walk_errors_are_not_silently_ignored (test_capacity_rebuild.DiscoveryRegressions.test_scan_walk_errors_are_not_silently_ignored) ... FAIL
+test_stale_files_and_confirmation (test_capacity_rebuild.DiscoveryRegressions.test_stale_files_and_confirmation) ... ok
+test_symlinks_and_foreign_ledger_rejected (test_capacity_rebuild.DiscoveryRegressions.test_symlinks_and_foreign_ledger_rejected) ... ok
+test_terminal_release_and_active_never_release (test_capacity_rebuild.DiscoveryRegressions.test_terminal_release_and_active_never_release) ... ok
+test_unknown_attempt_reservation_not_freed (test_capacity_rebuild.DiscoveryRegressions.test_unknown_attempt_reservation_not_freed) ... ok
+
+======================================================================
+FAIL: test_database_only_active_attempt_is_not_omitted (test_capacity_rebuild.DiscoveryRegressions.test_database_only_active_attempt_is_not_omitted)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/ops/test_capacity_rebuild.py", line 69, in test_database_only_active_attempt_is_not_omitted
+    self.assertIn('job:1',plan['proposed_ledger']['reservations'])
+AssertionError: 'job:1' not found in {'__existing__': 0}
+
+======================================================================
+FAIL: test_executor_compatible_identifier (test_capacity_rebuild.DiscoveryRegressions.test_executor_compatible_identifier)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/ops/test_capacity_rebuild.py", line 81, in test_executor_compatible_identifier
+    self.assertIsNotNone(JOB.fullmatch(identifier));self.assertIsNotNone(KEY.fullmatch(identifier+':1'))
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: unexpectedly None
+
+======================================================================
+FAIL: test_scan_walk_errors_are_not_silently_ignored (test_capacity_rebuild.DiscoveryRegressions.test_scan_walk_errors_are_not_silently_ignored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/ops/test_capacity_rebuild.py", line 77, in test_scan_walk_errors_are_not_silently_ignored
+    with self.assertRaises(PermissionError):self.tool.preview()
+AssertionError: PermissionError not raised
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.077s
+
+FAILED (failures=3)

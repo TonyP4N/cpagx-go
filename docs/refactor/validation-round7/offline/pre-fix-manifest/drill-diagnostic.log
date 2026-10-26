@@ -1,0 +1,46 @@
+INSTALL.txt: OK
+OPERATIONS.zh-CN.md: OK
+baseline-release.json: OK
+config.env.example: OK
+cpag.sh: OK
+dependencies.lock.json: OK
+images.tar: OK
+lab-engine.tar: OK
+release.json: OK
+validate-upgrade-rollback.sh: OK
+Loaded image: cpag-isolated:round7
+Loaded image: cpag-engineering:baseline-1386a4f
+Loaded image: cpag-isolated:baseline-1386a4f
+Loaded image: mirror.gcr.io/library/postgres:17.6-alpine
+Loaded image: cpag-engineering:rc1
+initialized /round7-drill/data
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+started cpag-round7-old
+Traceback (most recent call last):
+  File "/app/engineering/ops.py", line 162, in <module>
+    elif command=='demo':demo()
+                         ^^^^^^
+  File "/app/engineering/ops.py", line 109, in demo
+    job='offline-'+kind+'-'+secrets.token_hex(6);request('/v1/jobs',{'id':job,'max_attempts':2,'payload':payload})
+                                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/engineering/ops.py", line 25, in request
+    with urllib.request.urlopen(req,timeout=5) as response:return json.load(response)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 215, in urlopen
+    return opener.open(url, data, timeout)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 521, in open
+    response = meth(req, response)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 630, in http_response
+    response = self.parent.error(
+               ^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 559, in error
+    return self._call_chain(*args)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 492, in _call_chain
+    result = func(*args)
+             ^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/urllib/request.py", line 639, in http_error_default
+    raise HTTPError(req.full_url, code, msg, hdrs, fp)
+urllib.error.HTTPError: HTTP Error 400: Bad Request

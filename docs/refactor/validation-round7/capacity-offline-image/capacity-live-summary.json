@@ -1,0 +1,30 @@
+{
+  "compute_image": "sha256:f7e318cff745bc6abda33b04b45c7f032815720f6b96d2332a848aef771607e9",
+  "compute_image_id": "sha256:f7e318cff745bc6abda33b04b45c7f032815720f6b96d2332a848aef771607e9",
+  "cases": [
+    {
+      "label": "corrupt",
+      "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/corrupt-c9c562d2af5e437cb38c6f8543df3871-preview.json",
+      "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/corrupt-c9c562d2af5e437cb38c6f8543df3871-applied.json",
+      "backup_verified": true,
+      "new_task_succeeded": true,
+      "job": "capacity-corrupt-e8f3736c858f4a20b94a5915ed1395d4"
+    },
+    {
+      "label": "missing",
+      "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/missing-df9d0746e9c2450d921e7ad138f046fd-preview.json",
+      "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/missing-df9d0746e9c2450d921e7ad138f046fd-applied.json",
+      "backup_verified": true,
+      "new_task_succeeded": true,
+      "job": "capacity-missing-134c92bd29e14a97b0f16ba2b795ebfb"
+    },
+    {
+      "label": "oversized",
+      "preview": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/oversized-7fed132159644fc995f74db274f183f3-preview.json",
+      "applied": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round7/capacity-offline-image/oversized-7fed132159644fc995f74db274f183f3-applied.json",
+      "backup_verified": true,
+      "new_task_succeeded": true,
+      "job": "capacity-oversized-8c2b7d97637e41f2bf069e1177f8baf7"
+    }
+  ]
+}

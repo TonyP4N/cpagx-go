@@ -1,0 +1,4 @@
+{
+  "routes": "172.17.0.0/16 dev docker0 scope link  src 172.17.0.1 \n172.18.0.0/16 dev br-a5e1c8c2f586 scope link  src 172.18.0.1 \n172.19.0.0/16 dev eth0 scope link  src 172.19.0.2 \n",
+  "public_https_exit": 1
+}

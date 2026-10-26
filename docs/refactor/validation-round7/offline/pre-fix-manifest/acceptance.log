@@ -1,0 +1,9 @@
+PASS offline install
+PASS offline start
+PASS offline demo
+PASS offline check
+PASS offline restart
+PASS offline check
+PASS offline stop
+PASS clean offline installation/task/evidence/download/restart
+Preserved target: cpag-offline-rc1

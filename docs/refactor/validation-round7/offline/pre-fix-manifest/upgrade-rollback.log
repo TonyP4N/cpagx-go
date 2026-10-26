@@ -1,0 +1,102 @@
+INSTALL.txt: OK
+OPERATIONS.zh-CN.md: OK
+baseline-release.json: OK
+config.env.example: OK
+cpag.sh: OK
+dependencies.lock.json: OK
+images.tar: OK
+lab-engine.tar: OK
+release.json: OK
+validate-upgrade-rollback.sh: OK
+Loaded image: cpag-isolated:baseline-1386a4f
+Loaded image: mirror.gcr.io/library/postgres:17.6-alpine
+Loaded image: cpag-engineering:rc1
+Loaded image: cpag-isolated:round7
+Loaded image: cpag-engineering:baseline-1386a4f
+initialized /round7-drill/data
+started cpag-round7-old
+PASS offline task legacy offline-legacy-5df653a9d02f
+PASS offline task packet offline-packet-37f0c348d742
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "6c9a48ebef402b9c8b531e1db78200e0e6a6725d2b8cf59315c76e69b710b1fd", "bytes": 2650, "verified_files": 6}, "packet": {"sha256": "3b903ed0192ba0ce5207d80ea02a41a898ee6ebf99a326e111fbb0b8e3dafab1", "bytes": 3974, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "6a6a040c38f949b10d62e5b72a3f2d49a20a705d208144b512ca81b4038f8a04"}
+started cpag-round7-old
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "1f80331b39f52658151e80ed14934f141759584089712fe044155aefe9610bad", "bytes": 2656, "verified_files": 6}, "packet": {"sha256": "a108022fd77d68ea160e526b26c8f764fda5ad292973698b1de8a19edf09f79a", "bytes": 3974, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+PASS offline task legacy offline-legacy-35c474151308
+PASS offline task packet offline-packet-89fa7299756b
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "b51461c14f92f28f779ad17d5bd014fdb0d399e9fa7910e7055bac7aba948441", "bytes": 2642, "verified_files": 6}, "packet": {"sha256": "ceee45bf43e3ccd8d6a2e63329c40465fab8568346b615e66b6410fd70dfc154", "bytes": 3988, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "fe233e9ffd95458b793de60e03b1a6da73c4ee5aaf82bd954581626a822ae681"}
+{"valid": true, "synthetic_only": true, "source_version": "cpag-engineering-synthetic-rc1", "metadata_equal": true, "history_equal": true, "files_equal": true, "evidence_audit": true, "capacity": {"reserved_bytes": 387652, "attempt_file_bytes": 125508, "reservation_count": 5, "valid": true}, "control": {"valid": true, "matched_execution_count": 4}}
+started cpag-round7-restored
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "76c451fa4385d764fb27aa42be4afcae13c79d5885f952121e83c612e579242a", "bytes": 2664, "verified_files": 6}, "packet": {"sha256": "82ed5211a55c238051a5ee79395f37f9d2729b9ee54e564e4f410ce2a665cefc", "bytes": 3988, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "synthetic_only": true}
+{"valid": true, "synthetic_only": true, "source_version": "1386a4f68afbe00d83bb355632e9ff7637a227c2", "metadata_equal": true, "history_equal": true, "files_equal": true, "evidence_audit": true, "capacity": {"reserved_bytes": 193846, "attempt_file_bytes": 62774, "reservation_count": 3, "valid": true}, "control": {"valid": true, "matched_execution_count": 2}}
+started cpag-round7-rollback
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "a5dd1dea544ad74ff2beb76679715e1bc6d77d23beb41fdda7083550330893ff", "bytes": 2656, "verified_files": 6}, "packet": {"sha256": "a27384188b5bc8cc3a93a3e3f6a533d6ae40abe42a643f3610a00a682cd63af1", "bytes": 3974, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+PASS offline task legacy offline-legacy-d8307ebed140
+PASS offline task packet offline-packet-9b91811aea69
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "fa5a4bf98c23d6c92cfe9577c8af549b22fe437d3df2a44cdb652567f09cabca", "bytes": 2650, "verified_files": 6}, "packet": {"sha256": "77ee54d152bef48b453e0c9eb5ead57fac5bf6f99bb65c7677e9c1f3629114fc", "bytes": 3978, "verified_files": 7}}, "negative_download_refusals": ["legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "125ffad72aaf64318a1987e499aa3c56f36281c4ea152b91c744f29ccecaa4b2"}
+{
+  "valid": true,
+  "synthetic_only": true,
+  "baseline": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+  "upgrade_existing_evidence": true,
+  "candidate_independent_restore": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "cpag-engineering-synthetic-rc1",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 387652,
+      "attempt_file_bytes": 125508,
+      "reservation_count": 5,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 4
+    }
+  },
+  "baseline_rollback": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 193846,
+      "attempt_file_bytes": 62774,
+      "reservation_count": 3,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 2
+    }
+  },
+  "snapshot_negatives": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_unchanged": true,
+    "cases": {
+      "missing_original_capture": "rejected_before_restore",
+      "tampered_original_capture": "rejected_before_restore",
+      "missing_published_manifest": "rejected_before_restore",
+      "tampered_capacity_ledger": "rejected_before_restore",
+      "tampered_database_dump": "rejected_before_restore",
+      "missing_exit_receipt": "rejected_before_restore"
+    }
+  },
+  "old_executor_fresh_tasks_after_rollback": true,
+  "newer_data_retained": true
+}
+
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping
