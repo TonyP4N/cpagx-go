@@ -18,14 +18,14 @@
 | 条件 | 验证与证据 | 状态 |
 |---|---|---|
 | I1 旧竞态 | 原2秒超时＋宿主延迟10秒，已退出却取证失败 | 已复现 |
-| I2 正常超时 | 完整启动快照与退出回执一致，容器确已退出 | 见实际逐轮JSON |
-| I2 启动超时 | core启动延迟4秒，guardian仍2秒超时，startup=null且退出证明完整 | 见实际逐轮JSON |
-| I2 延迟观察 | 先docker wait确认容器停止，再读取日志；无需容器内exec | 见实际逐轮JSON |
-| I3 双重崩溃 | 获取完整身份并核对后双杀，容器137退出/Pid=0 | 见实际逐轮JSON |
-| I4 资源回归 | memory/disk/output/pids/cpu原断言保留；四种时序各重复3轮 | 见实际逐轮JSON |
+| I2 正常超时 | 完整启动快照与退出回执一致，容器确已退出 | 通过；实际逐轮JSON留档 |
+| I2 启动超时 | core启动延迟4秒，guardian仍2秒超时，startup=null且退出证明完整 | 通过；实际逐轮JSON留档 |
+| I2 延迟观察 | 先docker wait确认容器停止，再读取日志；无需容器内exec | 通过；实际逐轮JSON留档 |
+| I3 双重崩溃 | 获取完整身份并核对后双杀，容器137退出/Pid=0 | 通过；实际逐轮JSON留档 |
+| I4 资源回归 | memory/disk/output/pids/cpu原断言保留；四种时序各重复3轮 | 通过；实际逐轮JSON留档 |
 | I4 回执反例 | 缺失、坏JSON、重复、错身份、假退出、OOM、错PID、超界耗时均拒绝 | 8项单测通过（包含多个反例） |
 
-实际Docker证据 `validation-round10/linux-results.json` 与 `linux-run.log`；单测 `unit-tests.log`。完整执行结束后追加汇总及远端证据，不以本表预期代替执行结果。
+实际Docker证据 `validation-round10/linux-results.json` 与 `linux-run.log`；单测 `unit-tests.log`。本地及远端完整结果见本文末尾汇总，不以本表预期代替执行结果。
 
 ## 保持不变和剩余事项
 
@@ -45,3 +45,10 @@
 首个实现提交 `c93b6c08d0b19b918a492ca1e02d31a8fffb54b3` 的 CI 40267640697：前16个容器探针通过，第3次doublekill失败。`ci-first-results.json` 显示已获取就绪身份，注入docker exec返回137；Docker最终状态也为137、非OOM、Running=false、Pid=0。旧检查假定发起双杀的exec必须返回0，未考虑PID 1退出会同时杀掉该exec。此次失败没有通过重跑掩盖。
 
 追加修复：先核对core的父进程身份，发送guardian SIGKILL后立即flush结构化回执，再发送worker SIGKILL；注入后有意等待2秒，使注入进程被容器结束一起杀掉的路径可稳定覆盖。必须同时满足回执身份匹配、已发送guardian信号、injector退出0或137，以及Docker非OOM的137退出/Pid=0；缺回执、其他退出码、OOM或仍在运行一律失败。信号发送回执本身不是退出证明，退出依据仍为Docker最终状态。新增相应负例，单测总计9项。实际三轮回归见 `doublekill-final.json`，其余14项未改动，由最终CI再次完整执行。
+
+
+## 最终远端验收
+
+修复提交 `fbaf36992637b7de631ce1d0e4c8cb69dbd95a88` 的 [CI 40268136264](https://github.com/TonyP4N/cpagx-go/actions/runs/40268136264) 11项全部通过，未对该提交重跑失败项。Linux隔离专项重新完整执行17个真实容器探针，全部通过并清理；9项负例/回执单测通过。归档 `ci-implementation.json` 与 `linux-ci-results.json`。最终实现包含初始timeout观察修复与随后远端捕获的doublekill注入进程退出修复，不能只引用第一次本地通过代替此最终结果。
+
+本轮有限退出条件I1—I5满足。保留首次失败资料；没有证据声称任意极端负载下均无问题。冻结版本和默认入口不变，原真实材料待办和阶段未完成结论不变。
