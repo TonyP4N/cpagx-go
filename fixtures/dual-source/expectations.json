@@ -1,0 +1,21 @@
+{
+  "provenance": "Manually specified before algorithm implementation; no algorithm output or attack labels used as gold.",
+  "cases": {
+    "success": {"operations": 1, "changes": 1, "candidates": 1, "response": "success", "assessment": "expected_change_observed", "candidate_state": "supported_candidate"},
+    "error": {"operations": 1, "changes": 1, "candidates": 1, "response": "error", "assessment": "expected_change_observed", "candidate_state": "counterevidence_present"},
+    "missing_response": {"operations": 1, "changes": 1, "candidates": 1, "response": "missing", "assessment": "expected_change_observed", "candidate_state": "unknown"},
+    "no_change": {"operations": 1, "changes": 0, "candidates": 0, "response": "success", "assessment": "no_expected_change_observed"},
+    "orphan_change": {"operations": 0, "changes": 1, "candidates": 0, "orphan_changes": 1},
+    "ambiguous": {"operations": 2, "changes": 1, "candidates": 2, "response": "success", "assessment": "expected_change_observed", "candidate_state": "ambiguous"},
+    "offset": {"operations": 1, "changes": 1, "candidates": 1, "response": "success", "assessment": "expected_change_observed", "candidate_state": "supported_candidate"},
+    "out_of_order": {"operations": 1, "changes": 1, "candidates": 1, "response": "success", "assessment": "expected_change_observed", "candidate_state": "supported_candidate"},
+    "missing_value": {"operations": 1, "changes": 0, "candidates": 0, "response": "success", "assessment": "unknown"},
+    "mapping_missing": {"operations": 1, "changes": 1, "candidates": 0, "response": "success", "assessment": "unknown", "reason": "mapping_missing"},
+    "mapping_conflict": {"operations": 1, "changes": 1, "candidates": 0, "response": "success", "assessment": "unknown", "reason": "mapping_conflict"},
+    "clock_unknown": {"operations": 1, "changes": 0, "candidates": 0, "response": "success", "assessment": "unknown", "reason": "time_basis_missing"},
+    "disjoint": {"operations": 1, "changes": 1, "candidates": 0, "response": "success", "assessment": "unknown", "reason": "source_intervals_disjoint"},
+    "uncertain_time": {"operations": 1, "changes": 1, "candidates": 1, "response": "success", "assessment": "expected_change_observed", "candidate_state": "unknown"},
+    "sampling_gap": {"operations": 1, "changes": 0, "candidates": 0, "response": "success", "assessment": "unknown"}
+  },
+  "forbidden_conclusions": ["attack", "causality", "physical_action_success", "successful_response_proves_effect", "missing_response_proves_failure", "no_observed_change_proves_no_effect", "time_proximity_proves_causality"]
+}
