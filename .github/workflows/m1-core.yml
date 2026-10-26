@@ -204,3 +204,23 @@ jobs:
             docs/refactor/validation-round7/consistency-summary.json
             docs/refactor/validation-round7/consistency-result.json
             docs/refactor/validation-round7/capacity-live-summary.json
+
+  celery-live-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - name: Real RabbitMQ Celery Redis synthetic HTTP chain
+        run: python scripts/validation/round9_celery.py --evidence docs/refactor/validation-round9/celery-live.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: celery-live-compatibility-evidence
+          path: |
+            docs/refactor/validation-round9/celery-live.json
+            docs/refactor/validation-round9/celery-api.log
+            docs/refactor/validation-round9/celery-worker.log

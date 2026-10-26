@@ -86,6 +86,16 @@ def verify_completed(task_id, manifest):
             raise ValueError('Completed artifact checksum mismatch')
     return manifest
 
+def verify_http_publication(task_id, manifest):
+    """Keep recorded terminal state, but refuse unreadable synthetic publications."""
+    from fastapi import HTTPException
+    if manifest.get('status') != 'completed':
+        raise HTTPException(409, 'Synthetic publication is not completed')
+    try:
+        verify_completed(task_id, manifest)
+    except (ValueError, OSError, KeyError, TypeError):
+        raise HTTPException(409, 'Synthetic publication integrity verification failed')
+
 @celery_app.task(bind=True, name='api.v2.synthetic.execute_synthetic', soft_time_limit=300, time_limit=360)
 def execute_synthetic(self, task_id):
     directory = task_dir(task_id)
@@ -215,6 +225,8 @@ def register(app):
         manifest = read_manifest(str(BASE), task_id)
         if not manifest:
             raise HTTPException(404, 'Task not found')
+        if manifest.get('synthetic') and manifest.get('status') == 'completed':
+            verify_http_publication(task_id, manifest)
         result = dict(manifest)
         result['files'] = [{'filename': name, 'download_url': f'/cpag/download/{task_id}/{name}'} for name in manifest.get('files', [])]
         if manifest.get('synthetic') and manifest.get('status') == 'completed':

@@ -219,6 +219,11 @@ async def get_task_result(task_id: str):
     
     # Prioritize reading files recorded in manifest
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
+    if manifest and manifest.get('synthetic'):
+        from .synthetic import verify_http_publication, artifact_path
+        verify_http_publication(task_id, manifest)
+        return FileResponse(path=str(artifact_path(task_id, 'graph.json')),
+                            filename=f'cpag-{task_id}.json', media_type='application/json')
     if manifest and isinstance(manifest.get('files'), list):
         for fn in manifest['files']:
             if fn.endswith('.json'):
@@ -253,8 +258,8 @@ async def get_task_result_json(task_id: str):
         raise HTTPException(400, str(exc))
     manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
     if manifest and manifest.get('synthetic'):
-        if manifest['status'] != 'completed':
-            raise HTTPException(409, manifest)
+        from .synthetic import verify_http_publication
+        verify_http_publication(task_id, manifest)
         data = {name: json.loads(artifact_path(task_id, name + '.json').read_text())
                 for name in ['graph', 'quality', 'events', 'run_manifest']}
         return {"task_id": task_id, "status": "completed", "synthetic": True, "data": data}
@@ -338,8 +343,12 @@ async def get_task_list():
 @app.get("/cpag/download/{task_id}/{filename}")
 async def download_file(task_id: str, filename: str):
     """下载任务文件"""
-    from .synthetic import artifact_path
+    from .synthetic import artifact_path, task_dir, verify_http_publication
     try:
+        task_dir(task_id)
+        manifest = read_manifest(OUTPUT_BASE_DIR, task_id)
+        if manifest and manifest.get('synthetic'):
+            verify_http_publication(task_id, manifest)
         path = artifact_path(task_id, filename)
     except ValueError as exc:
         raise HTTPException(400, str(exc))

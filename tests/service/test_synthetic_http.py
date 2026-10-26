@@ -164,6 +164,43 @@ class SyntheticHTTP(unittest.TestCase):
             synthetic.execute_synthetic.run(identifier)
         self.assertEqual(client.get('/cpag/status/'+identifier).json()['status'], 'completed')
 
+    def test_non_synthetic_legacy_result_read_behavior_preserved(self):
+        import uuid
+        from infrastructure.status import write_manifest
+        identifier = str(uuid.uuid4())
+        write_manifest(str(synthetic.BASE), identifier,
+                       {'task_id': identifier, 'status': 'completed', 'files': ['cpag_tcity.json']})
+        payload = b'{"nodes":[],"edges":[]}'
+        (synthetic.task_dir(identifier)/'cpag_tcity.json').write_bytes(payload)
+        for endpoint in ('/cpag/result/'+identifier,
+                         '/cpag/download/'+identifier+'/cpag_tcity.json'):
+            response = client.get(endpoint)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.content, payload)
+
+    def test_completed_publication_reads_reject_corruption(self):
+        identifier = self.submit().json()['task_id']
+        self.execute(identifier)
+        graph = synthetic.task_dir(identifier)/'graph.json'
+        original = graph.read_bytes()
+        endpoints = ['/cpag/artifacts/'+identifier, '/cpag/result/'+identifier,
+                     '/cpag/result/'+identifier+'/json', '/cpag/download/'+identifier+'/graph.json']
+        try:
+            for fault in ('tamper', 'missing'):
+                if fault == 'tamper':
+                    graph.write_text('{}')
+                else:
+                    graph.unlink()
+                for endpoint in endpoints:
+                    with self.subTest(fault=fault, endpoint=endpoint):
+                        self.assertEqual(client.get(endpoint).status_code, 409)
+                graph.write_bytes(original)
+            for endpoint in endpoints:
+                self.assertEqual(client.get(endpoint).status_code, 200)
+        finally:
+            graph.write_bytes(original)
+        self.assertEqual(client.get('/cpag/status/'+identifier).json()['status'], 'completed')
+
     def test_duplicate_active_preserves_status_and_staging(self):
         from celery.exceptions import Ignore
         from infrastructure.slots import DuplicateActive

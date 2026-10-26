@@ -1,0 +1,29 @@
+{
+  "synthetic_only": true,
+  "runtime": "real uvicorn + Celery prefork + RabbitMQ + Redis",
+  "project": "cpag-r9-72a98115",
+  "checks": {
+    "queued_without_worker": {
+      "task_id": "15f02ec3-8d3e-4f8e-bfb8-221f4e8a722f",
+      "http_status": "queued",
+      "rabbitmq_messages_ready": 1
+    }
+  },
+  "artifacts": {},
+  "limitations": [
+    "No mid-compute worker kill/recovery claim",
+    "No real industrial data or production validation"
+  ],
+  "versions": {
+    "python": "3.11.9",
+    "docker_images": "CONTAINER                     REPOSITORY                       TAG                 PLATFORM            IMAGE ID            SIZE                CREATED\ncpag-r9-72a98115-rabbitmq-1   mirror.gcr.io/library/rabbitmq   3.13.7-management   linux/arm64/v8      e582c0bc7766        111MB               10 months ago\ncpag-r9-72a98115-redis-1      mirror.gcr.io/library/redis      7.4.2-alpine        linux/arm64/v8      02419de7eddf        17.7MB              21 months ago",
+    "celery": "5.3.4"
+  },
+  "status": "failed",
+  "error": "AssertionError: task 15f02ec3-8d3e-4f8e-bfb8-221f4e8a722f did not reach completed within 90s",
+  "source_sha256": {
+    "network": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+    "process": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+    "profile": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+  }
+}
