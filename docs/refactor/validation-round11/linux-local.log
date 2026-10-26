@@ -1,0 +1,90 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 541B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.11.17-slim
+#2 DONE 1.7s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/7] FROM mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#4 resolve mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377 0.0s done
+#4 sha256:48a55582b17f1b5e88f7493bb854fc0ada01a2c370a5f6d5d5a73cdb0275f3c1 0B / 248B 0.2s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 0B / 14.41MB 0.2s
+#4 sha256:48a55582b17f1b5e88f7493bb854fc0ada01a2c370a5f6d5d5a73cdb0275f3c1 248B / 248B 0.2s done
+#4 sha256:6a843e3e888644cb32d6c92bfded6fabf14f7801b254254cd023338039db82d6 0B / 1.27MB 0.2s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 0B / 30.20MB 0.2s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 1.05MB / 14.41MB 2.3s
+#4 sha256:6a843e3e888644cb32d6c92bfded6fabf14f7801b254254cd023338039db82d6 1.27MB / 1.27MB 2.3s done
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 3.15MB / 14.41MB 2.7s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 3.15MB / 30.20MB 2.7s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 5.24MB / 30.20MB 3.0s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 7.34MB / 14.41MB 3.3s
+#4 ...
+
+#5 [internal] load build context
+#5 transferring context: 313.10kB 3.4s done
+#5 DONE 3.4s
+
+#4 [1/7] FROM mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 7.34MB / 30.20MB 3.3s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 8.39MB / 14.41MB 3.6s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 9.44MB / 30.20MB 3.6s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 15.73MB / 30.20MB 3.9s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 18.87MB / 30.20MB 4.1s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 9.44MB / 14.41MB 4.4s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 10.49MB / 14.41MB 4.5s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 23.07MB / 30.20MB 4.7s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 25.17MB / 30.20MB 4.8s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 12.58MB / 14.41MB 5.1s
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 13.63MB / 14.41MB 5.3s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 28.31MB / 30.20MB 5.1s
+#4 sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 30.20MB / 30.20MB 5.3s done
+#4 extracting sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62
+#4 sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 14.41MB / 14.41MB 5.6s done
+#4 extracting sha256:ddc0c1e36a6793411b6c8d48e1ddad2987405d377da92bcf532ed3181c2e4d62 0.4s done
+#4 DONE 5.8s
+
+#4 [1/7] FROM mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#4 extracting sha256:6a843e3e888644cb32d6c92bfded6fabf14f7801b254254cd023338039db82d6 0.0s done
+#4 extracting sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f
+#4 extracting sha256:b9ae0765e8d3ca7a82d0882d0346584956fee8d028fb67c32efd6c15d4d8b82f 0.2s done
+#4 DONE 6.1s
+
+#4 [1/7] FROM mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#4 extracting sha256:48a55582b17f1b5e88f7493bb854fc0ada01a2c370a5f6d5d5a73cdb0275f3c1 done
+#4 DONE 6.1s
+
+#6 [2/7] WORKDIR /app
+#6 DONE 0.4s
+
+#7 [3/7] COPY services/analysis/src /app/services/analysis/src
+#7 DONE 0.0s
+
+#8 [4/7] COPY schemas /app/schemas
+#8 DONE 0.0s
+
+#9 [5/7] COPY scripts/benchmarks /app/scripts/benchmarks
+#9 DONE 0.0s
+
+#10 [6/7] COPY profiles/synthetic-demo.json /app/profiles/synthetic-demo.json
+#10 DONE 0.0s
+
+#11 [7/7] COPY tests/fixtures/synthetic/network.normalized.jsonl /app/tests/fixtures/synthetic/network.normalized.jsonl
+#11 DONE 0.0s
+
+#12 exporting to image
+#12 exporting layers 0.1s done
+#12 exporting manifest sha256:2af10a14cfcaa6b5ee21cb5cda535fcb17a9a5fe40a06eb098334ac0160d87e2
+#12 exporting manifest sha256:2af10a14cfcaa6b5ee21cb5cda535fcb17a9a5fe40a06eb098334ac0160d87e2 done
+#12 exporting config sha256:3e34efc4b562c625f34dbbdd5024d56641b0b26fc118935685c43aacabf2bcf8 done
+#12 exporting attestation manifest sha256:aaeb6daffe7f7a1162a3d9b67d37ea33e08e602307b9b798473ddc1ab050a025 done
+#12 exporting manifest list sha256:7aef7f9876ede4f8ac3d57f443c0cd458bef05b6c80ceae596cd19eb0b68d4e9 done
+#12 naming to docker.io/library/cpag-synthetic-scaling:round11 done
+#12 unpacking to docker.io/library/cpag-synthetic-scaling:round11 0.0s done
+#12 DONE 0.2s
+{"status": "passed", "output": "docs/refactor/validation-round11/linux-local.json"}

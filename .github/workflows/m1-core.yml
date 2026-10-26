@@ -226,3 +226,21 @@ jobs:
             docs/refactor/validation-round9/celery-live.json
             docs/refactor/validation-round9/celery-api.log
             docs/refactor/validation-round9/celery-worker.log
+
+  synthetic-scaling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Benchmark measurement and failure regressions
+        run: python -m unittest discover -s tests/benchmarks -v
+      - name: Registered bounded Linux synthetic scaling
+        run: python scripts/benchmarks/run_scaling.py --output docs/refactor/validation-round11/linux-ci.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-scaling-evidence
+          path: docs/refactor/validation-round11/linux-ci.json

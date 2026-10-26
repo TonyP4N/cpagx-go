@@ -1,0 +1,713 @@
+{
+  "status": "passed",
+  "synthetic": true,
+  "image_id": "sha256:15c0146419d1a7c0fb17b1374875d3502f27218a33aaeb861012bd12c186074f",
+  "container_exit_code": 0,
+  "stderr": "",
+  "benchmark": {
+    "schema_version": "1.0.0",
+    "synthetic": true,
+    "status": "passed",
+    "budget": {
+      "schema_version": "1.0.0",
+      "synthetic": true,
+      "sizes": [
+        100,
+        1000,
+        5000
+      ],
+      "repeats": 3,
+      "sample_timeout_seconds": 60,
+      "max_peak_rss_bytes": 536870912
+    },
+    "budget_sha256": "1049fc5af34df50fc15d65c2776d924527b5546f694b2ee526a658499bd3f67f",
+    "environment": {
+      "system": "Linux",
+      "machine": "aarch64",
+      "kernel": "6.12.54-linuxkit",
+      "python": "3.11.17",
+      "logical_cpus_visible": 10,
+      "cpu_max": "200000 100000",
+      "memory_max": "536870912",
+      "memory_swap_max": "0",
+      "pids_max": "64",
+      "rss_metric": "process ru_maxrss at end of measured phase; includes imports/preparation; excludes later verification",
+      "phase_time": "includes index+parse (parse); complete pipeline through publication (pipeline); excludes input generation and later verification"
+    },
+    "samples": [
+      {
+        "process_pid": 8,
+        "phase": "parse",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.0024532079999914913,
+        "peak_rss_bytes": 23781376,
+        "bytes_per_second": 12818317.892371567,
+        "events_per_second": 122288.85606154901,
+        "parsed_fingerprint": "f2663ad16abe313fcf48b28b8e0aadc53a5c445657f7f9490c0c30f3e5eedaa0",
+        "iteration": 1
+      },
+      {
+        "process_pid": 9,
+        "phase": "parse",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.002754291999991665,
+        "peak_rss_bytes": 23744512,
+        "bytes_per_second": 11417090.12700729,
+        "events_per_second": 108920.91325135747,
+        "parsed_fingerprint": "f2663ad16abe313fcf48b28b8e0aadc53a5c445657f7f9490c0c30f3e5eedaa0",
+        "iteration": 2
+      },
+      {
+        "process_pid": 10,
+        "phase": "parse",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.002376499999996895,
+        "peak_rss_bytes": 23732224,
+        "bytes_per_second": 13232063.959621748,
+        "events_per_second": 126236.06143504816,
+        "parsed_fingerprint": "f2663ad16abe313fcf48b28b8e0aadc53a5c445657f7f9490c0c30f3e5eedaa0",
+        "iteration": 3
+      },
+      {
+        "process_pid": 11,
+        "phase": "parse",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.020996208999974897,
+        "peak_rss_bytes": 30113792,
+        "bytes_per_second": 15017282.405617937,
+        "events_per_second": 142882.93662934995,
+        "parsed_fingerprint": "1c3c4cb7dda3aa5e2ea4535874f16b461677cf28dfbf983557d1ac36b3aa3c84",
+        "iteration": 1
+      },
+      {
+        "process_pid": 12,
+        "phase": "parse",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.017122666999995317,
+        "peak_rss_bytes": 30109696,
+        "bytes_per_second": 18414537.875442315,
+        "events_per_second": 175206.35073968445,
+        "parsed_fingerprint": "1c3c4cb7dda3aa5e2ea4535874f16b461677cf28dfbf983557d1ac36b3aa3c84",
+        "iteration": 2
+      },
+      {
+        "process_pid": 13,
+        "phase": "parse",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.01864116600000898,
+        "peak_rss_bytes": 30113792,
+        "bytes_per_second": 16914499.8762335,
+        "events_per_second": 160934.1389910135,
+        "parsed_fingerprint": "1c3c4cb7dda3aa5e2ea4535874f16b461677cf28dfbf983557d1ac36b3aa3c84",
+        "iteration": 3
+      },
+      {
+        "process_pid": 14,
+        "phase": "parse",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.09007958399999438,
+        "peak_rss_bytes": 60297216,
+        "bytes_per_second": 17550103.25092197,
+        "events_per_second": 166519.41909501865,
+        "parsed_fingerprint": "e1a906ac39ebf435fde74e19d4714f9f432ca26ee5c9be88e1eced2536019474",
+        "iteration": 1
+      },
+      {
+        "process_pid": 15,
+        "phase": "parse",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.09039699999999584,
+        "peak_rss_bytes": 60317696,
+        "bytes_per_second": 17488478.599954344,
+        "events_per_second": 165934.71022269203,
+        "parsed_fingerprint": "e1a906ac39ebf435fde74e19d4714f9f432ca26ee5c9be88e1eced2536019474",
+        "iteration": 2
+      },
+      {
+        "process_pid": 16,
+        "phase": "parse",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.0882208339999977,
+        "peak_rss_bytes": 60329984,
+        "bytes_per_second": 17919871.39908518,
+        "events_per_second": 170027.864393125,
+        "parsed_fingerprint": "e1a906ac39ebf435fde74e19d4714f9f432ca26ee5c9be88e1eced2536019474",
+        "iteration": 3
+      },
+      {
+        "process_pid": 17,
+        "phase": "pipeline",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.02860304199998609,
+        "peak_rss_bytes": 25026560,
+        "bytes_per_second": 1099393.5540148246,
+        "events_per_second": 10488.394905693804,
+        "artifact_hashes": {
+          "dataset.json": "3391d766542e91df6c9e8abea703716956e22d05372eaac9952460780aecc756",
+          "events.json": "2770c13826da4b7505b471c58f392fd10d663fd26f6afcba1d6ab33d3343eebe",
+          "graph.json": "5eb20ed479b8bb8cc70361b39fdd4eee8bf4a00c3a27248b211eab330cb32e7b",
+          "quality.json": "bc82e38b48508035a522e371db69c903f83dfe9c0091e34898699f691f62e01e"
+        },
+        "result_hashes": {
+          "events": "21887ec43b0bba87a160710c8e4be3a0724b9d6e65390b452b8b89ec62fa57f2",
+          "graph": "e06ade08a0fe39dd64954ed70a87f16b1c05e9d208215b21346239518a5bc4d5"
+        },
+        "run_manifest_sha256": "16f0fd1c249be2c17556df3c20f3c3a1fa42d8d2588e0e4cd6c1b3426d6d82c4",
+        "manifest_without_run_id_sha256": "ebb2db8ee2068b667470b068f3b5dcecab5d8dfd63dc0ff13a6a94c6c572a8b2",
+        "verified_event_references": 300,
+        "verified_graph_references": 300,
+        "iteration": 1
+      },
+      {
+        "process_pid": 18,
+        "phase": "pipeline",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.0284033339999894,
+        "peak_rss_bytes": 25026560,
+        "bytes_per_second": 1107123.551059595,
+        "events_per_second": 10562.140345922488,
+        "artifact_hashes": {
+          "dataset.json": "3391d766542e91df6c9e8abea703716956e22d05372eaac9952460780aecc756",
+          "events.json": "2770c13826da4b7505b471c58f392fd10d663fd26f6afcba1d6ab33d3343eebe",
+          "graph.json": "5eb20ed479b8bb8cc70361b39fdd4eee8bf4a00c3a27248b211eab330cb32e7b",
+          "quality.json": "bc82e38b48508035a522e371db69c903f83dfe9c0091e34898699f691f62e01e"
+        },
+        "result_hashes": {
+          "events": "21887ec43b0bba87a160710c8e4be3a0724b9d6e65390b452b8b89ec62fa57f2",
+          "graph": "e06ade08a0fe39dd64954ed70a87f16b1c05e9d208215b21346239518a5bc4d5"
+        },
+        "run_manifest_sha256": "c2b0c7fa33957e3e4d545bd2413225deb609e0595d36bd1b6b5cd9b4688bc185",
+        "manifest_without_run_id_sha256": "ebb2db8ee2068b667470b068f3b5dcecab5d8dfd63dc0ff13a6a94c6c572a8b2",
+        "verified_event_references": 300,
+        "verified_graph_references": 300,
+        "iteration": 2
+      },
+      {
+        "process_pid": 19,
+        "phase": "pipeline",
+        "records_per_source": 100,
+        "events": 300,
+        "input_bytes": 31446,
+        "input_fingerprint": "7fd27a6114bdc9247c1a2485e79731152e985ed829c949b760f19307c275dd86",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.028396792000023652,
+        "peak_rss_bytes": 25014272,
+        "bytes_per_second": 1107378.6081179103,
+        "events_per_second": 10564.573632111336,
+        "artifact_hashes": {
+          "dataset.json": "3391d766542e91df6c9e8abea703716956e22d05372eaac9952460780aecc756",
+          "events.json": "2770c13826da4b7505b471c58f392fd10d663fd26f6afcba1d6ab33d3343eebe",
+          "graph.json": "5eb20ed479b8bb8cc70361b39fdd4eee8bf4a00c3a27248b211eab330cb32e7b",
+          "quality.json": "bc82e38b48508035a522e371db69c903f83dfe9c0091e34898699f691f62e01e"
+        },
+        "result_hashes": {
+          "events": "21887ec43b0bba87a160710c8e4be3a0724b9d6e65390b452b8b89ec62fa57f2",
+          "graph": "e06ade08a0fe39dd64954ed70a87f16b1c05e9d208215b21346239518a5bc4d5"
+        },
+        "run_manifest_sha256": "1fd4893fcaa9c4750635a7ab02cddbf282e58056141e853fe7d0ccdc244d2a5a",
+        "manifest_without_run_id_sha256": "ebb2db8ee2068b667470b068f3b5dcecab5d8dfd63dc0ff13a6a94c6c572a8b2",
+        "verified_event_references": 300,
+        "verified_graph_references": 300,
+        "iteration": 3
+      },
+      {
+        "process_pid": 20,
+        "phase": "pipeline",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.27364020800001754,
+        "peak_rss_bytes": 41668608,
+        "bytes_per_second": 1152264.87475839,
+        "events_per_second": 10963.301124225894,
+        "artifact_hashes": {
+          "dataset.json": "4d43f238ec24ee2282447935a310299d2208bf10ed096b518fdc5b1daf05d346",
+          "events.json": "783c6cd64a806cf27e14bee15fd09e4abb66b623e35163eaefd7ddeddfd01231",
+          "graph.json": "77692bc18fb41c4acced86b441cd93f8bc2af0e7f76fb77090af7d87124181a6",
+          "quality.json": "00a3982750d8f2241b68e292478bafae3f5f0060d733322de0ba1955a30a5d16"
+        },
+        "result_hashes": {
+          "events": "2afb8eb0db1b741dd84821ead74d1e9aad2e8d0e5d5a718a4dd35c32c9ead4f3",
+          "graph": "02a8798ca7299b10154abe74d6cdfffd9c82f654de083425cf9741ad439644b6"
+        },
+        "run_manifest_sha256": "02605dac22ea10109082df7eed5c7adbbadcfaec818b7e198ddf9332b8af1aea",
+        "manifest_without_run_id_sha256": "5352cf33a2b699ab6223fa27b8bf9d2c4331330622a6e752714e5426193a6acc",
+        "verified_event_references": 3000,
+        "verified_graph_references": 3000,
+        "iteration": 1
+      },
+      {
+        "process_pid": 21,
+        "phase": "pipeline",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.27890175000001705,
+        "peak_rss_bytes": 41664512,
+        "bytes_per_second": 1130527.1480009742,
+        "events_per_second": 10756.476070873763,
+        "artifact_hashes": {
+          "dataset.json": "4d43f238ec24ee2282447935a310299d2208bf10ed096b518fdc5b1daf05d346",
+          "events.json": "783c6cd64a806cf27e14bee15fd09e4abb66b623e35163eaefd7ddeddfd01231",
+          "graph.json": "77692bc18fb41c4acced86b441cd93f8bc2af0e7f76fb77090af7d87124181a6",
+          "quality.json": "00a3982750d8f2241b68e292478bafae3f5f0060d733322de0ba1955a30a5d16"
+        },
+        "result_hashes": {
+          "events": "2afb8eb0db1b741dd84821ead74d1e9aad2e8d0e5d5a718a4dd35c32c9ead4f3",
+          "graph": "02a8798ca7299b10154abe74d6cdfffd9c82f654de083425cf9741ad439644b6"
+        },
+        "run_manifest_sha256": "aaea52fe047221b789e06996be521089418ae38da29e720da21c045587b2dc5e",
+        "manifest_without_run_id_sha256": "5352cf33a2b699ab6223fa27b8bf9d2c4331330622a6e752714e5426193a6acc",
+        "verified_event_references": 3000,
+        "verified_graph_references": 3000,
+        "iteration": 2
+      },
+      {
+        "process_pid": 22,
+        "phase": "pipeline",
+        "records_per_source": 1000,
+        "events": 3000,
+        "input_bytes": 315306,
+        "input_fingerprint": "2f9a317db97dc3105cad8f15e0dbdaf8f7ba76d912a387450cbfc322b6bfeeb2",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 0.2760646250000036,
+        "peak_rss_bytes": 41656320,
+        "bytes_per_second": 1142145.611738541,
+        "events_per_second": 10867.020720238823,
+        "artifact_hashes": {
+          "dataset.json": "4d43f238ec24ee2282447935a310299d2208bf10ed096b518fdc5b1daf05d346",
+          "events.json": "783c6cd64a806cf27e14bee15fd09e4abb66b623e35163eaefd7ddeddfd01231",
+          "graph.json": "77692bc18fb41c4acced86b441cd93f8bc2af0e7f76fb77090af7d87124181a6",
+          "quality.json": "00a3982750d8f2241b68e292478bafae3f5f0060d733322de0ba1955a30a5d16"
+        },
+        "result_hashes": {
+          "events": "2afb8eb0db1b741dd84821ead74d1e9aad2e8d0e5d5a718a4dd35c32c9ead4f3",
+          "graph": "02a8798ca7299b10154abe74d6cdfffd9c82f654de083425cf9741ad439644b6"
+        },
+        "run_manifest_sha256": "75f98c7c20902e5af668aab007189e2a791656302ab514c473092176d9b7c731",
+        "manifest_without_run_id_sha256": "5352cf33a2b699ab6223fa27b8bf9d2c4331330622a6e752714e5426193a6acc",
+        "verified_event_references": 3000,
+        "verified_graph_references": 3000,
+        "iteration": 3
+      },
+      {
+        "process_pid": 23,
+        "phase": "pipeline",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 1.4135752079999975,
+        "peak_rss_bytes": 102535168,
+        "bytes_per_second": 1118374.1700144494,
+        "events_per_second": 10611.391537647869,
+        "artifact_hashes": {
+          "dataset.json": "98336b76b588fd153036b5cdd7b015818c5965d4e280eccc96ec9029c88f31f8",
+          "events.json": "d1a8b6a85b997019470ba5f6eb3556f8c86759ec04883867f6fa3e1af076a809",
+          "graph.json": "0f6f2087b54eae53b4c590175118bcc40d0ee12c4d7ff7f5db5c87ef80a5a46d",
+          "quality.json": "402cc6da025cc1ddc023882b2a23c65d2d209c57514a539c4a13fe1902c46bff"
+        },
+        "result_hashes": {
+          "events": "282740167a1162de88de0014a93bd3f327eee41f2c3a3abad37b18cf1be135c8",
+          "graph": "630f7a4ac09dbb3b0863f880d284fede5f90c8e6366345f5954b79a817e8f063"
+        },
+        "run_manifest_sha256": "ae3d76b0598dea9d99c4670aa67db21a205b0d6f91287bef6f6b533313a0a779",
+        "manifest_without_run_id_sha256": "656b128c272da09fd588376c4b3791a7d3f0a60e866416c0b534a61675b69fd3",
+        "verified_event_references": 15000,
+        "verified_graph_references": 15000,
+        "iteration": 1
+      },
+      {
+        "process_pid": 24,
+        "phase": "pipeline",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 1.3769251260000033,
+        "peak_rss_bytes": 102522880,
+        "bytes_per_second": 1148142.3137310054,
+        "events_per_second": 10893.838536867519,
+        "artifact_hashes": {
+          "dataset.json": "98336b76b588fd153036b5cdd7b015818c5965d4e280eccc96ec9029c88f31f8",
+          "events.json": "d1a8b6a85b997019470ba5f6eb3556f8c86759ec04883867f6fa3e1af076a809",
+          "graph.json": "0f6f2087b54eae53b4c590175118bcc40d0ee12c4d7ff7f5db5c87ef80a5a46d",
+          "quality.json": "402cc6da025cc1ddc023882b2a23c65d2d209c57514a539c4a13fe1902c46bff"
+        },
+        "result_hashes": {
+          "events": "282740167a1162de88de0014a93bd3f327eee41f2c3a3abad37b18cf1be135c8",
+          "graph": "630f7a4ac09dbb3b0863f880d284fede5f90c8e6366345f5954b79a817e8f063"
+        },
+        "run_manifest_sha256": "4b5611d5d1fb08a854f977b02c7775adfdfde2310fd8d2d65be207fa449f06be",
+        "manifest_without_run_id_sha256": "656b128c272da09fd588376c4b3791a7d3f0a60e866416c0b534a61675b69fd3",
+        "verified_event_references": 15000,
+        "verified_graph_references": 15000,
+        "iteration": 2
+      },
+      {
+        "process_pid": 25,
+        "phase": "pipeline",
+        "records_per_source": 5000,
+        "events": 15000,
+        "input_bytes": 1580906,
+        "input_fingerprint": "1bde19d0e72e4158991371b62579543618b2a8508d701b015a57b2ad92616265",
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902",
+        "elapsed_seconds": 1.3845029169999918,
+        "peak_rss_bytes": 102543360,
+        "bytes_per_second": 1141858.1937158962,
+        "events_per_second": 10834.213359768666,
+        "artifact_hashes": {
+          "dataset.json": "98336b76b588fd153036b5cdd7b015818c5965d4e280eccc96ec9029c88f31f8",
+          "events.json": "d1a8b6a85b997019470ba5f6eb3556f8c86759ec04883867f6fa3e1af076a809",
+          "graph.json": "0f6f2087b54eae53b4c590175118bcc40d0ee12c4d7ff7f5db5c87ef80a5a46d",
+          "quality.json": "402cc6da025cc1ddc023882b2a23c65d2d209c57514a539c4a13fe1902c46bff"
+        },
+        "result_hashes": {
+          "events": "282740167a1162de88de0014a93bd3f327eee41f2c3a3abad37b18cf1be135c8",
+          "graph": "630f7a4ac09dbb3b0863f880d284fede5f90c8e6366345f5954b79a817e8f063"
+        },
+        "run_manifest_sha256": "a84d559b398097b5d7d3050706c23561903b61d7a74c45bb10bb16591582f712",
+        "manifest_without_run_id_sha256": "656b128c272da09fd588376c4b3791a7d3f0a60e866416c0b534a61675b69fd3",
+        "verified_event_references": 15000,
+        "verified_graph_references": 15000,
+        "iteration": 3
+      }
+    ],
+    "limitations": [
+      "normalized synthetic input only",
+      "no protocol throughput or correlation benchmark",
+      "no industrial validation or minimum hardware promise",
+      "no cold-cache claim"
+    ],
+    "replay_backlog": null,
+    "correlation_throughput": null,
+    "summary": [
+      {
+        "phase": "parse",
+        "records_per_source": 100,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 0.002376499999996895,
+            "median": 0.0024532079999914913,
+            "max": 0.002754291999991665
+          },
+          "peak_rss_bytes": {
+            "min": 23732224,
+            "median": 23744512,
+            "max": 23781376
+          },
+          "bytes_per_second": {
+            "min": 11417090.12700729,
+            "median": 12818317.892371567,
+            "max": 13232063.959621748
+          },
+          "events_per_second": {
+            "min": 108920.91325135747,
+            "median": 122288.85606154901,
+            "max": 126236.06143504816
+          }
+        }
+      },
+      {
+        "phase": "parse",
+        "records_per_source": 1000,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 0.017122666999995317,
+            "median": 0.01864116600000898,
+            "max": 0.020996208999974897
+          },
+          "peak_rss_bytes": {
+            "min": 30109696,
+            "median": 30113792,
+            "max": 30113792
+          },
+          "bytes_per_second": {
+            "min": 15017282.405617937,
+            "median": 16914499.8762335,
+            "max": 18414537.875442315
+          },
+          "events_per_second": {
+            "min": 142882.93662934995,
+            "median": 160934.1389910135,
+            "max": 175206.35073968445
+          }
+        }
+      },
+      {
+        "phase": "parse",
+        "records_per_source": 5000,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 0.0882208339999977,
+            "median": 0.09007958399999438,
+            "max": 0.09039699999999584
+          },
+          "peak_rss_bytes": {
+            "min": 60297216,
+            "median": 60317696,
+            "max": 60329984
+          },
+          "bytes_per_second": {
+            "min": 17488478.599954344,
+            "median": 17550103.25092197,
+            "max": 17919871.39908518
+          },
+          "events_per_second": {
+            "min": 165934.71022269203,
+            "median": 166519.41909501865,
+            "max": 170027.864393125
+          }
+        }
+      },
+      {
+        "phase": "pipeline",
+        "records_per_source": 100,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 0.028396792000023652,
+            "median": 0.0284033339999894,
+            "max": 0.02860304199998609
+          },
+          "peak_rss_bytes": {
+            "min": 25014272,
+            "median": 25026560,
+            "max": 25026560
+          },
+          "bytes_per_second": {
+            "min": 1099393.5540148246,
+            "median": 1107123.551059595,
+            "max": 1107378.6081179103
+          },
+          "events_per_second": {
+            "min": 10488.394905693804,
+            "median": 10562.140345922488,
+            "max": 10564.573632111336
+          }
+        }
+      },
+      {
+        "phase": "pipeline",
+        "records_per_source": 1000,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 0.27364020800001754,
+            "median": 0.2760646250000036,
+            "max": 0.27890175000001705
+          },
+          "peak_rss_bytes": {
+            "min": 41656320,
+            "median": 41664512,
+            "max": 41668608
+          },
+          "bytes_per_second": {
+            "min": 1130527.1480009742,
+            "median": 1142145.611738541,
+            "max": 1152264.87475839
+          },
+          "events_per_second": {
+            "min": 10756.476070873763,
+            "median": 10867.020720238823,
+            "max": 10963.301124225894
+          }
+        }
+      },
+      {
+        "phase": "pipeline",
+        "records_per_source": 5000,
+        "samples": 3,
+        "statistics": {
+          "elapsed_seconds": {
+            "min": 1.3769251260000033,
+            "median": 1.3845029169999918,
+            "max": 1.4135752079999975
+          },
+          "peak_rss_bytes": {
+            "min": 102522880,
+            "median": 102535168,
+            "max": 102543360
+          },
+          "bytes_per_second": {
+            "min": 1118374.1700144494,
+            "median": 1141858.1937158962,
+            "max": 1148142.3137310054
+          },
+          "events_per_second": {
+            "min": 10611.391537647869,
+            "median": 10834.213359768666,
+            "max": 10893.838536867519
+          }
+        }
+      }
+    ]
+  },
+  "state": {
+    "Status": "exited",
+    "Running": false,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 0,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-10-26T05:30:01.33759322Z",
+    "FinishedAt": "2026-10-26T05:30:10.982997127Z"
+  },
+  "limits": {
+    "Binds": null,
+    "ContainerIDFile": "",
+    "LogConfig": {
+      "Type": "json-file",
+      "Config": {}
+    },
+    "NetworkMode": "none",
+    "PortBindings": {},
+    "RestartPolicy": {
+      "Name": "no",
+      "MaximumRetryCount": 0
+    },
+    "AutoRemove": false,
+    "VolumeDriver": "",
+    "VolumesFrom": null,
+    "ConsoleSize": [
+      0,
+      0
+    ],
+    "CapAdd": null,
+    "CapDrop": [
+      "ALL"
+    ],
+    "CgroupnsMode": "private",
+    "Dns": null,
+    "DnsOptions": [],
+    "DnsSearch": [],
+    "ExtraHosts": null,
+    "GroupAdd": null,
+    "IpcMode": "private",
+    "Cgroup": "",
+    "Links": null,
+    "OomScoreAdj": 0,
+    "PidMode": "",
+    "Privileged": false,
+    "PublishAllPorts": false,
+    "ReadonlyRootfs": true,
+    "SecurityOpt": [
+      "no-new-privileges"
+    ],
+    "Tmpfs": {
+      "/tmp": "rw,nosuid,nodev,size=256m,mode=1777"
+    },
+    "UTSMode": "",
+    "UsernsMode": "",
+    "ShmSize": 67108864,
+    "Runtime": "runc",
+    "Isolation": "",
+    "CpuShares": 0,
+    "Memory": 536870912,
+    "NanoCpus": 2000000000,
+    "CgroupParent": "",
+    "BlkioWeight": 0,
+    "BlkioWeightDevice": [],
+    "BlkioDeviceReadBps": [],
+    "BlkioDeviceWriteBps": [],
+    "BlkioDeviceReadIOps": [],
+    "BlkioDeviceWriteIOps": [],
+    "CpuPeriod": 0,
+    "CpuQuota": 0,
+    "CpuRealtimePeriod": 0,
+    "CpuRealtimeRuntime": 0,
+    "CpusetCpus": "",
+    "CpusetMems": "",
+    "Devices": [],
+    "DeviceCgroupRules": null,
+    "DeviceRequests": null,
+    "MemoryReservation": 0,
+    "MemorySwap": 536870912,
+    "MemorySwappiness": null,
+    "OomKillDisable": null,
+    "PidsLimit": 64,
+    "Ulimits": [],
+    "CpuCount": 0,
+    "CpuPercent": 0,
+    "IOMaximumIOps": 0,
+    "IOMaximumBandwidth": 0,
+    "MaskedPaths": [
+      "/proc/acpi",
+      "/proc/asound",
+      "/proc/interrupts",
+      "/proc/kcore",
+      "/proc/keys",
+      "/proc/latency_stats",
+      "/proc/sched_debug",
+      "/proc/scsi",
+      "/proc/timer_list",
+      "/proc/timer_stats",
+      "/sys/devices/virtual/powercap",
+      "/sys/firmware"
+    ],
+    "ReadonlyPaths": [
+      "/proc/bus",
+      "/proc/fs",
+      "/proc/irq",
+      "/proc/sys",
+      "/proc/sysrq-trigger"
+    ]
+  },
+  "cleanup": "passed"
+}
