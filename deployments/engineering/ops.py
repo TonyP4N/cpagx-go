@@ -29,7 +29,7 @@ def init():
     for name in ('shared','control'):(ROOT/name).mkdir(mode=0o700)
     c={name:secrets.token_hex(24) for name in ('worker_token','coordinator_token','database_password')}
     p=ROOT/'config.json';p.write_text(json.dumps(c));p.chmod(0o600)
-    target=ROOT/'shared'/'samples';shutil.copytree('/app/samples',target)
+    target=ROOT/'shared'/'inputs';shutil.copytree('/app/samples',target)
     print('initialized',ROOT)
 def inspect_optional(kind,name):
     result=subprocess.run(['docker',kind,'inspect',name],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
@@ -97,7 +97,7 @@ def start():
     docker('run','-d','--pull=never','--name',PROJECT+'-evidence',*common,'-p','127.0.0.1:18120:8095',*args,APP,'python','/app/engineering/evidence_service.py')
     print('started',PROJECT)
 def demo():
-    sample=ROOT/'shared'/'samples';records={}
+    sample=ROOT/'shared'/'inputs';records={}
     for kind in ('legacy','packet'):
         network=sample/('network.normalized.jsonl' if kind=='legacy' else 'protocol-synthetic.pcap');profile=sample/('synthetic-demo.json' if kind=='legacy' else 'packet-profile.json');process=sample/'process.csv'
         baseline=ROOT/('config-baseline-'+kind)
