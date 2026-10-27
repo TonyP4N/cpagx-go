@@ -1,0 +1,16 @@
+{
+  "normal": {
+    "candidate_count": 1,
+    "candidate_states": [
+      "supported_candidate"
+    ]
+  },
+  "request_outside_validity": {
+    "candidate_count": 0,
+    "candidate_states": []
+  },
+  "response_outside_validity": {
+    "candidate_count": 0,
+    "candidate_states": []
+  }
+}
