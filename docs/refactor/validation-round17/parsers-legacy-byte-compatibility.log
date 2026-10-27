@@ -1,0 +1,4 @@
+baseline=6897707; input=independent-existing dual_source_fixtures.make_case; scalar=True; synthetic=True
+canonical packet+dual baseline/current equality=PASS
+canonical SHA256=2816e9eab9587e379026af943ae85ff7718a02da12d8ad389cda42fc8df62e52
+This checks the normal supported legacy fixture; changed unsupported-PDU/duplicate-CSV semantics are documented separately.

@@ -30,6 +30,10 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
         run: bash scripts/validation/round16_acceptance.sh "$RUNNER_TEMP/round16"
+      - name: R17 cross-file repeated offline analysis, rules, real branch and restore
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round17_acceptance.sh "$RUNNER_TEMP/round17"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -38,6 +42,8 @@ jobs:
             ${{ runner.temp }}/round16/public
             ${{ runner.temp }}/round16/environment/public
             ${{ runner.temp }}/round16/supplement/public
+            ${{ runner.temp }}/round17/public
+            ${{ runner.temp }}/round17/environment/public
   core:
     runs-on: ubuntu-latest
     steps:

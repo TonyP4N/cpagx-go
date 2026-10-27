@@ -1,0 +1,46 @@
+{
+  "scope": "generated software fixtures; real-source branch is interface test only",
+  "checks": {
+    "old_preflight_refused_no_job": true,
+    "three_independent_worker_runs": [
+      {
+        "events.json": "bf8be4c1e612fad72c87f9b84fe7e682491a7e34f2d089cac56fc8445caac146",
+        "graph.json": "d550e591c8fcc5ec3947a6267e82dcfe69c58420bebc248b8616857454e07079",
+        "analysis.json": "ec77ae674f4abe1c27e735bcdc6f0a998c6631023abb69cece772b3947e53a82"
+      },
+      {
+        "events.json": "bf8be4c1e612fad72c87f9b84fe7e682491a7e34f2d089cac56fc8445caac146",
+        "graph.json": "d550e591c8fcc5ec3947a6267e82dcfe69c58420bebc248b8616857454e07079",
+        "analysis.json": "ec77ae674f4abe1c27e735bcdc6f0a998c6631023abb69cece772b3947e53a82"
+      },
+      {
+        "events.json": "bf8be4c1e612fad72c87f9b84fe7e682491a7e34f2d089cac56fc8445caac146",
+        "graph.json": "d550e591c8fcc5ec3947a6267e82dcfe69c58420bebc248b8616857454e07079",
+        "analysis.json": "ec77ae674f4abe1c27e735bcdc6f0a998c6631023abb69cece772b3947e53a82"
+      }
+    ],
+    "cli_worker_semantic_hashes": {
+      "events.json": "bf8be4c1e612fad72c87f9b84fe7e682491a7e34f2d089cac56fc8445caac146",
+      "graph.json": "d550e591c8fcc5ec3947a6267e82dcfe69c58420bebc248b8616857454e07079",
+      "analysis.json": "ec77ae674f4abe1c27e735bcdc6f0a998c6631023abb69cece772b3947e53a82"
+    },
+    "cli_api_result_equal": true,
+    "historical_versions_unchanged": true,
+    "generated_real_branch_unvalidated": true,
+    "finite_rule_original_evidence": true,
+    "secondary_capture_tamper_refused": true,
+    "fifth_capture_refused_no_job": {
+      "status": 422,
+      "error": "source_count"
+    },
+    "empty_database_new_directory_all_captures_restore": true
+  },
+  "status": "passed",
+  "run_ids": [
+    "d453df5c2107150ae5b61e3292c2f22d",
+    "42eeec60d24de6eab4d7e7b531907925",
+    "957f8ad47dbfa66fdcea8b791dd3b591"
+  ],
+  "real_interface_run_id": "cf0dc5e07fc04fbc29fad5ddc4a29a78",
+  "original_evidence_refs": 4
+}

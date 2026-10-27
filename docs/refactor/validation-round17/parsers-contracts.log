@@ -1,0 +1,11 @@
+test_evaluation_independence_required (test_contracts.ContractTests.test_evaluation_independence_required) ... ok
+test_reject_invalid_contracts (test_contracts.ContractTests.test_reject_invalid_contracts) ... ok
+test_strict_schema_documents (test_contracts.ContractTests.test_strict_schema_documents) ... ok
+test_export_against_independent_jsonschema (test_contracts.IndependentSchemaTests.test_export_against_independent_jsonschema) ... ok
+test_all_ten_examples_shared_with_go (test_contracts.SharedExampleTests.test_all_ten_examples_shared_with_go) ... ok
+test_shared_packet_mutations_rejected_by_runtime_and_independent_schema (test_contracts.SharedPacketNegativeTests.test_shared_packet_mutations_rejected_by_runtime_and_independent_schema) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.201s
+
+OK

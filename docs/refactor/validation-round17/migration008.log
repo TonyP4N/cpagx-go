@@ -1,0 +1,4 @@
+=== RUN   TestMigration008CaptureBindings
+--- PASS: TestMigration008CaptureBindings (0.05s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	0.454s

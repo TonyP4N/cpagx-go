@@ -1,5 +1,7 @@
 # 软件首版支持矩阵（R15 范围决定 v1）
 
+> R17 增量：四抓包有界离线机制、版本化时间/映射、有限规则、真实来源可解析分支及任务/证据/恢复贯通已实现并完成本地合成验收；详见[第十七轮验收](round17-acceptance-20261027.md)与[实际支持及操作](round17-operations.md)。下方 R15/R16 时点保留；候选128MiB容量仍由R19验收，R18尚未启动，真实适用性未验证。最终完整CI为关闭门禁。
+
 > R16 补验收：历史预检快照、服务端材料门禁及 format4 成套恢复已修复；原 R16 的全通过结论以[补验收记录](round16-supplement-acceptance-20261027.md)为准。R15 基线及后续范围不变，最终完整 CI 为关闭门禁。
 
 > R16 实现注记（不改 R15 目标容量）：新增可选本机 Go `/api/v3` + 静态 `/workspace/`，PG 为数据集/配置/运行事实来源，Python 使用原核心和 Worker。接收 API 可保存单个 PCAP/PCAPNG ≤64 MiB 或 CSV/XLS/XLSX ≤8 MiB；这只是接收/元数据预检，XLS/XLSX 不可送入现有分析。当前双源执行仍限定一抓包+一 CSV、网络≤16 MiB、CSV≤2 MiB/1000逻辑记录、配置≤64 KiB、显式 synthetic；没有实现目标多文件协议解析。真实声明接受为 accepted_unvalidated，缺依据禁止关联。三角色/ACL、终态目录恢复已作合成验证；仅回环 HTTP，LAN/TLS 未支持。正式命令及兼容边界见 [操作文档](round16-operations-20261027.md)，验收见 [记录](round15-16-acceptance-20261027.md)。

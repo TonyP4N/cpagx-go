@@ -1,0 +1,40 @@
+{
+  "synthetic_only": true,
+  "status": "passed",
+  "checks": {
+    "dataset_created": true,
+    "raw_upload_sha256": true,
+    "metadata_preflight": "ready_for_manual_review",
+    "submitted_run_succeeded": true,
+    "new-run_four_original_refs": true,
+    "new-run_graph_candidate": true,
+    "new-run_controlled_download": true,
+    "prebuilt-run_four_original_refs": true,
+    "prebuilt-run_graph_candidate": true,
+    "prebuilt-run_controlled_download": true,
+    "restored-run_four_original_refs": true,
+    "restored-run_graph_candidate": true,
+    "restored-run_controlled_download": true,
+    "restored_session_isolated": true,
+    "viewer_created": true,
+    "viewer_write_denied": true,
+    "viewer-run_four_original_refs": true,
+    "viewer-run_graph_candidate": true,
+    "viewer-run_controlled_download": true,
+    "viewer_read_and_download": true
+  },
+  "page_errors": [],
+  "screenshot_files": [
+    "dataset-created.png",
+    "preflight.png",
+    "new-run-four-evidence.png",
+    "new-run-graph.png",
+    "prebuilt-run-four-evidence.png",
+    "prebuilt-run-graph.png",
+    "restored-run-four-evidence.png",
+    "restored-run-graph.png",
+    "viewer-run-four-evidence.png",
+    "viewer-run-graph.png"
+  ],
+  "submitted_run_id": "81c76edfb5c8707c3adf790598f22a3f"
+}
