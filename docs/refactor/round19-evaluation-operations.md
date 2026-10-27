@@ -18,11 +18,11 @@
 PYTHONPATH=services/analysis/src .venv/bin/python -m cpag_core.single_source_export \
   --source-mode network --source examples/round18-replay/network.pcap \
   --source examples/round18-replay/response.pcap \
-  --profile examples/round18-replay/profile.json --output /tmp/cpag-network-only
+  --profile examples/round19-evaluation/profile.json --output /tmp/cpag-network-only
 
 PYTHONPATH=services/analysis/src .venv/bin/python -m cpag_core.single_source_export \
   --source-mode process --source examples/round18-replay/process.csv \
-  --profile examples/round18-replay/profile.json --output /tmp/cpag-process-only
+  --profile examples/round19-evaluation/profile.json --output /tmp/cpag-process-only
 ```
 
 适配命令：`python -m cpag_core.evaluation_artifacts --artifact ARTIFACT --projection network|process|dual --batch BATCH --sample-sha256 REGISTERED_DIGEST`。来源、划分与参考答案须由独立材料决定；不得从适配结果生成gold。
