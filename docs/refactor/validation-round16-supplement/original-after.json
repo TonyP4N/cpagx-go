@@ -1,0 +1,20 @@
+{
+  "commit": "b208bc9e8962c0db4cc3acfa03cb3b34e1f1be5c",
+  "scope": "disposable database, genuine Go public API, synthetic fixture; no worker execution claimed",
+  "single_source_preflight_status": "single_source_review",
+  "backup_before_append_valid": true,
+  "dual_source_preflight_status": "ready_for_manual_review",
+  "backup_after_append_valid": true,
+  "missing_provenance_preflight_status": "material_gaps",
+  "missing_provenance_gaps": [
+    "authorization",
+    "mapping",
+    "release",
+    "source",
+    "time_basis"
+  ],
+  "missing_provenance_run_status": 422,
+  "missing_provenance_run_state": null,
+  "invalid_source_kind_status": 400,
+  "invalid_source_kind_error": "invalid_source_kind"
+}

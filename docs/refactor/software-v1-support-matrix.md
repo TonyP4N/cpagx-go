@@ -1,5 +1,7 @@
 # 软件首版支持矩阵（R15 范围决定 v1）
 
+> R16 补验收：历史预检快照、服务端材料门禁及 format4 成套恢复已修复；原 R16 的全通过结论以[补验收记录](round16-supplement-acceptance-20261027.md)为准。R15 基线及后续范围不变，最终完整 CI 为关闭门禁。
+
 > R16 实现注记（不改 R15 目标容量）：新增可选本机 Go `/api/v3` + 静态 `/workspace/`，PG 为数据集/配置/运行事实来源，Python 使用原核心和 Worker。接收 API 可保存单个 PCAP/PCAPNG ≤64 MiB 或 CSV/XLS/XLSX ≤8 MiB；这只是接收/元数据预检，XLS/XLSX 不可送入现有分析。当前双源执行仍限定一抓包+一 CSV、网络≤16 MiB、CSV≤2 MiB/1000逻辑记录、配置≤64 KiB、显式 synthetic；没有实现目标多文件协议解析。真实声明接受为 accepted_unvalidated，缺依据禁止关联。三角色/ACL、终态目录恢复已作合成验证；仅回环 HTTP，LAN/TLS 未支持。正式命令及兼容边界见 [操作文档](round16-operations-20261027.md)，验收见 [记录](round15-16-acceptance-20261027.md)。
 
 基线：`refactor/m1-evidence-core`，`a7171ba23c23a698afdfb5ea9e58031b24e1cc49`。依据为[原方案](CPAG_系统化重构方案_v1.0.md) §§1.2、3、5、8、12—13、工作区 `outputs/CPAG_软件重构收尾路线图_20261027.md` 及该提交源码；这是 R15 决策清单，不是新增实现验收。以下“现有”仅表示源码或既有固定提交的合成工程证据；“承诺”须在 R16—R22 实现、预登记并验证后才成立。
