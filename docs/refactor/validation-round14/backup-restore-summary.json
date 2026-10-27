@@ -4,7 +4,7 @@
   "base_commit": "23635e9",
   "commands": [
     ".venv/bin/python -m unittest discover -s tests/backup -q",
-    ".venv/bin/python scripts/backup/validate_dual.py --serve --work-dir /private/tmp/cpag-r14-dual-backup-live7"
+    ".venv/bin/python scripts/backup/validate_dual.py --work-dir /private/tmp/cpag-r14-dual-backup-retry-drill2"
   ],
   "unit_tests": {
     "passed": 30
@@ -36,8 +36,20 @@
         "rejected": true,
         "http_status": 409
       }
+    },
+    "retry": {
+      "job": "r14-dual-retry-backup",
+      "attempts": [
+        1,
+        2
+      ],
+      "first_exit_reason": "timeout",
+      "second_exit_reason": "exited",
+      "guardian_exit_proofs_bound_to_history_and_equal_after_restore": true,
+      "source_result_equal_to_restored_result": true,
+      "restored_operation_original_references": 4
     }
   },
-  "private_live_state_file": "/private/tmp/cpag-r14-dual-backup-live7/state.json",
-  "credential_note": "private state file mode 0600 contains disposable worker and coordinator credentials; no credentials included here"
+  "credential_note": "private state file mode 0600 contains disposable credentials; API and database stopped after this non-serving drill; no credentials included here",
+  "private_state_file": "/private/tmp/cpag-r14-dual-backup-retry-drill2/state.json"
 }

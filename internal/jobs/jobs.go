@@ -182,6 +182,7 @@ type Status struct {
 	Payload             json.RawMessage `json:"payload"`
 	ArtifactPath        *string         `json:"artifact_path"`
 	ArtifactSHA256      *string         `json:"artifact_sha256"`
+	LastError           *string         `json:"last_error"`
 	RecoveryDeadline    *time.Time      `json:"recovery_deadline"`
 	RecoveryCheckedAt   *time.Time      `json:"recovery_checked_at"`
 	RecoveryReason      *string         `json:"recovery_reason"`
@@ -191,7 +192,7 @@ type Status struct {
 
 func (r Repository) Status(ctx context.Context, id string) (Status, error) {
 	var s Status
-	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,recovery_deadline,recovery_checked_at,recovery_reason,(state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.start_revoked_at IS NOT NULL)) FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason, &s.LeaseValid)
+	err := r.DB.QueryRowContext(ctx, `SELECT id,state,attempt,payload,artifact_path,artifact_sha256,last_error,recovery_deadline,recovery_checked_at,recovery_reason,(state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND a.start_revoked_at IS NOT NULL)) FROM m4_jobs WHERE id=$1`, id).Scan(&s.ID, &s.State, &s.Attempt, &s.Payload, &s.ArtifactPath, &s.ArtifactSHA256, &s.LastError, &s.RecoveryDeadline, &s.RecoveryCheckedAt, &s.RecoveryReason, &s.LeaseValid)
 	if err == nil {
 		s.AttemptHistory, err = r.History(ctx, id)
 		for n := 1; n <= s.Attempt; n++ {

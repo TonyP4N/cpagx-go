@@ -49,6 +49,14 @@ class PersistentHTTP(unittest.TestCase):
             result=client.get('/cpag/persistent/status/test').json()
             self.assertEqual(result['status'],'cancelling'); self.assertEqual(result['error'],item['recovery_reason'])
             self.assertEqual(client.post('/cpag/persistent/cancel/test').json()['status'],'cancelling')
+    def test_failed_task_reports_worker_error(self):
+        item={'id':'failed-input','state':'failed','payload':{'kind':'dual-source'},
+              'last_error':'unsupported_or_empty_process: invalid_csv_record_width',
+              'recovery_reason':None}
+        with patch.object(bridge,'call',return_value=item):
+            result=client.get('/cpag/persistent/status/failed-input').json()
+            self.assertEqual(result['status'],'failed')
+            self.assertEqual(result['error'],item['last_error'])
     def test_no_download_for_unpublished_or_arbitrary_files(self):
         with patch.object(bridge,'call',return_value={'id':'test','state':'running','payload':{'kind':'dual-source'}}):
             self.assertEqual(client.get('/cpag/persistent/download/test/graph.json').status_code,409)
@@ -59,5 +67,7 @@ class PersistentHTTP(unittest.TestCase):
             self.assertEqual(client.get('/cpag/persistent/dual-source/test/evidence?operation=x&change=y').status_code,400)
     def test_only_local_api_supported(self):
         with tempfile.TemporaryDirectory() as root, patch.dict(os.environ,{'CPAG_PERSISTENT_ENABLED':'1','CPAG_PERSISTENT_ROOT':root,'CPAG_PERSISTENT_TOKEN':'x'*32,'CPAG_PERSISTENT_API_URL':'http://remote:8000'}):
+            self.assertEqual(client.get('/cpag/persistent/status/test').status_code,503)
+        with tempfile.TemporaryDirectory() as root, patch.dict(os.environ,{'CPAG_PERSISTENT_ENABLED':'1','CPAG_PERSISTENT_ROOT':root,'CPAG_PERSISTENT_TOKEN':'x'*32,'CPAG_PERSISTENT_API_URL':'http://127.0.0.1:12345@remote.example'}):
             self.assertEqual(client.get('/cpag/persistent/status/test').status_code,503)
 if __name__=='__main__':unittest.main()

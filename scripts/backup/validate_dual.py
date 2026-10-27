@@ -137,10 +137,40 @@ def run_drill(work, serve=False):
         if outcome!='succeeded' or status['state']!='succeeded':
             raise RuntimeError('dual worker failed: '+json.dumps({'outcome':outcome,'state':status['state'],'error':status.get('last_error')}))
         source_result=get(api_url+'/v1/jobs/'+job+'/dual-result',token)
+        retry_job='r14-dual-retry-backup'
+        api.post('/v1/jobs',{'id':retry_job,'max_attempts':2,'payload':payload})
+        timed=Worker(api,shared,'r14-retry-worker',lease=15,heartbeat=.2,timeout=1,
+                     command=[sys.executable,'-c','import time; time.sleep(60)']).once()
+        first_state=get(api_url+'/v1/jobs/'+retry_job,token)
+        if timed!='failed' or first_state['state']!='queued' or first_state['attempt']!=1:
+            raise RuntimeError('bounded first retry attempt did not queue: '+json.dumps({'outcome':timed,'state':first_state['state'],'attempt':first_state['attempt']}))
+        second_worker=Worker(api,shared,'r14-retry-worker',lease=15,heartbeat=.2,timeout=120)
+        for _ in range(120):
+            second=second_worker.once()
+            if second!='idle':break
+            time.sleep(.25)
+        else:raise RuntimeError('retry did not become claimable within 30 seconds')
+        second_state=get(api_url+'/v1/jobs/'+retry_job,token)
+        if second!='succeeded' or second_state['state']!='succeeded' or second_state['attempt']!=2:
+            raise RuntimeError('second retry attempt did not succeed: '+json.dumps({'outcome':second,'state':second_state['state'],'attempt':second_state['attempt']}))
+        source_retry_result=get(api_url+'/v1/jobs/'+retry_job+'/dual-result',token)
         api_process.terminate();api_process.wait(timeout=5);api_process=None
         snapshot=bundle.backup(container,'m4_validation',shared,work/'bundle')
         if not snapshot['source_audit']['valid'] or not snapshot['attempt_audit']['valid']:
             raise RuntimeError('source snapshot audit failed')
+        retry_attempts=sorted((item for item in snapshot['attempts'] if item['job_id']==retry_job),
+                              key=lambda item:item['attempt'])
+        if [item['attempt'] for item in retry_attempts]!=[1,2]:
+            raise RuntimeError('retry attempt history incomplete before backup')
+        proof_bytes=[]
+        for attempt,reason in zip(retry_attempts,('timeout','exited')):
+            path=shared/'jobs'/retry_job/('attempt-'+str(attempt['attempt'])+'.worker')/'exit.json'
+            raw=path.read_bytes();proof=json.loads(raw)
+            if (proof.get('id')!=retry_job or proof.get('attempt')!=attempt['attempt']
+                    or proof.get('worker')!=attempt['worker'] or proof.get('token')!=attempt['attempt_token']
+                    or proof.get('reason')!=reason or proof.get('group_exited') is not True):
+                raise RuntimeError('retry guardian exit proof differs from attempt history')
+            proof_bytes.append((path.relative_to(shared),raw))
         persisted_payload=next(row['payload'] for row in snapshot['rows'] if row['id']==job)
         database_absent=bundle.pg(container,'m4_validation','psql','-X','-qAt','-c',
             "SELECT count(*) FROM pg_database WHERE datname='m4_restore_validation'",
@@ -157,6 +187,13 @@ def run_drill(work, serve=False):
         restored_result=get(api_url+'/v1/jobs/'+job+'/dual-result',token)
         if restored_status['state']!='succeeded' or restored_result!=source_result:
             raise RuntimeError('restored API status/result differs')
+        restored_retry_status=get(api_url+'/v1/jobs/'+retry_job,token)
+        restored_retry_result=get(api_url+'/v1/jobs/'+retry_job+'/dual-result',token)
+        if (restored_retry_status['state']!='succeeded' or restored_retry_status['attempt']!=2
+                or restored_retry_result!=source_retry_result
+                or bundle.attempts_now(container,'m4_restore_validation')!=snapshot['attempts']
+                or any((restored/relative).read_bytes()!=raw for relative,raw in proof_bytes)):
+            raise RuntimeError('restored retry history, exit proofs or result differs')
         analysis=json.loads((restored/'jobs'/job/'attempt-1'/'analysis.json').read_text())
         operation=analysis['operations'][0]['operation_id']
         change=analysis['changes'][0]['event_id']
@@ -168,6 +205,11 @@ def run_drill(work, serve=False):
         original_kinds={item['source_ref']['file_sha256'] for item in refs}
         if original_kinds!={payload['network']['sha256'],payload['process']['sha256']}:
             raise RuntimeError('restored evidence lacks both originals')
+        retry_analysis=json.loads((restored/'jobs'/retry_job/'attempt-2'/'analysis.json').read_text())
+        retry_operation=retry_analysis['operations'][0]['operation_id']
+        retry_evidence=get(api_url+'/v1/jobs/'+retry_job+'/dual-evidence?'+urllib.parse.urlencode({'operation':retry_operation}),token)
+        if len(retry_evidence['verified_original_evidence'])<4:
+            raise RuntimeError('restored retry original evidence incomplete')
         negative=restored_api_refusals(work,work/'api',env,token,job,restored,
                                        persisted_payload['network']['path'],persisted_payload['process']['path'])
         state={'valid':True,'synthetic_only':True,'job':job,'state':'succeeded',
@@ -175,6 +217,11 @@ def run_drill(work, serve=False):
                'source_shared_root':str(shared),'database':'m4_restore_validation',
                'bundle':str(work/'bundle'),'restore_audit':str(restored.parent/(restored.name+'-audit.json')),
                'raw_reference_count':len(refs),'restored_change_reference_count':len(changed['verified_original_evidence']),
+               'retry_job':retry_job,'retry_attempts':[1,2],
+               'retry_first_exit_reason':'timeout','retry_second_exit_reason':'exited',
+               'retry_exit_proofs_match_history_and_restore':True,
+               'retry_result_equal_after_restore':True,
+               'retry_restored_raw_reference_count':len(retry_evidence['verified_original_evidence']),
                'restore_target_database_absent_before':database_absent,
                'restored_metadata_equal':audit['metadata_equal'],'restored_attempt_history_equal':audit['attempt_history_equal'],
                'restored_file_inventory_equal':audit['file_inventory_equal'],'restored_api_refusals':negative,

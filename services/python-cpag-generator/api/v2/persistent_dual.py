@@ -11,6 +11,7 @@ import re
 import shutil
 import sys
 import uuid
+from urllib.parse import urlsplit
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError, URLError
 
@@ -35,9 +36,16 @@ def settings():
     base = os.environ.get('CPAG_PERSISTENT_API_URL', '')
     root = Path(os.environ.get('CPAG_PERSISTENT_ROOT', '/nonexistent')).resolve()
     token = os.environ.get('CPAG_PERSISTENT_TOKEN', '')
-    if not base.startswith('http://127.0.0.1:') or not root.is_dir() or len(token) < 24:
+    try:
+        parsed = urlsplit(base)
+        local = (parsed.scheme == 'http' and parsed.hostname == '127.0.0.1'
+                 and parsed.port is not None and parsed.username is None and parsed.password is None
+                 and parsed.path in ('', '/') and not parsed.query and not parsed.fragment)
+    except ValueError:
+        local = False
+    if not local or not root.is_dir() or len(token) < 24:
         raise HTTPException(503, 'Persistent local API/storage configuration is incomplete')
-    return base, root, token
+    return base.rstrip('/'), root, token
 
 
 def call(path, body=None):
@@ -66,7 +74,7 @@ def job(task_id):
 def state(value):
     return {**value, 'task_id': value['id'], 'status': 'completed' if value['state'] == 'succeeded' else value['state'],
             'task_kind': 'synthetic_dual_source', 'executor': 'persistent',
-            'error': value.get('recovery_reason')}
+            'error': value.get('last_error') or value.get('recovery_reason')}
 
 
 def published(task_id):
@@ -165,11 +173,17 @@ def download(task_id: str, filename: str):
 
 @router.get('/dual-source/{task_id}/evidence')
 def evidence(task_id: str, operation: str = '', change: str = ''):
-    from urllib.parse import urlencode
-    job(task_id)
     if bool(operation) == bool(change):
         raise HTTPException(400, 'Select exactly one operation or change')
-    return call('/v1/jobs/' + task_id + '/dual-evidence?' + urlencode({'operation': operation} if operation else {'change': change}))
+    _, directory = published(task_id)
+    try:
+        # Same evidence resolver as Celery, after PostgreSQL publication verification.
+        return _core().query_task(directory, operation_id=operation or None, change_id=change or None)
+    except KeyError as exc:
+        raise HTTPException(404, 'Unknown operation or change') from exc
+    except (ValueError, OSError, TypeError) as exc:
+        raise HTTPException(409, str(exc)) from exc
+
 
 
 def register(app):

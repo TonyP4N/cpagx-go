@@ -99,6 +99,18 @@ func TestPostgresFaults(t *testing.T) {
 	c, err = r.Claim(ctx, "retry-worker", time.Minute)
 	must(err)
 	must(r.Fail(ctx, c, "transient", true))
+	must(r.Enqueue(ctx, "failed-input", 1))
+	failedClaim, err := r.Claim(ctx, "failed-worker", time.Minute)
+	must(err)
+	if failedClaim.ID != "failed-input" {
+		t.Fatalf("unexpected failed-task claim: %s", failedClaim.ID)
+	}
+	must(r.Fail(ctx, failedClaim, "invalid CSV record width", false))
+	failedStatus, err := r.Status(ctx, failedClaim.ID)
+	must(err)
+	if failedStatus.State != "failed" || failedStatus.LastError == nil || *failedStatus.LastError != "invalid CSV record width" {
+		t.Fatalf("failed task error omitted from status: %+v", failedStatus)
+	}
 	if _, err = r.Claim(ctx, "early", time.Minute); !errors.Is(err, sql.ErrNoRows) {
 		t.Fatalf("backoff bypassed: %v", err)
 	}

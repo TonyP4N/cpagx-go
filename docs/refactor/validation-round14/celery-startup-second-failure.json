@@ -1,0 +1,15 @@
+{
+  "synthetic": true,
+  "runtime": "real RabbitMQ + Redis + Celery prefork + HTTP",
+  "project": "cpag-r13-9e472f5d",
+  "checks": {},
+  "tasks": {},
+  "limitations": [
+    "No production or real industrial validation",
+    "Portable artifact restore only; no new PostgreSQL/Celery metadata backup support"
+  ],
+  "api_base": "http://127.0.0.1:51866",
+  "status": "failed",
+  "error": "AssertionError: uvicorn did not become healthy",
+  "cleanup": "passed"
+}

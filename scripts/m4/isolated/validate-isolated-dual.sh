@@ -28,5 +28,5 @@ api_pid=$!
 export CPAG_API_BINARY="$work_dir/api" CPAG_API_PID="$api_pid"
 export PYTHONPATH="$repo_root/services/worker:$repo_root/services/analysis/src:$repo_root/scripts/validation"
 export CPAG_R14_EVIDENCE_DIR="$work_dir"
-"$repo_root/.venv/bin/python" "$repo_root/scripts/m4/isolated/isolated_dual_http.py" | tee "$work_dir/dual-validation.log"
+"${CPAG_PYTHON:-python3}" "$repo_root/scripts/m4/isolated/isolated_dual_http.py" | tee "$work_dir/dual-validation.log"
 printf 'Evidence workspace: %s\n' "$work_dir"

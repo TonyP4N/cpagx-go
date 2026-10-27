@@ -1,0 +1,25 @@
+test_malformed_record_not_bridged_and_size_bounded (test_dual_source.AdditionalBoundaryTests.test_malformed_record_not_bridged_and_size_bounded) ... ok
+test_one_operation_multiple_changes_retains_ambiguity (test_dual_source.AdditionalBoundaryTests.test_one_operation_multiple_changes_retains_ambiguity) ... ok
+test_process_mapping_conflict_is_not_resolved_by_order (test_dual_source.AdditionalBoundaryTests.test_process_mapping_conflict_is_not_resolved_by_order) ... ok
+test_schema_independently_and_no_annotation_reads (test_dual_source.AdditionalBoundaryTests.test_schema_independently_and_no_annotation_reads) ... ok
+test_labels_profile_errors_and_empty_source_rejected (test_dual_source.DualSourceTests.test_labels_profile_errors_and_empty_source_rejected) ... ok
+test_preregistered_scenarios_and_both_source_queries (test_dual_source.DualSourceTests.test_preregistered_scenarios_and_both_source_queries) ... ok
+test_repeatability_config_binding_and_unknown_query (test_dual_source.DualSourceTests.test_repeatability_config_binding_and_unknown_query) ... ok
+test_tamper_missing_and_rehashed_false_analysis (test_dual_source.DualSourceTests.test_tamper_missing_and_rehashed_false_analysis) ... ok
+test_unknown_mapping_and_duplicate_time_not_forced (test_dual_source.DualSourceTests.test_unknown_mapping_and_duplicate_time_not_forced) ... ok
+test_ambiguity_query_includes_competing_operation_frames (test_dual_source.TimeAndQueryTests.test_ambiguity_query_includes_competing_operation_frames) ... ok
+test_change_after_window_boundary_is_not_candidate (test_dual_source.TimeAndQueryTests.test_change_after_window_boundary_is_not_candidate) ... ok
+test_disjoint_and_clock_unknown_query_explains_basis (test_dual_source.TimeAndQueryTests.test_disjoint_and_clock_unknown_query_explains_basis) ... ok
+test_pcapng_epoch_clock_and_evidence (test_dual_source.TimeAndQueryTests.test_pcapng_epoch_clock_and_evidence) ... ok
+test_all_retained_and_standard_files_are_required (test_dual_source_export.DualSourceExportTests.test_all_retained_and_standard_files_are_required) ... ok
+test_claim_identity_and_published_wrapper_are_verified (test_dual_source_export.DualSourceExportTests.test_claim_identity_and_published_wrapper_are_verified) ... ok
+test_invalid_attempt_identity_does_not_reserve_output (test_dual_source_export.DualSourceExportTests.test_invalid_attempt_identity_does_not_reserve_output) ... ok
+test_pcapng_and_unknown_id (test_dual_source_export.DualSourceExportTests.test_pcapng_and_unknown_id) ... ok
+test_portable_directory_backup_restore_and_corruption_rejection (test_dual_source_export.DualSourceExportTests.test_portable_directory_backup_restore_and_corruption_rejection) ... ok
+test_preregistered_scenarios_project_all_relations_without_new_claims (test_dual_source_export.DualSourceExportTests.test_preregistered_scenarios_project_all_relations_without_new_claims) ... ok
+test_rehashed_graph_and_analysis_still_fail_reprojection (test_dual_source_export.DualSourceExportTests.test_rehashed_graph_and_analysis_still_fail_reprojection) ... ok
+
+----------------------------------------------------------------------
+Ran 20 tests in 1.380s
+
+OK

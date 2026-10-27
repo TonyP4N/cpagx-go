@@ -29,7 +29,7 @@ def main():
             if status['status'] in ('completed','failed','cancelled'):break
             time.sleep(.5)
         if name=='invalid':
-            require(status['status']=='failed','invalid task did not fail');report['cases'][name]={'persistent_id':job,'status':'failed'};continue
+            require(status['status']=='failed' and status.get('error'),'invalid task did not fail with reason');report['cases'][name]={'persistent_id':job,'status':'failed'};continue
         require(status['status']=='completed',f'{name}: {status}')
         a=json_response(celery['api_base'],f'/cpag/result/{celery_id}/json')['data'];b=json_response(base,'/result/'+job+'/json')['data']
         for key in ('analysis','events','graph','quality','dataset'):
