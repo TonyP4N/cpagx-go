@@ -1,0 +1,16 @@
+# R17 core preregistered scenarios
+
+Registered before core implementation on 2026-10-27 against baseline 68977076ec3869fd3fa1c7e841c918e4b196840f. These independently specified expected outcomes concern generated fixture bytes/records only, including fixtures routed through a real-source software branch. They do not establish correctness on real industrial data.
+
+1. Legacy profile and single capture yield byte-identical legacy normalized results and existing tests remain passing. Unknown fields and unsupported schema versions fail.
+2. A real-source profile requires explicit source and authorization references. Generated real-branch inputs retain `synthetic: false`, their material references, fingerprints and `real_source_unvalidated`; they must never acquire a real-validation claim.
+3. Offset plus linear drift uses anchor epoch and ppm on both interval endpoints; bounded precision widens intervals conservatively. Missing drift anchor/basis, missing precision basis, out-of-validity observations or absent clock evidence yield unknown, no cross-source candidate. Original ticks/text remain intact.
+4. Missing timezone evidence for local timestamps remains unknown. DST ambiguous/nonexistent local times are unsupported/unknown. Explicit UTC timestamps remain precise subject to configured clock uncertainty.
+5. Versioned mappings require basis and validity. A request fully inside one interval selects exactly that rule; outside all intervals is unresolved; crossing a validity edge is unknown. Two applicable mappings retain both IDs as ambiguous, regardless of order. Mapping versions/basis stay attached to the operation.
+6. Finite rules cover state change, numeric threshold and a bounded two-tag process constraint. Each emits rule/version, exact parameters, applicability, support/refutation/missing reasons and original references. Exact threshold boundary and explicit units determine expected truth. No arbitrary code or expression strings are executable.
+7. Missing values, invalid quality, unit mismatch, applicability not met, duplicate timestamps and conflicting tag mapping cannot support rule findings. Missing values do not become zero and cannot bridge transitions. No process interpolation.
+8. A false threshold/constraint yields refutation evidence, not a violation; a true outcome yields supported evidence. Absent or ambiguous companion observations remain unknown. A constraint evaluates samples only at exactly equal corrected timestamp intervals, with no nearest-value inference.
+9. Multi-capture evidence remains uniquely resolvable by source hash plus local frame number; reordered inputs produce an explicitly order-bound fingerprint, and old single-file manifests/queries still work. Bounded input failures publish no trusted partial artifact.
+10. Rebuilding an immutable run verifies every original source and the full normalized analysis; profile/mapping/clock/rule edits cannot mutate old runs. Repeated runs with unchanged input/config yield identical normalized bytes.
+
+R18 replay, R19 capacity measurement, physical execution, causality, attack labels and real-material validation are outside these core scenarios.
