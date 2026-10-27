@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 const API = '/api/v2/cpag';
 type Json = Record<string, any>;
@@ -15,7 +16,7 @@ async function apiRequest(base: string, path: string, init?: RequestInit): Promi
   let value: any;
   try { value = JSON.parse(text); } catch { value = { detail: text }; }
   if (!response.ok) {
-    const detail = value?.detail ?? value?.error ?? response.statusText;
+    const detail = value?.detail ?? value?.error?.message ?? value?.error ?? response.statusText;
     throw new ApiError(response.status, typeof detail === 'string' ? detail : JSON.stringify(detail));
   }
   return value;
@@ -108,6 +109,8 @@ function SelectionSummary({ operation, change, candidate }: { operation?: Json; 
 }
 
 export default function DualSourcePage() {
+  const router = useRouter();
+  const v3 = router.isReady && router.query.backend === 'v3';
   const [executor, setExecutor] = useState('celery');
   const base = executor === 'persistent' ? API + '/persistent' : API;
   const request = useCallback((path: string, init?: RequestInit) => apiRequest(base, path, init), [base]);
@@ -128,6 +131,16 @@ export default function DualSourcePage() {
   const evidenceSequence = useRef(0);
   const analysis = result?.data?.analysis as Json | undefined;
 
+  useEffect(() => {
+    if (!v3 || typeof router.query.run !== 'string') return;
+    const id = router.query.run.trim();
+    if (!id || activeTask.current === id) return;
+    activeTask.current = id;
+    taskGeneration.current += 1;
+    evidenceSequence.current += 1;
+    setLookupId(id); setTaskId(id); setTask(null); setResult(null); setArtifacts(null); setEvidence(null); setSelection(null); setError('');
+  }, [v3, router.query.run]);
+
   const clearPublished = useCallback(() => {
     setResult(null); setArtifacts(null); setEvidence(null); setSelection(null);
   }, []);
@@ -144,27 +157,30 @@ export default function DualSourcePage() {
   const refresh = useCallback(async (id: string) => {
     const generation = taskGeneration.current;
     try {
-      const status = await request(`/status/${encodeURIComponent(id)}`);
+      const status = v3
+        ? (await apiRequest('/api/v3', `/runs/${encodeURIComponent(id)}`)).run
+        : await request(`/status/${encodeURIComponent(id)}`);
       if (activeTask.current !== id || taskGeneration.current !== generation) return;
-      setTask(status);
-      if (status.status === 'completed') {
+      const state = v3 ? (status.state === 'succeeded' ? 'completed' : status.state) : status.status;
+      setTask({ ...status, status: state, error: status.last_error ?? status.error });
+      if (state === 'completed') {
         const [output, inventory] = await Promise.all([
-          request(`/result/${encodeURIComponent(id)}/json`),
-          request(`/artifacts/${encodeURIComponent(id)}`),
+          v3 ? apiRequest('/api/v3', `/runs/${encodeURIComponent(id)}/result`) : request(`/result/${encodeURIComponent(id)}/json`),
+          v3 ? apiRequest('/api/v3', `/runs/${encodeURIComponent(id)}/artifacts`) : request(`/artifacts/${encodeURIComponent(id)}`),
         ]);
         if (activeTask.current !== id || taskGeneration.current !== generation) return;
-        if (output?.data?.analysis?.synthetic !== true || output?.task_kind !== 'synthetic_dual_source') {
+        if ((v3 && output?.synthetic !== true) || output?.data?.analysis?.synthetic !== true || (!v3 && output?.task_kind !== 'synthetic_dual_source')) {
           clearPublished();
           throw new Error('该任务不是合成双源验证结果。');
         }
         setResult(output); setArtifacts(inventory); setError('');
       } else {
         clearPublished();
-        if (status.status === 'failed') setError(`任务失败：${status.error ?? '原因未提供'}`);
+        if (state === 'failed') setError(`任务失败：${status.last_error ?? status.error ?? '原因未提供'}`);
         else setError('');
       }
     } catch (reason) { if (activeTask.current === id && taskGeneration.current === generation) handleError(reason); }
-  }, [clearPublished, handleError, request]);
+  }, [clearPublished, handleError, request, v3]);
 
   useEffect(() => {
     if (!taskId) return;
@@ -211,7 +227,9 @@ export default function DualSourcePage() {
     const key = next.kind === 'change' ? 'change' : 'operation';
     const id = next.kind === 'candidate' ? next.operationId : next.id;
     try {
-      const value = await request(`/dual-source/${encodeURIComponent(taskId)}/evidence?${key}=${encodeURIComponent(id ?? '')}`);
+      const value = v3
+        ? await apiRequest('/api/v3', `/runs/${encodeURIComponent(taskId)}/evidence?${key}=${encodeURIComponent(id ?? '')}`)
+        : await request(`/dual-source/${encodeURIComponent(taskId)}/evidence?${key}=${encodeURIComponent(id ?? '')}`);
       if (activeTask.current === idAtStart && evidenceSequence.current === sequence) setEvidence(value);
     } catch (reason) { if (activeTask.current === idAtStart && evidenceSequence.current === sequence) handleError(reason); }
     finally { if (activeTask.current === idAtStart && evidenceSequence.current === sequence) setEvidenceBusy(false); }
@@ -221,7 +239,9 @@ export default function DualSourcePage() {
     if (!taskId) return;
     const idAtStart = taskId;
     try {
-      const response = await fetch(`${base}/download/${encodeURIComponent(taskId)}/${encodeURIComponent(filename)}`);
+      const response = await fetch(v3
+        ? `/api/v3/runs/${encodeURIComponent(taskId)}/artifacts/${encodeURIComponent(filename)}/download`
+        : `${base}/download/${encodeURIComponent(taskId)}/${encodeURIComponent(filename)}`, { credentials: 'same-origin' });
       if (!response.ok) {
         let detail = await response.text();
         try { detail = JSON.parse(detail)?.detail ?? detail; } catch { /* retain response text */ }
@@ -249,13 +269,13 @@ export default function DualSourcePage() {
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800">
     <header className="bg-white/90 border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
       <div><h1 className="text-2xl font-bold">合成双源验证</h1><p className="text-sm text-slate-500">网络报文与过程采样的可核查关联候选</p></div>
-      <Link href="/" className="rounded-xl px-4 py-2 bg-emerald-100 text-emerald-900 hover:bg-emerald-200">返回 CPAG 首页</Link>
+      <Link href={v3 ? '/workspace' : '/'} className="rounded-xl px-4 py-2 bg-emerald-100 text-emerald-900 hover:bg-emerald-200">{v3 ? '返回工作台' : '返回 CPAG 首页'}</Link>
     </div></header>
     <main className="max-w-7xl mx-auto p-6 space-y-6">
       <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" aria-label="合成验证范围">
         <strong>仅限合成验证。</strong> 这里展示观测事实与假设性关联候选，不作因果、攻击识别或物理动作成功判断。协议成功响应仅表示协议服务响应成功；端点地址不证明操作主体。时间偏移由配置提供，采样间隔不能确定动作发生时刻。
       </section>
-      <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="提交合成双源任务">
+      {!v3 && <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="提交合成双源任务">
         <h2 className="text-xl font-semibold">提交合成测试输入</h2>
         <label className="block text-sm">执行路径<select aria-label="执行路径" value={executor} className="ml-3 border rounded p-2" onChange={event => { taskGeneration.current += 1; evidenceSequence.current += 1; activeTask.current = ''; setTaskId(''); setTask(null); clearPublished(); setError(''); setExecutor(event.target.value); }}><option value="celery">Celery（兼容默认）</option><option value="persistent">持久 Worker（显式可选、合成验证）</option></select></label>
         <div className="grid md:grid-cols-3 gap-4">{([
@@ -265,12 +285,12 @@ export default function DualSourcePage() {
         }} /></label>)}</div>
         <label className="flex items-start gap-2 text-sm"><input type="checkbox" checked={confirmed} onChange={event => setConfirmed(event.target.checked)} /><span>我确认三份输入均为合成测试数据，配置文件声明 synthetic=true。</span></label>
         <button type="button" disabled={busy || !confirmed || !['network_file', 'process_file', 'profile_file'].every(field => files[field])} onClick={submit} className="rounded-xl px-5 py-3 bg-emerald-700 text-white disabled:bg-slate-300">{busy ? '提交中…' : '运行合成双源验证'}</button>
-      </section>
+      </section>}
       <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-3" aria-label="打开已有任务">
         <h2 className="text-xl font-semibold">查看已有任务</h2>
-        <div className="flex flex-wrap gap-3"><input aria-label="合成双源任务 ID" value={lookupId} onChange={event => setLookupId(event.target.value)} placeholder="粘贴任务 ID" className="flex-1 min-w-60 rounded-lg border border-slate-300 px-3 py-2" /><button type="button" onClick={openTask} className="rounded-lg bg-slate-700 text-white px-4 py-2">读取任务</button><button type="button" disabled={!taskId} onClick={() => void refresh(taskId)} className="rounded-lg border border-slate-300 px-4 py-2 disabled:text-slate-400">刷新当前任务</button></div>
+        <div className="flex flex-wrap gap-3"><input aria-label="合成双源任务 ID" value={lookupId} readOnly={v3} onChange={event => setLookupId(event.target.value)} placeholder="粘贴任务 ID" className="flex-1 min-w-60 rounded-lg border border-slate-300 px-3 py-2" />{!v3 && <button type="button" onClick={openTask} className="rounded-lg bg-slate-700 text-white px-4 py-2">读取任务</button>}<button type="button" disabled={!taskId} onClick={() => void refresh(taskId)} className="rounded-lg border border-slate-300 px-4 py-2 disabled:text-slate-400">刷新当前任务</button></div>
         {taskId && <p className="text-sm break-all">任务 ID：{taskId}</p>}
-        {executor === 'persistent' && taskId && !['completed', 'failed', 'cancelled'].includes(task?.status) && <button type="button" className="border rounded p-2" onClick={async () => { try { await request(`/cancel/${encodeURIComponent(taskId)}`, { method: 'POST' }); await refresh(taskId); } catch (reason) { handleError(reason); } }}>请求取消</button>}
+        {!v3 && executor === 'persistent' && taskId && !['completed', 'failed', 'cancelled'].includes(task?.status) && <button type="button" className="border rounded p-2" onClick={async () => { try { await request(`/cancel/${encodeURIComponent(taskId)}`, { method: 'POST' }); await refresh(taskId); } catch (reason) { handleError(reason); } }}>请求取消</button>}
         {task && <p aria-live="polite" className="text-sm">状态：{task.status}{task.error ? ` · ${task.error}` : ''}</p>}
         {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 break-words">{error}{error.startsWith('409') && ' 已清除页面上的旧结果；请核查原始文件与发布清单。'}</p>}
       </section>
@@ -281,7 +301,7 @@ export default function DualSourcePage() {
         <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="双源关联图"><h2 className="text-xl font-semibold">关联图</h2><p className="text-sm text-slate-600">选择网络操作、过程变化或候选连线以核查原始证据。所有连线均为假设。</p>{graph && <GraphCanvas graph={graph} inspect={selection => void inspect(selection)} operations={operations} changes={changes} />}<div className="grid md:grid-cols-2 gap-4"><div><h3 className="font-semibold mb-2">网络操作节点</h3><div className="space-y-2">{operations.map(op => <button type="button" key={op.operation_id} onClick={() => void inspect({ kind: 'operation', id: op.operation_id })} className="w-full text-left rounded-lg border border-emerald-300 bg-emerald-50 p-3 hover:bg-emerald-100 focus:ring-2 focus:ring-emerald-500"><span className="font-medium">{op.operation ?? '操作未知'}</span><span className="block text-xs break-all">{op.operation_id}</span><span className="block text-xs">评估：{op.assessment ?? '未知'} · 响应：{op.response?.state ?? '未知'}</span></button>)}{!operations.length && <p className="text-sm text-slate-500">无网络操作</p>}</div></div><div><h3 className="font-semibold mb-2">过程变化节点</h3><div className="space-y-2">{changes.map(change => <button type="button" key={change.event_id} onClick={() => void inspect({ kind: 'change', id: change.event_id })} className="w-full text-left rounded-lg border border-blue-300 bg-blue-50 p-3 hover:bg-blue-100 focus:ring-2 focus:ring-blue-500"><span className="font-medium">{change.result?.asset_id} / {change.result?.tag}: {String(change.result?.before)} → {String(change.result?.after)}</span><span className="block text-xs break-all">{change.event_id}</span><span className="block text-xs">{timeLabel(change.result?.interval)}</span></button>)}{!changes.length && <p className="text-sm text-slate-500">无过程变化</p>}</div></div></div><div><h3 className="font-semibold mb-2">候选连线</h3><div className="space-y-2">{candidates.map(candidate => <button type="button" key={candidate.candidate_id} onClick={() => void inspect({ kind: 'candidate', id: candidate.candidate_id, operationId: candidate.operation_id })} className="w-full text-left rounded-lg border border-amber-300 bg-amber-50 p-3 hover:bg-amber-100 focus:ring-2 focus:ring-amber-500"><span className="font-medium">{candidate.state} · 假设性关联</span><span className="block text-xs break-all">{candidate.operation_id} → {candidate.change_id}</span></button>)}{!candidates.length && <p className="text-sm text-slate-500">无关联候选；查看未知原因及孤立变化。</p>}</div></div></section>
         <section className="grid lg:grid-cols-2 gap-4" aria-label="候选判断和未知原因"><div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4"><h2 className="text-xl font-semibold">候选依据与歧义</h2>{candidates.map(candidate => <article key={candidate.candidate_id} className="rounded-lg border p-3 text-sm space-y-2"><h3 className="font-semibold break-all">{candidate.state} · {candidate.candidate_id}</h3><div>支持依据：<ReasonList values={candidate.support} /></div><div>反证：<ReasonList values={candidate.counterevidence} /></div><div>未知原因：<ReasonList values={candidate.unknown_reasons} /></div><div>替代操作：<ReasonList values={candidate.alternative_operation_ids} /></div><div>替代变化：<ReasonList values={candidate.alternative_change_ids} /></div></article>)}{!candidates.length && <p className="text-sm text-slate-500">无候选依据。</p>}</div><div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-4"><h2 className="text-xl font-semibold">缺失与质量原因</h2><div className="text-sm"><h3 className="font-medium">全局未知原因</h3><ReasonList values={analysis.quality?.unknown_reasons} /></div>{operations.map(op => <div key={op.operation_id} className="text-sm border-t pt-2"><p className="font-medium break-all">操作 {op.operation_id}</p><div>未知：<ReasonList values={op.unknown_reasons} /></div><div>反证：<ReasonList values={op.counterevidence} /></div></div>)}<details className="text-sm"><summary className="cursor-pointer">完整质量记录与来源区间</summary><pre className="overflow-auto text-xs bg-slate-50 p-3 mt-2">{JSON.stringify(analysis.quality, null, 2)}</pre></details></div></section>
         <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="证据核查"><h2 className="text-xl font-semibold">原始证据核查</h2>{selection ? <p className="text-sm break-all">已选择：{selection.kind} · {selection.id}</p> : <p className="text-sm text-slate-500">选择上方节点或连线。</p>}<SelectionSummary operation={selectedOperation} change={selectedChange} candidate={selectedCandidate} />{evidenceBusy && <p aria-live="polite">正在核查原始证据…</p>}{evidence && <><p className="text-sm">核查后的原始记录：{evidence.verified_original_evidence?.length ?? 0}；核查后的网络字段：{evidence.verified_network_fields?.length ?? 0}</p><ol className="space-y-2">{(evidence.verified_original_evidence ?? []).map((entry: Json, index: number) => <li key={index} className="rounded-lg border border-slate-200 p-3"><h3 className="font-medium text-sm mb-2">原始记录 {index + 1}</h3><RawReference value={entry.source_ref ?? {}} /><details className="text-xs mt-2"><summary className="cursor-pointer">查看原始内容</summary><pre className="overflow-auto whitespace-pre-wrap break-all bg-slate-50 p-2">{JSON.stringify(entry.original, null, 2)}</pre></details></li>)}</ol><details className="text-sm"><summary className="cursor-pointer">查看核查后的网络字段</summary><pre className="overflow-auto text-xs bg-slate-50 p-3">{JSON.stringify(evidence.verified_network_fields, null, 2)}</pre></details><details className="text-sm"><summary className="cursor-pointer">查看选中项、时钟配置和局限</summary><pre className="overflow-auto text-xs bg-slate-50 p-3">{JSON.stringify({ selection: evidence.selection, time_configuration: evidence.time_configuration, limitations: evidence.limitations }, null, 2)}</pre></details></>}</section>
-        {artifacts && <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-3" aria-label="结果文件"><h2 className="text-xl font-semibold">可下载结果</h2><div className="flex flex-wrap gap-2">{(artifacts.files ?? []).map((entry: Json | string) => { const filename = typeof entry === 'string' ? entry : entry.filename; return <button type="button" key={filename} onClick={() => void download(filename)} className="rounded-lg border border-emerald-300 px-3 py-2 text-sm text-emerald-900 hover:bg-emerald-50">下载 {filename}</button>; })}</div><details className="text-sm"><summary className="cursor-pointer">查看文件清单与校验信息</summary><pre className="overflow-auto text-xs bg-slate-50 p-3">{JSON.stringify(artifacts, null, 2)}</pre></details></section>}
+        {artifacts && <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-3" aria-label="结果文件"><h2 className="text-xl font-semibold">可下载结果</h2><div className="flex flex-wrap gap-2">{(artifacts.files ?? artifacts.artifacts ?? []).map((entry: Json | string) => { const filename = typeof entry === 'string' ? entry : entry.filename ?? entry.name ?? entry.path; return <button type="button" key={filename} onClick={() => void download(filename)} className="rounded-lg border border-emerald-300 px-3 py-2 text-sm text-emerald-900 hover:bg-emerald-50">下载 {filename}</button>; })}</div><details className="text-sm"><summary className="cursor-pointer">查看文件清单与校验信息</summary><pre className="overflow-auto text-xs bg-slate-50 p-3">{JSON.stringify(artifacts, null, 2)}</pre></details></section>}
       </>}
     </main>
   </div>;

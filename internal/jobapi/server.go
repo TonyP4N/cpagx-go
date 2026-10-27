@@ -254,6 +254,10 @@ func (s *Server) validPayload(p Payload) error {
 	}
 	return nil
 }
+
+// ValidatePayload reuses the M4 source, profile and fingerprint checks at the
+// public catalog boundary before its transaction inserts an M4 job.
+func (s *Server) ValidatePayload(p Payload) error { return s.validPayload(p) }
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	coordinatorOp := r.URL.Path == "/v1/executions" || strings.HasSuffix(r.URL.Path, "/execution") || strings.HasSuffix(r.URL.Path, "/exit") || strings.HasSuffix(r.URL.Path, "/attempts") || strings.HasSuffix(r.URL.Path, "/not-started")
 	expected := s.Secret

@@ -22,8 +22,61 @@ from cpag_core.packet_job import verify_artifacts as verify_packet_artifacts
 from cpag_core.pipeline import fingerprint, canonical
 from cpag_core.dual_source import strict_json
 from cpag_core.dual_source_export import FILES as DUAL_FILES, verify_task as verify_dual_task
+from cpag_core.intake import preflight as verify_intake_preflight
 
 TERMINAL = {'succeeded', 'failed', 'cancelled'}
+CATALOG_TABLES = (
+    'v3_users', 'v3_sessions', 'v3_datasets', 'v3_dataset_acl',
+    'v3_source_files', 'v3_dataset_files', 'v3_config_versions',
+    'v3_run_bindings', 'v3_preflights', 'v3_audit_events',
+)
+CATALOG_ORDER = {
+    'v3_dataset_acl': 'dataset_id,user_id',
+    'v3_run_bindings': 'job_id',
+}
+CATALOG_REDACT = {
+    # The database dump is private operational material. The human-readable
+    # manifest must not duplicate authentication verifiers or session tokens.
+    'v3_users': " - 'password_hash'",
+    'v3_sessions': " - 'token_hash' - 'revoked_at'",
+}
+
+
+def catalog_query(table, prefix=False):
+    """Fixed SQL for nonsecret directory projections; table names are constants."""
+    if table not in CATALOG_TABLES:
+        raise ValueError('unsupported catalog table')
+    order = CATALOG_ORDER.get(table, 'id')
+    projection = 'to_jsonb(t)' + CATALOG_REDACT.get(table, '')
+    result = f"coalesce(jsonb_agg({projection} ORDER BY {order}),'[]'::jsonb)::text"
+    marker = "'CATALOG:" + table + ":'||" if prefix else ''
+    return f'SELECT {marker}{result} FROM {table} t;'
+
+
+def catalog_now(container, db):
+    catalog = {}
+    for table in CATALOG_TABLES:
+        result = pg(container, db, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
+                    '-c', catalog_query(table), capture_output=True, text=True)
+        catalog[table] = json.loads(result.stdout)
+    return catalog
+
+
+def revoke_restored_sessions(container):
+    """Invalidate every restored login before a restored service can be started."""
+    result = pg(container, 'm4_restore_validation', 'psql', '-X', '-qAt',
+                '-v', 'ON_ERROR_STOP=1', '-c',
+                "WITH revoked AS (UPDATE v3_sessions SET revoked_at=clock_timestamp() "
+                "WHERE revoked_at IS NULL RETURNING id) SELECT count(*) FROM revoked;",
+                capture_output=True, text=True)
+    count = int(result.stdout.strip())
+    remaining = pg(container, 'm4_restore_validation', 'psql', '-X', '-qAt',
+                   '-v', 'ON_ERROR_STOP=1', '-c',
+                   'SELECT count(*) FROM v3_sessions WHERE revoked_at IS NULL;',
+                   capture_output=True, text=True)
+    if int(remaining.stdout.strip()) != 0:
+        raise ValueError('restored login sessions remain active')
+    return count
 
 
 def audit_dual(row, root, verify):
@@ -306,6 +359,225 @@ def audit_attempts(rows, attempts):
     return {'valid':not errors,'errors':errors,'attempt_count':len(attempts),'verified_attempt_count':len(seen)}
 
 
+def audit_catalog(catalog, rows, root):
+    """Verify V3 directory ownership and original bytes, including unused uploads.
+
+    PostgreSQL foreign keys remain the primary write barrier. This independent
+    audit rejects a missing, mixed, or tampered bundle before database mutation
+    and checks restored data against the immutable M4 input/publication chain.
+    No credential verifiers or session tokens are accepted in this projection.
+    """
+    errors=[]; referenced=set(); counts={}; tables={}
+    if not isinstance(catalog,dict) or set(catalog)!=set(CATALOG_TABLES):
+        return {'valid':False,'errors':[{'scope':'catalog','reason':'incomplete catalog table set'}]}
+    for table in CATALOG_TABLES:
+        value=catalog[table]
+        if not isinstance(value,list) or any(not isinstance(row,dict) for row in value):
+            errors.append({'scope':table,'reason':'catalog table must be an array of objects'})
+            tables[table]=[]
+        else:
+            tables[table]=value
+        counts[table]=len(tables[table])
+    if errors:return {'valid':False,'errors':errors,'counts':counts}
+    if any('password_hash' in row for row in tables['v3_users']) or any(
+            'token_hash' in row or 'revoked_at' in row for row in tables['v3_sessions']):
+        return {'valid':False,'errors':[{'scope':'catalog','reason':'credential field in catalog projection'}],
+                'counts':counts}
+
+    def identity(table, key='id'):
+        indexed={}
+        for row in tables[table]:
+            value=row.get(key)
+            if not isinstance(value,(str,int)) or value=='':
+                errors.append({'scope':table,'reason':'invalid row identity'});continue
+            if value in indexed:errors.append({'scope':table,'reason':'duplicate row identity'})
+            indexed[value]=row
+        return indexed
+
+    users=identity('v3_users');datasets=identity('v3_datasets')
+    source_files=identity('v3_source_files');dataset_files=identity('v3_dataset_files')
+    configs=identity('v3_config_versions');jobs={}
+    for row in rows:
+        if isinstance(row,dict) and isinstance(row.get('id'),str):jobs[row['id']]=row
+    identity('v3_sessions');identity('v3_run_bindings','job_id')
+    identity('v3_preflights');identity('v3_audit_events')
+    acl_keys=set();versions=set();source_owners=set();run_jobs=set()
+
+    def user_exists(value):return value in users
+    def valid_digest(value):
+        return isinstance(value,str) and len(value)==64 and all(c in '0123456789abcdef' for c in value)
+    def verify_file(path,digest,size=None):
+        if not isinstance(path,str) or not path:raise ValueError('invalid catalog file path')
+        file=safe(root,path);referenced.add(path)
+        if not file.is_file():raise ValueError('missing catalog file: '+path)
+        if not valid_digest(digest) or sha(file)!=digest:
+            raise ValueError('catalog file checksum mismatch: '+path)
+        if size is not None and (type(size) is not int or size<0 or file.stat().st_size!=size):
+            raise ValueError('catalog file size mismatch: '+path)
+        return file
+
+    def belongs_to_dataset(path,dataset_id,profile=False):
+        if not isinstance(path,str) or not isinstance(dataset_id,str):return False
+        parts=Path(path).parts
+        prefix=('inputs','catalog',dataset_id)+(('profiles',) if profile else ())
+        return len(parts)>len(prefix) and parts[:len(prefix)]==prefix
+
+    for row in tables['v3_sessions']:
+        if not user_exists(row.get('user_id')):
+            errors.append({'scope':'v3_sessions','reason':'session owner missing'})
+    for row in tables['v3_datasets']:
+        if not user_exists(row.get('created_by')):
+            errors.append({'scope':'v3_datasets','reason':'dataset creator missing'})
+        if row.get('source_kind') not in ('synthetic','real'):
+            errors.append({'scope':'v3_datasets','reason':'invalid source kind'})
+        if row.get('verification_status') not in ('accepted_unvalidated','metadata_checked','rejected'):
+            errors.append({'scope':'v3_datasets','reason':'invalid verification status'})
+    for row in tables['v3_dataset_acl']:
+        key=(row.get('dataset_id'),row.get('user_id'))
+        if key in acl_keys:errors.append({'scope':'v3_dataset_acl','reason':'duplicate dataset access'})
+        acl_keys.add(key)
+        if key[0] not in datasets or not user_exists(key[1]):
+            errors.append({'scope':'v3_dataset_acl','reason':'dangling access ownership'})
+        if row.get('access') not in ('viewer','analyst','owner'):
+            errors.append({'scope':'v3_dataset_acl','reason':'invalid access role'})
+    for row in tables['v3_source_files']:
+        try:verify_file(row.get('storage_path'),row.get('sha256'),row.get('size_bytes'))
+        except (OSError,ValueError,TypeError) as exc:
+            errors.append({'scope':'v3_source_files','id':row.get('id'),'reason':str(exc)})
+    for row in tables['v3_dataset_files']:
+        source=source_files.get(row.get('source_file_id'))
+        if row.get('dataset_id') not in datasets or source is None or not user_exists(row.get('created_by')):
+            errors.append({'scope':'v3_dataset_files','id':row.get('id'),'reason':'dangling dataset/file/user ownership'})
+        if row.get('role') not in ('network','process'):
+            errors.append({'scope':'v3_dataset_files','id':row.get('id'),'reason':'invalid input role'})
+        if source is not None:
+            source_owners.add(source['id'])
+            if not belongs_to_dataset(source.get('storage_path'),row.get('dataset_id')):
+                errors.append({'scope':'v3_dataset_files','id':row.get('id'),'reason':'source path outside owning dataset'})
+    for source_id in source_files:
+        if source_id not in source_owners:
+            errors.append({'scope':'v3_source_files','id':source_id,'reason':'source file has no dataset owner'})
+    for row in tables['v3_config_versions']:
+        if row.get('dataset_id') not in datasets or not user_exists(row.get('created_by')):
+            errors.append({'scope':'v3_config_versions','id':row.get('id'),'reason':'dangling config ownership'})
+        if row.get('kind') not in ('intake','dual') or type(row.get('version')) is not int or row['version']<1:
+            errors.append({'scope':'v3_config_versions','id':row.get('id'),'reason':'invalid config kind/version'})
+        key=(row.get('dataset_id'),row.get('kind'),row.get('version'))
+        if key in versions:errors.append({'scope':'v3_config_versions','id':row.get('id'),'reason':'duplicate config version'})
+        versions.add(key)
+        if not belongs_to_dataset(row.get('profile_storage_path'),row.get('dataset_id'),profile=True):
+            errors.append({'scope':'v3_config_versions','id':row.get('id'),'reason':'profile path outside owning dataset'})
+        try:
+            profile=verify_file(row.get('profile_storage_path'),row.get('profile_sha256'))
+            document=strict_json(profile.read_text(encoding='utf-8'))
+            if (document!=row.get('profile_json') or
+                    hashlib.sha256(canonical(document)).hexdigest()!=row.get('config_fingerprint')):
+                raise ValueError('config source/document/fingerprint mismatch')
+        except (OSError,ValueError,TypeError,UnicodeError) as exc:
+            errors.append({'scope':'v3_config_versions','id':row.get('id'),'reason':str(exc)})
+    for row in tables['v3_run_bindings']:
+        job_id=row.get('job_id');job=jobs.get(job_id)
+        dataset_id=row.get('dataset_id');config=configs.get(row.get('config_version_id'))
+        network=dataset_files.get(row.get('network_file_id'))
+        process=dataset_files.get(row.get('process_file_id'))
+        if job_id in run_jobs:errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':'duplicate run binding'})
+        run_jobs.add(job_id)
+        if (job is None or dataset_id not in datasets or config is None or network is None or
+                process is None or not user_exists(row.get('created_by'))):
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':'dangling run ownership'});continue
+        if (config.get('dataset_id')!=dataset_id or network.get('dataset_id')!=dataset_id or
+                process.get('dataset_id')!=dataset_id or network.get('role')!='network' or
+                process.get('role')!='process'):
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':'run input ownership/role mismatch'});continue
+        network_source=source_files.get(network.get('source_file_id'))
+        process_source=source_files.get(process.get('source_file_id'))
+        if network_source is None or process_source is None:continue
+        payload=job.get('payload')
+        try:
+            if not isinstance(payload,dict):raise ValueError('invalid run payload')
+            for role,source in (('network',network_source),('process',process_source)):
+                if payload.get(role)!={'path':source['storage_path'],'sha256':source['sha256']}:
+                    raise ValueError('run '+role+' differs from catalog source')
+            if payload.get('profile')!={'path':config['profile_storage_path'],'sha256':config['profile_sha256']}:
+                raise ValueError('run profile differs from catalog version')
+            if payload.get('config_fingerprint')!=config['config_fingerprint']:
+                raise ValueError('run config fingerprint differs from catalog version')
+            if (row.get('mode')!='dual_source' or config['kind']!='dual' or
+                    payload.get('kind')!='dual-source'):
+                raise ValueError('run mode/config/task kind mismatch')
+        except (KeyError,ValueError,TypeError) as exc:
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':str(exc)})
+    for job_id,job in jobs.items():
+        payload=job.get('payload')
+        if not isinstance(payload,dict):continue
+        catalog_input=any(isinstance(payload.get(role),dict) and
+                          str(payload[role].get('path','')).startswith('inputs/catalog/')
+                          for role in ('network','process','profile'))
+        if catalog_input and job_id not in run_jobs:
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,
+                           'reason':'catalog-backed job lacks run ownership binding'})
+    for row in tables['v3_preflights']:
+        config=configs.get(row.get('config_version_id'))
+        if (row.get('dataset_id') not in datasets or config is None or
+                config.get('dataset_id')!=row.get('dataset_id') or not user_exists(row.get('created_by'))):
+            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':'dangling preflight ownership'});continue
+        if config.get('kind')!='intake' or not isinstance(row.get('report'),dict):
+            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':'invalid preflight config/report'});continue
+        dataset=datasets[row['dataset_id']]
+        entries=[]
+        for link in sorted((item for item in tables['v3_dataset_files']
+                            if item.get('dataset_id')==row['dataset_id']),key=lambda item:str(item.get('id'))):
+            source=source_files.get(link.get('source_file_id'))
+            if source is None:continue
+            entries.append({'name':source['storage_path'],'sha256':source['sha256'],
+                            'size_bytes':source['size_bytes'],'kind':link['role']})
+        manifest={'schema_version':'1.0.0','synthetic':dataset['source_kind']=='synthetic',
+                  'dataset_id':row['dataset_id'],'source':dataset.get('source'),
+                  'release':dataset.get('batch'),'files':entries,
+                  'collection_range':{'start':None,'end':None},'timezone_basis':None,
+                  'authorization_ref':dataset.get('authorization_ref')}
+        try:
+            with tempfile.TemporaryDirectory(prefix='cpag-intake-backup-') as temporary:
+                manifest_path=Path(temporary)/'manifest.json'
+                manifest_path.write_bytes(canonical(manifest)+b'\n')
+                expected=verify_intake_preflight(root,manifest_path,
+                    safe(root,config['profile_storage_path']))
+            if expected!=row['report']:
+                raise ValueError('preflight report differs from retained sources/config')
+        except (OSError,ValueError,KeyError,TypeError) as exc:
+            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':str(exc)})
+    for row in tables['v3_audit_events']:
+        if ((row.get('user_id') is not None and row['user_id'] not in users) or
+                (row.get('dataset_id') is not None and row['dataset_id'] not in datasets) or
+                (row.get('job_id') is not None and row['job_id'] not in jobs)):
+            errors.append({'scope':'v3_audit_events','id':row.get('id'),'reason':'dangling audit reference'})
+        if not isinstance(row.get('details'),dict):
+            errors.append({'scope':'v3_audit_events','id':row.get('id'),'reason':'invalid audit detail'})
+        else:
+            def secret_key(value):
+                if isinstance(value,dict):
+                    forbidden={'authorization','cookie','password','password_hash','secret',
+                               'token','token_hash','worker_token','coordinator_token',
+                               'session_token','bearer'}
+                    return any(str(key).lower() in forbidden or secret_key(item)
+                               for key,item in value.items())
+                if isinstance(value,list):return any(secret_key(item) for item in value)
+                return False
+            if secret_key(row['details']):
+                errors.append({'scope':'v3_audit_events','id':row.get('id'),
+                               'reason':'credential field in audit detail'})
+    return {'valid':not errors,'errors':errors,'counts':counts,'referenced_files':sorted(referenced),
+            'session_restore_policy':'revoke_all_sessions_before_restored_service_start'}
+
+
+def include_catalog_references(task_audit, catalog_audit):
+    """Unused catalog uploads/configs are live references, not file orphans."""
+    extra=set(catalog_audit['referenced_files'])
+    task_audit['referenced_files']=sorted(set(task_audit['referenced_files'])|extra)
+    task_audit['unreferenced_files']=sorted(set(task_audit['unreferenced_files'])-extra)
+    return task_audit
+
+
 def pg(container, db, command, *args, **kwargs):
     if db not in ('m4_validation','m4_restore_validation'): raise ValueError('only disposable validation databases allowed')
     return subprocess.run(['docker','exec','-i',container,command,'-U','postgres','-d',db,*args],check=True,**kwargs)
@@ -326,18 +598,51 @@ def backup(container, db, root, destination):
     if not root.is_dir(): raise ValueError('source root must exist')
     if destination.exists() or destination.is_relative_to(root): raise ValueError('new bundle outside shared root required')
     if db!='m4_validation': raise ValueError('backup source must be disposable m4_validation')
-    # Hold SHARE lock across dump and copy. Writers cannot change jobs while the exported snapshot is in use.
+    # Hold SHARE locks across dump and copy. Writers cannot change the M4 task
+    # history or V3 directory metadata while the exported snapshot is in use.
     created_destination=False;phase='database_snapshot'
     conn=subprocess.Popen(['docker','exec','-i',container,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
-        query="BEGIN; SET LOCAL lock_timeout='5s'; LOCK TABLE m4_jobs, m4_job_attempts IN SHARE MODE; SELECT 'SNAPSHOT:'||pg_export_snapshot(); SELECT 'ROWS:'||coalesce(json_agg(row_to_json(j) ORDER BY id),'[]'::json)::text FROM m4_jobs j; SELECT 'ATTEMPTS:'||coalesce(json_agg(row_to_json(a) ORDER BY job_id,attempt),'[]'::json)::text FROM m4_job_attempts a;\n"
-        conn.stdin.write(query);conn.stdin.flush()
-        snapshot=conn.stdout.readline().strip();raw_rows=conn.stdout.readline().strip();raw_attempts=conn.stdout.readline().strip()
+        conn.stdin.write("BEGIN; SET LOCAL lock_timeout='5s'; "
+                         "LOCK TABLE m4_jobs, m4_job_attempts IN SHARE MODE; "
+                         "SELECT 'CATALOG_PRESENT:'||(to_regclass('public.v3_datasets') IS NOT NULL)::text;\n")
+        conn.stdin.flush()
+        first=conn.stdout.readline().strip()
+        # Older unit fixtures predate the catalog-presence exchange. A real
+        # database emits CATALOG_PRESENT; preserve format-2 backup support.
+        legacy_fixture=first.startswith('SNAPSHOT:')
+        if not legacy_fixture and first not in ('CATALOG_PRESENT:true','CATALOG_PRESENT:false'):
+            raise ValueError('could not establish catalog schema state')
+        has_catalog=first=='CATALOG_PRESENT:true'
+        if has_catalog:
+            conn.stdin.write('LOCK TABLE '+', '.join(CATALOG_TABLES)+' IN SHARE MODE;\n')
+        conn.stdin.write("SELECT 'SNAPSHOT:'||pg_export_snapshot(); "
+                         "SELECT 'ROWS:'||coalesce(json_agg(row_to_json(j) ORDER BY id),'[]'::json)::text FROM m4_jobs j; "
+                         "SELECT 'ATTEMPTS:'||coalesce(json_agg(row_to_json(a) ORDER BY job_id,attempt),'[]'::json)::text FROM m4_job_attempts a;\n")
+        if has_catalog:
+            for table in CATALOG_TABLES:
+                conn.stdin.write(catalog_query(table, prefix=True)+'\n')
+        conn.stdin.flush()
+        snapshot=first if legacy_fixture else conn.stdout.readline().strip()
+        raw_rows=conn.stdout.readline().strip();raw_attempts=conn.stdout.readline().strip()
         if not snapshot.startswith('SNAPSHOT:') or not raw_rows.startswith('ROWS:') or not raw_attempts.startswith('ATTEMPTS:'): raise ValueError('could not establish database snapshot')
-        rows=json.loads(raw_rows[5:]);attempts=json.loads(raw_attempts[9:]);phase='source_audit';before=audit(rows,root)
+        rows=json.loads(raw_rows[5:]);attempts=json.loads(raw_attempts[9:]);catalog=None
+        if has_catalog:
+            catalog={}
+            for table in CATALOG_TABLES:
+                raw=conn.stdout.readline().strip();prefix='CATALOG:'+table+':'
+                if not raw.startswith(prefix):raise ValueError('could not establish catalog snapshot: '+table)
+                catalog[table]=json.loads(raw[len(prefix):])
+        phase='source_audit';before=audit(rows,root)
         if not before['valid']: raise ValueError('source reference audit failed: '+json.dumps(before['errors']))
         history=audit_attempts(rows,attempts)
         if not history['valid']:raise ValueError('source attempt history invalid: '+json.dumps(history['errors']))
+        directory=None
+        if catalog is not None:
+            directory=audit_catalog(catalog,rows,root)
+            if not directory['valid']:
+                raise ValueError('source catalog invalid: '+json.dumps(directory['errors']))
+            include_catalog_references(before,directory)
         destination.mkdir(mode=0o700);created_destination=True
         phase='copy_files';files=inventory(root)
         shutil.copytree(root,destination/'files',symlinks=False)
@@ -347,15 +652,24 @@ def backup(container, db, root, destination):
         # cannot establish agreement with the exported database snapshot.
         phase='copied_reference_audit';copied=audit(rows,destination/'files')
         if not copied['valid']:raise ValueError('copied reference audit failed: '+json.dumps(copied['errors']))
+        copied_directory=None
+        if catalog is not None:
+            copied_directory=audit_catalog(catalog,rows,destination/'files')
+            if not copied_directory['valid']:
+                raise ValueError('copied catalog invalid: '+json.dumps(copied_directory['errors']))
+            include_catalog_references(copied,copied_directory)
         phase='database_dump'
         with (destination/'database.dump').open('xb') as dump:
             pg(container,db,'pg_dump','-Fc','--snapshot='+snapshot[9:],stdout=dump)
         phase='final_integrity'
         if inventory(destination/'files')!=files or inventory(root)!=files:raise ValueError('files changed during database dump')
         phase='bundle_publication'
-        bundle={'format_version':2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
+        bundle={'format_version':3 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
                 'database_sha256':sha(destination/'database.dump'),'source_audit':before,'copied_audit':copied,'attempt_audit':history,
                 'consistency':'exported PostgreSQL snapshot + SHARE lock; terminal tasks only; file pre/post hashes'}
+        if catalog is not None:
+            bundle.update(catalog=catalog,catalog_audit=directory,copied_catalog_audit=copied_directory,
+                          session_restore_policy='revoke_all_sessions_before_restored_service_start')
         write_report(destination/'bundle.json',bundle)
         return bundle
     except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
@@ -396,7 +710,7 @@ def restore(container, bundle_dir, destination):
     phase='bundle_integrity'
     try:
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
-        if bundle['format_version']!=2 or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
+        if bundle['format_version'] not in (2,3) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
         if sha(safe(bundle_dir,'database.dump'))!=bundle['database_sha256'] or inventory(bundle_dir/'files')!=bundle['files']:
             raise ValueError('bundle integrity mismatch')
         phase='pre_restore_references'
@@ -404,22 +718,43 @@ def restore(container, bundle_dir, destination):
         if not before['valid']: raise ValueError('bundle references invalid: '+json.dumps(before['errors']))
         history=audit_attempts(bundle['rows'],bundle.get('attempts',[]))
         if not history['valid']:raise ValueError('bundle attempt history invalid: '+json.dumps(history['errors']))
+        has_catalog=bundle['format_version']==3
+        if has_catalog:
+            directory=audit_catalog(bundle['catalog'],bundle['rows'],bundle_dir/'files')
+            if not directory['valid']:
+                raise ValueError('bundle catalog invalid: '+json.dumps(directory['errors']))
         phase='create_new_database'
         # createdb refuses an existing target: never overwrite a current database.
         subprocess.run(['docker','exec',container,'createdb','-U','postgres','m4_restore_validation'],check=True)
         phase='restore_database'
         with (bundle_dir/'database.dump').open('rb') as dump:
             pg(container,'m4_restore_validation','pg_restore','--exit-on-error','--no-owner',stdin=dump)
+        revoked_sessions=0
+        if has_catalog:
+            phase='revoke_restored_sessions'
+            revoked_sessions=revoke_restored_sessions(container)
         phase='restore_files'
         shutil.copytree(bundle_dir/'files',destination)
         rows=rows_now(container,'m4_restore_validation')
         if rows!=bundle['rows']: raise ValueError('restored task metadata differs from snapshot')
         if attempts_now(container,'m4_restore_validation')!=bundle.get('attempts',[]):raise ValueError('restored attempt history differs from snapshot')
+        if has_catalog:
+            restored_catalog=catalog_now(container,'m4_restore_validation')
+            if restored_catalog!=bundle['catalog']:
+                raise ValueError('restored catalog metadata differs from snapshot')
         result=audit(rows,destination)
         if not result['valid']: raise ValueError('restored references invalid: '+json.dumps(result['errors']))
+        if has_catalog:
+            directory=audit_catalog(restored_catalog,rows,destination)
+            if not directory['valid']:
+                raise ValueError('restored catalog invalid: '+json.dumps(directory['errors']))
+            include_catalog_references(result,directory)
         if inventory(destination)!=bundle['files']:raise ValueError('restored file inventory differs from bundle')
         result.update(phase='completed',database='m4_restore_validation',metadata_equal=True,
                       file_inventory_equal=True,attempt_history_equal=True)
+        if has_catalog:
+            result.update(catalog_equal=True,catalog_audit=directory,sessions_revoked=revoked_sessions,
+                          session_restore_policy='revoke_all_sessions_before_restored_service_start')
         write_report(report,result)
         return result
     except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:

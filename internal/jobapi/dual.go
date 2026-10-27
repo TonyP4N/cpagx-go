@@ -30,6 +30,72 @@ var dualFiles = []string{"dataset.json", "events.json", "graph.json", "quality.j
 var dualDirs = map[string]bool{"dual": true, "dual/sources": true}
 var dualAnchor = regexp.MustCompile(`^[a-f0-9]{64}\.json$`)
 
+// DualProfileFingerprint is the canonical JSON fingerprint consumed by the
+// existing Python dual core. Keep this single implementation for Go clients.
+func DualProfileFingerprint(raw []byte) (string, error) {
+	var value any
+	d := json.NewDecoder(bytes.NewReader(raw))
+	d.UseNumber()
+	if err := d.Decode(&value); err != nil {
+		return "", err
+	}
+	if d.Decode(new(any)) != io.EOF {
+		return "", errors.New("one profile object required")
+	}
+	canonical, err := pythonCanonical(value)
+	if err != nil {
+		return "", err
+	}
+	sum := sha256.Sum256(canonical)
+	return hex.EncodeToString(sum[:]), nil
+}
+
+// VerifiedDualArtifacts returns only artifacts from the currently published
+// attempt after publishedDual has rechecked every source and artifact byte.
+func (s *Server) VerifiedDualArtifacts(r *http.Request, id string) ([]struct {
+	Path string `json:"path"`
+	SHA  string `json:"sha256"`
+	Size int64  `json:"size_bytes"`
+}, string, error) {
+	base, _, _, err := s.publishedDual(r, id)
+	if err != nil {
+		return nil, "", err
+	}
+	value, err := s.readDualJSON(base, "manifest.json")
+	if err != nil {
+		return nil, "", err
+	}
+	m, ok := obj(value)
+	if !ok {
+		return nil, "", errors.New("invalid publication manifest")
+	}
+	rows, ok := arr(m["artifacts"])
+	if !ok {
+		return nil, "", errors.New("invalid publication artifacts")
+	}
+	result := []struct {
+		Path string `json:"path"`
+		SHA  string `json:"sha256"`
+		Size int64  `json:"size_bytes"`
+	}{}
+	for _, v := range rows {
+		row, ok := obj(v)
+		if !ok {
+			return nil, "", errors.New("invalid artifact entry")
+		}
+		n, ok := intValue(row["size"])
+		if !ok {
+			return nil, "", errors.New("invalid artifact size")
+		}
+		result = append(result, struct {
+			Path string `json:"path"`
+			SHA  string `json:"sha256"`
+			Size int64  `json:"size_bytes"`
+		}{str(row["path"]), str(row["sha256"]), int64(n)})
+	}
+	return result, base, nil
+}
+
 func boolInt(value bool) int {
 	if value {
 		return 1

@@ -1,0 +1,230 @@
+openapi: 3.1.0
+info:
+  title: CPAG v3 local research API
+  version: 0.1.0
+  description: Explicit opt-in local API. Real material is accepted for metadata and integrity preflight; dual analysis currently executes synthetic sources only.
+servers:
+  - url: http://127.0.0.1:8095
+paths:
+  /health/live:
+    get:
+      responses: { '200': { description: Live } }
+  /health/ready:
+    get:
+      responses: { '200': { description: Database ready }, '503': { $ref: '#/components/responses/Error' } }
+  /api/v3/session:
+    post:
+      summary: Login and set HttpOnly SameSite Strict session cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties: { username: { type: string }, password: { type: string } }
+      responses: { '200': { description: Session created }, '401': { $ref: '#/components/responses/Error' } }
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Current user }, '401': { $ref: '#/components/responses/Error' } }
+    delete:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Session revoked }, '401': { $ref: '#/components/responses/Error' } }
+  /api/v3/users:
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only.
+      responses: { '200': { description: Users without password hashes }, '403': { $ref: '#/components/responses/Error' } }
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only. Password must contain at least 12 characters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                role: { enum: [admin, analyst, viewer] }
+      responses: { '201': { description: User created }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets:
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Datasets visible through server ACL } }
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, source_kind, source, batch, authorization_ref]
+              properties:
+                name: { type: string }
+                source_kind: { enum: [synthetic, real] }
+                source: { type: string }
+                batch: { type: string }
+                authorization_ref: { type: string, description: 'Declared reference, not verified authorization' }
+      responses: { '201': { description: Dataset and owner ACL created }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Dataset with file and config summaries }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/acl:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Administrator grants analyst or viewer access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, access]
+              properties: { user_id: { type: string }, access: { enum: [viewer, analyst] } }
+      responses: { '200': { description: ACL granted }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/files:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: File catalog without storage paths } }
+    post:
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { in: query, name: role, required: true, schema: { enum: [network, process] } }
+        - { in: query, name: name, required: true, schema: { type: string }, description: Original basename }
+        - { in: header, name: X-Content-SHA256, required: true, schema: { type: string, pattern: '^[a-f0-9]{64}$' } }
+        - { in: header, name: Idempotency-Key, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        '201': { description: Immutable file created }
+        '200': { description: Same key and same file already uploaded }
+        '409': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /api/v3/datasets/{dataset_id}/files/{file_id}/download:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: file_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Rehashed original bytes }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/configs:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Immutable config versions } }
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, document]
+              properties: { kind: { enum: [intake, dual] }, document: { type: object } }
+      responses: { '201': { description: New version created }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/configs/{config_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: config_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Version with document } }
+  /api/v3/datasets/{dataset_id}/preflight:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [config_version_id]
+              properties: { config_version_id: { type: string } }
+      responses: { '200': { description: Existing core metadata and integrity report, including incomplete results }, '409': { description: Stored original changed or batch identity conflicts; batch conflict includes its retained preflight report }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs:
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: dataset_id, required: true, schema: { type: string } }]
+      responses: { '200': { description: Authorized runs } }
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataset_id, config_version_id, mode]
+              properties: { dataset_id: { type: string }, config_version_id: { type: string }, mode: { const: dual_source } }
+      responses: { '201': { description: Atomic M4 job and v3 binding }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Sanitized M4 state and attempt history }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/cancel:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Actual resulting state }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/result:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified M4 dual result }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/graph:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified graph }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/evidence:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { in: query, name: operation, required: false, schema: { type: string } }
+        - { in: query, name: change, required: false, schema: { type: string } }
+      responses: { '200': { description: Verified bounded original evidence; exactly one selector required }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/artifacts:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Published artifact inventory with checksums }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/artifacts/{artifact_path}/download:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: artifact_path, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified published bytes }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/audit:
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only; returns only server selected nonsecret fields.
+      responses: { '200': { description: Recent audit metadata }, '403': { $ref: '#/components/responses/Error' } }
+components:
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: cpag_session }
+  parameters:
+    datasetId: { in: path, name: dataset_id, required: true, schema: { type: string } }
+    runId: { in: path, name: run_id, required: true, schema: { type: string } }
+  responses:
+    Error:
+      description: Structured error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties: { code: { type: string }, message: { type: string } }
