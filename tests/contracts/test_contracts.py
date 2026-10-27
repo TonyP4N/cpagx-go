@@ -7,7 +7,7 @@ from cpag_core.contracts import validate, ContractError, SCHEMAS
 class ContractTests(unittest.TestCase):
     def test_strict_schema_documents(self):
         paths=list(SCHEMAS.glob('*.schema.json'))
-        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest'})
+        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest','SingleSourceRunManifest'})
         for path in paths:
             schema=json.loads(path.read_text())
             self.assertFalse(schema['additionalProperties'])
@@ -107,3 +107,16 @@ class SharedPacketNegativeTests(unittest.TestCase):
                 with self.assertRaises(ContractError):validate(case['schema'],value)
                 validator=Draft202012Validator(schemas[case['schema']+'.schema.json'],registry=registry)
                 with self.assertRaises(Exception):validator.validate(value)
+
+class SingleSourceManifestContractTests(unittest.TestCase):
+    def test_shared_source_only_manifest_and_negative_variants(self):
+        import jsonschema
+        value=json.loads((Path(__file__).parent/'single-source-example.json').read_text())
+        schema=json.loads((SCHEMAS/'SingleSourceRunManifest.schema.json').read_text())
+        validator=jsonschema.Draft202012Validator(schema)
+        validate('SingleSourceRunManifest',value);validator.validate(value)
+        for key,change in [('unknown',True),('single_source_version','invented'),('source_mode','dual'),('attempt_id',0),('source_presence',{'network':'true','process':False})]:
+            bad=copy.deepcopy(value);bad[key]=change
+            with self.subTest(key=key):
+                with self.assertRaises(ValueError):validate('SingleSourceRunManifest',bad)
+                with self.assertRaises(jsonschema.ValidationError):validator.validate(bad)

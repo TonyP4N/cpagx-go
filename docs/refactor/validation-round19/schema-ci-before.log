@@ -1,0 +1,12 @@
+Run https://github.com/TonyP4N/cpagx-go/actions/runs/40503514007
+SHA 958f103c48b6f0017c6b3ebfa07503151e404517
+Job 122186886617
+2026-10-27T12:25:05.0783894Z --- FAIL: TestSharedSchemas (0.00s)
+2026-10-27T12:25:05.0784959Z     contracts_test.go:20: explicit baseline and replay schema set required: <nil>; got 25 want 24
+Job 122186886622
+2026-10-27T12:24:44.2234262Z test_strict_schema_documents (test_contracts.ContractTests.test_strict_schema_documents) ... FAIL
+2026-10-27T12:24:44.4245919Z FAIL: test_strict_schema_documents (test_contracts.ContractTests.test_strict_schema_documents)
+2026-10-27T12:24:44.4255957Z   File "/home/runner/work/cpagx-go/cpagx-go/tests/contracts/test_contracts.py", line 10, in test_strict_schema_documents
+2026-10-27T12:24:44.4263077Z AssertionError: Items in the first set but not the second:
+2026-10-27T12:24:44.4263615Z 'SingleSourceRunManifest'
+2026-10-27T12:24:44.4264920Z FAILED (failures=1)

@@ -29,7 +29,8 @@
 3. 新备份格式5测试首次仍期待4：`backup-first.log`保留；迁移010新增评估数据，测试更新为明确5，另增旧格式4无评估表兼容测试。不得将旧包改号冒充5。
 4. S生成器首次回放缓冲3600超过旧schema300：原始样例attempt1保留；修为300，attempt2和schema测试通过。该错误未用于回放成功声明。
 5. 预登记文档提交的isolated-executor CI首次失败为镜像远端层not found，发生在计算启动前；日志摘录`prereg-ci-image-failure.log`保留，不当作代码语义失败，也不以重试成功抹去。
-6. S100实际OOM：三次失败/停止检查保留，尚未修复并达到容量目标；不是已关闭缺陷。
+6. 完整CI发现Go/Python显式schema名单漏登记SingleSourceRunManifest；保留`schema-ci-before.log`，补齐显式名单及共用正/反例，没有放宽未知字段或版本拒绝；本地完整Go与Python契约复验见after日志。
+7. S100实际OOM：三次失败/停止检查保留，尚未修复并达到容量目标；不是已关闭缺陷。
 
 ## 数据与权限
 

@@ -13,7 +13,7 @@ func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
 	expected := map[string]bool{}
-	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest"} {
+	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest", "SingleSourceRunManifest"} {
 		expected[name+".schema.json"] = true
 	}
 	if err != nil || len(entries) != len(expected) {
@@ -238,6 +238,29 @@ func TestNumericEnumsPreserveJSONNumberSemantics(t *testing.T) {
 	for _, raw := range []string{`{"speed":0}`, `{"speed":1.1}`, `{"speed":"1"}`} {
 		if e := Validate(dir, "Numeric", []byte(raw)); e == nil {
 			t.Fatal("invalid speed accepted", raw)
+		}
+	}
+}
+
+func TestSingleSourceManifestContract(t *testing.T) {
+	raw, err := os.ReadFile("../../tests/contracts/single-source-example.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = Validate("../../schemas", "SingleSourceRunManifest", raw); err != nil {
+		t.Fatal(err)
+	}
+	var original map[string]any
+	if err = json.Unmarshal(raw, &original); err != nil {
+		t.Fatal(err)
+	}
+	for name, value := range map[string]any{"unknown": true, "single_source_version": "invented", "source_mode": "dual", "attempt_id": 0, "source_presence": map[string]any{"network": "true", "process": false}} {
+		var changed map[string]any
+		json.Unmarshal(raw, &changed)
+		changed[name] = value
+		bad, _ := json.Marshal(changed)
+		if Validate("../../schemas", "SingleSourceRunManifest", bad) == nil {
+			t.Fatalf("invalid %s accepted", name)
 		}
 	}
 }
