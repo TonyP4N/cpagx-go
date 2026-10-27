@@ -213,6 +213,29 @@ class Round17CoreTests(unittest.TestCase):
             self.assertEqual(len(finite),10)
             for event in finite:validate('DerivedEvent',event)
 
+    def test_overlapping_process_intervals_preserve_observations_without_state_order_claim(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);n,p,c,config=self.fixture(base,rules=True)
+            original_events=[r['event'] for r in analyze(n,p,config)['process']]
+            for material,width in (('precision_seconds',2),('uncertainty_seconds',2),('precision_seconds',0.75)):
+                test=copy.deepcopy(config)
+                test['clocks']['process'][material]=width
+                test['max_sample_gap_seconds']=10
+                result=analyze(n,p,test)
+                self.assertEqual(len(result['process']),5)
+                self.assertEqual([r['event'] for r in result['process']],original_events)
+                self.assertEqual(result['changes'],[])
+                self.assertEqual(result['candidates'],[])
+                self.assertIn('process_order_uncertain',result['operations'][0]['unknown_reasons'])
+                self.assertIn('process_order_uncertain',result['quality']['group_issues'][0]['reasons'])
+                states=[f for f in result['rule_findings'] if f['kind']=='state_change']
+                self.assertTrue(all(f['state']=='unknown' and 'process_order_uncertain' in f['unknown_reasons'] for f in states))
+            # Historical mode is deliberately unchanged, including its prior result.
+            legacy=json.loads((ROOT/'profiles/dual-source-synthetic.json').read_text())
+            legacy['clocks']['process']['uncertainty_seconds']=2
+            legacy['max_sample_gap_seconds']=10
+            self.assertEqual(len(analyze(n,p,legacy)['changes']),1)
+
     def test_failed_input_never_publishes_partial_and_old_run_is_immutable(self):
         with tempfile.TemporaryDirectory() as tmp:
             base=Path(tmp);n,p,c,config=self.fixture(base)

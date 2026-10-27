@@ -14,3 +14,7 @@ Registered before core implementation on 2026-10-27 against baseline 68977076ec3
 10. Rebuilding an immutable run verifies every original source and the full normalized analysis; profile/mapping/clock/rule edits cannot mutate old runs. Repeated runs with unchanged input/config yield identical normalized bytes.
 
 R18 replay, R19 capacity measurement, physical execution, causality, attack labels and real-material validation are outside these core scenarios.
+
+## Final-review addendum: uncertain process order
+
+Registered before the corrective implementation on 2026-10-27. An independently configured process clock with `precision_seconds: 2` widens the generated observations at 10.5 s and 12 s to overlapping intervals [8.5,12.5] and [10,14]. Set the independently declared `max_sample_gap_seconds: 10` so that the historical gap guard does not mask the ordering defect. Before the correction this fixture emitted one derived transition, one unknown cross-source candidate, one supported finite state-change finding and no group-order warning. The raw process observations must remain visible, but neither a trusted before/after transition nor a cross-source transition candidate may be emitted. The affected asset/tag group must expose `process_order_uncertain`, and state-change finite findings must remain unknown. The historical profile without R17 `analysis_mode` retains its existing semantics. Non-overlapping R17 fixture outputs remain unchanged.

@@ -23,5 +23,22 @@
     "classification": "validation fixture",
     "fix": "Insert required max_attempts; same actual schema constraints now pass",
     "failure_tail": "=== RUN   TestMigration008CaptureBindings\n    migration008_test.go:75: legacy scalar: ERROR: null value in column \"max_attempts\" of relation \"m4_jobs\" violates not-null constraint (SQLSTATE 23502)\n--- FAIL: TestMigration008CaptureBindings (0.04s)\nFAIL\nFAIL\tgithub.com/TonyP4N/cpagx-go/internal/jobs/integration\t0.505s\nFAIL\n"
+  },
+  "uncertain_process_order": {
+    "classification": "final review implementation defect",
+    "fixture": "R17 generated process precision_seconds=2, max_sample_gap_seconds=10",
+    "before": {
+      "raw_process": 5,
+      "changes": 1,
+      "candidates": 1,
+      "supported_state_findings": 1
+    },
+    "after": {
+      "raw_process": 5,
+      "changes": 0,
+      "candidates": 0,
+      "reason": "process_order_uncertain"
+    },
+    "regression": "tests/dual_source/test_round17_core.py overlapping/touching intervals; historical mode retained"
   }
 }

@@ -123,6 +123,11 @@ def analyze(network, process, config):
         if any(r['time']['interval'] is None for r in rows):why.append('time_basis_missing')
         valid_times=[r['time']['interval'] for r in rows if r['time']['interval'] is not None]
         if len({tuple(t) for t in valid_times})!=len(valid_times):why.append('duplicate_process_time')
+        # A sorted lower bound does not establish strict before/after order when
+        # adjacent uncertainty intervals intersect (including a shared endpoint).
+        ordered_intervals=sorted(valid_times)
+        if extended and any(a[1]>=b[0] for a,b in zip(ordered_intervals,ordered_intervals[1:])):
+            why.append('process_order_uncertain')
         group_issues[key]=why
         if why:continue
         rows.sort(key=lambda r:(r['time']['interval'],r['event']['event_id']))
