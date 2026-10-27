@@ -9,15 +9,30 @@ import (
 	"testing"
 )
 
+// Replay fixtures use only the standard Python library. CI must execute them,
+// even when a developer's optional .venv does not exist.
+func replayPython(t *testing.T, repo string) string {
+	t.Helper()
+	candidate := os.Getenv("CPAG_TEST_PYTHON")
+	if candidate == "" {
+		candidate = filepath.Join(repo, ".venv/bin/python")
+		if _, err := os.Stat(candidate); err != nil {
+			candidate = "python3"
+		}
+	}
+	python, err := exec.LookPath(candidate)
+	if err != nil {
+		t.Fatalf("Python 3 is required for replay contract fixtures: %v", err)
+	}
+	return python
+}
+
 func TestReplayExportProjectionAndHistoricalEvidence(t *testing.T) {
 	repo, e := filepath.Abs("../..")
 	if e != nil {
 		t.Fatal(e)
 	}
-	python := filepath.Join(repo, ".venv/bin/python")
-	if _, e = os.Stat(python); e != nil {
-		t.Skip("Python fixture runtime unavailable")
-	}
+	python := replayPython(t, repo)
 	root, e := filepath.EvalSymlinks(t.TempDir())
 	if e != nil {
 		t.Fatal(e)
@@ -155,7 +170,7 @@ func replayLateFixture(t *testing.T) (string, Payload) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	python := filepath.Join(repo, ".venv/bin/python")
+	python := replayPython(t, repo)
 	root, e := filepath.EvalSymlinks(t.TempDir())
 	if e != nil {
 		t.Fatal(e)

@@ -80,3 +80,7 @@
 **外部材料缺口**：授权同期真实PCAP/CSV、来源批次/字段设备映射、时区/同步/漂移精度依据、独立标注与保留集。**真实历史实例缺口**另列：旧任务记录、配置、原件、产物及必要图导出。真实适用性、准确率、工业效果仍未验证；这些材料缺口不代替尚未完成的软件工作。
 
 本轮结束于R18，不自动启动R19，不宣称M2/M4或整体重构完成。
+
+最终CI首次复验（`0fc7e1a74056106f3fa500c63fb4c1a0d62351a5` / [40485367845](https://github.com/TonyP4N/cpagx-go/actions/runs/40485367845)）暴露测试环境路径缺陷：Go新增跨语言夹具硬编码仓库`.venv/bin/python`，CI不存在该目录。修复为显式测试运行时或仓库venv/系统Python3，并要求找不到运行时就失败，不能跳过新增回放契约测试；使用系统Python的两个实际导出/证据测试及整个Go测试集均通过。首次精确日志与复验位于`validation-round18-service/ci-python-*.log`。此修复只改测试运行时选择，不改变分析、UI、Worker或产物语义；修复提交仍须完整CI重新通过。
+
+同次CI的R18正式任务、恢复、普通点击步骤通过，但生命周期脚本启动时因未自行配置Worker模块路径而报`ModuleNotFoundError: cpag_worker`，未进入故障注入。脚本现从自身位置定位Worker/Core，不依赖继承PYTHONPATH；新增无PYTHONPATH启动回归，并在清除该变量的环境实际重新完成八项生命周期注入，全部通过。准确命令为`env -u PYTHONPATH python scripts/validation/round18_lifecycle.py --output /absolute/private/new-directory`，最新公开报告及源码/镜像清单为`validation-round18-service/ci-standalone-*.json`。这两处CI测试入口问题均未改变生产算法、任务状态机或产物，仍须修复提交完整CI通过后才关闭。

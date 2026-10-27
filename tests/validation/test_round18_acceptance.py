@@ -13,6 +13,16 @@ def ref(slot):return {'source_slot':slot,'record_sha256':'a'*64,'frame_number':1
 
 
 class ReplayAcceptanceOracleTests(unittest.TestCase):
+    def test_lifecycle_command_bootstraps_without_inherited_pythonpath(self):
+        import os
+        import subprocess
+        env=dict(os.environ);env.pop('PYTHONPATH',None)
+        result=subprocess.run([sys.executable,str(ROOT/'scripts/validation/round18_lifecycle.py'),'--help'],
+            cwd=ROOT,env=env,capture_output=True,text=True)
+        self.assertEqual(result.returncode,0,result.stderr)
+        self.assertIn('--output',result.stdout)
+
+
     def test_future_record_and_full_file_identity_cannot_enter_prefix(self):
         profile={'replay':{'sequence':[{'source_slot':'network-0','record_number':1,'available_at':'2026-01-01T00:00:10Z'},
             {'source_slot':'network-1','record_number':1,'available_at':'2026-01-01T00:00:11Z'}]}}

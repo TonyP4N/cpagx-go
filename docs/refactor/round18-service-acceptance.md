@@ -77,3 +77,7 @@ GOCACHE=/tmp/cpag-go-build GOMODCACHE=/tmp/cpag-go-mod \
 仅限已持有 Worker 凭据的私有 M4 `POST /v1/jobs`：把一个原本合法的 legacy synthetic（`kind=""`）或 packet payload 增加非空 `replay_version="dual-source-replay-1"`，当前 `validPayload` 未在所有旧 kind 顶部统一拒绝，可能先入队。现有正常 Worker 对旧 kind 不生成该版本字段，后续 wrapper 版本校验会拒绝；没有公共 V3 正常回放成功发布绕过，公共 V3 的 old dual/replay kind 检查仍在。
 
 后续接口加固的预期是：此不合规请求在入队前返回 4xx，无 job 或 binding；建议在私有隔离测试库复用合法旧 payload，仅增加该字段验证，不改旧合法请求的结果。本项按根任务裁定保留为私有无效请求的 fail-fast 缺口，列入 R09/R21 后续加固；不作为本轮合法公共回放路径的阻断，也不因此宣称整个 R09 完成。未继续扩大本轮 runtime 修改范围。
+
+### CI入口补验
+
+`0fc7e1a`的远端正式七任务/恢复/浏览器步骤已通过；Go夹具固定venv路径以及生命周期脚本继承PYTHONPATH两处测试入口假设在CI失败。已分别改为明确运行时查找（不得skip）和脚本自身定位Worker/Core。无PYTHONPATH的真实Docker/PG八项生命周期在当前源码重跑通过，见[最新独立运行](validation-round18-service/ci-standalone-lifecycle.json)、[当前镜像](validation-round18-service/ci-standalone-image-source-manifest.json)及[源码清单](validation-round18-service/ci-standalone-source-manifest.json)。此前生命周期证据保留不覆盖；最终准确提交的完整CI仍为最终门禁。

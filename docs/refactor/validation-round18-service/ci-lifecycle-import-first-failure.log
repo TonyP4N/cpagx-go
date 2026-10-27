@@ -1,0 +1,20 @@
+Source: https://github.com/TonyP4N/cpagx-go/actions/runs/40485367845/job/122126089485
+Commit: 0fc7e1a74056106f3fa500c63fb4c1a0d62351a5
+Exact failing step excerpt:
+##[group]Run python scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"
+2026-10-27T10:08:56.1104184Z [36;1mpython scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"[0m
+2026-10-27T10:08:56.1165672Z shell: /usr/bin/bash -e {0}
+2026-10-27T10:08:56.1165942Z env:
+2026-10-27T10:08:56.1166229Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-27T10:08:56.1166713Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+2026-10-27T10:08:56.1167185Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-27T10:08:56.1167604Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-27T10:08:56.1168024Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+2026-10-27T10:08:56.1168455Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+2026-10-27T10:08:56.1168804Z ##[endgroup]
+2026-10-27T10:08:56.2239946Z Traceback (most recent call last):
+2026-10-27T10:08:56.2241542Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/validation/round18_lifecycle.py", line 25, in <module>
+2026-10-27T10:08:56.2243338Z     from cpag_worker.isolated import DockerExecutor
+2026-10-27T10:08:56.2244573Z ModuleNotFoundError: No module named 'cpag_worker'
+2026-10-27T10:08:56.2378218Z ##[error]Process completed with exit code 1.
+2026-10-27T10:08:56.2442967Z 

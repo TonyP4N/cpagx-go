@@ -16,6 +16,9 @@ import sys
 import time
 import urllib.request
 
+REPO=Path(__file__).resolve().parents[2]
+sys.path[:0]=[str(REPO/'services/worker'),str(REPO/'services/analysis/src')]
+
 import round16_acceptance as r
 from round16_supplement import intake
 from round18_profile import fixture

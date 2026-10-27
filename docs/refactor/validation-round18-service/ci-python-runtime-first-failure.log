@@ -1,0 +1,37 @@
+Source: https://github.com/TonyP4N/cpagx-go/actions/runs/40485367845/job/122125696486
+Commit: 0fc7e1a74056106f3fa500c63fb4c1a0d62351a5
+Exact test-step excerpt (setup/cache log omitted):
+##[group]Run go test ./...
+2026-10-27T10:02:42.5470591Z [36;1mgo test ./...[0m
+2026-10-27T10:02:42.5663597Z shell: /usr/bin/bash -e {0}
+2026-10-27T10:02:42.5663933Z ##[endgroup]
+2026-10-27T10:02:42.9927353Z ok  	github.com/TonyP4N/cpagx-go/api	(cached)
+2026-10-27T10:02:43.3126109Z ok  	github.com/TonyP4N/cpagx-go/cmd/cpagctl	0.007s
+2026-10-27T10:02:43.3157458Z ?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+2026-10-27T10:02:44.5123809Z ok  	github.com/TonyP4N/cpagx-go/internal/catalog	0.022s
+2026-10-27T10:02:44.5124658Z ?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+2026-10-27T10:02:44.6245808Z ok  	github.com/TonyP4N/cpagx-go/internal/contracts	0.135s
+2026-10-27T10:02:45.5161548Z --- FAIL: TestReplayTriggerEvidenceIncludesDiscardedRecordAndRejectsFuture (0.00s)
+2026-10-27T10:02:45.5163649Z     replay_test.go:211: late replay fixture: fork/exec /home/runner/work/cpagx-go/cpagx-go/.venv/bin/python: no such file or directory: 
+2026-10-27T10:02:45.5164706Z FAIL
+2026-10-27T10:02:45.5165016Z FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi	0.217s
+2026-10-27T10:02:45.5165435Z ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.002s
+2026-10-27T10:02:45.5165871Z ?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]
+2026-10-27T10:02:45.5166241Z FAIL
+2026-10-27T10:02:45.5403058Z ##[error]Process completed with exit code 1.
+2026-10-27T10:02:45.5548892Z Post job cleanup.
+2026-10-27T10:02:45.6424439Z [command]/usr/bin/git version
+2026-10-27T10:02:45.6469347Z git version 2.55.0
+2026-10-27T10:02:45.6516852Z Temporarily overriding HOME='/home/runner/work/_temp/ce608677-0320-494f-af60-82db956ed0a5' before making global git config changes
+2026-10-27T10:02:45.6518462Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T10:02:45.6524185Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cpagx-go/cpagx-go
+2026-10-27T10:02:45.6569054Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T10:02:45.6609808Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T10:02:45.6922728Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T10:02:45.6959728Z http.https://github.com/.extraheader
+2026-10-27T10:02:45.6980380Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-27T10:02:45.7020169Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T10:02:45.7407750Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T10:02:45.7452462Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T10:02:45.7901795Z Cleaning up orphan processes
+2026-10-27T10:02:45.8404188Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-go@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
