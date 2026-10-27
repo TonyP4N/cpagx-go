@@ -9,8 +9,8 @@ class ApiError extends Error {
   constructor(public status: number, message: string) { super(message); }
 }
 
-async function request(path: string, init?: RequestInit): Promise<Json> {
-  const response = await fetch(API + path, init);
+async function apiRequest(base: string, path: string, init?: RequestInit): Promise<Json> {
+  const response = await fetch(base + path, init);
   const text = await response.text();
   let value: any;
   try { value = JSON.parse(text); } catch { value = { detail: text }; }
@@ -108,6 +108,9 @@ function SelectionSummary({ operation, change, candidate }: { operation?: Json; 
 }
 
 export default function DualSourcePage() {
+  const [executor, setExecutor] = useState('celery');
+  const base = executor === 'persistent' ? API + '/persistent' : API;
+  const request = useCallback((path: string, init?: RequestInit) => apiRequest(base, path, init), [base]);
   const [files, setFiles] = useState<Record<string, File>>({});
   const [confirmed, setConfirmed] = useState(false);
   const [lookupId, setLookupId] = useState('');
@@ -161,12 +164,12 @@ export default function DualSourcePage() {
         else setError('');
       }
     } catch (reason) { if (activeTask.current === id && taskGeneration.current === generation) handleError(reason); }
-  }, [clearPublished, handleError]);
+  }, [clearPublished, handleError, request]);
 
   useEffect(() => {
     if (!taskId) return;
     void refresh(taskId);
-    if (['completed', 'failed'].includes(task?.status)) return;
+    if (['completed', 'failed', 'cancelled'].includes(task?.status)) return;
     const timer = window.setInterval(() => void refresh(taskId), 2000);
     return () => window.clearInterval(timer);
   }, [taskId, task?.status, refresh]);
@@ -218,7 +221,7 @@ export default function DualSourcePage() {
     if (!taskId) return;
     const idAtStart = taskId;
     try {
-      const response = await fetch(`${API}/download/${encodeURIComponent(taskId)}/${encodeURIComponent(filename)}`);
+      const response = await fetch(`${base}/download/${encodeURIComponent(taskId)}/${encodeURIComponent(filename)}`);
       if (!response.ok) {
         let detail = await response.text();
         try { detail = JSON.parse(detail)?.detail ?? detail; } catch { /* retain response text */ }
@@ -254,6 +257,7 @@ export default function DualSourcePage() {
       </section>
       <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="提交合成双源任务">
         <h2 className="text-xl font-semibold">提交合成测试输入</h2>
+        <label className="block text-sm">执行路径<select aria-label="执行路径" value={executor} className="ml-3 border rounded p-2" onChange={event => { taskGeneration.current += 1; evidenceSequence.current += 1; activeTask.current = ''; setTaskId(''); setTask(null); clearPublished(); setError(''); setExecutor(event.target.value); }}><option value="celery">Celery（兼容默认）</option><option value="persistent">持久 Worker（显式可选、合成验证）</option></select></label>
         <div className="grid md:grid-cols-3 gap-4">{([
           ['network_file', '网络原始报文', '.pcap,.pcapng'], ['process_file', '过程采样 CSV', '.csv'], ['profile_file', '合成配置 JSON', '.json'],
         ] as const).map(([field, label, accept]) => <label key={field} className="text-sm font-medium">{label}<input type="file" aria-label={label} accept={accept} className="block mt-2 w-full text-sm" onChange={event => {
@@ -266,6 +270,7 @@ export default function DualSourcePage() {
         <h2 className="text-xl font-semibold">查看已有任务</h2>
         <div className="flex flex-wrap gap-3"><input aria-label="合成双源任务 ID" value={lookupId} onChange={event => setLookupId(event.target.value)} placeholder="粘贴任务 ID" className="flex-1 min-w-60 rounded-lg border border-slate-300 px-3 py-2" /><button type="button" onClick={openTask} className="rounded-lg bg-slate-700 text-white px-4 py-2">读取任务</button><button type="button" disabled={!taskId} onClick={() => void refresh(taskId)} className="rounded-lg border border-slate-300 px-4 py-2 disabled:text-slate-400">刷新当前任务</button></div>
         {taskId && <p className="text-sm break-all">任务 ID：{taskId}</p>}
+        {executor === 'persistent' && taskId && !['completed', 'failed', 'cancelled'].includes(task?.status) && <button type="button" className="border rounded p-2" onClick={async () => { try { await request(`/cancel/${encodeURIComponent(taskId)}`, { method: 'POST' }); await refresh(taskId); } catch (reason) { handleError(reason); } }}>请求取消</button>}
         {task && <p aria-live="polite" className="text-sm">状态：{task.status}{task.error ? ` · ${task.error}` : ''}</p>}
         {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 break-words">{error}{error.startsWith('409') && ' 已清除页面上的旧结果；请核查原始文件与发布清单。'}</p>}
       </section>

@@ -403,6 +403,9 @@ register_synthetic(app)
 from .dual_source import register as register_dual_source
 register_dual_source(app)
 
+from .persistent_dual import register as register_persistent_dual
+register_persistent_dual(app)
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002)
