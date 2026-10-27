@@ -264,7 +264,7 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
         incomplete_cfg=analyst.expect('POST',f'/api/v3/datasets/{dataset}/configs',
             {'kind':'dual','document':incomplete},code=201)['config']
         denied=analyst.expect('POST','/api/v3/runs',{'dataset_id':dataset,
-            'config_version_id':incomplete_cfg['id'],'mode':'dual_source'},code=422)
+            'config_version_id':incomplete_cfg['id'],'preflight_id':preflight['preflight_id'],'mode':'dual_source'},code=422)
         if denied['error']['code']!='insufficient_basis':raise RuntimeError('missing mapping permitted')
         dual_cfg=analyst.expect('POST',f'/api/v3/datasets/{dataset}/configs',
             {'kind':'dual','document':dual},code=201)['config']
@@ -277,9 +277,9 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
         worker_config_path=work/'worker-config.json';write_private(worker_config_path,worker_config)
         worker=start_worker(work,'worker',worker_config_path,env)
         run_id=analyst.expect('POST','/api/v3/runs',{'dataset_id':dataset,
-            'config_version_id':dual_cfg['id'],'mode':'dual_source'},code=201)['run']['id']
+            'config_version_id':dual_cfg['id'],'preflight_id':preflight['preflight_id'],'mode':'dual_source'},code=201)['run']['id']
         viewer_code,viewer_reply=viewer_client.request('POST','/api/v3/runs',{'dataset_id':dataset,
-            'config_version_id':dual_cfg['id'],'mode':'dual_source'})
+            'config_version_id':dual_cfg['id'],'preflight_id':preflight['preflight_id'],'mode':'dual_source'})
         if viewer_code not in (403,404) or viewer_reply['error']['code'] not in ('forbidden','not_found'):
             raise RuntimeError('viewer write denied with unexpected result')
         status=status_until(analyst,run_id)
@@ -307,7 +307,7 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
             raise RuntimeError('real single source metadata changed semantics')
         stop(worker);worker=None
         queued=cli_call(work/'cpagctl',work,origin,'POST','/api/v3/runs',
-            {'dataset_id':dataset,'config_version_id':dual_cfg['id'],'mode':'dual_source'})['run']['id']
+            {'dataset_id':dataset,'config_version_id':dual_cfg['id'],'preflight_id':preflight['preflight_id'],'mode':'dual_source'})['run']['id']
         queued_status=analyst.expect('GET','/api/v3/runs/'+queued)['run']
         if queued_status['state']!='queued':raise RuntimeError('CLI submission was not queued')
         cli_cancel=cli_call(work/'cpagctl',work,origin,'POST','/api/v3/runs/'+queued+'/cancel',{})
@@ -316,7 +316,7 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
             raise RuntimeError('CLI cancellation did not match API state')
         stop(source_app);source_app=None
         snapshot=bundle.backup(container,'m4_validation',source_root,work/'bundle')
-        if snapshot['format_version']!=3 or not snapshot['catalog_audit']['valid']:
+        if snapshot['format_version']!=4 or not snapshot['catalog_audit']['valid']:
             raise RuntimeError('catalog backup failed')
         restored_audit=bundle.restore(container,work/'bundle',restored_root)
         if not restored_audit['valid'] or not restored_audit.get('catalog_equal'):

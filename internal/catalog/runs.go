@@ -28,15 +28,16 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
-	var dataset, config, mode string
+	var dataset, config, mode, linkOrigin string
+	var preflightID *string
 	var at time.Time
-	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at)
+	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin)
 	if e != nil || !s.can(r.Context(), p, dataset, false) {
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
 	if len(parts) == 2 && r.Method == "GET" {
-		s.getRun(w, r, id, dataset, config, mode, at)
+		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin)
 		return
 	}
 	if len(parts) == 3 && parts[2] == "cancel" && r.Method == "POST" {
@@ -76,12 +77,18 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 }
 func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal) {
 	var q struct {
-		DatasetID string `json:"dataset_id"`
-		ConfigID  string `json:"config_version_id"`
-		Mode      string `json:"mode"`
+		DatasetID   string `json:"dataset_id"`
+		ConfigID    string `json:"config_version_id"`
+		PreflightID string `json:"preflight_id"`
+		Mode        string `json:"mode"`
 	}
 	if body(w, r, &q, 8192) != nil || !safeID.MatchString(q.DatasetID) || !safeID.MatchString(q.ConfigID) || q.Mode != "dual_source" {
 		fail(w, 422, "invalid_run", "dataset, version and supported mode required")
+		return
+	}
+	if !safeID.MatchString(q.PreflightID) {
+		_ = s.audit(r.Context(), p, "", "", "run_gate_rejected", "preflight_required")
+		fail(w, 422, "preflight_required", "select a current intake preflight")
 		return
 	}
 	if !s.can(r.Context(), p, q.DatasetID, true) {
@@ -98,6 +105,11 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 422, "unsupported_source", "real material is accepted for preflight only until supported analysis is verified")
 		return
 	}
+	if _, rejected := s.gatePreflight(r.Context(), q.DatasetID, q.PreflightID); rejected != nil {
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", rejected.code)
+		fail(w, rejected.status, rejected.code, rejected.message)
+		return
+	}
 	var cfgKind, cfgPath, cfgSHA, fp string
 	var raw []byte
 	e = s.DB.QueryRowContext(r.Context(), "SELECT kind,profile_storage_path,profile_sha256,config_fingerprint,profile_json FROM v3_config_versions WHERE dataset_id=$1 AND id=$2", q.DatasetID, q.ConfigID).Scan(&cfgKind, &cfgPath, &cfgSHA, &fp, &raw)
@@ -107,6 +119,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 	}
 	var doc map[string]any
 	if json.Unmarshal(raw, &doc) != nil || !readyDual(doc) {
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "insufficient_basis")
 		fail(w, 422, "insufficient_basis", "synthetic dual run requires mappings and explicit clock basis, offset and uncertainty")
 		return
 	}
@@ -146,6 +159,12 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
+	if _, rejected := s.gatePreflight(r.Context(), q.DatasetID, q.PreflightID); rejected != nil {
+		_ = tx.Rollback()
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", rejected.code)
+		fail(w, rejected.status, rejected.code, rejected.message)
+		return
+	}
 	var networkCount, processCount int
 	if tx.QueryRowContext(r.Context(), "SELECT count(*) FILTER (WHERE role='network'),count(*) FILTER (WHERE role='process') FROM v3_dataset_files WHERE dataset_id=$1", q.DatasetID).Scan(&networkCount, &processCount) != nil || networkCount != 1 || processCount != 1 {
 		fail(w, 409, "catalog_changed", "source set changed during submission")
@@ -157,7 +176,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 	}
 	_, e = tx.ExecContext(r.Context(), "INSERT INTO m4_jobs(id,max_attempts,payload) VALUES($1,3,$2)", id, string(rawPayload))
 	if e == nil {
-		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by) VALUES($1,$2,$3,$4,$5,'dual_source',$6)", id, q.DatasetID, network.ID, process.ID, q.ConfigID, p.ID)
+		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason) VALUES($1,$2,$3,$4,$5,'dual_source',$6,$7,'native_gate',NULL)", id, q.DatasetID, network.ID, process.ID, q.ConfigID, p.ID, q.PreflightID)
 	}
 	if e == nil {
 		e = auditTx(r.Context(), tx, p, q.DatasetID, id, "run_create", "ok")
@@ -166,7 +185,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 503, "database_error", "run unavailable")
 		return
 	}
-	respond(w, 201, map[string]any{"run": map[string]any{"id": id, "dataset_id": q.DatasetID, "state": "queued", "config_version_id": q.ConfigID, "mode": "dual_source"}})
+	respond(w, 201, map[string]any{"run": map[string]any{"id": id, "dataset_id": q.DatasetID, "state": "queued", "config_version_id": q.ConfigID, "preflight_id": q.PreflightID, "mode": "dual_source"}})
 }
 func readyDual(doc map[string]any) bool {
 	if doc["synthetic"] != true {
@@ -234,7 +253,7 @@ func (s *Server) listRuns(w http.ResponseWriter, r *http.Request, p *principal) 
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
-	rows, e := s.DB.QueryContext(r.Context(), "SELECT b.job_id,j.state,j.attempt,b.config_version_id,b.created_at FROM v3_run_bindings b JOIN m4_jobs j ON j.id=b.job_id WHERE b.dataset_id=$1 ORDER BY b.created_at DESC LIMIT 200", dataset)
+	rows, e := s.DB.QueryContext(r.Context(), "SELECT b.job_id,j.state,j.attempt,b.config_version_id,b.created_at,b.preflight_id,b.preflight_link_origin FROM v3_run_bindings b JOIN m4_jobs j ON j.id=b.job_id WHERE b.dataset_id=$1 ORDER BY b.created_at DESC LIMIT 200", dataset)
 	if e != nil {
 		fail(w, 503, "database_error", "runs unavailable")
 		return
@@ -242,16 +261,17 @@ func (s *Server) listRuns(w http.ResponseWriter, r *http.Request, p *principal) 
 	defer rows.Close()
 	out := []any{}
 	for rows.Next() {
-		var id, state, cfg string
+		var id, state, cfg, linkOrigin string
+		var preflightID *string
 		var attempt int
 		var at time.Time
-		if rows.Scan(&id, &state, &attempt, &cfg, &at) == nil {
-			out = append(out, map[string]any{"id": id, "dataset_id": dataset, "state": state, "attempt": attempt, "config_version_id": cfg, "created_at": at})
+		if rows.Scan(&id, &state, &attempt, &cfg, &at, &preflightID, &linkOrigin) == nil {
+			out = append(out, map[string]any{"id": id, "dataset_id": dataset, "state": state, "attempt": attempt, "config_version_id": cfg, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "created_at": at})
 		}
 	}
 	respond(w, 200, map[string]any{"runs": out})
 }
-func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time) {
+func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time, preflightID *string, linkOrigin string) {
 	st, e := s.repo.Status(r.Context(), id)
 	if e != nil {
 		fail(w, 503, "database_error", "run unavailable")
@@ -261,7 +281,7 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, con
 	for _, a := range st.AttemptHistory {
 		history = append(history, map[string]any{"attempt": a.Attempt, "location": a.Location, "exited_at": a.ExitedAt, "publication_state": a.PublicationState})
 	}
-	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "mode": mode, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "attempt_history": history, "lease_valid": st.LeaseValid}})
+	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "attempt_history": history, "lease_valid": st.LeaseValid}})
 }
 func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
 	path := "/v1/jobs/" + id + "/dual-result"

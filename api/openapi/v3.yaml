@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: CPAG v3 local research API
-  version: 0.1.0
+  version: 0.2.0
   description: Explicit opt-in local API. Real material is accepted for metadata and integrity preflight; dual analysis currently executes synthetic sources only.
 servers:
   - url: http://127.0.0.1:8095
@@ -69,7 +69,7 @@ paths:
                 source: { type: string }
                 batch: { type: string }
                 authorization_ref: { type: string, description: 'Declared reference, not verified authorization' }
-      responses: { '201': { description: Dataset and owner ACL created }, '403': { $ref: '#/components/responses/Error' } }
+      responses: { '201': { description: Dataset and owner ACL created }, '400': { description: invalid_source_kind or malformed request }, '403': { $ref: '#/components/responses/Error' } }
   /api/v3/datasets/{dataset_id}:
     parameters: [{ $ref: '#/components/parameters/datasetId' }]
     get:
@@ -151,6 +151,17 @@ paths:
               required: [config_version_id]
               properties: { config_version_id: { type: string } }
       responses: { '200': { description: Existing core metadata and integrity report, including incomplete results }, '409': { description: Stored original changed or batch identity conflicts; batch conflict includes its retained preflight report }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/preflights:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Authorized historical reports with native, reconstructed, or explicitly unresolved snapshot status.
+      responses: { '200': { description: Historical preflight summaries }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/preflights/{preflight_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: preflight_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Retained report and verified exact snapshot, if reconstructable }, '409': { description: Snapshot digest or structure changed } }
   /api/v3/runs:
     get:
       security: [{ cookieAuth: [] }]
@@ -164,9 +175,9 @@ paths:
           application/json:
             schema:
               type: object
-              required: [dataset_id, config_version_id, mode]
-              properties: { dataset_id: { type: string }, config_version_id: { type: string }, mode: { const: dual_source } }
-      responses: { '201': { description: Atomic M4 job and v3 binding }, '422': { $ref: '#/components/responses/Error' } }
+              required: [dataset_id, config_version_id, preflight_id, mode]
+              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { const: dual_source } }
+      responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis or unsupported_source; no job inserted } }
   /api/v3/runs/{run_id}:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:

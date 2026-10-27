@@ -171,7 +171,7 @@ def main():
     expect(viewer, 'POST', f'/api/v3/datasets/{did}/files?role=process&name=no.csv', {403}, b'a', {'X-Content-SHA256': hashlib.sha256(b'a').hexdigest(), 'Idempotency-Key': 'r16-viewer-upload-' + marker})
     expect(viewer, 'POST', f'/api/v3/datasets/{did}/configs', {403}, {'kind': 'dual', 'document': profile})
     expect(viewer, 'POST', f'/api/v3/datasets/{did}/preflight', {403}, {'config_version_id': 'unknown'})
-    expect(viewer, 'POST', '/api/v3/runs', {403, 404}, {'dataset_id': did, 'config_version_id': 'unknown', 'mode': 'dual_source'})
+    expect(viewer, 'POST', '/api/v3/runs', {403, 404}, {'dataset_id': did, 'config_version_id': 'unknown', 'preflight_id': 'unknown', 'mode': 'dual_source'})
     expect(analyst, 'POST', '/api/v3/users', {403}, {'username': 'unauthorized', 'password': 'long-password-123', 'role': 'admin'})
     expect(viewer, 'GET', '/api/v3/audit', {403})
     expect(admin, 'POST', f'/api/v3/datasets/{did}/acl', {200}, {'user_id': viewer_user['id'], 'access': 'analyst'})
@@ -184,6 +184,7 @@ def main():
     cfg, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/configs', {201}, {'kind': 'intake', 'document': intake})
     intake_id = cfg['config']['id']
     report, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/preflight', {200}, {'config_version_id': intake_id})
+    intake_preflight_id = report['preflight_id']
     require(report['report']['status'] == 'ready_for_manual_review', 'complete synthetic intake not ready for manual review')
     conflict, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/configs', {201}, {'kind': 'intake', 'document': {**intake, 'dataset_id': 'wrong-batch'}})
     report, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/preflight', {409}, {'config_version_id': conflict['config']['id']})
@@ -204,12 +205,12 @@ def main():
 
     c1, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/configs', {201}, {'kind': 'dual', 'document': profile})
     old_config = c1['config']['id']
-    run1, _ = expect(analyst, 'POST', '/api/v3/runs', {201}, {'dataset_id': did, 'config_version_id': old_config, 'mode': 'dual_source'})
+    run1, _ = expect(analyst, 'POST', '/api/v3/runs', {201}, {'dataset_id': did, 'config_version_id': old_config, 'preflight_id': intake_preflight_id, 'mode': 'dual_source'})
     old_run = run1['run']['id']; poll_run(analyst, old_run)
     updated = copy.deepcopy(profile);updated['config_version'] = 'boundary-v2-' + marker
     c2, _ = expect(analyst, 'POST', f'/api/v3/datasets/{did}/configs', {201}, {'kind': 'dual', 'document': updated})
     new_config = c2['config']['id'];require(new_config != old_config and c2['config']['version'] == c1['config']['version'] + 1, 'new config did not version')
-    run2, _ = expect(analyst, 'POST', '/api/v3/runs', {201}, {'dataset_id': did, 'config_version_id': new_config, 'mode': 'dual_source'})
+    run2, _ = expect(analyst, 'POST', '/api/v3/runs', {201}, {'dataset_id': did, 'config_version_id': new_config, 'preflight_id': intake_preflight_id, 'mode': 'dual_source'})
     new_run = run2['run']['id'];poll_run(analyst, new_run)
     r1, _ = expect(analyst, 'GET', f'/api/v3/runs/{old_run}', {200})
     r2, _ = expect(analyst, 'GET', f'/api/v3/runs/{new_run}', {200})
@@ -227,7 +228,9 @@ def main():
     shadow_process, _, _ = upload(admin, shadow_id, 'process', 'process.csv', process, 'r16-shadow-process-' + marker)
     require(shadow_network == 201 and shadow_process == 201, 'shadow source creation failed')
     shadow_config, _ = expect(admin, 'POST', f'/api/v3/datasets/{shadow_id}/configs', {201}, {'kind': 'dual', 'document': profile})
-    shadow_run_created, _ = expect(admin, 'POST', '/api/v3/runs', {201}, {'dataset_id': shadow_id, 'config_version_id': shadow_config['config']['id'], 'mode': 'dual_source'})
+    shadow_intake, _ = expect(admin, 'POST', f'/api/v3/datasets/{shadow_id}/configs', {201}, {'kind':'intake','document':{**intake,'dataset_id':shadow_id}})
+    shadow_preflight, _ = expect(admin,'POST',f'/api/v3/datasets/{shadow_id}/preflight',{200},{'config_version_id':shadow_intake['config']['id']})
+    shadow_run_created, _ = expect(admin, 'POST', '/api/v3/runs', {201}, {'dataset_id': shadow_id, 'config_version_id': shadow_config['config']['id'], 'preflight_id':shadow_preflight['preflight_id'], 'mode': 'dual_source'})
     shadow_run = shadow_run_created['run']['id'];poll_run(admin, shadow_run)
     for client in (analyst, viewer):
         for suffix in ('', '/result', '/evidence?operation=first', '/artifacts', '/artifacts/dataset.json/download'):

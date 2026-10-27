@@ -84,6 +84,15 @@ func (s *Server) serveDatasets(w http.ResponseWriter, r *http.Request, p *princi
 			s.preflight(w, r, p, id)
 			return
 		}
+	case "preflights":
+		if len(parts) == 3 && r.Method == "GET" {
+			s.listPreflights(w, r, id)
+			return
+		}
+		if len(parts) == 4 && r.Method == "GET" {
+			s.getPreflight(w, r, id, parts[3])
+			return
+		}
 	}
 	fail(w, 404, "not_found", "route not found")
 }
@@ -99,7 +108,15 @@ func (s *Server) createDataset(w http.ResponseWriter, r *http.Request, p *princi
 		Batch            string `json:"batch"`
 		AuthorizationRef string `json:"authorization_ref"`
 	}
-	if body(w, r, &q, 8192) != nil || strings.TrimSpace(q.Name) == "" || len(q.Name) > 200 || (q.SourceKind != "synthetic" && q.SourceKind != "real") || len(q.Source) > 500 || len(q.Batch) > 200 || len(q.AuthorizationRef) > 500 {
+	if body(w, r, &q, 8192) != nil {
+		fail(w, 400, "invalid_request", "invalid dataset request")
+		return
+	}
+	if q.SourceKind != "synthetic" && q.SourceKind != "real" {
+		fail(w, 400, "invalid_source_kind", "source_kind must be synthetic or real")
+		return
+	}
+	if strings.TrimSpace(q.Name) == "" || len(q.Name) > 200 || len(q.Source) > 500 || len(q.Batch) > 200 || len(q.AuthorizationRef) > 500 {
 		fail(w, 422, "invalid_dataset", "invalid dataset metadata")
 		return
 	}
@@ -421,7 +438,7 @@ func (s *Server) createConfig(w http.ResponseWriter, r *http.Request, p *princip
 		return
 	}
 	var doc map[string]any
-	if json.Unmarshal(q.Document, &doc) != nil || doc == nil {
+	if validateUniqueJSON(q.Document) != nil || json.Unmarshal(q.Document, &doc) != nil || doc == nil {
 		fail(w, 422, "invalid_config", "document object required")
 		return
 	}

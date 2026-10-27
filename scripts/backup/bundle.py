@@ -3,6 +3,7 @@
 Only explicitly named disposable databases are accepted by this validation utility.
 """
 import argparse
+from datetime import datetime
 import hashlib
 import json
 import os
@@ -401,7 +402,23 @@ def audit_catalog(catalog, rows, root):
         if isinstance(row,dict) and isinstance(row.get('id'),str):jobs[row['id']]=row
     identity('v3_sessions');identity('v3_run_bindings','job_id')
     identity('v3_preflights');identity('v3_audit_events')
-    acl_keys=set();versions=set();source_owners=set();run_jobs=set()
+    acl_keys=set();versions=set();source_owners=set();run_jobs=set();verified_preflights={}
+
+    def unique_json(raw):
+        def no_duplicates(pairs):
+            result={}
+            for key,value in pairs:
+                if key in result:raise ValueError('duplicate snapshot JSON key')
+                result[key]=value
+            return result
+        def no_nonfinite(_):raise ValueError('nonfinite snapshot JSON')
+        return json.loads(raw,object_pairs_hook=no_duplicates,parse_constant=no_nonfinite)
+
+    def recorded_time(value):
+        if not isinstance(value,str):raise ValueError('catalog timestamp missing')
+        stamp=datetime.fromisoformat(value.replace('Z','+00:00'))
+        if stamp.tzinfo is None:raise ValueError('catalog timestamp lacks timezone')
+        return stamp
 
     def user_exists(value):return value in users
     def valid_digest(value):
@@ -517,35 +534,106 @@ def audit_catalog(catalog, rows, root):
             errors.append({'scope':'v3_run_bindings','job_id':job_id,
                            'reason':'catalog-backed job lacks run ownership binding'})
     for row in tables['v3_preflights']:
-        config=configs.get(row.get('config_version_id'))
+        preflight_id=row.get('id');config=configs.get(row.get('config_version_id'))
         if (row.get('dataset_id') not in datasets or config is None or
                 config.get('dataset_id')!=row.get('dataset_id') or not user_exists(row.get('created_by'))):
-            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':'dangling preflight ownership'});continue
+            errors.append({'scope':'v3_preflights','id':preflight_id,'reason':'dangling preflight ownership'});continue
         if config.get('kind')!='intake' or not isinstance(row.get('report'),dict):
-            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':'invalid preflight config/report'});continue
-        dataset=datasets[row['dataset_id']]
-        entries=[]
-        for link in sorted((item for item in tables['v3_dataset_files']
-                            if item.get('dataset_id')==row['dataset_id']),key=lambda item:str(item.get('id'))):
-            source=source_files.get(link.get('source_file_id'))
-            if source is None:continue
-            entries.append({'name':source['storage_path'],'sha256':source['sha256'],
-                            'size_bytes':source['size_bytes'],'kind':link['role']})
-        manifest={'schema_version':'1.0.0','synthetic':dataset['source_kind']=='synthetic',
-                  'dataset_id':row['dataset_id'],'source':dataset.get('source'),
-                  'release':dataset.get('batch'),'files':entries,
-                  'collection_range':{'start':None,'end':None},'timezone_basis':None,
-                  'authorization_ref':dataset.get('authorization_ref')}
+            errors.append({'scope':'v3_preflights','id':preflight_id,'reason':'invalid preflight config/report'});continue
+        status=row.get('snapshot_status');raw=row.get('snapshot_json');digest=row.get('snapshot_sha256')
+        if status not in ('native','reconstructed'):
+            errors.append({'scope':'v3_preflights','id':preflight_id,
+                           'reason':'unverified legacy preflight snapshot: '+str(status)});continue
+        if (not isinstance(raw,str) or not isinstance(digest,str) or
+                hashlib.sha256(raw.encode('utf-8')).hexdigest()!=digest or row.get('snapshot_reason') is not None):
+            errors.append({'scope':'v3_preflights','id':preflight_id,'reason':'snapshot bytes/hash/status mismatch'});continue
         try:
+            snapshot=unique_json(raw)
+            if not isinstance(snapshot,dict) or set(snapshot)!={'schema_version','origin','dataset','files','config','manifest'}:
+                raise ValueError('preflight snapshot shape invalid')
+            if snapshot['schema_version']!='v3-preflight-snapshot-1' or snapshot['origin']!=status:
+                raise ValueError('preflight snapshot version/origin mismatch')
+            dataset=datasets[row['dataset_id']]
+            expected_dataset={key:dataset[key] for key in
+                ('id','source_kind','source','batch','authorization_ref')}
+            if snapshot['dataset']!=expected_dataset:
+                raise ValueError('preflight snapshot dataset metadata mismatch')
+            expected_config={'id':config['id'],'kind':'intake','version':config['version'],
+                             'path':config['profile_storage_path'],'sha256':config['profile_sha256'],
+                             'fingerprint':config['config_fingerprint'],'document':config['profile_json']}
+            if snapshot['config']!=expected_config or row['config_version_id']!=config['id']:
+                raise ValueError('preflight snapshot config/version mismatch')
+            preflight_time=recorded_time(row.get('created_at'))
+            if recorded_time(config.get('created_at'))>preflight_time:
+                raise ValueError('preflight references later config version')
+            files=snapshot['files']
+            if not isinstance(files,list) or not files:
+                raise ValueError('preflight snapshot files missing')
+            seen=set();manifest_files=[]
+            for entry in files:
+                if not isinstance(entry,dict):raise ValueError('preflight snapshot file invalid')
+                file_id=entry.get('dataset_file_id')
+                if file_id in seen:raise ValueError('duplicate preflight snapshot file')
+                seen.add(file_id)
+                link=dataset_files.get(file_id)
+                source=source_files.get(entry.get('source_file_id'))
+                if link is None or source is None or link.get('source_file_id')!=source.get('id'):
+                    raise ValueError('preflight snapshot file reference missing')
+                expected_file={'dataset_file_id':link['id'],'source_file_id':source['id'],
+                    'role':link['role'],'filename':link['filename'],
+                    'path':source['storage_path'],'sha256':source['sha256'],
+                    'size_bytes':source['size_bytes']}
+                if entry!=expected_file or link['dataset_id']!=row['dataset_id']:
+                    raise ValueError('preflight snapshot file identity/hash/size mismatch')
+                if (recorded_time(link.get('created_at'))>preflight_time or
+                        recorded_time(source.get('created_at'))>preflight_time):
+                    raise ValueError('preflight references later source file')
+                verify_file(source['storage_path'],source['sha256'],source['size_bytes'])
+                manifest_files.append({'name':source['storage_path'],'sha256':source['sha256'],
+                                       'size_bytes':source['size_bytes'],'kind':link['role']})
+            if [entry['dataset_file_id'] for entry in files]!=sorted(seen):
+                raise ValueError('preflight snapshot file order mismatch')
+            manifest={'schema_version':'1.0.0','synthetic':dataset['source_kind']=='synthetic',
+                'dataset_id':row['dataset_id'],'source':dataset['source'],'release':dataset['batch'],
+                'files':manifest_files,'collection_range':{'start':None,'end':None},
+                'timezone_basis':None,'authorization_ref':dataset['authorization_ref']}
+            if snapshot['manifest']!=manifest:
+                raise ValueError('preflight snapshot manifest differs from fixed inputs')
             with tempfile.TemporaryDirectory(prefix='cpag-intake-backup-') as temporary:
                 manifest_path=Path(temporary)/'manifest.json'
                 manifest_path.write_bytes(canonical(manifest)+b'\n')
                 expected=verify_intake_preflight(root,manifest_path,
                     safe(root,config['profile_storage_path']))
             if expected!=row['report']:
-                raise ValueError('preflight report differs from retained sources/config')
-        except (OSError,ValueError,KeyError,TypeError) as exc:
-            errors.append({'scope':'v3_preflights','id':row.get('id'),'reason':str(exc)})
+                raise ValueError('preflight report differs from retained snapshot sources/config')
+            verified_preflights[preflight_id]=snapshot
+        except (OSError,ValueError,KeyError,TypeError,UnicodeError) as exc:
+            errors.append({'scope':'v3_preflights','id':preflight_id,'reason':str(exc)})
+    for row in tables['v3_run_bindings']:
+        job_id=row.get('job_id');preflight_id=row.get('preflight_id')
+        link_origin=row.get('preflight_link_origin')
+        if (link_origin not in ('native_gate','reconstructed_match') or
+                not isinstance(preflight_id,str) or preflight_id not in verified_preflights or
+                row.get('preflight_link_reason') is not None):
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,
+                           'reason':'run preflight gate unbound or unverified'});continue
+        snapshot=verified_preflights[preflight_id]
+        preflight=next(item for item in tables['v3_preflights'] if item.get('id')==preflight_id)
+        if (preflight.get('dataset_id')!=row.get('dataset_id') or
+                preflight.get('report',{}).get('status')!='ready_for_manual_review' or
+                snapshot['dataset']['source_kind']!='synthetic' or
+                {entry['dataset_file_id'] for entry in snapshot['files']}!=
+                    {row.get('network_file_id'),row.get('process_file_id')} or
+                len(snapshot['files'])!=2 or
+                (link_origin=='native_gate' and preflight.get('snapshot_status')!='native') or
+                (link_origin=='reconstructed_match' and preflight.get('snapshot_status')!='reconstructed')):
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,
+                           'reason':'run preflight snapshot/status/input binding mismatch'})
+        try:
+            if recorded_time(preflight.get('created_at'))>recorded_time(row.get('created_at')):
+                raise ValueError('run linked to later preflight')
+        except ValueError as exc:
+            errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':str(exc)})
     for row in tables['v3_audit_events']:
         if ((row.get('user_id') is not None and row['user_id'] not in users) or
                 (row.get('dataset_id') is not None and row['dataset_id'] not in datasets) or
@@ -664,7 +752,7 @@ def backup(container, db, root, destination):
         phase='final_integrity'
         if inventory(destination/'files')!=files or inventory(root)!=files:raise ValueError('files changed during database dump')
         phase='bundle_publication'
-        bundle={'format_version':3 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
+        bundle={'format_version':4 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
                 'database_sha256':sha(destination/'database.dump'),'source_audit':before,'copied_audit':copied,'attempt_audit':history,
                 'consistency':'exported PostgreSQL snapshot + SHARE lock; terminal tasks only; file pre/post hashes'}
         if catalog is not None:
@@ -710,7 +798,9 @@ def restore(container, bundle_dir, destination):
     phase='bundle_integrity'
     try:
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
-        if bundle['format_version'] not in (2,3) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
+        if bundle['format_version']==3:
+            raise ValueError('legacy v3 catalog bundle lacks verified preflight snapshots; restore with b208bc9 in an isolated maintenance environment, apply migration 007, run cpagx-v3 --backfill-legacy, then create a format-4 backup')
+        if bundle['format_version'] not in (2,4) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
         if sha(safe(bundle_dir,'database.dump'))!=bundle['database_sha256'] or inventory(bundle_dir/'files')!=bundle['files']:
             raise ValueError('bundle integrity mismatch')
         phase='pre_restore_references'
@@ -718,7 +808,7 @@ def restore(container, bundle_dir, destination):
         if not before['valid']: raise ValueError('bundle references invalid: '+json.dumps(before['errors']))
         history=audit_attempts(bundle['rows'],bundle.get('attempts',[]))
         if not history['valid']:raise ValueError('bundle attempt history invalid: '+json.dumps(history['errors']))
-        has_catalog=bundle['format_version']==3
+        has_catalog=bundle['format_version']==4
         if has_catalog:
             directory=audit_catalog(bundle['catalog'],bundle['rows'],bundle_dir/'files')
             if not directory['valid']:

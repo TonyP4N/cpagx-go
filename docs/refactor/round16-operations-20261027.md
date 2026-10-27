@@ -1,10 +1,12 @@
 # 第十六轮正式入口与复现
 
+补验收合同升级至0.2.0：新增迁移007，运行请求必须增加预检返回的 `preflight_id`；只提供 `synthetic` 和 dual 配置不能入队。V1/V2默认入口不变，已完成结果保留。历史升级和format4备份说明见本文末尾。
+
 本轮是显式可选、本机访问的工程入口，不修改原 `cmd/cpagx`、Celery 路径、用户当前部署或冻结 RC1。浏览器直接访问 Go 服务，Python 不提供对外 HTTP 代理。此文和 [服务配置](round16-v3-service.md)、[API 契约](../../api/openapi/v3.yaml) 一起使用。
 
 ## 正常应用启动
 
-1. 准备独立 PostgreSQL 数据库，按文件顺序应用 `internal/jobs/migrations/001_jobs.sql` 至 `006_v3_catalog.sql`。本轮迁移仅增表，不迁移或覆盖旧 V1/V2 数据；生产迁移及任意历史格式不在本轮承诺中。
+1. 准备独立 PostgreSQL 数据库，按文件顺序应用 `internal/jobs/migrations/001_jobs.sql` 至 `007_v3_preflight_snapshots.sql`。迁移新增表/列，不迁移或覆盖旧 V1/V2 数据；生产迁移及任意历史格式不在本轮承诺中。
 2. 在仓库执行 `npm --prefix webui ci`、`npm --prefix webui run build:static`，静态目录为 `webui/out`。准备 Python 环境，安装 `services/analysis/requirements-test.txt` 中的验证依赖，并使现有 `cpag_core` 和 `cpag_worker` 可导入。
 3. `docker build -t cpag-isolated:round5 -f deployments/isolated-executor/Dockerfile .`。使用独立 shared/control 绝对目录，control 必须在 shared 外，均应只由服务操作者访问。
 4. 根据服务配置文档创建权限 `0600` 的 `v3.json`。`static_root` 必须指向导出的 `webui/out`；两个监听地址不同，均绑定 `127.0.0.1`。
@@ -27,7 +29,15 @@
 /absolute/private/cpagctl --url http://127.0.0.1:8095 --session /absolute/private/session.json --body /absolute/private/run.json request POST /api/v3/runs
 ```
 
-`run.json` 包含 `dataset_id`、`config_version_id`、`mode:"dual_source"`。CLI 不直接连数据库，不创建第二套任务状态；读写及错误与 UI/API 一致。原件上传使用 `--upload` 和 `--idempotency-key`，客户端计算 SHA-256，服务端重新验证。CLI 当前上传上限 16 MiB；接收 API 的更大接收限额不意味着核心可执行该尺寸。
+`run.json` 包含 `dataset_id`、`config_version_id`、`preflight_id`、`mode:"dual_source"`。先保存 intake 配置并调用预检，将响应 ID 与所选 dual 配置一起提交。CLI 不直接连数据库，不创建第二套任务状态；读写及错误与 UI/API 一致。原件上传使用 `--upload` 和 `--idempotency-key`，客户端计算 SHA-256，服务端重新验证。CLI 当前上传上限 16 MiB；接收 API 的更大接收限额不意味着核心可执行该尺寸。
+
+## 历史预检与停写迁移
+
+新预检固定文件集合、原件哈希、来源/批次/授权和配置版本，保存精确JSON文本及SHA256。追加文件/版本不重写历史；旧运行仍用旧引用。新运行要求 `native` 且输入仍一致的合格预检。历史列表及详情位于 `/api/v3/datasets/{id}/preflights`，按数据集授权访问。
+
+对迁移007前的记录：先停止写入服务和Worker，确认所有任务终态，并保留原数据库/文件备份；应用007后，使用新二进制执行 `cpagx-v3 --config /absolute/private/v3.json --backfill-legacy`。普通服务启动不自动执行它。工具按历史时点的文件记录和原配置重算，严格匹配才标 `reconstructed`；旧运行只有唯一的较早合格预检可对应时才标 `reconstructed_match`，这只是历史重建，不能宣称旧提交已经实施过新门禁。原报告和运行不删除。无法重建时保留 `unreconstructable` / `legacy_unbound` 和原因，命令非零退出、可信备份拒绝，需核对材料；不得改库强行放行。迁移后新任务重新做 native 预检。
+
+新目录备份格式为4。格式3包无法在缺历史快照时声称达到新标准，新工具明确拒绝；已有已校验格式3包应先用固定 `b208bc9` 工具在独立维护环境恢复，再应用007、执行上述重建并生成format4包。不能把旧包改一个版本号冒充新包。原受支持format2恢复路径保留；本轮不扩大到任意历史格式，不修改冻结RC1。
 
 ## 可重复完整验收
 

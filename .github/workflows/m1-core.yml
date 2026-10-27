@@ -37,6 +37,7 @@ jobs:
           path: |
             ${{ runner.temp }}/round16/public
             ${{ runner.temp }}/round16/environment/public
+            ${{ runner.temp }}/round16/supplement/public
   core:
     runs-on: ubuntu-latest
     steps:
