@@ -17,7 +17,7 @@ import uuid
 import urllib.request
 import urllib.error
 import urllib.parse
-from .worker import API, APIError, beneath, digest
+from .worker import API, APIError, beneath, digest, network_refs, publication_inputs, source_flag
 
 
 def sync_dir(path):
@@ -149,10 +149,11 @@ class DockerExecutor:
         if digest(output/'manifest.json')!=handoff['manifest_sha256']:raise ValueError('handoff manifest changed')
         publication=json.loads((output/'manifest.json').read_text())
         payload=status['payload']
-        if publication['config_fingerprint']!=payload['config_fingerprint'] or publication['inputs']!={name:payload[name]['sha256'] for name in ('network','process','profile')}:raise ValueError('handoff identity differs')
+        if publication['config_fingerprint']!=payload['config_fingerprint'] or any(publication.get(k)!=v for k,v in publication_inputs(payload).items()) or publication.get('networks')!=publication_inputs(payload).get('networks'):raise ValueError('handoff identity differs')
         dual_source=payload.get('kind')=='dual-source'
         if dual_source:
-            from cpag_core.dual_source_export import FILES, verify_task
+            from cpag_core.dual_source_export import artifact_files, verify_task
+            FILES=artifact_files(output)
             if {entry['path'] for entry in publication['artifacts']}!=FILES or len(publication['artifacts'])!=len(FILES):raise ValueError('dual-source handoff inventory differs')
             manifest=verify_task(output)
             if manifest['run_id']!=record['id'] or manifest['attempt_id']!=record['attempt']:raise ValueError('dual-source handoff identity differs')
@@ -335,6 +336,7 @@ class DockerExecutor:
         dual_source=payload.get('kind')=='dual-source'
         if dual_source:
             from cpag_core.dual_source_export import FILES, DIRECTORIES
+            FILES=set(FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
         with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
             total=0
             seen=set()
@@ -384,7 +386,7 @@ class DockerExecutor:
             if found!=FILES:raise ValueError('unexpected dual-source output file')
         elif {p.name for p in target.iterdir()}!=expected|{'run_manifest.json'}: raise ValueError('unexpected output file')
         publication={'config_fingerprint':payload['config_fingerprint'],
-                     'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')},
+                     **publication_inputs(payload),
                      'artifacts':[{'path':p.relative_to(target).as_posix(),'sha256':digest(p),'size':p.stat().st_size}
                                   for p in sorted(target.rglob('*')) if p.is_file()]}
         atomic_json(target/'manifest.json',publication);sync_dir(target)
@@ -404,18 +406,24 @@ class DockerExecutor:
         try:
             self.capacity(claim)
             inputs=base/'inputs';inputs.mkdir()
-            for name in ('network','process','profile'):
-                source=beneath(self.root,claim['payload'][name]['path'])
-                if digest(source)!=claim['payload'][name]['sha256']: raise ValueError('input hash mismatch')
-                shutil.copyfile(source,inputs/(name+source.suffix))
-                if digest(inputs/(name+source.suffix))!=claim['payload'][name]['sha256']: raise ValueError('staged input hash mismatch')
-                with (inputs/(name+source.suffix)).open('rb') as stream:os.fsync(stream.fileno())
-                os.chmod(inputs/(name+source.suffix),0o444)
+            payload=claim['payload'];kind=payload.get('kind');network_arguments=[]
+            refs=[('network' if i==0 else f'network-{i:03d}',r) for i,r in enumerate(network_refs(payload))]
+            refs += [(name,payload[name]) for name in ('process','profile')]
+            profile_path=None
+            for name,ref in refs:
+                source=beneath(self.root,ref['path'])
+                if digest(source)!=ref['sha256']:raise ValueError('input hash mismatch')
+                staged=inputs/(name+source.suffix)
+                shutil.copyfile(source,staged)
+                if digest(staged)!=ref['sha256']:raise ValueError('staged input hash mismatch')
+                with staged.open('rb') as stream:os.fsync(stream.fileno())
+                os.chmod(staged,0o444)
+                if name.startswith('network'):network_arguments+=['--network','/inputs/'+staged.name]
+                if name=='profile':profile_path=staged
             sync_dir(inputs);os.chmod(inputs,0o555)
-            kind=claim['payload'].get('kind')
             module='cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
             command=self.command or ['python','-m',module]
-            command=command+sum((["--"+name,"/inputs/"+name+Path(claim['payload'][name]['path']).suffix] for name in ('network','process','profile')),[])+['--output','/output/run','--synthetic']
+            command=command+network_arguments+sum((["--"+name,"/inputs/"+name+Path(payload[name]['path']).suffix] for name in ('process','profile')),[])+['--output','/output/run']+source_flag(profile_path,kind)
             if kind=='dual-source':command+=['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
             nonce=uuid.uuid4().hex
             atomic_json(base/'create-intent.json',{**self.identity(claim),'nonce':nonce,'location':self.location()})

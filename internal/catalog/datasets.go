@@ -447,8 +447,8 @@ func (s *Server) createConfig(w http.ResponseWriter, r *http.Request, p *princip
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
-	if q.Kind == "dual" && (sourceKind != "synthetic" || doc["synthetic"] != true) {
-		fail(w, 422, "unsupported_source", "dual core currently requires synthetic dataset and profile")
+	if q.Kind == "dual" && (doc["synthetic"] != (sourceKind == "synthetic") || (sourceKind == "real" && doc["analysis_mode"] != "bounded-real-capable-v1")) {
+		fail(w, 422, "unsupported_source", "dual profile source category must match dataset and explicit bounded mode is required for real input")
 		return
 	}
 	fingerprint, e := jobapi.DualProfileFingerprint(q.Document)

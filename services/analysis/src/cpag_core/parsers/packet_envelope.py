@@ -1,4 +1,4 @@
-"""Bounded synthetic capture envelope inspection; deliberately no protocol decoding.
+"""Bounded explicitly classified capture envelope inspection; deliberately no protocol decoding.
 
 This API is separate from the default parser and never emits NetworkEvents.
 Offsets refer to immutable input bytes, not reconstructed packets.
@@ -24,14 +24,14 @@ class Limits:
             raise ValueError('limits must be positive integers')
 
 
-def inspect_capture(path, *, synthetic=False, limits=None):
+def inspect_capture(path, *, synthetic=None, limits=None):
     """Index classic PCAP and a strict PCAPNG SHB/IDB/EPB subset.
 
-    Caller must explicitly attest synthetic input. Timestamp integers are raw;
+    Caller must explicitly classify synthetic versus real input; real semantics remain unvalidated. Timestamp integers are raw;
     no timezone, clock alignment, device identity or request pairing is inferred.
     Unsupported linktypes, blocks and interface options fail closed.
     """
-    if synthetic is not True:
+    if type(synthetic) is not bool:
         raise CaptureError('synthetic_opt_in_required')
     limits = limits or Limits()
     if not isinstance(limits, Limits):
@@ -124,7 +124,7 @@ def inspect_capture(path, *, synthetic=False, limits=None):
         container = 'pcapng'
     else:
         raise CaptureError('unsupported_capture_magic')
-    return {'adapter_version': 'synthetic-envelope-1', 'synthetic': True, 'container': container,
+    return {'adapter_version': 'synthetic-envelope-1', 'synthetic': synthetic, 'container': container,
             'file_sha256': digest, 'frames': frames, 'events': [],
             'quality': {'status': 'unsupported', 'reasons': ['protocol_semantics_unsupported'],
                         'frame_count': len(frames), 'event_count': 0}}
@@ -168,7 +168,9 @@ def main():
     import json
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('capture')
-    parser.add_argument('--synthetic', action='store_true', help='explicitly attest generated input')
+    source = parser.add_mutually_exclusive_group()
+    source.add_argument('--synthetic', action='store_true', default=None, help='explicitly attest generated input')
+    source.add_argument('--real', dest='synthetic', action='store_false', help='inspect bytes; real data remains unvalidated')
     parser.add_argument('--max-bytes', type=int, default=Limits().max_bytes)
     parser.add_argument('--max-frames', type=int, default=Limits().max_frames)
     parser.add_argument('--max-frame-bytes', type=int, default=Limits().max_frame_bytes)

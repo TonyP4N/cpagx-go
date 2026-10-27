@@ -28,6 +28,7 @@ type Ref struct {
 type Payload struct {
 	Kind        string `json:"kind,omitempty"`
 	Network     Ref    `json:"network"`
+	Networks    []Ref  `json:"networks,omitempty"`
 	Process     Ref    `json:"process"`
 	Profile     Ref    `json:"profile"`
 	Fingerprint string `json:"config_fingerprint"`
@@ -225,6 +226,13 @@ func (s *Server) validPayload(p Payload) error {
 		if err := contracts.Validate(dualSchemaDir(), "DualSourceProfile", raw); err != nil {
 			return err
 		}
+		doc, _ := config.(map[string]any)
+		if (doc["synthetic"] == false || doc["analysis_mode"] == "bounded-real-capable-v1") && !ReadyRealDualBasis(doc) {
+			return errors.New("real input requires documented provenance/mapping/time basis")
+		}
+		if len(p.Networks) > 0 && doc["analysis_mode"] != "bounded-real-capable-v1" {
+			return errors.New("multiple captures require explicit bounded mode")
+		}
 		if err := validateDualProfile(config); err != nil {
 			return err
 		}
@@ -240,7 +248,22 @@ func (s *Server) validPayload(p Payload) error {
 	if hex.EncodeToString(sum[:]) != p.Fingerprint {
 		return errors.New("profile config fingerprint mismatch")
 	}
-	for _, ref := range []Ref{p.Network, p.Process, p.Profile} {
+	refs, err := p.networkRefs()
+	if err != nil {
+		return err
+	}
+	var networkBytes int64
+	for _, ref := range refs {
+		n, e := s.check(ref)
+		if e != nil {
+			return e
+		}
+		networkBytes += n
+	}
+	if networkBytes > 16<<20 {
+		return errors.New("capture aggregate exceeds 16MiB analysis bound")
+	}
+	for _, ref := range append(refs, p.Process, p.Profile) {
 		if !strings.HasPrefix(ref.Path, "inputs/") {
 			return errors.New("inputs must be under inputs/")
 		}
@@ -312,7 +335,15 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fail(err)
 			return
 		}
-		for index, ref := range []*Ref{&q.Payload.Network, &q.Payload.Process, &q.Payload.Profile} {
+		refs := []*Ref{&q.Payload.Network}
+		if len(q.Payload.Networks) > 0 {
+			refs = nil
+			for i := range q.Payload.Networks {
+				refs = append(refs, &q.Payload.Networks[i])
+			}
+		}
+		refs = append(refs, &q.Payload.Process, &q.Payload.Profile)
+		for index, ref := range refs {
 			source, e := s.file(ref.Path)
 			if e != nil {
 				fail(e)
@@ -346,6 +377,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				fail(e)
 				return
 			}
+		}
+		if len(q.Payload.Networks) > 0 {
+			q.Payload.Network = q.Payload.Networks[0]
 		}
 		b, _ := json.Marshal(q.Payload)
 		if err := s.Repo.EnqueuePayload(r.Context(), q.ID, q.Max, b); err != nil {
@@ -527,6 +561,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type Manifest struct {
 	Fingerprint string            `json:"config_fingerprint"`
 	Inputs      map[string]string `json:"inputs"`
+	Networks    []string          `json:"networks,omitempty"`
 	Artifacts   []struct {
 		Path string `json:"path"`
 		SHA  string `json:"sha256"`
@@ -578,7 +613,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if d.Decode(new(any)) != io.EOF {
 		return errors.New("invalid manifest")
 	}
-	if m.Fingerprint != p.Fingerprint || m.Inputs["network"] != p.Network.SHA || m.Inputs["process"] != p.Process.SHA || m.Inputs["profile"] != p.Profile.SHA || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
+	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
 		return errors.New("manifest input mismatch or artifact count")
 	}
 	seen := map[string]bool{}
@@ -599,7 +634,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if p.Kind == "packet" {
 		required = append(required, "packet_observations.json")
 	} else if p.Kind == "dual-source" {
-		required = dualArtifactNames()
+		required = dualArtifactNamesFor(p)
 	}
 	if len(m.Artifacts) != len(required) {
 		return errors.New("wrapper artifact set mismatch")
@@ -634,12 +669,16 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		return err
 	}
 	inputValues := []map[string]any{}
-	for i, ref := range []Ref{p.Network, p.Process} {
+	networkRefs, _ := p.networkRefs()
+	for i, ref := range append(networkRefs, p.Process) {
 		n, e := s.check(ref)
 		if e != nil {
 			return e
 		}
-		kind := []string{"network", "process"}[i]
+		kind := "network"
+		if i == len(networkRefs) {
+			kind = "process"
+		}
 		inputValues = append(inputValues, map[string]any{"kind": kind, "sha256": ref.SHA, "size_bytes": n})
 	}
 	inputBytes, _ := json.Marshal(inputValues)
@@ -647,12 +686,12 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if core.Input != hex.EncodeToString(inputSum[:]) {
 		return errors.New("core input fingerprint mismatch")
 	}
-	if core.Schema != "1.0.0" || core.Mode != "offline" || core.Config != p.Fingerprint || !core.Synthetic || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != len(required)-1 {
+	if core.Schema != "1.0.0" || core.Mode != "offline" || core.Config != p.Fingerprint || (p.Kind != "dual-source" && !core.Synthetic) || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != len(required)-1 {
 		return errors.New("invalid core manifest")
 	}
 	coreSeen := map[string]bool{}
 	for _, a := range core.Artifacts {
-		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (p.Kind == "dual-source" && dualArtifactSet()[a.Path])) {
+		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (p.Kind == "dual-source" && validArtifactPath(a.Path, p.Kind) && a.Path != "run_manifest.json")) {
 			return errors.New("invalid core artifact set")
 		}
 		coreSeen[a.Path] = true

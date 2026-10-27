@@ -53,6 +53,8 @@ def inspect_protocol(path, *, synthetic=False, limits=None):
     nonzero sender context/session/service and no unsupported payload in that flow.
     Capture order does not establish causality. No TCP stream validity is asserted.
     """
+    if synthetic is not True:
+        raise CaptureError('synthetic_opt_in_required')
     limits = limits or Limits()
     envelope = inspect_capture(path, synthetic=synthetic, limits=limits)
     with Path(path).open('rb') as stream:

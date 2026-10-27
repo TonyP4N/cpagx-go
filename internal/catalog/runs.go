@@ -30,14 +30,15 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	}
 	var dataset, config, mode, linkOrigin string
 	var preflightID *string
+	var captureIDs json.RawMessage
 	var at time.Time
-	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin)
+	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin,network_file_ids FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin, &captureIDs)
 	if e != nil || !s.can(r.Context(), p, dataset, false) {
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
 	if len(parts) == 2 && r.Method == "GET" {
-		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin)
+		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, captureIDs)
 		return
 	}
 	if len(parts) == 3 && parts[2] == "cancel" && r.Method == "POST" {
@@ -95,16 +96,13 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
-	var kind string
-	e := s.DB.QueryRowContext(r.Context(), "SELECT source_kind FROM v3_datasets WHERE id=$1", q.DatasetID).Scan(&kind)
+	var kind, source, batch, authorization string
+	e := s.DB.QueryRowContext(r.Context(), "SELECT source_kind,source,batch,authorization_ref FROM v3_datasets WHERE id=$1", q.DatasetID).Scan(&kind, &source, &batch, &authorization)
 	if e != nil {
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
-	if kind != "synthetic" {
-		fail(w, 422, "unsupported_source", "real material is accepted for preflight only until supported analysis is verified")
-		return
-	}
+
 	if _, rejected := s.gatePreflight(r.Context(), q.DatasetID, q.PreflightID); rejected != nil {
 		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", rejected.code)
 		fail(w, rejected.status, rejected.code, rejected.message)
@@ -118,30 +116,57 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		return
 	}
 	var doc map[string]any
-	if json.Unmarshal(raw, &doc) != nil || !readyDual(doc) {
+	if json.Unmarshal(raw, &doc) != nil || !readyDual(doc) || doc["synthetic"] != (kind == "synthetic") {
 		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "insufficient_basis")
-		fail(w, 422, "insufficient_basis", "synthetic dual run requires mappings and explicit clock basis, offset and uncertainty")
+		fail(w, 422, "insufficient_basis", "dual run requires source category, mappings and documented time/provenance basis")
 		return
 	}
-	network, process, e := s.runFiles(r, q.DatasetID)
+	if kind == "real" {
+		provenance, _ := doc["source_provenance"].(map[string]any)
+		if provenance["source"] != source || provenance["release"] != batch || provenance["authorization_ref"] != authorization {
+			_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "source_provenance_mismatch")
+			fail(w, 422, "source_provenance_mismatch", "dual profile provenance must match dataset source, batch and authorization declarations")
+			return
+		}
+	}
+	networks, process, e := s.runFiles(r, q.DatasetID)
 	if e != nil {
-		fail(w, 422, "source_count", "one network and one process source required for current dual core")
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "source_count")
+		fail(w, 422, "source_count", "one to four network sources and one CSV required")
 		return
 	}
-	var nPath, pPath string
-	e = s.DB.QueryRowContext(r.Context(), `SELECT x.storage_path FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.id=$1`, network.ID).Scan(&nPath)
-	if e != nil {
+	if strings.ToLower(filepath.Ext(process.Filename)) != ".csv" {
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "unsupported_format")
+		fail(w, 422, "unsupported_format", "process Excel input is accepted for intake and requires traceable CSV conversion before analysis")
+		return
+	}
+	payload := jobapi.Payload{Kind: "dual-source", Profile: jobapi.Ref{Path: cfgPath, SHA: cfgSHA}, Fingerprint: fp}
+	for i, n := range networks {
+		var path string
+		if s.DB.QueryRowContext(r.Context(), `SELECT x.storage_path FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.id=$1`, n.ID).Scan(&path) != nil {
+			fail(w, 503, "database_error", "source unavailable")
+			return
+		}
+		ref := jobapi.Ref{Path: path, SHA: n.SHA}
+		if i == 0 {
+			payload.Network = ref
+		}
+		if len(networks) > 1 {
+			payload.Networks = append(payload.Networks, ref)
+		}
+	}
+	var pPath string
+	if s.DB.QueryRowContext(r.Context(), `SELECT x.storage_path FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.id=$1`, process.ID).Scan(&pPath) != nil {
 		fail(w, 503, "database_error", "source unavailable")
 		return
 	}
-	e = s.DB.QueryRowContext(r.Context(), `SELECT x.storage_path FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.id=$1`, process.ID).Scan(&pPath)
-	if e != nil {
-		fail(w, 503, "database_error", "source unavailable")
+	payload.Process = jobapi.Ref{Path: pPath, SHA: process.SHA}
+	if len(networks) > 1 && doc["analysis_mode"] != "bounded-real-capable-v1" {
+		fail(w, 422, "invalid_inputs", "multiple captures require bounded analysis mode")
 		return
 	}
-	// M4 validates profile and source bytes, paths, bounds and fingerprint.
-	payload := jobapi.Payload{Kind: "dual-source", Network: jobapi.Ref{Path: nPath, SHA: network.SHA}, Process: jobapi.Ref{Path: pPath, SHA: process.SHA}, Profile: jobapi.Ref{Path: cfgPath, SHA: cfgSHA}, Fingerprint: fp}
 	if e = s.Internal.(*jobapi.Server).ValidatePayload(payload); e != nil {
+		_ = s.audit(r.Context(), p, q.DatasetID, "", "run_gate_rejected", "invalid_inputs")
 		fail(w, 422, "invalid_inputs", "input or profile validation failed")
 		return
 	}
@@ -166,17 +191,23 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		return
 	}
 	var networkCount, processCount int
-	if tx.QueryRowContext(r.Context(), "SELECT count(*) FILTER (WHERE role='network'),count(*) FILTER (WHERE role='process') FROM v3_dataset_files WHERE dataset_id=$1", q.DatasetID).Scan(&networkCount, &processCount) != nil || networkCount != 1 || processCount != 1 {
+	if tx.QueryRowContext(r.Context(), "SELECT count(*) FILTER (WHERE role='network'),count(*) FILTER (WHERE role='process') FROM v3_dataset_files WHERE dataset_id=$1", q.DatasetID).Scan(&networkCount, &processCount) != nil || networkCount != len(networks) || processCount != 1 {
 		fail(w, 409, "catalog_changed", "source set changed during submission")
 		return
 	}
-	if !s.confirmRunRefs(r, tx, q.DatasetID, q.ConfigID, network.ID, process.ID, network.SHA, process.SHA, cfgSHA, fp) {
+	refsOK := true
+	for _, network := range networks {
+		if !s.confirmRunRefs(r, tx, q.DatasetID, q.ConfigID, network.ID, process.ID, network.SHA, process.SHA, cfgSHA, fp) {
+			refsOK = false
+		}
+	}
+	if !refsOK {
 		fail(w, 409, "catalog_changed", "input or version changed during submission")
 		return
 	}
 	_, e = tx.ExecContext(r.Context(), "INSERT INTO m4_jobs(id,max_attempts,payload) VALUES($1,3,$2)", id, string(rawPayload))
 	if e == nil {
-		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason) VALUES($1,$2,$3,$4,$5,'dual_source',$6,$7,'native_gate',NULL)", id, q.DatasetID, network.ID, process.ID, q.ConfigID, p.ID, q.PreflightID)
+		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason,network_file_ids) VALUES($1,$2,$3,$4,$5,'dual_source',$6,$7,'native_gate',NULL,$8)", id, q.DatasetID, networks[0].ID, process.ID, q.ConfigID, p.ID, q.PreflightID, networkIDsJSON(networks))
 	}
 	if e == nil {
 		e = auditTx(r.Context(), tx, p, q.DatasetID, id, "run_create", "ok")
@@ -188,7 +219,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 	respond(w, 201, map[string]any{"run": map[string]any{"id": id, "dataset_id": q.DatasetID, "state": "queued", "config_version_id": q.ConfigID, "preflight_id": q.PreflightID, "mode": "dual_source"}})
 }
 func readyDual(doc map[string]any) bool {
-	if doc["synthetic"] != true {
+	if _, ok := doc["synthetic"].(bool); !ok || ((doc["synthetic"] == false || doc["analysis_mode"] == "bounded-real-capable-v1") && !readyRealBasis(doc)) {
 		return false
 	}
 	m, ok := doc["mappings"].([]any)
@@ -211,13 +242,14 @@ func readyDual(doc map[string]any) bool {
 	}
 	return true
 }
-func (s *Server) runFiles(r *http.Request, dataset string) (fileInfo, fileInfo, error) {
-	rows, e := s.DB.QueryContext(r.Context(), `SELECT f.id,f.role,f.filename,x.sha256,x.size_bytes,f.created_at FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.dataset_id=$1`, dataset)
+func (s *Server) runFiles(r *http.Request, dataset string) ([]fileInfo, fileInfo, error) {
+	rows, e := s.DB.QueryContext(r.Context(), `SELECT f.id,f.role,f.filename,x.sha256,x.size_bytes,f.created_at FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.dataset_id=$1 ORDER BY f.created_at,f.id`, dataset)
 	if e != nil {
-		return fileInfo{}, fileInfo{}, e
+		return nil, fileInfo{}, e
 	}
 	defer rows.Close()
-	var n, p fileInfo
+	var n []fileInfo
+	var p fileInfo
 	nc, pc := 0, 0
 	for rows.Next() {
 		var f fileInfo
@@ -225,14 +257,14 @@ func (s *Server) runFiles(r *http.Request, dataset string) (fileInfo, fileInfo, 
 			return n, p, e
 		}
 		if f.Role == "network" {
-			n = f
+			n = append(n, f)
 			nc++
 		} else {
 			p = f
 			pc++
 		}
 	}
-	if nc != 1 || pc != 1 {
+	if nc < 1 || nc > 4 || pc != 1 {
 		return n, p, errors.New("source count")
 	}
 	return n, p, nil
@@ -271,7 +303,7 @@ func (s *Server) listRuns(w http.ResponseWriter, r *http.Request, p *principal) 
 	}
 	respond(w, 200, map[string]any{"runs": out})
 }
-func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time, preflightID *string, linkOrigin string) {
+func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time, preflightID *string, linkOrigin string, captureIDs json.RawMessage) {
 	st, e := s.repo.Status(r.Context(), id)
 	if e != nil {
 		fail(w, 503, "database_error", "run unavailable")
@@ -281,7 +313,7 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, con
 	for _, a := range st.AttemptHistory {
 		history = append(history, map[string]any{"attempt": a.Attempt, "location": a.Location, "exited_at": a.ExitedAt, "publication_state": a.PublicationState})
 	}
-	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "attempt_history": history, "lease_valid": st.LeaseValid}})
+	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid}})
 }
 func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
 	path := "/v1/jobs/" + id + "/dual-result"
@@ -304,7 +336,7 @@ func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *p
 	if kind == "graph" {
 		m, _ := value.(map[string]any)
 		d, _ := m["data"].(map[string]any)
-		value = map[string]any{"synthetic": true, "graph": d["graph"]}
+		value = map[string]any{"synthetic": m["synthetic"], "graph": d["graph"]}
 	}
 	if s.audit(r.Context(), p, dataset, id, "result_read", "ok") != nil {
 		fail(w, 503, "audit_unavailable", "read audit unavailable")
@@ -344,3 +376,16 @@ func (s *Server) downloadArtifact(w http.ResponseWriter, r *http.Request, p *pri
 	}
 	fail(w, 404, "not_found", "artifact not found")
 }
+
+func networkIDsJSON(files []fileInfo) any {
+	if len(files) < 2 {
+		return nil
+	}
+	ids := []string{}
+	for _, f := range files {
+		ids = append(ids, f.ID)
+	}
+	raw, _ := json.Marshal(ids)
+	return string(raw)
+}
+func readyRealBasis(doc map[string]any) bool { return jobapi.ReadyRealDualBasis(doc) }

@@ -2,18 +2,21 @@
 import argparse
 from collections import defaultdict
 from datetime import datetime, timezone
+from fractions import Fraction
 import json
 from pathlib import Path
 import shutil
 import tempfile
 
 from .contracts import validate
+from .dual_source_rules import validate_profile, clock_time, validity, finite_findings, REAL_LIMITATIONS, outward
 from .evidence import EvidenceIndex
 from .packet_pipeline import analyze_capture, PacketEvidence
 from .parsers import parse_process
 from .pipeline import canonical, file_hash, fingerprint
 
 VERSION = 'synthetic-dual-source-1'
+R17_VERSION = 'bounded-dual-source-1'
 LIMITATIONS = ['synthetic_only', 'no_attack_or_causality_decision',
                'response_success_is_not_physical_effect', 'endpoint_not_authenticated_actor',
                'configured_offsets_not_estimated', 'existing_bounded_protocol_subset']
@@ -64,21 +67,24 @@ def references(values):
 
 
 def analyze(network, process, config):
-    validate('DualSourceProfile',config)
+    extended=validate_profile(config)
+    synthetic=config['synthetic']
+    networks=network_paths(network)
+    if len(networks)>1 and not extended:raise ValueError('multiple_captures_require_analysis_mode')
     if Path(process).stat().st_size>2*1024*1024:raise ValueError('input_size_limit')
     if not 1<=len(config['process']['columns'])<=16 or len(config['mappings'])>100:
         raise ValueError('profile_size_limit')
     ids=[r['rule_id'] for r in config['mappings']]
     if len(ids)!=len(set(ids)):raise ValueError('duplicate_rule_id')
-    capture=analyze_capture(network,synthetic=True)
+    capture=analyze_capture(networks if len(networks)>1 else networks[0],synthetic=synthetic,extended=extended)
     if not capture['events']:raise ValueError('unsupported_or_empty_network')
-    frames=PacketEvidence(network,synthetic=True).frames
+    packet=PacketEvidence(networks if len(networks)>1 else networks[0],synthetic=synthetic)
     index=EvidenceIndex(process)
     # Count logical records (including malformed/empty rows) before parsing.
     import csv,io
     if sum(1 for _ in csv.reader(io.StringIO(index.text),strict=True))-1>1000:
         raise ValueError('process_record_limit')
-    parsed=parse_process(process,config['process'],synthetic=True,evidence=index)
+    parsed=parse_process(process,config['process'],synthetic=synthetic,evidence=index,extended=extended)
     if parsed['quality']['status']=='unsupported' or not parsed['events']:
         raise ValueError('unsupported_or_empty_process: '+','.join(parsed['quality']['reasons']))
     if any(r.startswith(('invalid_csv_record_width','invalid_or_truncated_csv')) for r in parsed['quality']['reasons']):
@@ -86,10 +92,14 @@ def analyze(network, process, config):
     issues=[]
     network_events=[]
     for event,obs in zip(capture['events'],capture['observations']):
-        ticks=[frames[r['frame_number']] for r in obs['source_refs']]
+        ticks=[packet.frame(r) if hasattr(packet,'frame') else packet.frames[r['frame_number']] for r in obs['source_refs']]
         times=[f['raw_timestamp']/f['ticks_per_second'] for f in ticks]
-        timing=corrected([{'frame_number':f['frame_number'],'raw_timestamp':f['raw_timestamp'],
-                          'ticks_per_second':f['ticks_per_second']} for f in ticks],min(times),max(times),config['clocks']['network'])
+        raw_ticks=[{'frame_number':f['frame_number'],'raw_timestamp':f['raw_timestamp'],
+                    'ticks_per_second':f['ticks_per_second'],**({'file_sha256':r['file_sha256']} if extended else {})} for f,r in zip(ticks,obs['source_refs'])]
+        exact=[Fraction(f['raw_timestamp'],f['ticks_per_second']) for f in ticks]
+        low=outward(min(exact)) if extended else min(times)
+        high=outward(max(exact),True) if extended else max(times)
+        timing=clock_time(raw_ticks,low,high,config['clocks']['network'],corrected,extended)
         network_events.append({'event':event,'observation':obs,'time':timing})
     process_events=[];groups=defaultdict(list)
     column_keys=defaultdict(list)
@@ -98,7 +108,13 @@ def analyze(network, process, config):
     for event in parsed['events']:
         validate('ProcessObservation',event)
         when=datetime.fromisoformat(event['event_time'].replace('Z','+00:00')).timestamp() if event['event_time'] else None
-        wrapped={'event':event,'time':corrected(event['source_ref']['raw_time'],when,when,config['clocks']['process'])}
+        low=high=when
+        if extended and event['event_time']:
+            dt=datetime.fromisoformat(event['event_time'].replace('Z','+00:00'))
+            delta=dt-datetime(1970,1,1,tzinfo=timezone.utc)
+            exact=Fraction(delta.days*86400+delta.seconds)+Fraction(delta.microseconds,1000000)
+            low,high=outward(exact),outward(exact,True)
+        wrapped={'event':event,'time':clock_time(event['source_ref']['raw_time'],low,high,config['clocks']['process'],corrected,extended)}
         process_events.append(wrapped);groups[(event['asset_id'],event['tag'])].append(wrapped)
     changes=[];group_issues={}
     for key,rows in groups.items():
@@ -113,7 +129,7 @@ def analyze(network, process, config):
         previous=None
         for row in rows:
             event=row['event'];interval=row['time']['interval']
-            if event['value'] is None:
+            if event['value'] is None or (extended and event['quality']['status']!='valid'):
                 issues.append({'reason':'missing_process_value','evidence_refs':[event['source_ref']]})
                 previous=None;continue
             if previous is not None:
@@ -122,7 +138,7 @@ def analyze(network, process, config):
                 if gap>config['max_sample_gap_seconds']:
                     issues.append({'reason':'sampling_gap','evidence_refs':[before['source_ref'],event['source_ref']]})
                 elif not equal(before['value'],event['value'],config['change_epsilon']):
-                    change={'schema_version':'1.0.0','synthetic':True,'event_id':'',
+                    change={'schema_version':'1.0.0','synthetic':synthetic,'event_id':'',
                             'event_type':'observed_sample_transition','rule_version':config['rule_version'],
                             'evidence_refs':[before['source_ref'],event['source_ref']],
                             'time_range':{'start':utc(prior[0]),'end':utc(interval[1])},
@@ -155,9 +171,16 @@ def analyze(network, process, config):
                       'meaning':'protocol_service_success_only' if status==0 else 'protocol_service_error',
                       'event_id':reply['event']['event_id'],'time':reply['time'],
                       'evidence_refs':reply['observation']['source_refs']}
-        matches=[rule for rule in config['mappings'] if rule['destination_ip']==obs['endpoints'][1][0]
+        interval=wrapped['time']['interval']
+        raw_matches=[rule for rule in config['mappings'] if rule['destination_ip']==obs['endpoints'][1][0]
                  and rule['service']==obs['service'] and rule['path']==obs.get('path') and rule['data_hex']==obs['data_hex']]
+        matches=[rule for rule in raw_matches if validity(rule,interval) in ('legacy','applicable')]
+        uncertain_mappings=[rule for rule in raw_matches if validity(rule,interval) in ('unknown','uncertain')]
+        if uncertain_mappings:matches+=uncertain_mappings
         unknown=list(global_unknown)
+        if uncertain_mappings:unknown.append('mapping_validity_uncertain')
+        if raw_matches and not matches:unknown.append('mapping_outside_validity')
+        if extended and any(not all(r.get(k) for k in ('version','basis','valid_from','valid_to')) for r in matches):unknown.append('mapping_materials_missing')
         if capture['unsupported']:unknown.append('unsupported_network_records_present')
         if len(matches)!=1:unknown.append('mapping_missing' if not matches else 'mapping_conflict')
         counter=[]
@@ -175,9 +198,11 @@ def analyze(network, process, config):
                        'rule_ids':[r['rule_id'] for r in matches],'config_version':config['config_version']},
             'request_evidence':obs['source_refs'],'assessment':'unknown','candidates':[],
             'support':[],'counterevidence':counter,'unknown_reasons':unknown,'observation_evidence':[]}
+        if extended:
+            op['mapping']['versions']=[{k:r[k] for k in ('rule_id','version','basis','valid_from','valid_to') if k in r} for r in matches]
         if len(matches)==1:
             op['mapping'].update(asset_id=matches[0]['asset_id'],tag=matches[0]['tag'],expected_value=matches[0]['expected_value'])
-        if len(matches)==1 and interval is not None and not global_unknown:
+        if len(matches)==1 and interval is not None and not global_unknown and not uncertain_mappings and 'mapping_materials_missing' not in unknown:
             rule=matches[0];key=(rule['asset_id'],rule['tag']);rows=groups.get(key,[])
             op['mapping'].update(asset_id=key[0],tag=key[1],expected_value=rule['expected_value'])
             unknown.extend(group_issues.get(key,[]))
@@ -202,7 +227,7 @@ def analyze(network, process, config):
                                'config_version':config['config_version'],'window':window,
                                'support':['explicit_mapping','expected_sample_transition','possible_temporal_window'],
                                'counterevidence':counter.copy(),'unknown_reasons':unknown.copy()+uncertainty,
-                               'claim':{'schema_version':'1.0.0','synthetic':True,'claim_id':'',
+                               'claim':{'schema_version':'1.0.0','synthetic':synthetic,'claim_id':'',
                                         'relation_type':'candidate_network_process_association','status':'hypothetical',
                                         'evidence_refs':references([obs['source_refs'],response['evidence_refs'],change['evidence_refs']]),
                                         'counterevidence':references(counter),'rule_id':rule['rule_id'],
@@ -253,36 +278,79 @@ def analyze(network, process, config):
         elif c['unknown_reasons']:c['state']='unknown'
         else:c['state']='supported_candidate'
     index.verify()
-    return {'schema_version':'1.0.0','synthetic':True,'analysis_version':VERSION,'config_version':config['config_version'],
+    result={'schema_version':'1.0.0','synthetic':synthetic,'analysis_version':R17_VERSION if extended else VERSION,'config_version':config['config_version'],
             'rule_version':config['rule_version'],'config_fingerprint':fingerprint(config),
             'input_fingerprint':fingerprint([{'kind':kind,'sha256':file_hash(path),'size_bytes':Path(path).stat().st_size}
-                for kind,path in [('network',network),('process',process)]]),'limitations':LIMITATIONS,
+                for kind,path in [('network',p) for p in networks]+[('process',process)]]),'limitations':LIMITATIONS if synthetic else REAL_LIMITATIONS,
             'network':network_events,'process':process_events,'changes':changes,'operations':operations,
             'candidates':candidates,'orphan_change_ids':[c['event_id'] for c in changes if c['event_id'] not in by_change],
             'quality':{'source_ranges':ranges,'unknown_reasons':global_unknown,'process':parsed['quality'],
                        'network_unsupported':capture['unsupported'],'process_issues':issues,
                        'group_issues':[{'asset_id':k[0],'tag':k[1],'reasons':v} for k,v in group_issues.items() if v]}}
+    if extended:
+        result['analysis_mode']=config['analysis_mode']
+        result['source_provenance']=config.get('source_provenance')
+        result['rule_findings']=finite_findings(config,groups,group_issues)
+        result['execution_limits']={'max_network_files':4,'aggregate_network_bytes':16*1024*1024,'max_frames':10000,'process_bytes':2*1024*1024,'process_records':1000,'max_finite_rules':100,'max_finite_findings':10000,'max_operations':100,'max_candidates':10000,'max_mappings':100,'max_process_columns':16,'max_profile_bytes':65536}
+    return result
+
+
+def network_paths(network):
+    paths=list(network) if isinstance(network,(list,tuple)) else [network]
+    if not 1<=len(paths)<=4:raise ValueError('network_file_limit')
+    return [Path(p) for p in paths]
+
+
+def network_names(count):
+    return ['network.pcap']+['network-%03d.pcap'%i for i in range(1,count)]
+
+
+def retained_networks(output, manifest=None):
+    output=Path(output)
+    if manifest is None:
+        try:manifest=strict_json((output/'manifest.json').read_text())
+        except (OSError,UnicodeError,ValueError) as exc:raise ValueError('invalid_dual_manifest') from exc
+    names=manifest.get('network_inputs',['sources/network.pcap'])
+    if not isinstance(names,list) or not 1<=len(names)<=4:raise ValueError('invalid_network_inventory')
+    expected=['sources/'+n for n in network_names(len(names))]
+    if names!=expected:raise ValueError('invalid_network_inventory')
+    return [output/name for name in names]
 
 
 def run_dual(network, process, profile, output):
     """Retain bounded input bytes, publish new immutable result directory only."""
     output=Path(output)
     if output.exists():raise ValueError('output_already_exists')
+    networks=network_paths(network)
+    if sum(p.stat().st_size for p in networks)>16*1024*1024:raise ValueError('input_size_limit')
     with tempfile.TemporaryDirectory(prefix='cpag-dual-input-') as tmp:
         base=Path(tmp);sources=base/'sources';sources.mkdir()
-        for source,name,limit in [(network,'network.pcap',16*1024*1024),(process,'process.csv',2*1024*1024),(profile,'profile.json',65536)]:
-            with Path(source).open('rb') as stream:data=stream.read(limit+1)
-            if len(data)>limit:raise ValueError('input_size_limit')
-            (sources/name).write_bytes(data)
+        names=network_names(len(networks))
+        specs=list(zip(networks,names,[16*1024*1024]*len(names)))+[(process,'process.csv',2*1024*1024),(profile,'profile.json',65536)]
+        for source,name,limit in specs:
+            with Path(source).open('rb') as stream:
+                count=0
+                with (sources/name).open('wb') as target:
+                    while True:
+                        data=stream.read(min(1024*1024,limit+1-count))
+                        if not data:break
+                        count+=len(data)
+                        if count>limit:raise ValueError('input_size_limit')
+                        target.write(data)
         config=strict_json((sources/'profile.json').read_text())
-        result=analyze(sources/'network.pcap',sources/'process.csv',config)
+        args=[sources/name for name in names]
+        result=analyze(args if len(args)>1 else args[0],sources/'process.csv',config)
         output.mkdir(parents=True,exist_ok=False)
-        shutil.copytree(sources,output/'sources')
-        (output/'analysis.json').write_bytes(canonical(result)+b'\n')
-        manifest={'schema_version':'1.0.0','synthetic':True,'analysis_version':VERSION,
-                  'config_fingerprint':fingerprint(config),'files':{name:file_hash(output/name) for name in
-                    ('sources/network.pcap','sources/process.csv','sources/profile.json','analysis.json')}}
-        (output/'manifest.json').write_bytes(canonical(manifest)+b'\n')
+        try:
+            shutil.copytree(sources,output/'sources')
+            (output/'analysis.json').write_bytes(canonical(result)+b'\n')
+            manifest={'schema_version':'1.0.0','synthetic':config['synthetic'],'analysis_version':result['analysis_version'],
+                      'config_fingerprint':fingerprint(config),'files':{name:file_hash(output/name) for name in
+                        tuple('sources/'+name for name in names)+('sources/process.csv','sources/profile.json','analysis.json')}}
+            if len(names)>1:manifest['network_inputs']=['sources/'+name for name in names]
+            (output/'manifest.json').write_bytes(canonical(manifest)+b'\n')
+        except Exception:
+            shutil.rmtree(output);raise
     return result
 
 
@@ -290,14 +358,15 @@ def query(output, operation_id=None, change_id=None):
     output=Path(output)
     if output.is_symlink() or (output/'sources').is_symlink():raise ValueError('symlink_artifact_root')
     manifest=strict_json((output/'manifest.json').read_text())
-    names={'sources/network.pcap','sources/process.csv','sources/profile.json','analysis.json'}
+    network_sources=retained_networks(output,manifest)
+    names={p.relative_to(output).as_posix() for p in network_sources}|{'sources/process.csv','sources/profile.json','analysis.json'}
     if set(manifest['files'])!=names:raise ValueError('invalid_artifact_inventory')
     for name in names:
         if (output/name).is_symlink() or file_hash(output/name)!=manifest['files'][name]:raise ValueError('artifact_integrity_mismatch')
     config=strict_json((output/'sources/profile.json').read_text())
     result=strict_json((output/'analysis.json').read_text())
     # Rebuild to reject a changed analysis even if its superficial checksum is updated.
-    actual=analyze(output/'sources/network.pcap',output/'sources/process.csv',config)
+    actual=analyze(network_sources if len(network_sources)>1 else network_sources[0],output/'sources/process.csv',config)
     if canonical(actual)!=canonical(result) or manifest['config_fingerprint']!=fingerprint(config):
         raise ValueError('analysis_does_not_match_sources')
     if operation_id is not None:
@@ -308,37 +377,40 @@ def query(output, operation_id=None, change_id=None):
         selected={'operation':op,'candidates':candidates,'changes':changes}
     else:
         matches=result['changes'][:1] if change_id=='first' else [c for c in result['changes'] if c['event_id']==change_id]
-        if len(matches)!=1:raise ValueError('unknown_change')
-        selected={'change':matches[0]}
-    refs=references(selected);packet=PacketEvidence(output/'sources/network.pcap',synthetic=True);csv=EvidenceIndex(output/'sources/process.csv')
+        findings=[f for f in result.get('rule_findings',[]) if f['finding_id']==change_id]
+        if len(matches)+len(findings)!=1:raise ValueError('unknown_change')
+        selected={'change':matches[0]} if matches else {'rule_finding':findings[0]}
+    refs=references(selected);packet=PacketEvidence(network_sources if len(network_sources)>1 else network_sources[0],synthetic=config['synthetic']);csv=EvidenceIndex(output/'sources/process.csv')
     resolved=[]
     for ref in refs:
         resolved.append({'source_ref':ref,'original':packet.resolve(ref) if ref['frame_number'] is not None else csv.resolve(ref)})
-    frames={r['frame_number'] for r in refs if r['frame_number'] is not None}
+    frames={(r['file_sha256'],r['frame_number']) for r in refs if r['frame_number'] is not None}
     fields=[]
     for item in result['network']:
-        if any(r['frame_number'] in frames for r in item['observation']['source_refs']):
+        if any((r['file_sha256'],r['frame_number']) in frames for r in item['observation']['source_refs']):
             fields.append({'event_id':item['event']['event_id'],'fields':{name:[packet.resolve(piece['source_ref'],piece) for piece in field['slices']]
                            for name,field in item['observation']['fields'].items()}})
     csv.verify()
-    return {'synthetic':True,'selection':selected,'time_configuration':config['clocks'],
+    return {'synthetic':config['synthetic'],'selection':selected,'time_configuration':config['clocks'],
             'source_ranges':result['quality']['source_ranges'],'quality':result['quality'],
             'verified_original_evidence':resolved,'verified_network_fields':fields,
-            'config_version':config['config_version'],'config_fingerprint':fingerprint(config),'limitations':LIMITATIONS}
+            'config_version':config['config_version'],'config_fingerprint':fingerprint(config),'limitations':result['limitations'],
+            **({'source_provenance':result['source_provenance']} if 'analysis_mode' in result else {})}
 
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__);sub=parser.add_subparsers(dest='command',required=True)
     run=sub.add_parser('analyze')
-    for key in ('network','process','profile','output'):run.add_argument('--'+key,required=True)
+    run.add_argument('--network',required=True,action='append')
+    for key in ('process','profile','output'):run.add_argument('--'+key,required=True)
     inspect=sub.add_parser('query');inspect.add_argument('--output',required=True)
     group=inspect.add_mutually_exclusive_group(required=True);group.add_argument('--operation');group.add_argument('--change')
     args=parser.parse_args()
     try:
         if args.command=='analyze':
             result=run_dual(args.network,args.process,args.profile,args.output)
-            result={'synthetic':True,'operations':len(result['operations']),'changes':len(result['changes']),
-                    'candidates':len(result['candidates']),'output':args.output,'limitations':LIMITATIONS}
+            result={'synthetic':result['synthetic'],'operations':len(result['operations']),'changes':len(result['changes']),
+                    'candidates':len(result['candidates']),'output':args.output,'limitations':result['limitations']}
         else:result=query(args.output,args.operation,args.change)
     except (OSError,ValueError,KeyError,TypeError) as exc:parser.exit(2,str(exc)+'\n')
     print(json.dumps(result,ensure_ascii=False,sort_keys=True))

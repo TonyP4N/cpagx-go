@@ -5,7 +5,7 @@
       "const": "1.0.0"
     },
     "synthetic": {
-      "const": true
+      "type": "boolean"
     },
     "profile_id": {
       "type": "string",
@@ -46,6 +46,43 @@
                 "string",
                 "null"
               ]
+            },
+            "version": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "drift_ppm": {
+              "type": "number",
+              "minimum": -10000,
+              "maximum": 10000
+            },
+            "drift_anchor": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            },
+            "drift_basis": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "precision_seconds": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 60
+            },
+            "precision_basis": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "valid_from": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            },
+            "valid_to": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
             }
           },
           "required": [
@@ -79,6 +116,43 @@
                 "string",
                 "null"
               ]
+            },
+            "version": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "drift_ppm": {
+              "type": "number",
+              "minimum": -10000,
+              "maximum": 10000
+            },
+            "drift_anchor": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            },
+            "drift_basis": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "precision_seconds": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 60
+            },
+            "precision_basis": {
+              "type": "string",
+              "pattern": ".*\\S.*"
+            },
+            "valid_from": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            },
+            "valid_to": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
             }
           },
           "required": [
@@ -173,6 +247,16 @@
             "string",
             "null"
           ]
+        },
+        "timestamp_format": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "missing_values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -248,6 +332,24 @@
             "type": "number",
             "minimum": 0,
             "maximum": 1000
+          },
+          "version": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "basis": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+          },
+          "valid_to": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
           }
         },
         "required": [
@@ -260,6 +362,193 @@
           "tag",
           "expected_value",
           "tolerance"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "analysis_mode": {
+      "const": "bounded-real-capable-v1"
+    },
+    "source_provenance": {
+      "type": "object",
+      "properties": {
+        "source": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "release": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "authorization_ref": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "timezone_basis": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "mapping_evidence_ref": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "rules_evidence_ref": {
+          "type": "string",
+          "pattern": ".*\\S.*"
+        },
+        "collection_range": {
+          "type": "object",
+          "properties": {
+            "start": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            },
+            "end": {
+              "type": "string",
+              "format": "date-time",
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+            }
+          },
+          "required": [
+            "start",
+            "end"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "source",
+        "release",
+        "authorization_ref",
+        "collection_range",
+        "timezone_basis",
+        "mapping_evidence_ref",
+        "rules_evidence_ref"
+      ],
+      "additionalProperties": false
+    },
+    "finite_rules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "rule_id": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "version": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "kind": {
+            "enum": [
+              "state_change",
+              "threshold",
+              "process_constraint"
+            ]
+          },
+          "asset_id": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "tag": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "basis": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "valid_from": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+          },
+          "valid_to": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+          },
+          "operator": {
+            "enum": [
+              "gt",
+              "ge",
+              "lt",
+              "le",
+              "eq",
+              "ne"
+            ]
+          },
+          "value": {
+            "type": [
+              "number",
+              "string",
+              "boolean"
+            ]
+          },
+          "other_tag": {
+            "type": "string",
+            "pattern": ".*\\S.*"
+          },
+          "other_unit": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "arithmetic": {
+            "enum": [
+              "difference",
+              "sum",
+              "ratio"
+            ]
+          },
+          "applies_when": {
+            "type": "object",
+            "properties": {
+              "tag": {
+                "type": "string",
+                "pattern": ".*\\S.*"
+              },
+              "unit": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "equals": {
+                "type": [
+                  "number",
+                  "string",
+                  "boolean"
+                ]
+              }
+            },
+            "required": [
+              "tag",
+              "unit",
+              "equals"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "rule_id",
+          "version",
+          "kind",
+          "asset_id",
+          "tag",
+          "unit",
+          "basis",
+          "valid_from",
+          "valid_to"
         ],
         "additionalProperties": false
       }

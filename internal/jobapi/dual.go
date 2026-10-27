@@ -19,6 +19,7 @@ import (
 	"sort"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/TonyP4N/cpagx-go/internal/contracts"
 	"github.com/TonyP4N/cpagx-go/internal/jobs"
@@ -132,7 +133,7 @@ func dualArtifactSet() map[string]bool {
 }
 func validArtifactPath(path, kind string) bool {
 	if kind == "dual-source" {
-		return dualArtifactSet()[path] || path == "run_manifest.json"
+		return dualArtifactSet()[path] || path == "run_manifest.json" || regexp.MustCompile(`^dual/sources/network-00[1-3]\.pcap$`).MatchString(path)
 	}
 	return filepath.Base(path) == path
 }
@@ -359,7 +360,11 @@ func (s *Server) readDualJSON(base, name string) (any, error) {
 	}
 	return parseValue(raw)
 }
-func (s *Server) dualInventory(base string) error {
+func (s *Server) dualInventory(base string, payload ...Payload) error {
+	names := dualFiles
+	if len(payload) > 0 {
+		names = dualArtifactNamesFor(payload[0])
+	}
 	root, err := s.file(strings.TrimSuffix(base, "/"))
 	if err != nil {
 		return err
@@ -407,10 +412,10 @@ func (s *Server) dualInventory(base string) error {
 			anchors++
 		}
 	}
-	if anchors > 1 || (anchors == 1 && !found["manifest.json"]) || len(found) != len(dualFiles)+anchors+boolInt(found["manifest.json"]) || len(dirs) != len(dualDirs) {
+	if anchors > 1 || (anchors == 1 && !found["manifest.json"]) || len(found) != len(names)+anchors+boolInt(found["manifest.json"]) || len(dirs) != len(dualDirs) {
 		return errors.New("dual artifact inventory mismatch")
 	}
-	for _, name := range dualFiles {
+	for _, name := range names {
 		if !found[name] {
 			return errors.New("missing dual artifact: " + name)
 		}
@@ -419,7 +424,7 @@ func (s *Server) dualInventory(base string) error {
 }
 
 func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw []byte) error {
-	if err := s.dualInventory(base); err != nil {
+	if err := s.dualInventory(base, p); err != nil {
 		return err
 	}
 	if err := contracts.Validate(dualSchemaDir(), "RunManifest", coreRaw); err != nil {
@@ -442,15 +447,41 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	if err != nil {
 		return err
 	}
+	refs, _ := p.networkRefs()
+	profile, err := s.readDualJSON(base, "dual/sources/profile.json")
+	if err != nil {
+		return err
+	}
+	profileDoc, _ := obj(profile)
+	synthetic, validSynthetic := profileDoc["synthetic"].(bool)
+	if !validSynthetic {
+		return errors.New("missing source category")
+	}
+	version := "synthetic-dual-source-1"
+	if profileDoc["analysis_mode"] == "bounded-real-capable-v1" {
+		version = "bounded-dual-source-1"
+	}
+	if core["synthetic"] != synthetic {
+		return errors.New("core source category mismatch")
+	}
 	dual, ok := obj(dualValue)
-	if !ok || len(dual) != 5 || dual["schema_version"] != "1.0.0" || dual["synthetic"] != true || dual["analysis_version"] != "synthetic-dual-source-1" || dual["config_fingerprint"] != p.Fingerprint {
+	if !ok || (len(dual) != 5 && len(dual) != 6) || dual["schema_version"] != "1.0.0" || dual["synthetic"] != synthetic || dual["analysis_version"] != version || dual["config_fingerprint"] != p.Fingerprint {
 		return errors.New("invalid dual source manifest")
 	}
 	files, ok := obj(dual["files"])
-	if !ok || len(files) != 4 {
+	if !ok || len(files) != 3+len(refs) {
 		return errors.New("invalid dual source file set")
 	}
-	for name, expected := range map[string]string{"sources/network.pcap": p.Network.SHA, "sources/process.csv": p.Process.SHA, "sources/profile.json": p.Profile.SHA, "analysis.json": ""} {
+	expectedFiles := map[string]string{"sources/process.csv": p.Process.SHA, "sources/profile.json": p.Profile.SHA, "analysis.json": ""}
+	networkNames := []any{}
+	for i, r := range refs {
+		expectedFiles[networkSourceName(i)] = r.SHA
+		networkNames = append(networkNames, networkSourceName(i))
+	}
+	if len(refs) > 1 && !sameJSON(dual["network_inputs"], networkNames) {
+		return errors.New("ordered network inventory mismatch")
+	}
+	for name, expected := range expectedFiles {
 		digest, ok := files[name].(string)
 		if !ok || !shaPattern.MatchString(digest) || (expected != "" && digest != expected) {
 			return errors.New("dual source hash mismatch: " + name)
@@ -471,10 +502,10 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 		return errors.New("dual analysis projection mismatch")
 	}
 	a, ok := obj(analysis)
-	if !ok || a["schema_version"] != "1.0.0" || a["synthetic"] != true || a["analysis_version"] != "synthetic-dual-source-1" || a["config_fingerprint"] != p.Fingerprint || a["input_fingerprint"] != core["input_fingerprint"] {
+	if !ok || a["schema_version"] != "1.0.0" || a["synthetic"] != synthetic || a["analysis_version"] != version || a["config_fingerprint"] != p.Fingerprint || a["input_fingerprint"] != core["input_fingerprint"] {
 		return errors.New("invalid dual analysis identity")
 	}
-	profile, err := s.readDualJSON(base, "dual/sources/profile.json")
+	profile, err = s.readDualJSON(base, "dual/sources/profile.json")
 	if err != nil {
 		return err
 	}
@@ -519,7 +550,8 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	changes, cok := arr(a["changes"])
 	operations, ook := arr(a["operations"])
 	candidates, aok := arr(a["candidates"])
-	if !nok || !pok || !cok || !ook || !aok || len(eventList) != len(network)+len(process)+len(changes) {
+	findings, _ := arr(a["rule_findings"])
+	if !nok || !pok || !cok || !ook || !aok || len(eventList) != len(network)+len(process)+len(changes)+len(findings) {
 		return errors.New("dual analysis list mismatch")
 	}
 	projected := make([]any, 0, len(eventList))
@@ -531,11 +563,36 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 		projected = append(projected, row["event"])
 	}
 	projected = append(projected, changes...)
+	for i, f := range findings {
+		finding, ok := obj(f)
+		event, valid := obj(eventList[len(projected)])
+		if !ok || !valid || event["event_id"] != finding["finding_id"] || event["event_type"] != "finite_rule_finding" || !sameJSON(event["result"], finding) || !sameJSON(event["parameters"], finding["parameters"]) || !sameJSON(event["evidence_refs"], finding["evidence_refs"]) || event["rule_version"] != finding["rule_version"] {
+			return errors.New("finite finding projection mismatch")
+		}
+		tr, valid := obj(event["time_range"])
+		interval, has := arr(finding["interval"])
+		if !valid {
+			return errors.New("finite finding time range missing")
+		}
+		for j, key := range []string{"start", "end"} {
+			if has && len(interval) == 2 {
+				v, valid := number(interval[j])
+				parsed, e := time.Parse(time.RFC3339Nano, str(tr[key]))
+				if !valid || e != nil || math.Abs(float64(parsed.UnixMicro())/1e6-v) > 0.000001 {
+					return errors.New("finite finding interval mismatch")
+				}
+			} else if tr[key] != nil {
+				return errors.New("unknown finite interval changed")
+			}
+		}
+		_ = i
+		projected = append(projected, event)
+	}
 	if !sameJSON(eventList, projected) {
 		return errors.New("dual event projection mismatch")
 	}
 	g, ok := obj(graph)
-	if !ok || g["synthetic"] != true || g["input_fingerprint"] != a["input_fingerprint"] {
+	if !ok || g["synthetic"] != synthetic || g["input_fingerprint"] != a["input_fingerprint"] {
 		return errors.New("invalid dual graph")
 	}
 	graphID := map[string]any{}
@@ -556,7 +613,7 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	}
 	for i, event := range eventList {
 		e, ok := obj(event)
-		if !ok || e["synthetic"] != true || str(e["event_id"]) == "" {
+		if !ok || e["synthetic"] != synthetic || str(e["event_id"]) == "" {
 			return errors.New("invalid dual event")
 		}
 		n, ok := obj(nodes[i])
@@ -579,11 +636,11 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 			refs = []any{e["source_ref"]}
 		}
 		if i >= len(network)+len(process) {
-			if e["event_type"] != "observed_sample_transition" {
+			if (i < len(network)+len(process)+len(changes) && e["event_type"] != "observed_sample_transition") || (i >= len(network)+len(process)+len(changes) && e["event_type"] != "finite_rule_finding") {
 				return errors.New("invalid derived event type")
 			}
 			refs, _ = arr(e["evidence_refs"])
-			if len(refs) != 2 {
+			if i < len(network)+len(process)+len(changes) && len(refs) != 2 {
 				return errors.New("derived event requires two source references")
 			}
 		}
@@ -652,7 +709,7 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 			return errors.New("dual candidate identity mismatch")
 		}
 		claim, ok := obj(c["claim"])
-		if !ok || claim["claim_id"] != c["candidate_id"] || claim["status"] != "hypothetical" || claim["relation_type"] != "candidate_network_process_association" || claim["synthetic"] != true {
+		if !ok || claim["claim_id"] != c["candidate_id"] || claim["status"] != "hypothetical" || claim["relation_type"] != "candidate_network_process_association" || claim["synthetic"] != synthetic {
 			return errors.New("dual claim mismatch")
 		}
 		if !sameJSON(claims[i], claim) {
@@ -671,35 +728,39 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 		}
 	}
 	d, ok := obj(dataset)
-	if !ok || d["synthetic"] != true || d["dataset_id"] != "dual-dataset-"+str(a["input_fingerprint"]) {
+	if !synthetic {
+		provenance, _ := obj(profileDoc["source_provenance"])
+		if !sameJSON(a["source_provenance"], provenance) {
+			return errors.New("real source declaration changed")
+		}
+		for _, key := range []string{"source", "release", "authorization_ref", "collection_range", "timezone_basis"} {
+			if !sameJSON(d[key], provenance[key]) {
+				return errors.New("real dataset provenance mismatch")
+			}
+		}
+	}
+	if !ok || d["synthetic"] != synthetic || d["dataset_id"] != "dual-dataset-"+str(a["input_fingerprint"]) {
 		return errors.New("invalid dual dataset")
 	}
 	sourceList, ok := arr(d["files"])
-	if !ok || len(sourceList) != 2 {
+	if !ok || len(sourceList) != len(refs)+1 {
 		return errors.New("invalid dual dataset sources")
 	}
-	for i, kind := range []string{"network", "process"} {
+	expectedSources := []any{}
+	for i, ref := range append(refs, p.Process) {
+		kind := "network"
+		if i == len(refs) {
+			kind = "process"
+		}
 		file, ok := obj(sourceList[i])
-		if !ok || file["kind"] != kind {
-			return errors.New("dual dataset source kind mismatch")
+		n, e := s.check(ref)
+		size, valid := intValue(file["size_bytes"])
+		if !ok || e != nil || !valid || int64(size) != n || file["kind"] != kind || file["sha256"] != ref.SHA {
+			return errors.New("dual dataset source mismatch")
 		}
-		ref := p.Network
-		if i == 1 {
-			ref = p.Process
-		}
-		if file["sha256"] != ref.SHA {
-			return errors.New("dual dataset source hash mismatch")
-		}
-		n, err := s.check(ref)
-		if err != nil {
-			return err
-		}
-		size, ok := intValue(file["size_bytes"])
-		if !ok || int64(size) != n {
-			return errors.New("dual dataset source size mismatch")
-		}
+		expectedSources = append(expectedSources, map[string]any{"kind": kind, "sha256": ref.SHA, "size_bytes": file["size_bytes"]})
 	}
-	expectedInput, err := digestValue([]any{map[string]any{"kind": "network", "sha256": p.Network.SHA, "size_bytes": sourceList[0].(map[string]any)["size_bytes"]}, map[string]any{"kind": "process", "sha256": p.Process.SHA, "size_bytes": sourceList[1].(map[string]any)["size_bytes"]}})
+	expectedInput, err := digestValue(expectedSources)
 	if err != nil || expectedInput != a["input_fingerprint"] {
 		return errors.New("dual input fingerprint mismatch")
 	}
@@ -725,19 +786,7 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 // Resolve every source reference against the retained original bytes. This is
 // deliberately evidence verification, not an alternate association algorithm.
 func (s *Server) validateDualReferences(base string, p Payload, analysis, graph map[string]any) error {
-	capturePath, err := s.file(base + "dual/sources/network.pcap")
-	if err != nil {
-		return err
-	}
-	capture, err := os.ReadFile(capturePath)
-	if err != nil {
-		return err
-	}
-	captureHash := sha256.Sum256(capture)
-	if hex.EncodeToString(captureHash[:]) != p.Network.SHA {
-		return errors.New("retained network source changed")
-	}
-	frames, err := packetFrames(capture)
+	captures, err := s.dualCaptureFrames(base, p)
 	if err != nil {
 		return err
 	}
@@ -792,6 +841,9 @@ func (s *Server) validateDualReferences(base string, p Payload, analysis, graph 
 			switch x := value.(type) {
 			case map[string]any:
 				if _, found := x["file_sha256"]; found {
+					if packetTick(x) {
+						return verifyPacketTick(x, captures)
+					}
 					return callback(x)
 				}
 				for _, v := range x {
@@ -816,7 +868,8 @@ func (s *Server) validateDualReferences(base string, p Payload, analysis, graph 
 		}
 		if ref["frame_number"] != nil {
 			number, ok := intValue(ref["frame_number"])
-			if !ok || number < 1 || number > len(frames) || ref["record_number"] != nil || ref["column"] != nil || ref["file_sha256"] != p.Network.SHA || ref["raw_time"] != frames[number-1].RawTime {
+			frames := captures[str(ref["file_sha256"])]
+			if !ok || number < 1 || number > len(frames) || ref["record_number"] != nil || ref["column"] != nil || ref["raw_time"] != frames[number-1].RawTime {
 				return errors.New("dual frame reference mismatch")
 			}
 		} else {
@@ -865,6 +918,7 @@ func (s *Server) validateDualReferences(base string, p Payload, analysis, graph 
 					return errors.New("missing dual slice reference")
 				}
 				frame, ok := intValue(ref["frame_number"])
+				frames := captures[str(ref["file_sha256"])]
 				if !ok || frame < 1 || frame > len(frames) {
 					return errors.New("invalid dual slice frame")
 				}
@@ -919,11 +973,25 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 		return "", p, nil, errors.New("published dual configuration mismatch")
 	}
 	inputs, ok := obj(pub["inputs"])
-	if !ok || len(inputs) != 3 || inputs["network"] != p.Network.SHA || inputs["process"] != p.Process.SHA || inputs["profile"] != p.Profile.SHA {
+	inputMap := map[string]string{}
+	for k, v := range inputs {
+		inputMap[k] = str(v)
+	}
+	var networks []string
+	if v, exists := pub["networks"]; exists {
+		rows, yes := arr(v)
+		if !yes {
+			return "", Payload{}, nil, errors.New("invalid ordered network hashes")
+		}
+		for _, r := range rows {
+			networks = append(networks, str(r))
+		}
+	}
+	if !ok || !publicationInputsMatch(p, inputMap, networks) {
 		return "", p, nil, errors.New("published dual input mismatch")
 	}
 	entries, ok := arr(pub["artifacts"])
-	if !ok || len(entries) != len(dualFiles) {
+	if !ok || len(entries) != len(dualArtifactNamesFor(p)) {
 		return "", p, nil, errors.New("published dual artifact count mismatch")
 	}
 	wrapper := Manifest{Fingerprint: p.Fingerprint, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
@@ -954,7 +1022,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			return "", p, nil, errors.New("published dual artifact changed: " + entry.Path)
 		}
 	}
-	for _, name := range dualFiles {
+	for _, name := range dualArtifactNamesFor(p) {
 		if !seen[name] {
 			return "", p, nil, errors.New("missing dual published artifact")
 		}
@@ -1000,9 +1068,14 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 		if err != nil {
 			return err
 		}
-		reply(w, 200, map[string]any{"synthetic": true, "data": map[string]any{"analysis": analysis, "graph": graph, "events": events, "quality": quality, "dataset": dataset}})
+		reply(w, 200, map[string]any{"synthetic": analysis["synthetic"], "data": map[string]any{"analysis": analysis, "graph": graph, "events": events, "quality": quality, "dataset": dataset}})
 		return nil
 	}
+	return s.serveDualEvidence(w, r, base, p, analysis)
+}
+
+func (s *Server) serveDualEvidence(w http.ResponseWriter, r *http.Request, base string, p Payload, analysis map[string]any) error {
+	var err error
 	operation, change := r.URL.Query().Get("operation"), r.URL.Query().Get("change")
 	if (operation == "") == (change == "") {
 		return errors.New("select exactly one operation or change")
@@ -1057,7 +1130,17 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 				break
 			}
 		}
-		if selected["change"] == nil {
+		findings, _ := arr(analysis["rule_findings"])
+		for _, value := range findings {
+			row, _ := obj(value)
+			if row["finding_id"] == change {
+				if selected["change"] != nil || selected["rule_finding"] != nil {
+					return errors.New("ambiguous change")
+				}
+				selected["rule_finding"] = row
+			}
+		}
+		if selected["change"] == nil && selected["rule_finding"] == nil {
 			return errors.New("unknown change")
 		}
 	}
@@ -1073,24 +1156,16 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 	if err != nil {
 		return err
 	}
-	reply(w, 200, map[string]any{"synthetic": true, "selection": selected, "time_configuration": config["clocks"], "source_ranges": quality["source_ranges"], "quality": quality, "verified_original_evidence": originals, "verified_network_fields": fields, "config_version": config["config_version"], "config_fingerprint": p.Fingerprint, "limitations": analysis["limitations"]})
+	response := map[string]any{"synthetic": analysis["synthetic"], "selection": selected, "time_configuration": config["clocks"], "source_ranges": quality["source_ranges"], "quality": quality, "verified_original_evidence": originals, "verified_network_fields": fields, "config_version": config["config_version"], "config_fingerprint": p.Fingerprint, "limitations": analysis["limitations"]}
+	if analysis["analysis_mode"] != nil {
+		response["source_provenance"] = analysis["source_provenance"]
+	}
+	reply(w, 200, response)
 	return nil
 }
 
 func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[string]any) ([]any, []any, error) {
-	capturePath, err := s.file(base + "dual/sources/network.pcap")
-	if err != nil {
-		return nil, nil, err
-	}
-	capture, err := os.ReadFile(capturePath)
-	if err != nil {
-		return nil, nil, err
-	}
-	captureHash := sha256.Sum256(capture)
-	if hex.EncodeToString(captureHash[:]) != p.Network.SHA {
-		return nil, nil, errors.New("retained network source changed")
-	}
-	frames, err := packetFrames(capture)
+	captures, err := s.dualCaptureFrames(base, p)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -1118,6 +1193,9 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 		switch x := value.(type) {
 		case map[string]any:
 			if _, ok := x["file_sha256"]; ok {
+				if packetTick(x) {
+					return verifyPacketTick(x, captures)
+				}
 				if len(x) != 5 {
 					return errors.New("invalid selected reference")
 				}
@@ -1151,15 +1229,16 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 	}
 	sort.Strings(keys)
 	originals := []any{}
-	selectedFrames := map[int]bool{}
+	selectedFrames := map[string]bool{}
 	for _, key := range keys {
 		ref := refs[key]
 		if ref["frame_number"] != nil {
 			n, ok := intValue(ref["frame_number"])
-			if !ok || n < 1 || n > len(frames) || ref["file_sha256"] != p.Network.SHA || ref["raw_time"] != frames[n-1].RawTime {
+			frames := captures[str(ref["file_sha256"])]
+			if !ok || n < 1 || n > len(frames) || ref["raw_time"] != frames[n-1].RawTime {
 				return nil, nil, errors.New("selected frame reference mismatch")
 			}
-			selectedFrames[n] = true
+			selectedFrames[fmt.Sprintf("%s:%d", str(ref["file_sha256"]), n)] = true
 			data := frames[n-1].Data
 			hash := sha256.Sum256(data)
 			originals = append(originals, map[string]any{"source_ref": ref, "original": map[string]any{"frame_number": n, "raw_timestamp": ref["raw_time"], "captured_length": len(data), "frame_sha256": hex.EncodeToString(hash[:]), "raw_hex": hex.EncodeToString(data), "integrity": "file_and_frame_sha256_verified"}})
@@ -1186,7 +1265,7 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 		for _, value := range refs {
 			ref, _ := obj(value)
 			n, _ := intValue(ref["frame_number"])
-			if selectedFrames[n] {
+			if selectedFrames[fmt.Sprintf("%s:%d", str(ref["file_sha256"]), n)] {
 				include = true
 			}
 		}
@@ -1203,6 +1282,7 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 				piece, _ := obj(value)
 				ref, _ := obj(piece["source_ref"])
 				n, _ := intValue(ref["frame_number"])
+				frames := captures[str(ref["file_sha256"])]
 				offset, _ := intValue(piece["frame_byte_offset"])
 				length, _ := intValue(piece["length"])
 				if n < 1 || n > len(frames) || !packetRange(offset, length, len(frames[n-1].Data)) {

@@ -42,6 +42,24 @@ def beneath(root, relative):
     if not path.is_relative_to(root): raise ValueError('path escapes shared root')
     return path
 
+def network_refs(payload):
+    refs=payload.get('networks')
+    if refs is None:return [payload['network']]
+    if payload.get('kind')!='dual-source' or not isinstance(refs,list) or not 2<=len(refs)<=4 or refs[0]!=payload['network'] or len({r['path'] for r in refs})!=len(refs) or len({r['sha256'] for r in refs})!=len(refs):raise ValueError('invalid ordered capture refs')
+    return refs
+
+def publication_inputs(payload):
+    result={'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')}}
+    if payload.get('networks'):result['networks']=[r['sha256'] for r in network_refs(payload)]
+    return result
+
+def source_flag(profile,kind):
+    if kind!='dual-source':return ['--synthetic']
+    doc=json.loads(Path(profile).read_text())
+    if doc.get('synthetic') is True:return ['--synthetic']
+    if doc.get('synthetic') is False and doc.get('analysis_mode')=='bounded-real-capable-v1':return []
+    raise ValueError('explicit supported source category required')
+
 class Worker:
     def __init__(self, api, root, worker, *, lease=15, heartbeat=2, timeout=120, log_bytes=65536, memory_bytes=1073741824, file_bytes=67108864, cpu_seconds=60, command=None):
         self.api, self.root, self.worker = api, Path(root).resolve(), worker
@@ -64,6 +82,11 @@ class Worker:
             for name in ('network','process','profile'):
                 paths[name] = beneath(self.root,payload[name]['path'])
                 if digest(paths[name]) != payload[name]['sha256']: raise ValueError(name+' hash mismatch')
+            network_paths=[]
+            for ref in network_refs(payload):
+                path=beneath(self.root,ref['path'])
+                if digest(path)!=ref['sha256']:raise ValueError('capture hash mismatch')
+                network_paths.append(path)
             output = beneath(self.root,claim['output_dir'])
             # Exclusive attempt namespace. Core writes artifacts before its final manifest.
             output.parent.mkdir(parents=True,exist_ok=True)
@@ -77,7 +100,7 @@ class Worker:
             kind = payload.get('kind')
             module = 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core'
             command = self.command or [sys.executable,'-m',module]
-            command = command + ['--network',str(paths['network']),'--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output),'--synthetic']
+            command = command + sum((['--network',str(path)] for path in network_paths),[]) + ['--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output)] + source_flag(paths['profile'],kind)
             if kind == 'dual-source':
                 command += ['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
             # Deliberately pass only runtime environment; no database/API credentials.
@@ -127,7 +150,7 @@ class Worker:
                 verify_task(output)
                 if manifest['run_id'] != claim['id'] or manifest['attempt_id'] != claim['attempt']:
                     raise ValueError('dual-source run/attempt identity mismatch')
-            publication = {'config_fingerprint':manifest['config_fingerprint'],'inputs':{name:payload[name]['sha256'] for name in paths},'artifacts':[]}
+            publication = {'config_fingerprint':manifest['config_fingerprint'],**publication_inputs(payload),'artifacts':[]}
             for entry in manifest['artifacts']:
                 path = beneath(output,entry['path'])
                 publication['artifacts'].append({'path':entry['path'],'sha256':digest(path),'size':path.stat().st_size})

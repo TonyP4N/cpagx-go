@@ -6,6 +6,8 @@ import json
 import math
 import re
 from datetime import datetime, timezone
+from dataclasses import dataclass
+from collections import defaultdict
 from pathlib import Path
 from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
@@ -34,10 +36,15 @@ def _quality(reasons, count=None):
     return result
 
 
-def _time(raw, profile):
+def _time(raw, profile, *, extended=False):
     if not raw:
         return None, ['missing_time']
     try:
+        # datetime only represents microseconds. Do not silently truncate finer
+        # CSV time precision and then claim a narrower aligned interval.
+        fraction = re.search(r'[T ]\d{2}:\d{2}:\d{2}[.,](\d+)', raw)
+        if extended and fraction and len(fraction.group(1)) > 6:
+            return None, ['timestamp_precision_unsupported']
         dt = datetime.strptime(raw, profile['timestamp_format']) if profile.get('timestamp_format') else datetime.fromisoformat(raw.replace('Z', '+00:00'))
         if dt.tzinfo is None:
             if not profile.get('timezone') or not profile.get('timezone_evidence'):
@@ -100,7 +107,18 @@ def parse_network(path, *, synthetic=True, evidence=None):
     return {'events': events, 'quality': _quality(errors, len(events))}
 
 
-def parse_process(path, profile, *, synthetic=True, evidence=None):
+@dataclass(frozen=True)
+class ProcessLimits:
+    max_bytes: int = 2 * 1024 * 1024
+    max_records: int = 1000
+    max_columns: int = 16
+
+    def __post_init__(self):
+        if any(type(v) is not int or v <= 0 for v in vars(self).values()):
+            raise ValueError('process limits must be positive integers')
+
+
+def parse_process(path, profile, *, synthetic=True, evidence=None, limits=None, extended=False):
     """CSV logical records with explicit per-column definitions; no interpolation."""
     path = Path(path)
     if path.suffix.lower() != '.csv':
@@ -114,23 +132,34 @@ def parse_process(path, profile, *, synthetic=True, evidence=None):
         return _unsupported('invalid_column_profile')
     if any(_label_column(c) or _label_column(v.get('tag')) for c, v in columns.items()) or _label_column(profile['timestamp_column']):
         return _unsupported('label_fields_forbidden_in_analysis_input')
+    if type(extended) is not bool:
+        raise ValueError('extended must be boolean')
+    limits = limits or (ProcessLimits() if extended else None)
+    if limits is not None and (getattr(evidence, 'size_bytes', len(evidence.text.encode('utf-8'))) if evidence is not None else path.stat().st_size) > limits.max_bytes:
+        return _unsupported('process_byte_limit')
     digest = evidence.digest if evidence is not None else _file_hash(path)
     events, errors = [], []
+    record_groups = defaultdict(list)
     try:
-        with (io.StringIO(evidence.text, newline='') if evidence is not None else path.open(encoding='utf-8-sig', newline='')) as stream:
+        with (io.StringIO(evidence.text.lstrip('\ufeff'), newline='') if evidence is not None else path.open(encoding='utf-8-sig', newline='')) as stream:
             reader = csv.reader(stream, strict=True)
             header = next(reader, [])
+            if limits is not None and len(header) > limits.max_columns:
+                return _unsupported('process_column_limit')
             if any(_label_column(c) for c in header):
                 return _unsupported('label_fields_forbidden_in_analysis_input')
             if len(header) != len(set(header)) or profile['timestamp_column'] not in header or any(c not in header for c in columns):
                 return _unsupported('missing_or_duplicate_profile_columns')
             for number, values in enumerate(reader, 1):
+                if limits is not None and number > limits.max_records:
+                    return _unsupported('process_record_limit')
                 if len(values) != len(header):
                     errors.append(f'invalid_csv_record_width:{number}')
                     continue
+                record_groups[tuple(values)].append(number)
                 row = dict(zip(header, values))
                 raw_time = row[profile['timestamp_column']]
-                when, time_reasons = _time(raw_time, profile)
+                when, time_reasons = _time(raw_time, profile, extended=extended)
                 for column, definition in columns.items():
                     raw = row[column]
                     reasons = list(time_reasons)
@@ -162,4 +191,19 @@ def parse_process(path, profile, *, synthetic=True, evidence=None):
                     errors.extend(reasons)
     except (csv.Error, UnicodeError) as exc:
         errors.append(f'invalid_or_truncated_csv:{exc}')
+    if not extended:
+        return {'events': events, 'quality': _quality(errors, len(events))}
+    duplicate_records = {number for members in record_groups.values() if len(members) > 1 for number in members}
+    time_groups = defaultdict(list)
+    for event in events:
+        if event['event_time'] is not None:
+            time_groups[(event['source_ref']['column'], event['event_time'])].append(event)
+        if event['source_ref']['record_number'] in duplicate_records:
+            event['quality'] = _quality(event['quality']['reasons'] + ['duplicate_process_record'])
+            errors.append('duplicate_process_record')
+    for members in time_groups.values():
+        if len(members) > 1:
+            errors.append('duplicate_process_time')
+            for event in members:
+                event['quality'] = _quality(event['quality']['reasons'] + ['duplicate_process_time'])
     return {'events': events, 'quality': _quality(errors, len(events))}

@@ -13,7 +13,7 @@ import uuid
 
 from . import __version__
 from .contracts import validate
-from .dual_source import analyze, query, run_dual, strict_json, VERSION, LIMITATIONS
+from .dual_source import analyze, query, run_dual, strict_json, VERSION, LIMITATIONS, retained_networks, R17_VERSION
 from .pipeline import canonical, file_hash, fingerprint
 
 
@@ -27,8 +27,15 @@ DIRECTORIES = frozenset(('dual', 'dual/sources'))
 def projection(result, source_dir):
     """Make a deterministic graph of observations, transitions and candidate claims."""
     source_dir = Path(source_dir)
+    finite_events=[]
+    for finding in result.get('rule_findings',[]):
+        interval=finding['interval']
+        from .dual_source import utc
+        finite_events.append({'schema_version':'1.0.0','synthetic':result['synthetic'],'event_id':finding['finding_id'],
+            'event_type':'finite_rule_finding','rule_version':finding['rule_version'],'parameters':finding['parameters'],
+            'evidence_refs':finding['evidence_refs'],'time_range':{'start':utc(interval[0]) if interval else None,'end':utc(interval[1]) if interval else None},'result':finding})
     events = ([item['event'] for item in result['network']] +
-              [item['event'] for item in result['process']] + result['changes'])
+              [item['event'] for item in result['process']] + result['changes'] + finite_events)
     nodes = ([{'id':item['event']['event_id'], 'event_id':item['event']['event_id'],
                'kind':'network', 'evidence_refs':item['observation']['source_refs']}
               for item in result['network']] +
@@ -37,7 +44,7 @@ def projection(result, source_dir):
               for item in result['process']] +
              [{'id':change['event_id'], 'event_id':change['event_id'],
                'kind':'derived_event', 'evidence_refs':change['evidence_refs']}
-              for change in result['changes']])
+              for change in result['changes']+finite_events])
     edges = [{'id':candidate['candidate_id'], 'source':candidate['operation_id'],
               'target':candidate['change_id'], 'claim_id':candidate['claim']['claim_id'],
               'rule_id':candidate['rule_id'], 'rule_version':candidate['rule_version'],
@@ -45,27 +52,32 @@ def projection(result, source_dir):
               'config_fingerprint':result['config_fingerprint'],
               'candidate_state':candidate['state']}
              for candidate in result['candidates']]
-    graph = {'schema_version':'1.0.0', 'synthetic':True, 'graph_id':'',
+    graph = {'schema_version':'1.0.0', 'synthetic':result['synthetic'], 'graph_id':'',
              'nodes':nodes, 'edges':edges,
              'claims':[candidate['claim'] for candidate in result['candidates']],
              'input_fingerprint':result['input_fingerprint'], 'core_version':__version__,
              'statistics':{'nodes':len(nodes), 'edges':len(edges)},
              'truncation':{'truncated':False, 'reason':None}}
     graph['graph_id'] = 'dual-graph-' + fingerprint({k:v for k,v in graph.items() if k!='graph_id'})
+    source_manifest=_read_json(source_dir.parent/'manifest.json')
+    source_networks=retained_networks(source_dir.parent,source_manifest)
     files = [{'name':name, 'sha256':file_hash(source_dir/name),
               'size_bytes':(source_dir/name).stat().st_size, 'kind':kind}
-             for kind,name in (('network','network.pcap'), ('process','process.csv'))]
-    dataset = {'schema_version':'1.0.0', 'synthetic':True,
+             for kind,name in [('network',p.name) for p in source_networks]+[('process','process.csv')]]
+    dataset = {'schema_version':'1.0.0', 'synthetic':result['synthetic'],
                'dataset_id':'dual-dataset-'+result['input_fingerprint'],
-               'source':'retained synthetic dual-source inputs', 'release':VERSION,
+               'source':'retained synthetic dual-source inputs', 'release':result['analysis_version'],
                'files':files, 'collection_range':{'start':None, 'end':None},
                'timezone_basis':'configured offsets and uncertainties in retained profile',
                'authorization_ref':'explicit synthetic dual-source opt-in'}
+    if result['synthetic'] is False:
+        provenance=result['source_provenance']
+        dataset.update({key:provenance[key] for key in ('source','release','collection_range','timezone_basis','authorization_ref')})
     for item in result['network']:
         validate('NetworkEvent', item['event'])
     for item in result['process']:
         validate('ProcessObservation', item['event'])
-    for event in result['changes']:
+    for event in result['changes']+finite_events:
         validate('DerivedEvent', event)
     validate('DatasetManifest', dataset)
     validate('GraphArtifact', graph)
@@ -76,10 +88,21 @@ def projection(result, source_dir):
 def _warnings(result):
     quality = result['quality']
     warnings = list(quality['unknown_reasons'])
+    if result['synthetic'] is False:warnings.append('real_source_unvalidated')
+    if any(f['state']=='unknown' for f in result.get('rule_findings',[])):warnings.append('finite_rules_have_unknown_findings')
     warnings += ['process: '+reason for reason in quality['process']['reasons']]
     if quality['network_unsupported']:
         warnings.append('unsupported_network_records_present')
     return sorted(set(warnings))
+
+
+def artifact_files(output):
+    """Exact allowed inventory, derived from validated bounded capture filenames."""
+    output=Path(output)
+    networks=retained_networks(output/'dual')
+    dynamic=tuple('dual/'+p.relative_to(output/'dual').as_posix() for p in networks)
+    return frozenset((*STANDARD,'run_manifest.json','dual/manifest.json','dual/analysis.json',
+                      'dual/sources/process.csv','dual/sources/profile.json',*dynamic))
 
 
 def _inventory(root):
@@ -87,6 +110,7 @@ def _inventory(root):
     root = Path(root)
     if root.is_symlink() or not root.is_dir():
         raise ValueError('artifact_root_missing_or_symlink')
+    files_expected=artifact_files(root)
     found = set()
     found_dirs = set()
     for directory, dirs, files in os.walk(root, followlinks=False):
@@ -100,7 +124,7 @@ def _inventory(root):
             if not path.is_file():
                 raise ValueError('nonregular_artifact')
             found.add(path.relative_to(root).as_posix())
-    extras = found-FILES
+    extras = found-files_expected
     if extras:
         publication = root/'manifest.json'
         anchor = file_hash(publication)+'.json' if publication.is_file() else None
@@ -108,7 +132,7 @@ def _inventory(root):
             raise ValueError('artifact_inventory_mismatch')
         if anchor in extras and (root/anchor).read_bytes() != publication.read_bytes():
             raise ValueError('publication_anchor_mismatch')
-    if not FILES <= found or found_dirs != DIRECTORIES:
+    if not files_expected <= found or found_dirs != DIRECTORIES:
         raise ValueError('artifact_inventory_mismatch')
 
 
@@ -127,10 +151,9 @@ def verify_task(output):
     if (output/'run_manifest.json').read_bytes() != canonical(manifest)+b'\n':
         raise ValueError('run_manifest_encoding_mismatch')
     validate('RunManifest', manifest)
-    if manifest['synthetic'] is not True:
-        raise ValueError('synthetic_manifest_required')
+    files_expected=artifact_files(output)
     entries = manifest['artifacts']
-    if len(entries) != len(FILES)-1 or {entry['path'] for entry in entries} != FILES-{'run_manifest.json'}:
+    if len(entries) != len(files_expected)-1 or {entry['path'] for entry in entries} != files_expected-{'run_manifest.json'}:
         raise ValueError('artifact_manifest_inventory_mismatch')
     for entry in entries:
         path = output/entry['path']
@@ -138,17 +161,20 @@ def verify_task(output):
             raise ValueError('artifact_integrity_mismatch: '+entry['path'])
     dual = output/'dual'
     dual_manifest = _read_json(dual/'manifest.json')
-    source_names = {'sources/network.pcap', 'sources/process.csv', 'sources/profile.json', 'analysis.json'}
-    if (set(dual_manifest) != {'schema_version','synthetic','analysis_version','config_fingerprint','files'}
-            or dual_manifest['schema_version'] != '1.0.0' or dual_manifest['synthetic'] is not True
-            or dual_manifest['analysis_version'] != VERSION
+    networks=retained_networks(dual,dual_manifest)
+    source_names={p.relative_to(dual).as_posix() for p in networks}|{'sources/process.csv','sources/profile.json','analysis.json'}
+    if (set(dual_manifest) != ({'schema_version','synthetic','analysis_version','config_fingerprint','files','network_inputs'} if len(networks)>1 else {'schema_version','synthetic','analysis_version','config_fingerprint','files'})
+            or dual_manifest['schema_version'] != '1.0.0' or dual_manifest['synthetic'] is not manifest['synthetic']
+            or dual_manifest['analysis_version'] not in (VERSION,R17_VERSION)
             or set(dual_manifest.get('files', {})) != source_names):
         raise ValueError('dual_manifest_inventory_mismatch')
     for name in source_names:
         if file_hash(dual/name) != dual_manifest['files'][name]:
             raise ValueError('dual_source_integrity_mismatch: '+name)
     config = _read_json(dual/'sources/profile.json')
-    actual = analyze(dual/'sources/network.pcap', dual/'sources/process.csv', config)
+    actual = analyze(networks if len(networks)>1 else networks[0], dual/'sources/process.csv', config)
+    if actual['synthetic'] is not manifest['synthetic']:raise ValueError('synthetic_manifest_mismatch')
+    if dual_manifest['analysis_version'] != actual['analysis_version']:raise ValueError('dual_analysis_version_mismatch')
     retained = _read_json(dual/'analysis.json')
     if canonical(actual) != canonical(retained) or dual_manifest['config_fingerprint'] != fingerprint(config):
         raise ValueError('dual_analysis_does_not_match_sources')
@@ -163,19 +189,20 @@ def verify_task(output):
         raise ValueError('run_manifest_result_hash_mismatch')
     if (manifest['warnings'] != _warnings(actual)
             or manifest['status'] != ('succeeded_with_warnings' if manifest['warnings'] else 'succeeded')
-            or manifest['limitations'] != LIMITATIONS or manifest['mode'] != 'offline'):
+            or manifest['limitations'] != actual['limitations'] or manifest['mode'] != 'offline'):
         raise ValueError('run_manifest_status_mismatch')
     publication_path = output/'manifest.json'
     if publication_path.exists():
         publication = _read_json(publication_path)
-        if (set(publication) != {'config_fingerprint', 'inputs', 'artifacts'}
+        if (set(publication) != ({'config_fingerprint','inputs','artifacts','networks'} if len(networks)>1 else {'config_fingerprint','inputs','artifacts'})
                 or publication['config_fingerprint'] != manifest['config_fingerprint']
                 or publication['inputs'] != {name:file_hash(dual/'sources'/filename)
                     for name,filename in (('network','network.pcap'),('process','process.csv'),('profile','profile.json'))}):
             raise ValueError('publication_identity_mismatch')
+        if len(networks)>1 and publication['networks'] != [file_hash(p) for p in networks]:raise ValueError('publication_network_identity_mismatch')
         records = publication['artifacts']
-        if (not isinstance(records,list) or len(records) != len(FILES)
-                or {entry.get('path') for entry in records if isinstance(entry,dict)} != FILES):
+        if (not isinstance(records,list) or len(records) != len(files_expected)
+                or {entry.get('path') for entry in records if isinstance(entry,dict)} != files_expected):
             raise ValueError('publication_inventory_mismatch')
         for entry in records:
             name = entry['path']
@@ -203,18 +230,18 @@ def export_task(network, process, profile, output, *, run_id=None, attempt_id=1)
         for name,payload in payloads.items():
             path = output/name
             path.write_bytes(canonical(payload)+b'\n')
-        for name in (*STANDARD, *DUAL):
+        for name in sorted(artifact_files(output)-{'run_manifest.json'}) if 'analysis_mode' in result else (*STANDARD,*DUAL):
             path = output/name
             entries.append({'path':name, 'sha256':file_hash(path), 'size_bytes':path.stat().st_size})
         warnings = _warnings(result)
-        manifest = {'schema_version':'1.0.0', 'synthetic':True, 'run_id':run_id or str(uuid.uuid4()),
+        manifest = {'schema_version':'1.0.0', 'synthetic':result['synthetic'], 'run_id':run_id or str(uuid.uuid4()),
                     'attempt_id':attempt_id, 'input_fingerprint':result['input_fingerprint'],
                     'config_fingerprint':result['config_fingerprint'],
                     'tool_versions':{'core':__version__, 'python':platform.python_version()},
                     'mode':'offline', 'artifacts':entries,
                     'result_hashes':{'events':fingerprint(payloads['events.json']),
                                      'graph':fingerprint(payloads['graph.json'])},
-                    'limitations':LIMITATIONS, 'status':'succeeded_with_warnings' if warnings else 'succeeded',
+                    'limitations':result['limitations'], 'status':'succeeded_with_warnings' if warnings else 'succeeded',
                     'warnings':warnings}
         validate('RunManifest', manifest)
         (output/'run_manifest.json').write_bytes(canonical(manifest)+b'\n')
@@ -269,13 +296,15 @@ def restore_task(bundle, destination):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    for name in ('network','process','profile','output'):
+    parser.add_argument('--network',required=True,action='append')
+    for name in ('process','profile','output'):
         parser.add_argument('--'+name, required=True)
-    parser.add_argument('--synthetic', action='store_true', required=True)
+    parser.add_argument('--synthetic', action='store_true', help='legacy synthetic acknowledgement; profile remains authoritative')
     parser.add_argument('--run-id')
     parser.add_argument('--attempt-id', type=int, default=1)
     args = parser.parse_args()
     try:
+        if args.synthetic and _read_json(args.profile)['synthetic'] is not True:raise ValueError('synthetic_flag_profile_mismatch')
         manifest = export_task(args.network,args.process,args.profile,args.output,
                                run_id=args.run_id,attempt_id=args.attempt_id)
     except (OSError,ValueError,KeyError,TypeError) as error:

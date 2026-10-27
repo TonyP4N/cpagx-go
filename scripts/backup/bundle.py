@@ -80,6 +80,20 @@ def revoke_restored_sessions(container):
     return count
 
 
+def dual_networks(payload):
+    refs=payload.get('networks', [payload.get('network')])
+    if (not isinstance(refs,list) or not 1<=len(refs)<=4 or
+            any(not isinstance(ref,dict) or set(ref)!={'path','sha256'} for ref in refs) or
+            refs[0]!=payload.get('network') or
+            len({ref['path'] for ref in refs})!=len(refs)):
+        raise ValueError('invalid ordered dual capture references')
+    return refs
+
+
+def dual_files(payload):
+    return DUAL_FILES | {f'dual/sources/network-{i:03d}.pcap' for i in range(1,len(dual_networks(payload)))}
+
+
 def audit_dual(row, root, verify):
     """Bind the database publication to the original, reverified dual run."""
     payload=row['payload']
@@ -104,14 +118,18 @@ def audit_dual(row, root, verify):
         raise ValueError('dual wrapper config fingerprint mismatch')
     if wrapper['inputs']!={role:payload[role]['sha256'] for role in ('network','process','profile')}:
         raise ValueError('dual wrapper source mismatch')
+    networks=dual_networks(payload)
+    if wrapper.get('networks') != ([ref['sha256'] for ref in networks] if 'networks' in payload else None):
+        raise ValueError('dual wrapper capture order/hash mismatch')
+    expected_dual=dual_files(payload)
     entries=wrapper['artifacts']
-    if (not isinstance(entries,list) or len(entries)!=len(DUAL_FILES)
-            or {entry['path'] for entry in entries}!=DUAL_FILES):
+    if (not isinstance(entries,list) or len(entries)!=len(expected_dual)
+            or {entry['path'] for entry in entries}!=expected_dual):
         raise ValueError('unexpected dual artifact set')
     for entry in entries:
         verify((base/entry['path']).as_posix(),entry['sha256'],entry['size'])
     output=safe(root,base.as_posix())
-    expected_files=DUAL_FILES|{'manifest.json',row['artifact_sha256']+'.json'}
+    expected_files=expected_dual|{'manifest.json',row['artifact_sha256']+'.json'}
     if set(inventory(output))!=expected_files:
         raise ValueError('unexpected dual publication file inventory')
     # The core verifier requires its exact eleven-file export tree. The
@@ -119,16 +137,18 @@ def audit_dual(row, root, verify):
     with tempfile.TemporaryDirectory(prefix='cpag-dual-audit-') as temporary:
         export=Path(temporary)/'export'
         export.mkdir()
-        for name in DUAL_FILES:
+        for name in expected_dual:
             target=export/name
             target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(output/name,target)
         core=verify_dual_task(export)
     if core['run_id']!=row['id'] or core['attempt_id']!=attempt:
         raise ValueError('dual core run/attempt identity mismatch')
-    for role,name in (('network','network.pcap'),('process','process.csv'),('profile','profile.json')):
-        if safe(root,payload[role]['path']).read_bytes()!=(output/'dual/sources'/name).read_bytes():
-            raise ValueError('dual retained original input differs: '+role)
+    refs=[(ref, 'network.pcap' if i==0 else f'network-{i:03d}.pcap') for i,ref in enumerate(networks)]
+    refs += [(payload[role],name) for role,name in (('process','process.csv'),('profile','profile.json'))]
+    for ref,name in refs:
+        if safe(root,ref['path']).read_bytes()!=(output/'dual/sources'/name).read_bytes():
+            raise ValueError('dual retained original input differs: '+name)
 
 
 def sha(path):
@@ -199,6 +219,7 @@ def audit(rows, root):
                 if not isinstance(ref,dict):raise ValueError('missing or invalid input reference: '+role)
                 verify(ref['path'],ref['sha256'])
             if dual:
+                for ref in dual_networks(payload):verify(ref['path'],ref['sha256'])
                 audit_dual(row,root,verify)
             if row['state']=='succeeded' and not dual:
                 manifest=verify(row['artifact_path'],row['artifact_sha256'])
@@ -512,6 +533,26 @@ def audit_catalog(catalog, rows, root):
         payload=job.get('payload')
         try:
             if not isinstance(payload,dict):raise ValueError('invalid run payload')
+            if datasets[dataset_id]['source_kind']=='real':
+                document=config.get('profile_json',{})
+                provenance=document.get('source_provenance',{})
+                if (document.get('synthetic') is not False or document.get('analysis_mode')!='bounded-real-capable-v1' or
+                        any(provenance.get(key)!=datasets[dataset_id][field] for key,field in
+                            [('source','source'),('release','batch'),('authorization_ref','authorization_ref')])):
+                    raise ValueError('real run provenance differs from catalog')
+            capture_ids=row.get('network_file_ids') or [row.get('network_file_id')]
+            if (not isinstance(capture_ids,list) or not 1<=len(capture_ids)<=4 or
+                    len(set(capture_ids))!=len(capture_ids) or capture_ids[0]!=row.get('network_file_id')):
+                raise ValueError('invalid ordered run capture binding')
+            captures=[]
+            for cid in capture_ids:
+                link=dataset_files.get(cid)
+                if not link or link['dataset_id']!=dataset_id or link['role']!='network':
+                    raise ValueError('run capture ownership/role mismatch')
+                source=source_files.get(link['source_file_id'])
+                if source is None:raise ValueError('run capture source missing')
+                captures.append({'path':source['storage_path'],'sha256':source['sha256']})
+            if dual_networks(payload)!=captures:raise ValueError('run ordered captures differ from catalog')
             for role,source in (('network',network_source),('process',process_source)):
                 if payload.get(role)!={'path':source['storage_path'],'sha256':source['sha256']}:
                     raise ValueError('run '+role+' differs from catalog source')
@@ -621,10 +662,9 @@ def audit_catalog(catalog, rows, root):
         preflight=next(item for item in tables['v3_preflights'] if item.get('id')==preflight_id)
         if (preflight.get('dataset_id')!=row.get('dataset_id') or
                 preflight.get('report',{}).get('status')!='ready_for_manual_review' or
-                snapshot['dataset']['source_kind']!='synthetic' or
                 {entry['dataset_file_id'] for entry in snapshot['files']}!=
-                    {row.get('network_file_id'),row.get('process_file_id')} or
-                len(snapshot['files'])!=2 or
+                    set((row.get('network_file_ids') or [row.get('network_file_id')])+[row.get('process_file_id')]) or
+                len(snapshot['files'])!=len(row.get('network_file_ids') or [row.get('network_file_id')])+1 or
                 (link_origin=='native_gate' and preflight.get('snapshot_status')!='native') or
                 (link_origin=='reconstructed_match' and preflight.get('snapshot_status')!='reconstructed')):
             errors.append({'scope':'v3_run_bindings','job_id':job_id,

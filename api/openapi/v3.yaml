@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CPAG v3 local research API
-  version: 0.2.0
-  description: Explicit opt-in local API. Real material is accepted for metadata and integrity preflight; dual analysis currently executes synthetic sources only.
+  version: 0.3.0
+  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Capacity certification remains a later gate.
 servers:
   - url: http://127.0.0.1:8095
 paths:
@@ -177,12 +177,12 @@ paths:
               type: object
               required: [dataset_id, config_version_id, preflight_id, mode]
               properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { const: dual_source } }
-      responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis or unsupported_source; no job inserted } }
+      responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis, source_provenance_mismatch, source_count, unsupported_format or invalid_inputs; no job inserted } }
   /api/v3/runs/{run_id}:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Sanitized M4 state and attempt history }, '404': { $ref: '#/components/responses/Error' } }
+      responses: { '200': { description: Sanitized M4 state, attempt history and immutable ordered network_file_ids (null for legacy or scalar input) }, '404': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/cancel:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     post:
