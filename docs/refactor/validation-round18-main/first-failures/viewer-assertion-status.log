@@ -1,0 +1,12 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  trigger "v3_capture_binding_validate" for relation "v3_run_bindings" does not exist, skipping
+NOTICE:  trigger "v3_capture_source_protect" for relation "v3_dataset_files" does not exist, skipping
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round18_acceptance.py", line 248, in <module>
+    args=parser.parse_args();main(args.output.resolve(),args.serve)
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round18_acceptance.py", line 207, in main
+    readonly.expect('POST','/api/v3/runs',{'dataset_id':cases['normal']['dataset_id'],'config_version_id':cases['normal']['config_id'],
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round16_acceptance.py", line 70, in expect
+    raise RuntimeError(f'{method} {path} returned {status}, expected {code}: {value!r}')
+RuntimeError: POST /api/v3/runs returned 404, expected 403: {'error': {'code': 'not_found', 'message': 'dataset not found'}}

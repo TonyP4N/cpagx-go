@@ -30,17 +30,18 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	}
 	var dataset, config, mode, linkOrigin string
 	var preflightID *string
+	var replayVersion *string
 	// Scan SQL NULL through the standard byte slice destination. A named
 	// json.RawMessage slice cannot receive nil through database/sql.
 	var captureIDs []byte
 	var at time.Time
-	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin,network_file_ids FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin, &captureIDs)
+	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin,network_file_ids,replay_version FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin, &captureIDs, &replayVersion)
 	if e != nil || !s.can(r.Context(), p, dataset, false) {
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
 	if len(parts) == 2 && r.Method == "GET" {
-		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, json.RawMessage(captureIDs))
+		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, json.RawMessage(captureIDs), replayVersion)
 		return
 	}
 	if len(parts) == 3 && parts[2] == "cancel" && r.Method == "POST" {
@@ -65,12 +66,34 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	if len(parts) == 3 && r.Method == "GET" {
 		switch parts[2] {
 		case "result", "graph", "evidence":
+			if mode == "dual_source_replay" {
+				s.replayProjection(w, r, p, dataset, id, parts[2])
+				return
+			}
 			s.verifiedProjection(w, r, p, dataset, id, parts[2])
+			return
+		case "revisions", "snapshots":
+			if mode != "dual_source_replay" {
+				fail(w, 404, "not_found", "replay history not found")
+				return
+			}
+			s.replayProjection(w, r, p, dataset, id, parts[2])
 			return
 		case "artifacts":
 			s.listArtifacts(w, r, p, dataset, id)
 			return
 		}
+	}
+	if len(parts) == 4 && parts[2] == "snapshots" && r.Method == "GET" {
+		if mode != "dual_source_replay" {
+			fail(w, 404, "not_found", "replay snapshot not found")
+			return
+		}
+		query := r.URL.Query()
+		query.Set("revision", parts[3])
+		r.URL.RawQuery = query.Encode()
+		s.replayProjection(w, r, p, dataset, id, "snapshots")
+		return
 	}
 	if len(parts) >= 5 && parts[2] == "artifacts" && parts[len(parts)-1] == "download" && r.Method == "GET" {
 		s.downloadArtifact(w, r, p, dataset, id, strings.Join(parts[3:len(parts)-1], "/"))
@@ -85,7 +108,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		PreflightID string `json:"preflight_id"`
 		Mode        string `json:"mode"`
 	}
-	if body(w, r, &q, 8192) != nil || !safeID.MatchString(q.DatasetID) || !safeID.MatchString(q.ConfigID) || q.Mode != "dual_source" {
+	if body(w, r, &q, 8192) != nil || !safeID.MatchString(q.DatasetID) || !safeID.MatchString(q.ConfigID) || (q.Mode != "dual_source" && q.Mode != "dual_source_replay") {
 		fail(w, 422, "invalid_run", "dataset, version and supported mode required")
 		return
 	}
@@ -143,6 +166,12 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		return
 	}
 	payload := jobapi.Payload{Kind: "dual-source", Profile: jobapi.Ref{Path: cfgPath, SHA: cfgSHA}, Fingerprint: fp}
+	if q.Mode == "dual_source_replay" {
+		payload.Kind = "dual-source-replay"
+		replay, _ := doc["replay"].(map[string]any)
+		version, _ := replay["version"].(string)
+		payload.ReplayVersion = version
+	}
 	for i, n := range networks {
 		var path string
 		if s.DB.QueryRowContext(r.Context(), `SELECT x.storage_path FROM v3_dataset_files f JOIN v3_source_files x ON x.id=f.source_file_id WHERE f.id=$1`, n.ID).Scan(&path) != nil {
@@ -209,7 +238,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 	}
 	_, e = tx.ExecContext(r.Context(), "INSERT INTO m4_jobs(id,max_attempts,payload) VALUES($1,3,$2)", id, string(rawPayload))
 	if e == nil {
-		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason,network_file_ids) VALUES($1,$2,$3,$4,$5,'dual_source',$6,$7,'native_gate',NULL,$8)", id, q.DatasetID, networks[0].ID, process.ID, q.ConfigID, p.ID, q.PreflightID, networkIDsJSON(networks))
+		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason,network_file_ids,replay_version) VALUES($1,$2,$3,$4,$5,$9,$6,$7,'native_gate',NULL,$8,$10)", id, q.DatasetID, networks[0].ID, process.ID, q.ConfigID, p.ID, q.PreflightID, networkIDsJSON(networks), q.Mode, optionalString(payload.ReplayVersion))
 	}
 	if e == nil {
 		e = auditTx(r.Context(), tx, p, q.DatasetID, id, "run_create", "ok")
@@ -218,7 +247,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 503, "database_error", "run unavailable")
 		return
 	}
-	respond(w, 201, map[string]any{"run": map[string]any{"id": id, "dataset_id": q.DatasetID, "state": "queued", "config_version_id": q.ConfigID, "preflight_id": q.PreflightID, "mode": "dual_source"}})
+	respond(w, 201, map[string]any{"run": map[string]any{"id": id, "dataset_id": q.DatasetID, "state": "queued", "config_version_id": q.ConfigID, "preflight_id": q.PreflightID, "mode": q.Mode, "replay_version": optionalString(payload.ReplayVersion)}})
 }
 func readyDual(doc map[string]any) bool {
 	if _, ok := doc["synthetic"].(bool); !ok || ((doc["synthetic"] == false || doc["analysis_mode"] == "bounded-real-capable-v1") && !readyRealBasis(doc)) {
@@ -287,7 +316,7 @@ func (s *Server) listRuns(w http.ResponseWriter, r *http.Request, p *principal) 
 		fail(w, 404, "not_found", "dataset not found")
 		return
 	}
-	rows, e := s.DB.QueryContext(r.Context(), "SELECT b.job_id,j.state,j.attempt,b.config_version_id,b.created_at,b.preflight_id,b.preflight_link_origin FROM v3_run_bindings b JOIN m4_jobs j ON j.id=b.job_id WHERE b.dataset_id=$1 ORDER BY b.created_at DESC LIMIT 200", dataset)
+	rows, e := s.DB.QueryContext(r.Context(), "SELECT b.job_id,j.state,j.attempt,b.config_version_id,b.created_at,b.preflight_id,b.preflight_link_origin,b.mode,b.replay_version FROM v3_run_bindings b JOIN m4_jobs j ON j.id=b.job_id WHERE b.dataset_id=$1 ORDER BY b.created_at DESC LIMIT 200", dataset)
 	if e != nil {
 		fail(w, 503, "database_error", "runs unavailable")
 		return
@@ -295,17 +324,18 @@ func (s *Server) listRuns(w http.ResponseWriter, r *http.Request, p *principal) 
 	defer rows.Close()
 	out := []any{}
 	for rows.Next() {
-		var id, state, cfg, linkOrigin string
+		var id, state, cfg, linkOrigin, mode string
+		var replayVersion *string
 		var preflightID *string
 		var attempt int
 		var at time.Time
-		if rows.Scan(&id, &state, &attempt, &cfg, &at, &preflightID, &linkOrigin) == nil {
-			out = append(out, map[string]any{"id": id, "dataset_id": dataset, "state": state, "attempt": attempt, "config_version_id": cfg, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "created_at": at})
+		if rows.Scan(&id, &state, &attempt, &cfg, &at, &preflightID, &linkOrigin, &mode, &replayVersion) == nil {
+			out = append(out, map[string]any{"id": id, "dataset_id": dataset, "state": state, "mode": mode, "replay_version": replayVersion, "attempt": attempt, "config_version_id": cfg, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "created_at": at})
 		}
 	}
 	respond(w, 200, map[string]any{"runs": out})
 }
-func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time, preflightID *string, linkOrigin string, captureIDs json.RawMessage) {
+func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, config, mode string, at time.Time, preflightID *string, linkOrigin string, captureIDs json.RawMessage, replayVersion *string) {
 	st, e := s.repo.Status(r.Context(), id)
 	if e != nil {
 		fail(w, 503, "database_error", "run unavailable")
@@ -315,7 +345,7 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, con
 	for _, a := range st.AttemptHistory {
 		history = append(history, map[string]any{"attempt": a.Attempt, "location": a.Location, "exited_at": a.ExitedAt, "publication_state": a.PublicationState})
 	}
-	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid}})
+	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "replay_version": replayVersion, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid}})
 }
 func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
 	path := "/v1/jobs/" + id + "/dual-result"
@@ -395,3 +425,10 @@ func networkIDsJSON(files []fileInfo) any {
 	return string(raw)
 }
 func readyRealBasis(doc map[string]any) bool { return jobapi.ReadyRealDualBasis(doc) }
+
+func optionalString(value string) any {
+	if value == "" {
+		return nil
+	}
+	return value
+}

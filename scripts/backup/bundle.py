@@ -94,12 +94,24 @@ def dual_files(payload):
     return DUAL_FILES | {f'dual/sources/network-{i:03d}.pcap' for i in range(1,len(dual_networks(payload)))}
 
 
+def replay_export_api():
+    from cpag_core import replay_export
+    return replay_export
+
+
+def replay_files(payload):
+    return replay_export_api().artifact_files_for_inputs(len(dual_networks(payload)))
+
+
 def audit_dual(row, root, verify):
     """Bind the database publication to the original, reverified dual run."""
     payload=row['payload']
+    replay=payload.get('kind')=='dual-source-replay'
     profile=strict_json(safe(root,payload['profile']['path']).read_text(encoding='utf-8'))
     if fingerprint(profile)!=payload['config_fingerprint']:
         raise ValueError('dual profile config fingerprint mismatch')
+    if replay and (payload.get('replay_version')!='dual-source-replay-1' or profile.get('replay',{}).get('version')!=payload.get('replay_version')):
+        raise ValueError('replay profile/payload version mismatch')
     if row['state']!='succeeded':
         return
     attempt=row.get('attempt')
@@ -121,7 +133,7 @@ def audit_dual(row, root, verify):
     networks=dual_networks(payload)
     if wrapper.get('networks') != ([ref['sha256'] for ref in networks] if 'networks' in payload else None):
         raise ValueError('dual wrapper capture order/hash mismatch')
-    expected_dual=dual_files(payload)
+    expected_dual=replay_files(payload) if replay else dual_files(payload)
     entries=wrapper['artifacts']
     if (not isinstance(entries,list) or len(entries)!=len(expected_dual)
             or {entry['path'] for entry in entries}!=expected_dual):
@@ -141,13 +153,15 @@ def audit_dual(row, root, verify):
             target=export/name
             target.parent.mkdir(parents=True,exist_ok=True)
             shutil.copyfile(output/name,target)
-        core=verify_dual_task(export)
+        core=(replay_export_api().verify_task if replay else verify_dual_task)(export)
+    if replay and (core.get('mode')!='replay' or core.get('replay_version')!=payload['replay_version'] or wrapper.get('replay_version')!=payload['replay_version']):
+        raise ValueError('replay published mode/version mismatch')
     if core['run_id']!=row['id'] or core['attempt_id']!=attempt:
         raise ValueError('dual core run/attempt identity mismatch')
     refs=[(ref, 'network.pcap' if i==0 else f'network-{i:03d}.pcap') for i,ref in enumerate(networks)]
     refs += [(payload[role],name) for role,name in (('process','process.csv'),('profile','profile.json'))]
     for ref,name in refs:
-        if safe(root,ref['path']).read_bytes()!=(output/'dual/sources'/name).read_bytes():
+        if safe(root,ref['path']).read_bytes()!=(output/('sources' if replay else 'dual/sources')/name).read_bytes():
             raise ValueError('dual retained original input differs: '+name)
 
 
@@ -212,8 +226,8 @@ def audit(rows, root):
             payload=row.get('payload')
             if not isinstance(payload,dict):raise ValueError('job payload must be an object')
             packet=payload.get('kind')=='packet'
-            dual=payload.get('kind')=='dual-source'
-            if payload.get('kind') not in (None,'','packet','dual-source'):raise ValueError('unknown task kind')
+            dual=payload.get('kind') in ('dual-source','dual-source-replay')
+            if payload.get('kind') not in (None,'','packet','dual-source','dual-source-replay'):raise ValueError('unknown task kind')
             for role in ('network','process','profile'):
                 ref=payload.get(role)
                 if not isinstance(ref,dict):raise ValueError('missing or invalid input reference: '+role)
@@ -560,9 +574,15 @@ def audit_catalog(catalog, rows, root):
                 raise ValueError('run profile differs from catalog version')
             if payload.get('config_fingerprint')!=config['config_fingerprint']:
                 raise ValueError('run config fingerprint differs from catalog version')
-            if (row.get('mode')!='dual_source' or config['kind']!='dual' or
-                    payload.get('kind')!='dual-source'):
-                raise ValueError('run mode/config/task kind mismatch')
+            if config['kind']!='dual':raise ValueError('run config kind mismatch')
+            mode=row.get('mode')
+            if mode=='dual_source':
+                if payload.get('kind')!='dual-source' or row.get('replay_version') is not None or payload.get('replay_version') is not None:raise ValueError('offline run mode/version mismatch')
+            elif mode=='dual_source_replay':
+                version=row.get('replay_version')
+                if (payload.get('kind')!='dual-source-replay' or version!='dual-source-replay-1' or
+                        payload.get('replay_version')!=version or config.get('profile_json',{}).get('replay',{}).get('version')!=version):raise ValueError('replay run mode/profile/task version mismatch')
+            else:raise ValueError('run mode/config/task kind mismatch')
         except (KeyError,ValueError,TypeError) as exc:
             errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':str(exc)})
     for job_id,job in jobs.items():

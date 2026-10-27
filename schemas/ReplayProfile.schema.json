@@ -66,7 +66,8 @@
       "enum": [
         1,
         10
-      ]
+      ],
+      "type": "number"
     },
     "realtime": {
       "type": "boolean"

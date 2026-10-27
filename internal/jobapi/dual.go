@@ -132,6 +132,9 @@ func dualArtifactSet() map[string]bool {
 	return set
 }
 func validArtifactPath(path, kind string) bool {
+	if kind == "dual-source-replay" {
+		return validReplayArtifactPath(path)
+	}
 	if kind == "dual-source" {
 		return dualArtifactSet()[path] || path == "run_manifest.json" || regexp.MustCompile(`^dual/sources/network-00[1-3]\.pcap$`).MatchString(path)
 	}
@@ -953,7 +956,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if err = json.Unmarshal(st.Payload, &p); err != nil {
 		return "", p, nil, err
 	}
-	if st.State != "succeeded" || p.Kind != "dual-source" || st.ArtifactSHA256 == nil || st.ArtifactPath == nil {
+	if st.State != "succeeded" || !dualFamily(p.Kind) || st.ArtifactSHA256 == nil || st.ArtifactPath == nil {
 		return "", p, nil, errors.New("dual-source result unavailable")
 	}
 	if err := s.validPayload(p); err != nil {
@@ -993,11 +996,15 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			networks = append(networks, str(r))
 		}
 	}
-	if !ok || !publicationInputsMatch(p, inputMap, networks) {
+	if !ok || !publicationInputsMatch(p, inputMap, networks) || ((p.Kind == "dual-source-replay") && pub["replay_version"] != p.ReplayVersion) {
 		return "", p, nil, errors.New("published dual input mismatch")
 	}
+	names := dualArtifactNamesFor(p)
+	if p.Kind == "dual-source-replay" {
+		names = replayArtifactNamesFor(p)
+	}
 	entries, ok := arr(pub["artifacts"])
-	if !ok || len(entries) != len(dualArtifactNamesFor(p)) {
+	if !ok || len(entries) != len(names) {
 		return "", p, nil, errors.New("published dual artifact count mismatch")
 	}
 	wrapper := Manifest{Fingerprint: p.Fingerprint, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
@@ -1028,7 +1035,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			return "", p, nil, errors.New("published dual artifact changed: " + entry.Path)
 		}
 	}
-	for _, name := range dualArtifactNamesFor(p) {
+	for _, name := range names {
 		if !seen[name] {
 			return "", p, nil, errors.New("missing dual published artifact")
 		}
@@ -1041,7 +1048,12 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if err != nil {
 		return "", p, nil, err
 	}
-	if err = s.validateDual(base, p, wrapper, coreRaw); err != nil {
+	if p.Kind == "dual-source-replay" {
+		_, err = s.validateReplay(base, p, wrapper, coreRaw)
+	} else {
+		err = s.validateDual(base, p, wrapper, coreRaw)
+	}
+	if err != nil {
 		return "", p, nil, err
 	}
 	a, err := s.readDualJSON(base, "analysis.json")
@@ -1056,6 +1068,9 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 	base, p, analysis, err := s.publishedDual(r, id)
 	if err != nil {
 		return err
+	}
+	if p.Kind != "dual-source" {
+		return errors.New("offline result route cannot read replay task")
 	}
 	if kind == "dual-result" {
 		graph, err := s.readDualJSON(base, "graph.json")

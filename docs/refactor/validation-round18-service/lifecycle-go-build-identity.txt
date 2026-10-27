@@ -1,0 +1,28 @@
+/private/tmp/cpag-r18-lifecycle-second/cpagx-v3: go1.26.5
+	path	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/cpagx-v3
+	mod	github.com/TonyP4N/cpagx-go/internal/jobs/integration	v0.0.0-20261027091149-bc11e2838acc+dirty	
+	dep	github.com/TonyP4N/cpagx-go	v0.0.0
+	=>	../../..	(devel)	
+	
+	dep	github.com/jackc/pgpassfile	v1.0.0	h1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=
+	dep	github.com/jackc/pgservicefile	v0.0.0-20240606120523-5a60cdf6a761	h1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=
+	dep	github.com/jackc/pgx/v5	v5.7.6	h1:rWQc5FwZSPX58r1OQmkuaNicxdmExaEz5A2DO2hUuTk=
+	dep	github.com/jackc/puddle/v2	v2.2.2	h1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=
+	dep	golang.org/x/crypto	v0.45.0	h1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=
+	dep	golang.org/x/sync	v0.18.0	h1:kr88TuHDroi+UVf+0hZnirlk8o8T+4MrK6mr60WkH/I=
+	dep	golang.org/x/text	v0.31.0	h1:aC8ghyu4JhP8VojJ2lEHBnochRno1sgL6nEi9WGFGMM=
+	build	-buildmode=exe
+	build	-compiler=gc
+	build	DefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,tlssecpmlkem=0,tlssha1=1,updatemaxprocs=0,urlstrictcolons=0,x509sha256skid=0
+	build	CGO_ENABLED=1
+	build	CGO_CFLAGS=
+	build	CGO_CPPFLAGS=
+	build	CGO_CXXFLAGS=
+	build	CGO_LDFLAGS=
+	build	GOARCH=arm64
+	build	GOOS=darwin
+	build	GOARM64=v8.0
+	build	vcs=git
+	build	vcs.revision=bc11e2838acc1a736b5de1e25419ba47891c430c
+	build	vcs.time=2026-10-27T09:11:49Z
+	build	vcs.modified=true

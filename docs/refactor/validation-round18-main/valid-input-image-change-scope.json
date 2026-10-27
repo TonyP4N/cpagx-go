@@ -1,0 +1,12 @@
+{
+  "changed_files": [
+    "schemas/ReplayProfile.schema.json",
+    "services/analysis/src/cpag_core/replay_export.py"
+  ],
+  "replay_export_changed_functions": [
+    "query_task",
+    "main"
+  ],
+  "generation_functions_identical": true,
+  "other_change": "ReplayProfile.speed type number rejects invalid bool only; valid1/10 unchanged"
+}

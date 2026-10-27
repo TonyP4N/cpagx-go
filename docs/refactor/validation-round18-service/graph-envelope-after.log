@@ -1,0 +1,8 @@
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/final
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/snapshot
+--- PASS: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion (0.00s)
+    --- PASS: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/final (0.00s)
+    --- PASS: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/snapshot (0.00s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	0.329s

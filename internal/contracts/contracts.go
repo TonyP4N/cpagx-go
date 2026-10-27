@@ -6,10 +6,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/big"
 	"os"
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"strconv"
 	"time"
 )
 
@@ -47,13 +49,13 @@ func check(dir string, s map[string]any, v any, path string) error {
 	if ref, ok := s["$ref"].(string); ok {
 		return validateFile(dir, ref, v, path)
 	}
-	if constant, ok := s["const"]; ok && !reflect.DeepEqual(v, constant) {
+	if constant, ok := s["const"]; ok && !sameSchemaValue(v, constant) {
 		return fail("invalid constant/schema version")
 	}
 	if options, ok := s["enum"].([]any); ok {
 		found := false
 		for _, x := range options {
-			if reflect.DeepEqual(v, x) {
+			if sameSchemaValue(v, x) {
 				found = true
 			}
 		}
@@ -156,4 +158,18 @@ func check(dir string, s map[string]any, v any, path string) error {
 		}
 	}
 	return nil
+}
+
+// JSON Schema numeric enum/const values compare numerically. Schema JSON uses
+// float64 while artifact parsing deliberately retains json.Number.
+func sameSchemaValue(a, b any) bool {
+	n, ok := a.(json.Number)
+	if ok {
+		if f, yes := b.(float64); yes {
+			x, valid := new(big.Rat).SetString(string(n))
+			y, validY := new(big.Rat).SetString(strconv.FormatFloat(f, 'g', -1, 64))
+			return valid && validY && x.Cmp(y) == 0
+		}
+	}
+	return reflect.DeepEqual(a, b)
 }

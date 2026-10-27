@@ -12,10 +12,19 @@ import (
 func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
-	if err != nil || len(entries) != 15 {
-		t.Fatalf("fifteen schemas required: %v", err)
+	expected := map[string]bool{}
+	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest"} {
+		expected[name+".schema.json"] = true
+	}
+	if err != nil || len(entries) != len(expected) {
+		t.Fatalf("explicit baseline and replay schema set required: %v; got %d want %d", err, len(entries), len(expected))
 	}
 	for _, path := range entries {
+		name := filepath.Base(path)
+		if !expected[name] {
+			t.Fatalf("unregistered schema %s", name)
+		}
+		delete(expected, name)
 		raw, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatal(err)
@@ -212,6 +221,23 @@ func TestDualSourceServiceBounds(t *testing.T) {
 		bad, _ := json.Marshal(object)
 		if Validate("../../schemas", "DualSourceProfile", bad) == nil {
 			t.Fatalf("invalid service accepted: %v", service)
+		}
+	}
+}
+
+func TestNumericEnumsPreserveJSONNumberSemantics(t *testing.T) {
+	dir := t.TempDir()
+	if e := os.WriteFile(filepath.Join(dir, "Numeric.schema.json"), []byte(`{"type":"object","properties":{"speed":{"type":"number","enum":[1,10]}},"required":["speed"],"additionalProperties":false}`), 0600); e != nil {
+		t.Fatal(e)
+	}
+	for _, raw := range []string{`{"speed":1}`, `{"speed":1.0}`, `{"speed":10}`, `{"speed":1e1}`} {
+		if e := Validate(dir, "Numeric", []byte(raw)); e != nil {
+			t.Fatal(raw, e)
+		}
+	}
+	for _, raw := range []string{`{"speed":0}`, `{"speed":1.1}`, `{"speed":"1"}`} {
+		if e := Validate(dir, "Numeric", []byte(raw)); e == nil {
+			t.Fatal("invalid speed accepted", raw)
 		}
 	}
 }

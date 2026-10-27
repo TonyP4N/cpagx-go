@@ -1,0 +1,10 @@
+[
+  {
+    "job_id": "dcb38936fe5270b122152c7afcfb739d",
+    "attempt": "attempt-1.worker",
+    "compute_returncode": 2,
+    "failure_category": "calculation_exit",
+    "stderr": "unsupported_capture_magic\n",
+    "output_streams": "combined_stdout_stderr"
+  }
+]

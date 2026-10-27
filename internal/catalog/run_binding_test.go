@@ -38,7 +38,7 @@ func (c *runBindingConn) QueryContext(_ context.Context, q string, _ []driver.Na
 		if c.multi {
 			captures = []byte(`["capture-one","capture-two"]`)
 		}
-		return &runBindingRows{[]string{"dataset_id", "config_version_id", "mode", "created_at", "preflight_id", "preflight_link_origin", "network_file_ids"}, [][]driver.Value{{"dataset", "config", "dual_source", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), "preflight", "native_gate", captures}}}, nil
+		return &runBindingRows{[]string{"dataset_id", "config_version_id", "mode", "created_at", "preflight_id", "preflight_link_origin", "network_file_ids", "replay_version"}, [][]driver.Value{{"dataset", "config", "dual_source", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), "preflight", "native_gate", captures, nil}}}, nil
 	case strings.Contains(q, "FROM m4_jobs WHERE id="):
 		return &runBindingRows{[]string{"id", "state", "attempt", "payload", "artifact_path", "artifact_sha256", "last_error", "recovery_deadline", "recovery_checked_at", "recovery_reason", "lease_valid"}, [][]driver.Value{{"run", "queued", int64(0), []byte(`{}`), nil, nil, nil, nil, nil, nil, false}}}, nil
 	case strings.Contains(q, "FROM m4_job_attempts WHERE job_id="):

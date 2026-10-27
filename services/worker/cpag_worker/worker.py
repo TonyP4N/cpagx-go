@@ -45,16 +45,17 @@ def beneath(root, relative):
 def network_refs(payload):
     refs=payload.get('networks')
     if refs is None:return [payload['network']]
-    if payload.get('kind')!='dual-source' or not isinstance(refs,list) or not 2<=len(refs)<=4 or refs[0]!=payload['network'] or len({r['path'] for r in refs})!=len(refs) or len({r['sha256'] for r in refs})!=len(refs):raise ValueError('invalid ordered capture refs')
+    if payload.get('kind') not in ('dual-source','dual-source-replay') or not isinstance(refs,list) or not 2<=len(refs)<=4 or refs[0]!=payload['network'] or len({r['path'] for r in refs})!=len(refs) or len({r['sha256'] for r in refs})!=len(refs):raise ValueError('invalid ordered capture refs')
     return refs
 
 def publication_inputs(payload):
     result={'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')}}
     if payload.get('networks'):result['networks']=[r['sha256'] for r in network_refs(payload)]
+    if payload.get('kind')=='dual-source-replay':result['replay_version']=payload['replay_version']
     return result
 
 def source_flag(profile,kind):
-    if kind!='dual-source':return ['--synthetic']
+    if kind not in ('dual-source','dual-source-replay'):return ['--synthetic']
     doc=json.loads(Path(profile).read_text())
     if doc.get('synthetic') is True:return ['--synthetic']
     if doc.get('synthetic') is False and doc.get('analysis_mode')=='bounded-real-capable-v1':return []
@@ -98,11 +99,12 @@ class Worker:
                 # its live claim or overwrite its recovery evidence.
                 return 'reconciliation_required'
             kind = payload.get('kind')
-            module = 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core'
+            module = 'cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core'
             command = self.command or [sys.executable,'-m',module]
             command = command + sum((['--network',str(path)] for path in network_paths),[]) + ['--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output)] + source_flag(paths['profile'],kind)
-            if kind == 'dual-source':
+            if kind in ('dual-source','dual-source-replay'):
                 command += ['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
+            if kind=='dual-source-replay':command+=['--replay-version',payload['replay_version']]
             # Deliberately pass only runtime environment; no database/API credentials.
             env = {key:value for key,value in os.environ.items() if key in ('PATH','PYTHONPATH','LANG','LC_ALL','SYSTEMROOT','TMPDIR')}
             config = {'identity':{'id':claim['id'],'attempt':claim['attempt'],'worker':self.worker,'token':claim['token']},'command':command,'env':env,'timeout':self.timeout,'kill_grace':1,'log_bytes':self.log_bytes,'memory_bytes':self.memory_bytes,'file_bytes':self.file_bytes,'cpu_seconds':self.cpu_seconds,'pid_file':str(control/'child.pid'),'exit_file':str(control/'exit.json'),'stdout':str(control/'stdout.log'),'stderr':str(control/'stderr.log')}
@@ -145,9 +147,10 @@ class Worker:
                 raise ValueError('core '+result['reason']+' (exit '+str(result['returncode'])+')')
             manifest = json.loads((output/'run_manifest.json').read_text())
             if manifest['config_fingerprint'] != payload['config_fingerprint']: raise ValueError('configuration fingerprint mismatch')
-            if kind == 'dual-source':
-                from cpag_core.dual_source_export import verify_task
-                verify_task(output)
+            if kind in ('dual-source','dual-source-replay'):
+                from importlib import import_module
+                export=import_module('cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export')
+                export.verify_task(output)
                 if manifest['run_id'] != claim['id'] or manifest['attempt_id'] != claim['attempt']:
                     raise ValueError('dual-source run/attempt identity mismatch')
             publication = {'config_fingerprint':manifest['config_fingerprint'],**publication_inputs(payload),'artifacts':[]}

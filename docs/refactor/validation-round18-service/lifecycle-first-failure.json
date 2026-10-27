@@ -1,0 +1,43 @@
+{
+  "scope": "generated R18 software lifecycle checks only; no industrial validation",
+  "checks": {
+    "migration009_applied_twice": true,
+    "queued_cancel_no_publication": true,
+    "running_cancel_after_replay_prefix_exit_confirmed": true
+  },
+  "jobs": {
+    "queued_cancel": {
+      "id": "da4cc625b1b86cdc30fe7e9e5e5764fe",
+      "state": "cancelled",
+      "attempt": 0,
+      "exit_proof": "not applicable; never claimed"
+    },
+    "running_cancel": {
+      "id": "c543492590063e75cd968e2c077f8711",
+      "state": "cancelled",
+      "prefix": {
+        "arrival_seq": 3,
+        "snapshot_id": "snapshot-fb8867b96ac1bccfb64006278d0e52a13d47c9407a2e3c09d4a7f168e4fb762c",
+        "state_fingerprint": "440c869f6a010486191da3204e2947281507ca80b1cf5c1ef74e9480af52cf7f",
+        "operation_statuses": [
+          "pending_response"
+        ]
+      },
+      "exit": {
+        "attempt": 1,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "00da8603a62463838727b3ec175387325fcefe436da83885016d4f01b8abff0c"
+      }
+    }
+  },
+  "status": "failed",
+  "fault_window": "after arrival 3 while actual replay is pending response",
+  "source_commit": "uncommitted worktree",
+  "go_binary_sha256": "61b3a816638a52cb0e576ad1df339d5fe947d16015a8d401f5a01a49cd6ece12",
+  "worker_image_id": "sha256:39341e7b05dd22aaeb2606cc4742e408467be3c528df1c27970ccb504be69d99",
+  "error_type": "AssertionError",
+  "error": "wrong task claimed"
+}

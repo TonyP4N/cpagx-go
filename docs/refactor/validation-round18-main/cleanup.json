@@ -1,0 +1,7 @@
+{
+  "status": "passed",
+  "tested_owned_api_listener_count": 12,
+  "remaining_owned_api_listeners": 0,
+  "remaining_owned_main_pg_containers": 0,
+  "scope": "Owned main acceptance environment only; other chat/deployment services untouched"
+}

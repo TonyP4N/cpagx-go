@@ -26,12 +26,13 @@ type Ref struct {
 	SHA  string `json:"sha256"`
 }
 type Payload struct {
-	Kind        string `json:"kind,omitempty"`
-	Network     Ref    `json:"network"`
-	Networks    []Ref  `json:"networks,omitempty"`
-	Process     Ref    `json:"process"`
-	Profile     Ref    `json:"profile"`
-	Fingerprint string `json:"config_fingerprint"`
+	Kind          string `json:"kind,omitempty"`
+	Network       Ref    `json:"network"`
+	Networks      []Ref  `json:"networks,omitempty"`
+	Process       Ref    `json:"process"`
+	Profile       Ref    `json:"profile"`
+	Fingerprint   string `json:"config_fingerprint"`
+	ReplayVersion string `json:"replay_version,omitempty"`
 }
 type Server struct {
 	Repo                           jobs.Repository
@@ -157,7 +158,7 @@ func (s *Server) check(ref Ref) (int64, error) {
 	return n, nil
 }
 func (s *Server) validPayload(p Payload) error {
-	if p.Kind != "" && p.Kind != "packet" && p.Kind != "dual-source" {
+	if p.Kind != "" && p.Kind != "packet" && !dualFamily(p.Kind) {
 		return errors.New("unsupported payload kind")
 	}
 	if !shaPattern.MatchString(p.Fingerprint) {
@@ -191,11 +192,11 @@ func (s *Server) validPayload(p Payload) error {
 	numericCheck = func(v any) error {
 		switch x := v.(type) {
 		case string:
-			if p.Kind != "dual-source" && strings.ContainsAny(x, "\u2028\u2029") {
+			if !dualFamily(p.Kind) && strings.ContainsAny(x, "\u2028\u2029") {
 				return errors.New("M4 profile excludes Unicode line separators")
 			}
 		case json.Number:
-			if p.Kind != "dual-source" && (string(x) == "-0" || strings.ContainsAny(string(x), ".eE")) {
+			if !dualFamily(p.Kind) && (string(x) == "-0" || strings.ContainsAny(string(x), ".eE")) {
 				return errors.New("M4 profile numbers must be integers")
 			}
 		case map[string]any:
@@ -222,7 +223,7 @@ func (s *Server) validPayload(p Payload) error {
 			return errors.New("invalid packet profile")
 		}
 	}
-	if p.Kind == "dual-source" {
+	if dualFamily(p.Kind) {
 		if err := contracts.Validate(dualSchemaDir(), "DualSourceProfile", raw); err != nil {
 			return err
 		}
@@ -232,6 +233,13 @@ func (s *Server) validPayload(p Payload) error {
 		}
 		if len(p.Networks) > 0 && doc["analysis_mode"] != "bounded-real-capable-v1" {
 			return errors.New("multiple captures require explicit bounded mode")
+		}
+		if p.Kind == "dual-source-replay" {
+			if e := validateReplayProfile(config, p.ReplayVersion); e != nil {
+				return e
+			}
+		} else if p.ReplayVersion != "" {
+			return errors.New("replay version requires replay kind")
 		}
 		if err := validateDualProfile(config); err != nil {
 			return err
@@ -252,6 +260,11 @@ func (s *Server) validPayload(p Payload) error {
 	if err != nil {
 		return err
 	}
+	if p.Kind == "dual-source-replay" {
+		if e := validateReplaySourceSlots(config, len(refs)); e != nil {
+			return e
+		}
+	}
 	var networkBytes int64
 	for _, ref := range refs {
 		n, e := s.check(ref)
@@ -269,7 +282,7 @@ func (s *Server) validPayload(p Payload) error {
 		}
 		if n, err := s.check(ref); err != nil {
 			return err
-		} else if p.Kind == "dual-source" && ((ref.Path == p.Process.Path && n > 2<<20) || (ref.Path == p.Profile.Path && n > 65536)) {
+		} else if dualFamily(p.Kind) && ((ref.Path == p.Process.Path && n > 2<<20) || (ref.Path == p.Profile.Path && n > 65536)) {
 			return errors.New("dual-source input exceeds service limit")
 		} else if n > 16<<20 {
 			return errors.New("input exceeds 16MiB")
@@ -288,7 +301,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		expected = s.CoordinatorSecret
 	}
 	credential := []byte(r.Header.Get("Authorization"))
-	dualRead := strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence")
+	dualRead := strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence") || (len(strings.Split(strings.Trim(r.URL.Path, "/"), "/")) == 4 && strings.Contains(r.URL.Path, "/replay-"))
 	authenticated := expected != "" && subtle.ConstantTimeCompare(credential, []byte("Bearer "+expected)) == 1
 	if dualRead && s.CoordinatorSecret != "" {
 		authenticated = authenticated || subtle.ConstantTimeCompare(credential, []byte("Bearer "+s.CoordinatorSecret)) == 1
@@ -450,6 +463,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reply(w, 200, st)
 		return
 	}
+	if len(parts) == 4 && r.Method == "GET" && strings.HasPrefix(parts[3], "replay-") {
+		if err := s.serveReplay(w, r, id, parts[3]); err != nil {
+			fail(err)
+		}
+		return
+	}
 	if len(parts) == 4 && r.Method == "GET" && (parts[3] == "dual-result" || parts[3] == "dual-evidence") {
 		if err := s.serveDual(w, r, id, parts[3]); err != nil {
 			reply(w, 409, map[string]string{"error": err.Error()})
@@ -559,10 +578,11 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type Manifest struct {
-	Fingerprint string            `json:"config_fingerprint"`
-	Inputs      map[string]string `json:"inputs"`
-	Networks    []string          `json:"networks,omitempty"`
-	Artifacts   []struct {
+	Fingerprint   string            `json:"config_fingerprint"`
+	ReplayVersion string            `json:"replay_version,omitempty"`
+	Inputs        map[string]string `json:"inputs"`
+	Networks      []string          `json:"networks,omitempty"`
+	Artifacts     []struct {
 		Path string `json:"path"`
 		SHA  string `json:"sha256"`
 		Size int64  `json:"size"`
@@ -613,7 +633,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if d.Decode(new(any)) != io.EOF {
 		return errors.New("invalid manifest")
 	}
-	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
+	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || m.ReplayVersion != p.ReplayVersion || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
 		return errors.New("manifest input mismatch or artifact count")
 	}
 	seen := map[string]bool{}
@@ -635,6 +655,8 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		required = append(required, "packet_observations.json")
 	} else if p.Kind == "dual-source" {
 		required = dualArtifactNamesFor(p)
+	} else if p.Kind == "dual-source-replay" {
+		required = replayArtifactNamesFor(p)
 	}
 	if len(m.Artifacts) != len(required) {
 		return errors.New("wrapper artifact set mismatch")
@@ -686,12 +708,16 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if core.Input != hex.EncodeToString(inputSum[:]) {
 		return errors.New("core input fingerprint mismatch")
 	}
-	if core.Schema != "1.0.0" || core.Mode != "offline" || core.Config != p.Fingerprint || (p.Kind != "dual-source" && !core.Synthetic) || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != len(required)-1 {
+	expectedMode := "offline"
+	if p.Kind == "dual-source-replay" {
+		expectedMode = "replay"
+	}
+	if core.Schema != "1.0.0" || core.Mode != expectedMode || core.Config != p.Fingerprint || (!dualFamily(p.Kind) && !core.Synthetic) || (core.Status != "succeeded" && core.Status != "succeeded_with_warnings") || len(core.Artifacts) != len(required)-1 {
 		return errors.New("invalid core manifest")
 	}
 	coreSeen := map[string]bool{}
 	for _, a := range core.Artifacts {
-		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (p.Kind == "dual-source" && validArtifactPath(a.Path, p.Kind) && a.Path != "run_manifest.json")) {
+		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (dualFamily(p.Kind) && validArtifactPath(a.Path, p.Kind) && a.Path != "run_manifest.json")) {
 			return errors.New("invalid core artifact set")
 		}
 		coreSeen[a.Path] = true
@@ -707,6 +733,11 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	}
 	if p.Kind == "packet" {
 		if err = s.validatePacket(base, p); err != nil {
+			return err
+		}
+	}
+	if p.Kind == "dual-source-replay" {
+		if _, err = s.validateReplay(base, p, m, coreRaw); err != nil {
 			return err
 		}
 	}

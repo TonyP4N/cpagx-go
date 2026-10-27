@@ -1,0 +1,110 @@
+{
+  "scope": "generated R18 software lifecycle checks only; no industrial validation",
+  "checks": {
+    "migration009_applied_twice": true,
+    "queued_cancel_no_publication": true,
+    "running_cancel_after_replay_prefix_exit_confirmed": true,
+    "invalid_input_failed_no_trusted_partial_history": true,
+    "worker_kill_actual_lease_expiry": true,
+    "retry_from_initial_snapshot": true,
+    "old_attempt_complete_refused": true,
+    "idempotent_complete_one_publication": true
+  },
+  "jobs": {
+    "queued_cancel": {
+      "id": "c9611a1d7871a7f89342540968a4f840",
+      "state": "cancelled",
+      "attempt": 0,
+      "exit_proof": "not applicable; never claimed"
+    },
+    "running_cancel": {
+      "id": "bce7d77f76a234882441f2370616ff71",
+      "state": "cancelled",
+      "prefix": {
+        "arrival_seq": 3,
+        "snapshot_id": "snapshot-fb8867b96ac1bccfb64006278d0e52a13d47c9407a2e3c09d4a7f168e4fb762c",
+        "state_fingerprint": "440c869f6a010486191da3204e2947281507ca80b1cf5c1ef74e9480af52cf7f",
+        "operation_statuses": [
+          "pending_response"
+        ]
+      },
+      "exit": {
+        "attempt": 1,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "b20dd63cf3f795485d6a7e76ffb95d7c213f7e24a4721cda864911b2626ef785"
+      }
+    },
+    "invalid_input": {
+      "id": "5e17a9e579f059fa1ab62054c389bb9f",
+      "state": "failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "c59539f79758e37f26ade77d5c4129ca4eccc659b7b82a126b24675b4c0624fd"
+        },
+        {
+          "attempt": 2,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "72da0a060578a39e02cf8770f6fdcfca3885f22189937dbd2240f589524d4b97"
+        },
+        {
+          "attempt": 3,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "34b3292fec5697546598e38d96eadf9db9cc9e9c5f824204bb74b6132b4e71c7"
+        }
+      ],
+      "last_error": "calculation_exit (compute returncode=2): unsupported_capture_magic\n"
+    },
+    "worker_kill_retry": {
+      "id": "87ebd650f16ab474cf98b80b0786d226",
+      "prefix": {
+        "arrival_seq": 3,
+        "snapshot_id": "snapshot-fb8867b96ac1bccfb64006278d0e52a13d47c9407a2e3c09d4a7f168e4fb762c",
+        "state_fingerprint": "440c869f6a010486191da3204e2947281507ca80b1cf5c1ef74e9480af52cf7f",
+        "operation_statuses": [
+          "pending_response"
+        ]
+      },
+      "old_exit": {
+        "attempt": 1,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "306d72a97e444f49c64a38ea0c9ecc8e9bf81f60807a4f78d2827b55d2fdcac1"
+      },
+      "retry_exit": {
+        "attempt": 2,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "e77cceabce4868cabd12a706c4733f547c6a7e8778348e345480f83cc3b742d7"
+      },
+      "state": "succeeded",
+      "attempt": 2,
+      "artifact_sha256": "8019400ceb239e4911da505e2ac1fdf2a62b6341b1789c503e183c7d986cb76f",
+      "snapshots": 16,
+      "revisions": 11,
+      "normalized_analysis_sha256": "4b6f6a7a9f3588493400b1309031fb509bb1234abd288abdbf2b9652654ee10e"
+    }
+  },
+  "status": "passed",
+  "fault_window": "after arrival 3 while actual replay is pending response",
+  "source_commit": "uncommitted worktree",
+  "go_binary_sha256": "61b3a816638a52cb0e576ad1df339d5fe947d16015a8d401f5a01a49cd6ece12",
+  "worker_image_id": "sha256:39341e7b05dd22aaeb2606cc4742e408467be3c528df1c27970ccb504be69d99"
+}

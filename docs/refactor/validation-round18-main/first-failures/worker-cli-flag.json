@@ -1,0 +1,128 @@
+[
+  {
+    "attempt": "attempt-1.worker",
+    "command": [
+      "python",
+      "-m",
+      "cpag_core.replay_export",
+      "--network",
+      "/inputs/network.pcap",
+      "--network",
+      "/inputs/network-001.pcap",
+      "--process",
+      "/inputs/process.csv",
+      "--profile",
+      "/inputs/profile.json",
+      "--output",
+      "/output/run",
+      "--synthetic",
+      "--run-id",
+      "6e8e51244a7130b3bd9af0fc955f3324",
+      "--attempt-id",
+      "1",
+      "--replay-version",
+      "dual-source-replay-1"
+    ],
+    "state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 137,
+      "FinishedAt": "2026-10-27T09:13:01.496870513Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-10-27T09:13:00.371119096Z",
+      "Status": "exited"
+    },
+    "failure": {
+      "error": "calculation failed or deadline expired: ",
+      "stderr": ""
+    }
+  },
+  {
+    "attempt": "attempt-2.worker",
+    "command": [
+      "python",
+      "-m",
+      "cpag_core.replay_export",
+      "--network",
+      "/inputs/network.pcap",
+      "--network",
+      "/inputs/network-001.pcap",
+      "--process",
+      "/inputs/process.csv",
+      "--profile",
+      "/inputs/profile.json",
+      "--output",
+      "/output/run",
+      "--synthetic",
+      "--run-id",
+      "6e8e51244a7130b3bd9af0fc955f3324",
+      "--attempt-id",
+      "2",
+      "--replay-version",
+      "dual-source-replay-1"
+    ],
+    "state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 137,
+      "FinishedAt": "2026-10-27T09:13:05.198949167Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-10-27T09:13:03.594496583Z",
+      "Status": "exited"
+    },
+    "failure": {
+      "error": "calculation failed or deadline expired: ",
+      "stderr": ""
+    }
+  },
+  {
+    "attempt": "attempt-3.worker",
+    "command": [
+      "python",
+      "-m",
+      "cpag_core.replay_export",
+      "--network",
+      "/inputs/network.pcap",
+      "--network",
+      "/inputs/network-001.pcap",
+      "--process",
+      "/inputs/process.csv",
+      "--profile",
+      "/inputs/profile.json",
+      "--output",
+      "/output/run",
+      "--synthetic",
+      "--run-id",
+      "6e8e51244a7130b3bd9af0fc955f3324",
+      "--attempt-id",
+      "3",
+      "--replay-version",
+      "dual-source-replay-1"
+    ],
+    "state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 137,
+      "FinishedAt": "2026-10-27T09:13:09.336564419Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-10-27T09:13:08.006249419Z",
+      "Status": "exited"
+    },
+    "failure": {
+      "error": "calculation failed or deadline expired: ",
+      "stderr": ""
+    }
+  }
+]

@@ -17,7 +17,7 @@ PYTHONPATH=services/analysis/src python -m cpag_core.replay_export \
   --output /tmp/cpag-r18-example --revision 3 --operation first
 ```
 
-输出目录必须尚不存在。最后命令查询待响应历史快照，只有已到达的请求原件，不可见未来响应。完整修订链在`revisions.jsonl`，快照及标准图在`snapshots.jsonl`；按其中`snapshot_number`查询对应操作或变化。全文件SHA位于最终完整性清单，回放引用使用槽位+原始记录摘要，查询时两层均核验。
+输出目录必须尚不存在。最后命令查询待响应历史快照，只有已到达的请求原件，不可见未来响应。追加`--revision N --trigger`可直接查询该历史步骤的到达原件，即使超迟到记录没有形成操作或候选；纯时钟推进没有原件，返回空原件列表。完整修订链在`revisions.jsonl`，快照及标准图在`snapshots.jsonl`；按其中`snapshot_number`查询对应操作或变化。全文件SHA位于最终完整性清单，回放引用使用槽位+原始记录摘要，查询时两层均核验。
 
 当前限额：最多4抓包、合计16MiB/10000帧，CSV2MiB/1000记录/16列，配置64KiB；活动缓冲、11000原始记录账本、4096快照/8192修订及16MiB全部输出另有约束，触及任一上限明确失败。不能据此认定已通过R19容量验收。默认入口及RC1不变，完整回放界面留R20。
 

@@ -31,6 +31,14 @@ def config():
     return result
 
 
+def raw_capture(records):
+    data=bytes.fromhex('d4c3b2a1')+struct.pack('<HHiiII',2,4,0,0,65535,1)
+    for when,raw in records:
+        whole=int(when);fraction=round((when-whole)*1000000)
+        data+=struct.pack('<IIII',BASE+whole,fraction,len(raw),len(raw))+raw
+    return data
+
+
 def offline_identity_projection(replay_result, offline_result, offline_profile, network_path, process_path):
     """Declared comparison adapter: replace mode-specific identities, never business facts.
 
@@ -138,7 +146,11 @@ class ReplayCoreTests(unittest.TestCase):
                 if variant:
                     data=bytearray(net.read_bytes());data[-1]^=1;net.write_bytes(data)
                     process.write_text(process.read_text()+'2026-01-01T00:00:20Z,777\n')
-                cfg=config();cfg['replay'].update(sequence=[{'future':variant}],finish_at=at(20+variant),speed=1 if not variant else 10,realtime=bool(variant))
+                cfg=config();future_sequence=[{'source_slot':slot,'record_number':number,'available_at':at(when)} for slot,number,when in SCHEDULE]
+                future_sequence[4]['available_at']=at(11 if not variant else 11.5)
+                if variant:future_sequence.append({'source_slot':'process','record_number':7,'available_at':at(20)})
+                future_sequence += [{'kind':'source_eof','source_slot':slot,'available_at':at(21)} for slot in ('network-0','process')]
+                cfg['replay'].update(sequence=future_sequence,finish_at=at(22+variant),speed=1 if not variant else 10,realtime=bool(variant))
                 inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
                 self.feed(inputs,core,SCHEDULE[:4])
                 outputs.append((canonical(core.snapshot()),canonical(core.snapshots()),canonical(core.history())))
@@ -258,6 +270,189 @@ class ReplayCoreTests(unittest.TestCase):
             inputs,core=self.start(Path(tmp),cfg=cfg)
             self.push(inputs,core,'network-0',1,10)
             with self.assertRaisesRegex(ReplayIncomplete,'buffer_time_limit'):core.advance(at(12))
+
+    def test_cross_file_segments_retransmission_emit_no_pdu_before_arrived_bytes(self):
+        from dual_source_fixtures import message,frame
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);_,process,_=make_case(base);cfg=config()
+            request=message(bytes.fromhex('10032001240130010100'),context=(1).to_bytes(8,'little'))
+            response=message(bytes.fromhex('90000000'),context=(1).to_bytes(8,'little'))
+            first,second=base/'a.pcap',base/'b.pcap'
+            first.write_bytes(raw_capture([(10,frame(request[20:],seq=120)),(10,frame(request[:20],seq=100))]))
+            second.write_bytes(raw_capture([(10,frame(request[:20],seq=100)),(11,frame(response,seq=100,reverse=True))]))
+            inputs=ReplayInputs([first,second],process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
+            self.push(inputs,core,'process',1,8);self.push(inputs,core,'process',2,9)
+            partial=self.push(inputs,core,'network-0',1,10)
+            self.assertEqual(partial['analysis']['network'],[])
+            self.assertTrue(partial['analysis']['quality']['network_pending'])
+            complete=self.push(inputs,core,'network-1',1,10.1)
+            self.assertEqual(len(complete['analysis']['network']),1)
+            identity=complete['analysis']['network'][0]['event']['event_id']
+            retrans=self.push(inputs,core,'network-0',2,10.2)
+            self.assertEqual(retrans['analysis']['network'][0]['event']['event_id'],identity)
+            self.assertEqual(len(retrans['analysis']['network'][0]['observation']['source_refs']),3)
+            self.assertEqual(core.metrics()['event_latency']['denominator_total_events'],2)
+            self.push(inputs,core,'process',3,10.5);self.push(inputs,core,'network-1',2,11)
+            normal=self.push(inputs,core,'process',4,12)
+            self.assertEqual([c['state'] for c in normal['analysis']['candidates']],['supported_candidate'])
+            refs=normal['analysis']['candidates'][0]['claim']['evidence_refs']
+            self.assertEqual(len(refs),6)
+            for ref in refs:inputs.resolve(ref)
+
+    def test_accepted_tcp_conflict_retracts_previous_current_operation_not_its_history(self):
+        from dual_source_fixtures import message,frame
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);net,process,_=make_case(base);cfg=config()
+            request=message(bytes.fromhex('10032001240130010100'),context=(1).to_bytes(8,'little'))
+            response=message(bytes.fromhex('90000000'),context=(1).to_bytes(8,'little'))
+            net.write_bytes(raw_capture([(10,frame(request,seq=100)),(11,frame(response,seq=100,reverse=True)),(10.1,frame(b'X',seq=110))]))
+            inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
+            before=self.feed(inputs,core,SCHEDULE[:6])[-1]
+            self.assertEqual(len(before['analysis']['candidates']),1)
+            after=self.push(inputs,core,'network-0',3,13)
+            self.assertEqual(after['analysis']['candidates'],[])
+            self.assertEqual(after['analysis']['operations'],[])
+            problem=next(item for item in after['analysis']['quality']['network_unsupported'] if 'conflicting_overlap' in item['reason'])
+            self.assertEqual(len(problem['source_refs']),2)
+            for ref in problem['source_refs']:inputs.resolve(ref)
+            self.assertEqual(before['analysis']['candidates'][0]['state'],'supported_candidate')
+            self.assertEqual(core.snapshots()[before['snapshot_number']],before)
+
+    def test_gap_finalization_is_explicit_unsupported_without_inventing_request(self):
+        from dual_source_fixtures import message,frame
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);net,process,_=make_case(base);cfg=config()
+            request=message(bytes.fromhex('10032001240130010100'),context=(1).to_bytes(8,'little'))
+            response=message(bytes.fromhex('90000000'),context=(1).to_bytes(8,'little'))
+            net.write_bytes(raw_capture([(10,frame(request[:20],seq=100)),(10.1,frame(request[21:],seq=121)),(11,frame(response,seq=100,reverse=True))]))
+            inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
+            for slot,number,when in [('process',1,8),('process',2,9),('network-0',1,10),('network-0',2,10.1),('network-0',3,11)]:self.push(inputs,core,slot,number,when)
+            self.assertTrue(core.final_result()['quality']['network_pending'])
+            final=core.consume(inputs.finish(),available_at=at(12),arrival_seq=core.arrival_seq+1,status='input_exhausted')
+            self.assertTrue(any('stream_gap' in item['reason'] for item in final['analysis']['quality']['network_unsupported']))
+            self.assertEqual(final['analysis']['operations'],[]);self.assertEqual(final['analysis']['candidates'],[])
+            self.assertEqual(len(final['analysis']['network']),1)
+
+    def test_r17_clock_validity_basis_precision_order_and_mapping_ambiguity_are_shared(self):
+        for case,reason in [('response_outside','response_clock_validity_outside'),('request_outside','request_clock_validity_outside'),('basis','response_clock_basis_missing'),('overlap','response_order_uncertain'),('touch','response_order_uncertain'),('mapping','mapping_conflict')]:
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as tmp:
+                cfg=config();clock=cfg['clocks']['network']
+                if case=='response_outside':clock['valid_to']=at(10.5)
+                elif case=='request_outside':clock['valid_from']=at(10.5)
+                elif case=='basis':clock['basis']=None
+                elif case=='overlap':clock['precision_seconds']=0.6
+                elif case=='touch':clock['precision_seconds']=0.5
+                elif case=='mapping':cfg['mappings'].append(dict(cfg['mappings'][0],rule_id='ambiguous-other'))
+                inputs,core=self.start(Path(tmp),cfg=cfg);self.feed(inputs,core)
+                result=core.final_result()
+                self.assertEqual(result['candidates'],[])
+                self.assertIn(reason,result['operations'][0]['unknown_reasons'])
+                self.assertEqual(result['operations'][0]['response']['state'],'success')
+                self.assertEqual(result['operations'][0]['replay']['status'],'unknown')
+
+    def test_no_response_error_no_change_missing_and_orphan_outcomes_are_not_effect_claims(self):
+        for case in ('missing_response','error','no_change','missing_value','orphan_change'):
+            with self.subTest(case=case),tempfile.TemporaryDirectory() as tmp:
+                inputs,core=self.start(Path(tmp),case=case)
+                schedule=[step for step in SCHEDULE if not (case=='missing_response' and step[:2]==('network-0',2))]
+                if case=='orphan_change':schedule=[step for step in schedule if step[0]!='network-0'];schedule.insert(3,('network-0',1,11))
+                self.feed(inputs,core,schedule);core.finish(at(18));result=core.final_result()
+                self.assertFalse(any(candidate['state']=='supported_candidate' for candidate in result['candidates']))
+                if case=='missing_response':self.assertIn('response_missing_at_window_close',result['operations'][0]['unknown_reasons'])
+                elif case=='error':self.assertEqual(result['operations'][0]['response']['state'],'error')
+                elif case=='no_change':self.assertEqual(result['operations'][0]['assessment'],'no_expected_change_observed')
+                elif case=='missing_value':self.assertTrue(any(item['event']['value'] is None for item in result['process']))
+                elif case=='orphan_change':self.assertEqual(result['operations'],[]);self.assertEqual(len(result['orphan_change_ids']),1)
+
+    def test_closed_final_graph_dependencies_survive_buffer_expiry(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            inputs,core=self.start(Path(tmp));self.feed(inputs,core);core.advance(at(18));core.finish(at(100))
+            result=core.final_result();network={row['event']['event_id'] for row in result['network']};process={row['event']['event_id'] for row in result['process']}
+            self.assertGreater(core.metrics()['counts']['expired'],0)
+            self.assertEqual(len(result['candidates']),1)
+            for candidate in result['candidates']:self.assertIn(candidate['operation_id'],network)
+            for change in result['changes']:
+                self.assertIn(change['result']['before_event_id'],process);self.assertIn(change['result']['after_event_id'],process)
+
+    def test_late_record_unrelated_to_closed_window_remains_admitted(self):
+        from dual_source_fixtures import message,frame
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);net,process,_=make_case(base);cfg=config()
+            initial_request=message(bytes.fromhex('10032001240130010100'),context=(1).to_bytes(8,'little'))
+            response=message(bytes.fromhex('90000000'),context=(1).to_bytes(8,'little'))
+            next_request=message(bytes.fromhex('10032001240130010100'),context=(2).to_bytes(8,'little'))
+            net.write_bytes(raw_capture([(10,frame(initial_request,seq=100)),(11,frame(response,seq=100,reverse=True)),(30,frame(next_request,seq=100+len(initial_request)))]))
+            inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
+            self.feed(inputs,core);core.advance(at(18));frozen=core.final_result()['operations'][0]
+            late=self.push(inputs,core,'network-0',3,33)
+            self.assertEqual(late['status'],'late')
+            self.assertEqual(core.metrics()['counts']['too_late'],0)
+            self.assertEqual(len(late['analysis']['operations']),2)
+            self.assertEqual(late['analysis']['operations'][0],frozen)
+            self.assertEqual(late['analysis']['operations'][1]['replay']['status'],'pending_response')
+
+    def test_filtered_csv_ordinal_gap_cannot_invent_adjacent_transition_or_negative_coverage(self):
+        from cpag_core.dual_source import _analyze_prepared
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);net,process,_=make_case(base);cfg=profile(rules=True);cfg['window_seconds']=1
+            process.write_text('time,pump\n2026-01-01T00:00:09Z,0\n2026-01-01T00:00:10Z,99\n2026-01-01T00:00:12Z,1\n')
+            inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close)
+            refs=[]
+            for slot,n in [('network-0',1),('network-0',2),('process',1),('process',2),('process',3),('process',4)]:
+                report=inputs.advance({'source_slot':slot,'record_number':n,'available_at':at(12)})
+                if not(slot=='process' and n==3):refs.append(report['source_ref'])
+            prefix=inputs.snapshot(allowed_record_refs=refs)
+            self.assertEqual(prefix['parsed']['filtered_record_numbers'],[3])
+            result=_analyze_prepared(prefix['capture'],prefix['parsed'],prefix['frames'],cfg,prefix['prefix_fingerprint'],allow_empty=True,source_contract='replay')
+            self.assertEqual(result['changes'],[]);self.assertEqual(result['candidates'],[])
+            self.assertEqual(result['operations'][0]['assessment'],'unknown')
+            self.assertIn('incomplete_process_coverage',result['operations'][0]['unknown_reasons'])
+            self.assertEqual(result['quality']['process_issues'][0]['reason'],'filtered_process_record_gap')
+            states=[f for f in result['rule_findings'] if f['kind']=='state_change']
+            self.assertIn('filtered_process_record_gap',states[1]['unknown_reasons'])
+
+    def test_fin_half_close_preserves_matching_but_reset_prevents_cross_boundary_pair(self):
+        from dual_source_fixtures import message,frame
+        for flags,expected in ((17,1),(4,0)):
+            with self.subTest(flags=flags),tempfile.TemporaryDirectory() as tmp:
+                base=Path(tmp);net,process,_=make_case(base);cfg=config()
+                request=message(bytes.fromhex('10032001240130010100'),context=(1).to_bytes(8,'little'))
+                response=message(bytes.fromhex('90000000'),context=(1).to_bytes(8,'little'))
+                control=bytearray(frame(b'',seq=100+len(request)));control[14+20+13]=flags
+                net.write_bytes(raw_capture([(10,frame(request,seq=100)),(10.2,bytes(control)),(11,frame(response,seq=100,reverse=True))]))
+                inputs=ReplayInputs(net,process,cfg['process'],synthetic=True);self.addCleanup(inputs.close);core=ReplayCore(cfg)
+                schedule=[('process',1,8),('process',2,9),('network-0',1,10),('network-0',2,10.2),('process',3,10.5),('network-0',3,11),('process',4,12)]
+                self.feed(inputs,core,schedule)
+                self.assertEqual(sum(c['state']=='supported_candidate' for c in core.final_result()['candidates']),expected)
+                if flags==4:self.assertEqual(core.final_result()['candidates'],[])
+
+    def test_backlog_separates_prerequisite_waiting_from_all_open_windows(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            inputs,core=self.start(Path(tmp));self.feed(inputs,core,SCHEDULE[:5])
+            waiting=core.metrics()['backlog']['samples'][-1]
+            self.assertEqual(waiting['prerequisite_waiting_operations'],1)
+            self.assertEqual(waiting['open_window_operations'],1)
+            self.push(inputs,core,'process',4,12)
+            normal=core.metrics()['backlog']['samples'][-1]
+            self.assertEqual(normal['prerequisite_waiting_operations'],0)
+            self.assertEqual(normal['waiting_operations'],normal['prerequisite_waiting_operations'])
+            self.assertEqual(normal['open_window_operations'],1)
+            core.advance(at(18))
+            self.assertEqual(core.metrics()['backlog']['samples'][-1]['open_window_operations'],0)
+
+    def test_speed_numeric_enum_rejects_booleans_and_strings_but_preserves_json_numbers(self):
+        from cpag_core.contracts import validate
+        for value in (True,False,'1','10'):
+            with self.subTest(invalid=value):
+                cfg=config();cfg['replay']['speed']=value
+                with self.assertRaises(ValueError):validate('ReplayProfile',cfg['replay'])
+                with self.assertRaises(ValueError):ReplayCore(cfg)
+        snapshots=[]
+        for value in (1,1.0,10,10.0):
+            with self.subTest(valid=value):
+                cfg=config();cfg['replay']['speed']=value
+                validate('ReplayProfile',cfg['replay']);snapshots.append(canonical(ReplayCore(cfg).snapshot()))
+        self.assertTrue(all(snapshot==snapshots[0] for snapshot in snapshots))
 
     def test_historical_v1_offline_fixture_still_verifies(self):
         manifest=verify_task(ROOT/'tests/fixtures/r17-response-clock-v1')

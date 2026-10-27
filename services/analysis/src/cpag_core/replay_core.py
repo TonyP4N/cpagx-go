@@ -372,7 +372,9 @@ class ReplayCore:
                 'status':'software_candidate_available_not_causal_confirmation','candidate_state':candidate['state']}
         pending=sum(not op['replay']['closed'] and bool(op['replay']['waiting_for']) for op in self._analysis['operations'])
         self._backlog.append({'arrival_seq':self.arrival_seq,'available_at':utc(self.now),'unit':'records_and_operations',
-            'unparsed_records':len({record_key(ref) for item in self.capture_pending for ref in references(item)}),'waiting_operations':pending})
+            'unparsed_records':len({record_key(ref) for item in self.capture_pending for ref in references(item)}),
+            'waiting_operations':pending,'prerequisite_waiting_operations':pending,
+            'open_window_operations':sum(not operation['replay']['closed'] for operation in self._analysis['operations'])})
 
     def _publish(self, status, trigger, initial=False):
         if len(self.admitted)>self.parameters['max_buffer_records']:self._failure('buffer_record_limit')
@@ -417,5 +419,7 @@ class ReplayCore:
             'event_latency':{'denominator_definition':'distinct ever-visible network/process event ids, including later retracted observations',
                 'denominator_total_events':len(values),'denominator_computable_events':sum(item['status']=='computed' for item in values),'samples':deepcopy(values)},
             'confirmation_latency':{'denominator_candidates':len(self._confirmations),'samples':deepcopy(list(self._confirmations.values()))},
-            'backlog':{'samples':deepcopy(self._backlog),'definition':'arrived unparsed records and open waiting operations; not future scheduled arrivals'},
+            'backlog':{'samples':deepcopy(self._backlog),'definition':'arrived unparsed records, unmet response/process prerequisites, and all still-open operation windows; excludes future scheduled arrivals',
+                'waiting_operations_alias':'prerequisite_waiting_operations',
+                'field_units':{'unparsed_records':'records','waiting_operations':'operations','prerequisite_waiting_operations':'operations','open_window_operations':'operations'}},
             'discarded':deepcopy(self.discarded)}

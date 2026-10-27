@@ -1,8 +1,8 @@
 openapi: 3.1.0
 info:
   title: CPAG v3 local research API
-  version: 0.3.0
-  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Capacity certification remains a later gate.
+  version: 0.4.0
+  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Capacity certification remains a later gate.
 servers:
   - url: http://127.0.0.1:8095
 paths:
@@ -176,13 +176,13 @@ paths:
             schema:
               type: object
               required: [dataset_id, config_version_id, preflight_id, mode]
-              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { const: dual_source } }
+              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { enum: [dual_source, dual_source_replay], description: Replay requires an immutable dual profile with explicit replay version and bounded arrival sequence } }
       responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis, source_provenance_mismatch, source_count, unsupported_format or invalid_inputs; no job inserted } }
   /api/v3/runs/{run_id}:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Sanitized M4 state, attempt history and immutable ordered network_file_ids (null for legacy or scalar input) }, '404': { $ref: '#/components/responses/Error' } }
+      responses: { '200': { description: Sanitized M4 state, attempt history, explicit mode, nullable replay_version and immutable ordered network_file_ids (null for legacy or scalar input) }, '404': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/cancel:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     post:
@@ -192,20 +192,42 @@ paths:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Verified M4 dual result }, '409': { $ref: '#/components/responses/Error' } }
+      responses: { '200': { description: Verified M4 dual or replay result; replay data contains final analysis, graph, events and replay summary; optional revision selects snapshot_number }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/graph:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Replay snapshot_number; default is verified final graph }]
       responses: { '200': { description: Verified graph }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/evidence:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
       parameters:
+        - { in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Required for replay; immutable snapshot_number beginning at zero }
+        - { in: query, name: trigger, required: false, schema: { type: string, const: 'true' }, description: Replay only; third mutually exclusive selector for the selected snapshot trigger evidence, including discarded or too_late records; no arbitrary raw references }
         - { in: query, name: operation, required: false, schema: { type: string } }
         - { in: query, name: change, required: false, schema: { type: string } }
-      responses: { '200': { description: Verified bounded original evidence; exactly one selector required }, '409': { $ref: '#/components/responses/Error' } }
+      responses: { '200': { description: Verified bounded original evidence; exactly one operation/change/trigger selector required; trigger accepts exactly true }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/revisions:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { in: query, name: after, schema: { type: integer, minimum: 0, maximum: 8192, default: 0 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 8192, default: 100 } }
+      responses: { '200': { description: Verified terminal replay revisions with old/new snapshot numbers and total; no unverified live output }, '404': { $ref: '#/components/responses/Error' }, '409': { description: Running, unpublished, missing or changed replay history } }
+  /api/v3/runs/{run_id}/snapshots:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: revision, required: true, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Immutable snapshot_number }]
+      responses: { '200': { description: Verified snapshot containing analysis, graph, events, available_at, trigger and immutable IDs }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/snapshots/{snapshot_number}:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: snapshot_number, required: true, schema: { type: integer, minimum: 0, maximum: 4095 } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Same verified immutable replay snapshot as snapshots query }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/artifacts:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:

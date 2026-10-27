@@ -1,0 +1,17 @@
+{
+  "scope": "Read-only pre-fix original Go listener; trigger selector absent",
+  "run_id": "1be7492eaa6380a895e9b2f39853c265",
+  "snapshot_number": 3,
+  "request_path": "/api/v3/runs/1be7492eaa6380a895e9b2f39853c265/evidence?revision=3&trigger=true",
+  "status": 409,
+  "reply": {
+    "error": {
+      "code": "result_unavailable",
+      "message": "verified replay result or revision unavailable or changed"
+    }
+  },
+  "expected_after_fix": {
+    "status": 200,
+    "original_refs": 1
+  }
+}

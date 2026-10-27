@@ -38,6 +38,19 @@ class RecoveryUnavailable(Exception):
     pass
 
 
+class CalculationFailure(ValueError):
+    def __init__(self, returncode, output):
+        self.compute_returncode=returncode
+        self.stderr=output[:65536]
+        self.failure_category='calculation_exit' if returncode is not None else 'calculation_result_missing'
+        # Keep the actionable tail in the bounded job error; retain the full
+        # bounded combined output separately in the private failure receipt.
+        detail=self.stderr.decode(errors='replace')[-768:]
+        super().__init__(self.failure_category+' (compute returncode='+str(returncode)+'): '+detail)
+
+
+
+
 class DockerExecutor:
     def __init__(self,api,coordinator,root,control,worker,*,image='cpag-isolated:round5',timeout=120,
                  heartbeat=1,lease=15,output_bytes=16777216,command=None,checkpoint=None,host_budget_bytes=1073741824,min_free_bytes=67108864):
@@ -88,6 +101,9 @@ class DockerExecutor:
     def docker(self,*args,binary=False):
         result=subprocess.run(['docker',*args],check=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=30)
         return result.stdout if binary else result.stdout.decode().strip()
+    def bounded_container_logs(self,container):
+        result=subprocess.run(['docker','logs',container],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,check=False,timeout=5)
+        return result.stdout[:65536]
     def inspect(self,container):
         values=json.loads(self.docker('inspect',container))
         if not isinstance(values,list) or len(values)!=1 or not isinstance(values[0],dict):raise ValueError('invalid Docker inspect response')
@@ -150,10 +166,13 @@ class DockerExecutor:
         publication=json.loads((output/'manifest.json').read_text())
         payload=status['payload']
         if publication['config_fingerprint']!=payload['config_fingerprint'] or any(publication.get(k)!=v for k,v in publication_inputs(payload).items()) or publication.get('networks')!=publication_inputs(payload).get('networks'):raise ValueError('handoff identity differs')
-        dual_source=payload.get('kind')=='dual-source'
+        if payload.get('kind')=='dual-source-replay' and publication.get('replay_version')!=payload.get('replay_version'):raise ValueError('replay handoff version differs')
+        dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
-            from cpag_core.dual_source_export import artifact_files, verify_task
-            FILES=artifact_files(output)
+            from importlib import import_module
+            export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
+            FILES=export.artifact_files_for_inputs(len(network_refs(payload))) if payload.get('kind')=='dual-source-replay' else export.artifact_files(output)
+            verify_task=export.verify_task
             if {entry['path'] for entry in publication['artifacts']}!=FILES or len(publication['artifacts'])!=len(FILES):raise ValueError('dual-source handoff inventory differs')
             manifest=verify_task(output)
             if manifest['run_id']!=record['id'] or manifest['attempt_id']!=record['attempt']:raise ValueError('dual-source handoff identity differs')
@@ -333,10 +352,12 @@ class DockerExecutor:
             if process.poll() is None:process.kill();process.wait()
         if len(raw)>self.output_bytes+1048576: raise ValueError('output transfer limit')
         target.mkdir(mode=0o700)
-        dual_source=payload.get('kind')=='dual-source'
+        dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
-            from cpag_core.dual_source_export import FILES, DIRECTORIES
-            FILES=set(FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
+            from importlib import import_module
+            export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
+            DIRECTORIES=export.DIRECTORIES
+            FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None])) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
         with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
             total=0
             seen=set()
@@ -361,7 +382,7 @@ class DockerExecutor:
                 self.checkpoint('during_copy')
         manifest=json.loads((target/'run_manifest.json').read_text())
         from cpag_core.contracts import validate
-        validate('RunManifest',manifest)
+        validate('ReplayRunManifest' if payload.get('kind')=='dual-source-replay' else 'RunManifest',manifest)
         if manifest['config_fingerprint']!=payload['config_fingerprint']: raise ValueError('configuration mismatch')
         if dual_source and (manifest['run_id']!=run_id or manifest['attempt_id']!=attempt_id):raise ValueError('dual-source run/attempt identity mismatch')
         expected=set(FILES)-{'run_manifest.json'} if dual_source else {'dataset.json','events.json','graph.json','quality.json'}
@@ -372,7 +393,7 @@ class DockerExecutor:
             path=beneath(target.resolve(),entry['path'])
             if digest(path)!=entry['sha256'] or path.stat().st_size!=entry['size_bytes']: raise ValueError('artifact hash/size mismatch')
             value=json.loads(path.read_text()) if path.suffix=='.json' else None
-            schema={'dataset.json':'DatasetManifest','graph.json':'GraphArtifact'}.get(path.name)
+            schema={'dataset.json':'DatasetManifest','graph.json':'ReplayGraphArtifact' if payload.get('kind')=='dual-source-replay' else 'GraphArtifact'}.get(path.name)
             if schema:validate(schema,value)
             if path.name=='events.json' and not dual_source:
                 for event in value:validate('NetworkEvent' if event['event_id'].startswith('packet-') or 'protocol' in event else 'ProcessObservation',event)
@@ -380,8 +401,7 @@ class DockerExecutor:
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(target,beneath(self.root,payload['network']['path']))
         if dual_source:
-            from cpag_core.dual_source_export import verify_task
-            verify_task(target)
+            export.verify_task(target)
             found={p.relative_to(target).as_posix() for p in target.rglob('*') if p.is_file()}
             if found!=FILES:raise ValueError('unexpected dual-source output file')
         elif {p.name for p in target.iterdir()}!=expected|{'run_manifest.json'}: raise ValueError('unexpected output file')
@@ -421,13 +441,14 @@ class DockerExecutor:
                 if name.startswith('network'):network_arguments+=['--network','/inputs/'+staged.name]
                 if name=='profile':profile_path=staged
             sync_dir(inputs);os.chmod(inputs,0o555)
-            module='cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
+            module='cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
             command=self.command or ['python','-m',module]
             command=command+network_arguments+sum((["--"+name,"/inputs/"+name+Path(payload[name]['path']).suffix] for name in ('process','profile')),[])+['--output','/output/run']+source_flag(profile_path,kind)
-            if kind=='dual-source':command+=['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
+            if kind in ('dual-source','dual-source-replay'):command+=['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
+            if kind=='dual-source-replay':command+=['--replay-version',payload['replay_version']]
             nonce=uuid.uuid4().hex
             atomic_json(base/'create-intent.json',{**self.identity(claim),'nonce':nonce,'location':self.location()})
-            compute_tmpfs=['--tmpfs','/tmp:rw,nosuid,nodev,size='+str(self.output_bytes+2097152)+',mode=1777'] if kind=='dual-source' else []
+            compute_tmpfs=['--tmpfs','/tmp:rw,nosuid,nodev,size='+str(self.output_bytes+2097152)+',mode=1777'] if kind in ('dual-source','dual-source-replay') else []
             container=self.docker('create','--name','cpag-isolated-'+nonce,'--network','none','--read-only','--user','65532:65532',
                 '--cap-drop','ALL','--security-opt','no-new-privileges','--memory','256m','--memory-swap','256m',
                 '--cpus','.5','--pids-limit','64','--log-driver','local','--log-opt','max-size=64k','--log-opt','max-file=2',
@@ -474,7 +495,7 @@ class DockerExecutor:
                 self.stop_container(record)
                 if cancelled:self.api.post(endpoint+'/ack-cancel',identity)
                 return 'cancelled' if cancelled else 'lost_lease'
-            if not result or result['returncode']!=0: raise ValueError('calculation failed or deadline expired: '+self.docker('logs',container))
+            if not result or result['returncode']!=0:raise CalculationFailure(result.get('returncode') if result else None,self.bounded_container_logs(container))
             output=beneath(self.root,claim['output_dir']);output.parent.mkdir(parents=True,exist_ok=True)
             stage=output.parent/('.handoff-'+uuid.uuid4().hex)
             atomic_json(base/'stage.json',{'path':str(stage.relative_to(self.root))})
@@ -503,7 +524,7 @@ class DockerExecutor:
             atomic_json(base/'publication.json',{'manifest_sha256':sha,'output_dir':claim['output_dir']})
             return 'succeeded'
         except (OSError,ValueError,KeyError,APIError,subprocess.SubprocessError,RecoveryUnavailable) as error:
-            try:atomic_json(base/'failure.json',{'error':str(error),'stderr':(getattr(error,'stderr',b'') or b'').decode(errors='replace')})
+            try:atomic_json(base/'failure.json',{'error':str(error),'stderr':(getattr(error,'stderr',b'') or b'')[:65536].decode(errors='replace'),'output_streams':'combined_stdout_stderr' if isinstance(error,CalculationFailure) else 'stderr','compute_returncode':getattr(error,'compute_returncode',None),'failure_category':getattr(error,'failure_category',type(error).__name__)})
             except OSError:pass
             if record:
                 try:self.stop_container(record)

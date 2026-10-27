@@ -1,0 +1,13 @@
+test_cli_synthetic_assertion_cannot_relabel_real_profile (test_replay_export.ReplayExportTests.test_cli_synthetic_assertion_cannot_relabel_real_profile) ... ok
+test_discarded_arrival_original_is_queryable_by_history_trigger (test_replay_export.ReplayExportTests.test_discarded_arrival_original_is_queryable_by_history_trigger) ... ok
+test_expired_response_keeps_history_and_originals_without_candidate (test_replay_export.ReplayExportTests.test_expired_response_keeps_history_and_originals_without_candidate) ... ok
+test_explicit_source_end_and_output_limits_fail_without_publication (test_replay_export.ReplayExportTests.test_explicit_source_end_and_output_limits_fail_without_publication) ... ok
+test_generated_real_declaration_branch_keeps_unvalidated_provenance (test_replay_export.ReplayExportTests.test_generated_real_declaration_branch_keeps_unvalidated_provenance) ... ok
+test_restore_copy_and_historical_tamper_rejected_even_rehashed (test_replay_export.ReplayExportTests.test_restore_copy_and_historical_tamper_rejected_even_rehashed) ... ok
+test_retained_prefix_query_is_unchanged_when_future_response_and_csv_change (test_replay_export.ReplayExportTests.test_retained_prefix_query_is_unchanged_when_future_response_and_csv_change) ... ok
+test_three_runs_cli_history_and_independent_pending_expected (test_replay_export.ReplayExportTests.test_three_runs_cli_history_and_independent_pending_expected) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 7.321s
+
+OK

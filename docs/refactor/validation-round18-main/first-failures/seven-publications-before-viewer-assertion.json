@@ -1,0 +1,166 @@
+{
+  "scope": "Seven verified successful publications; later harness viewer-status assertion failed before backup/restore",
+  "runs": [
+    {
+      "run_id": "d5e4a06edcc6aac060f2cae2970e2026",
+      "case": "normal",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": true,
+      "speed": 10,
+      "wall_elapsed": 1.1220465430000104
+    },
+    {
+      "run_id": "057a83835c6364295a9a46be83b596ba",
+      "case": "normal",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": false,
+      "speed": 1,
+      "wall_elapsed": 0.47909391700000015
+    },
+    {
+      "run_id": "6bb59abbd0ad928380df4429634dcbe7",
+      "case": "response_expired",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "21dc475ffa8282a03aad2e2b2541b48a4d5ef9f671c5a16deb3e580298040831",
+        "revisions.jsonl": "bf0ef32e46a8678b572447fc676c04882027b380ab7bb47b8b779c6a311448eb",
+        "analysis.json": "c2de0d9260d4024a1ce1359c29170a8753f6450c75c386b4b70622d7bdf9f675",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "5c5c947c6563eec825c96b0adb4842d9632ca740d8b5db8ab182d46d0043a8ba",
+        "metrics.json": "12500f72f035dafd4c9fbba9129382242f19b95175eae7eb5fdc1383920e2ea2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": false,
+      "speed": 1,
+      "wall_elapsed": 0.30914337600000863
+    },
+    {
+      "run_id": "7e08e7046aa0328a5098fe7c6707568d",
+      "case": "allowed_late",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "50aa926e787fc11088baa95cf09c87c23a76c9737264d7dd51ac6cecb388be10",
+        "revisions.jsonl": "852f75cc2ac4510b36d44c61baa60d4932b35304325e18d81ebf33535d8e00b1",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30f94bcf6869c191da244c4d931f9797ca3038a1037dd84095fc2ebc41475816",
+        "arrivals.jsonl": "006c3beda2f40d11f1d67b44fe1aa2c551dfb3e1681282601ce2e16404a91944"
+      },
+      "paced": false,
+      "speed": 1,
+      "wall_elapsed": 0.39313170899998795
+    },
+    {
+      "run_id": "bc129ef18d0794f4afa40e53ada2cc4d",
+      "case": "normal",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": false,
+      "speed": 1,
+      "wall_elapsed": 0.3878392080000026
+    },
+    {
+      "run_id": "e8083743f1a0d7a111519c5944856b00",
+      "case": "normal",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": false,
+      "speed": 1,
+      "wall_elapsed": 0.37964566699997704
+    },
+    {
+      "run_id": "344fd8f9d5bb20ae49bb46ad3e088556",
+      "case": "normal",
+      "answers": {
+        "pending": 3,
+        "revised": 6,
+        "final": 15,
+        "operation_id": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change_id": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5"
+      },
+      "hashes": {
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a"
+      },
+      "paced": true,
+      "speed": 1,
+      "wall_elapsed": 10.125638546000005
+    }
+  ]
+}

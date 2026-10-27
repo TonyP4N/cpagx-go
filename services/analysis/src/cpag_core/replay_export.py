@@ -294,12 +294,14 @@ def list_revisions(output,after=0,limit=100):
     finally:run['inputs'].close()
 
 
-def query_task(output,revision,operation_id=None,change_id=None):
-    if (operation_id is None)==(change_id is None):raise ValueError('select_exactly_one_operation_or_change')
+def query_task(output,revision,operation_id=None,change_id=None,trigger=False):
+    if type(trigger) is not bool or sum((operation_id is not None,change_id is not None,trigger))!=1:raise ValueError('select_exactly_one_operation_change_or_trigger')
     _,run=_verify(output,retain_run=True)
     try:
         snapshot=_snapshot(run,revision);analysis=snapshot['analysis']
-        if operation_id is not None:
+        if trigger:
+            selected={'trigger':snapshot['trigger']}
+        elif operation_id is not None:
             matches=analysis['operations'][:1] if operation_id=='first' else [r for r in analysis['operations'] if r['operation_id']==operation_id]
             if len(matches)!=1:raise KeyError('unknown_operation')
             selected={'operation':matches[0],'candidates':[r for r in analysis['candidates'] if r['operation_id']==matches[0]['operation_id']]}
@@ -323,15 +325,17 @@ def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--network',action='append');parser.add_argument('--process');parser.add_argument('--profile');parser.add_argument('--output',required=True)
     parser.add_argument('--run-id');parser.add_argument('--attempt-id',type=int,default=1);parser.add_argument('--replay-version',default=VERSION)
-    parser.add_argument('--verify',action='store_true');parser.add_argument('--revision',type=int);parser.add_argument('--operation');parser.add_argument('--change')
+    parser.add_argument('--synthetic',action='store_true',help='assert the fixed profile declares generated synthetic input')
+    parser.add_argument('--verify',action='store_true');parser.add_argument('--revision',type=int);parser.add_argument('--operation');parser.add_argument('--change');parser.add_argument('--trigger',action='store_true')
     args=parser.parse_args()
     try:
-        if args.operation is not None or args.change is not None:
-            result=query_task(args.output,args.revision,operation_id=args.operation,change_id=args.change)
+        if args.operation is not None or args.change is not None or args.trigger:
+            result=query_task(args.output,args.revision,operation_id=args.operation,change_id=args.change,trigger=args.trigger)
         elif args.revision is not None:result=snapshot_task(args.output,args.revision)
         elif args.verify:result=verify_task(args.output)
         else:
             if not all((args.network,args.process,args.profile)):raise ValueError('network_process_profile_required')
+            if args.synthetic and read_json(args.profile).get('synthetic') is not True:raise ValueError('synthetic_flag_profile_mismatch')
             result=export_task(args.network,args.process,args.profile,args.output,run_id=args.run_id,attempt_id=args.attempt_id,replay_version=args.replay_version)
     except (OSError,ValueError,KeyError,TypeError) as error:parser.exit(2,str(error)+'\n')
     print(json.dumps(result,sort_keys=True))

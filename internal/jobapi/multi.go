@@ -15,7 +15,7 @@ func (p Payload) networkRefs() ([]Ref, error) {
 	if len(p.Networks) == 0 {
 		return []Ref{p.Network}, nil
 	}
-	if p.Kind != "dual-source" || len(p.Networks) < 2 || len(p.Networks) > 4 || p.Networks[0] != p.Network {
+	if !dualFamily(p.Kind) || len(p.Networks) < 2 || len(p.Networks) > 4 || p.Networks[0] != p.Network {
 		return nil, errors.New("invalid ordered network refs")
 	}
 	seen := map[string]bool{}
