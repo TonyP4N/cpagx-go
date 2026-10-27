@@ -20,8 +20,61 @@ from cpag_core.evidence import EvidenceIndex
 from cpag_core.packet_pipeline import PacketEvidence
 from cpag_core.packet_job import verify_artifacts as verify_packet_artifacts
 from cpag_core.pipeline import fingerprint, canonical
+from cpag_core.dual_source import strict_json
+from cpag_core.dual_source_export import FILES as DUAL_FILES, verify_task as verify_dual_task
 
 TERMINAL = {'succeeded', 'failed', 'cancelled'}
+
+
+def audit_dual(row, root, verify):
+    """Bind the database publication to the original, reverified dual run."""
+    payload=row['payload']
+    profile=strict_json(safe(root,payload['profile']['path']).read_text(encoding='utf-8'))
+    if fingerprint(profile)!=payload['config_fingerprint']:
+        raise ValueError('dual profile config fingerprint mismatch')
+    if row['state']!='succeeded':
+        return
+    attempt=row.get('attempt')
+    if type(attempt) is not int or attempt<1:
+        raise ValueError('dual published attempt identity missing')
+    base=Path('jobs')/row['id']/('attempt-'+str(attempt))
+    manifest=verify((base/'manifest.json').as_posix(),row['artifact_sha256'])
+    published=verify(row['artifact_path'],row['artifact_sha256'])
+    if published.read_bytes()!=manifest.read_bytes():
+        raise ValueError('dual content-addressed publication mismatch')
+    expected_key=base/(row['artifact_sha256']+'.json')
+    if row['artifact_path']!=expected_key.as_posix():
+        raise ValueError('dual published attempt path mismatch')
+    wrapper=strict_json(manifest.read_text(encoding='utf-8'))
+    if wrapper['config_fingerprint']!=payload['config_fingerprint']:
+        raise ValueError('dual wrapper config fingerprint mismatch')
+    if wrapper['inputs']!={role:payload[role]['sha256'] for role in ('network','process','profile')}:
+        raise ValueError('dual wrapper source mismatch')
+    entries=wrapper['artifacts']
+    if (not isinstance(entries,list) or len(entries)!=len(DUAL_FILES)
+            or {entry['path'] for entry in entries}!=DUAL_FILES):
+        raise ValueError('unexpected dual artifact set')
+    for entry in entries:
+        verify((base/entry['path']).as_posix(),entry['sha256'],entry['size'])
+    output=safe(root,base.as_posix())
+    expected_files=DUAL_FILES|{'manifest.json',row['artifact_sha256']+'.json'}
+    if set(inventory(output))!=expected_files:
+        raise ValueError('unexpected dual publication file inventory')
+    # The core verifier requires its exact eleven-file export tree. The
+    # task publication adds two wrappers, so verify an isolated byte copy.
+    with tempfile.TemporaryDirectory(prefix='cpag-dual-audit-') as temporary:
+        export=Path(temporary)/'export'
+        export.mkdir()
+        for name in DUAL_FILES:
+            target=export/name
+            target.parent.mkdir(parents=True,exist_ok=True)
+            shutil.copyfile(output/name,target)
+        core=verify_dual_task(export)
+    if core['run_id']!=row['id'] or core['attempt_id']!=attempt:
+        raise ValueError('dual core run/attempt identity mismatch')
+    for role,name in (('network','network.pcap'),('process','process.csv'),('profile','profile.json')):
+        if safe(root,payload[role]['path']).read_bytes()!=(output/'dual/sources'/name).read_bytes():
+            raise ValueError('dual retained original input differs: '+role)
 
 
 def sha(path):
@@ -85,12 +138,15 @@ def audit(rows, root):
             payload=row.get('payload')
             if not isinstance(payload,dict):raise ValueError('job payload must be an object')
             packet=payload.get('kind')=='packet'
-            if payload.get('kind') not in (None,'','packet'):raise ValueError('unknown task kind')
+            dual=payload.get('kind')=='dual-source'
+            if payload.get('kind') not in (None,'','packet','dual-source'):raise ValueError('unknown task kind')
             for role in ('network','process','profile'):
                 ref=payload.get(role)
                 if not isinstance(ref,dict):raise ValueError('missing or invalid input reference: '+role)
                 verify(ref['path'],ref['sha256'])
-            if row['state']=='succeeded':
+            if dual:
+                audit_dual(row,root,verify)
+            if row['state']=='succeeded' and not dual:
                 manifest=verify(row['artifact_path'],row['artifact_sha256'])
                 wrapper=json.loads(manifest.read_text())
                 base=Path(row['artifact_path']).parent

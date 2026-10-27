@@ -126,6 +126,81 @@ class BundleTests(unittest.TestCase):
         payload['config_fingerprint']=manifest['config_fingerprint'];self.refresh()
         return capture
 
+    def make_dual(self):
+        import sys
+        sys.path.insert(0,str(REPO/'scripts/validation'))
+        from dual_source_fixtures import make_case
+        from cpag_core.dual_source_export import export_task, FILES
+        from cpag_core.dual_source import strict_json
+        paths=make_case(self.root/'dual-inputs')
+        payload={'kind':'dual-source'}
+        for role,path in zip(('network','process','profile'),paths):
+            payload[role]={'path':path.relative_to(self.root).as_posix(),'sha256':bundle.sha(path)}
+        profile=strict_json(paths[2].read_text())
+        payload['config_fingerprint']=fingerprint(profile)
+        output=self.root/'jobs/dual-backup/attempt-1'
+        export_task(*paths,output,run_id='dual-backup',attempt_id=1)
+        wrapper={'inputs':{role:payload[role]['sha256'] for role in ('network','process','profile')},
+                 'config_fingerprint':payload['config_fingerprint'], 'artifacts':[]}
+        for name in sorted(FILES):
+            path=output/name
+            wrapper['artifacts'].append({'path':name,'sha256':bundle.sha(path),'size':path.stat().st_size})
+        publication=output/'manifest.json'
+        publication.write_bytes(canonical(wrapper)+b'\n')
+        digest=bundle.sha(publication)
+        (output/(digest+'.json')).write_bytes(publication.read_bytes())
+        row={'id':'dual-backup','state':'succeeded','attempt':1,'payload':payload,
+             'artifact_path':(output/(digest+'.json')).relative_to(self.root).as_posix(),
+             'artifact_sha256':digest}
+        return row,output
+
+    def test_dual_original_evidence_and_all_nested_artifacts(self):
+        from cpag_core.dual_source_export import query_task, FILES
+        row,output=self.make_dual()
+        self.assertTrue(bundle.audit([row],self.root)['valid'])
+        analysis=json.loads((output/'analysis.json').read_text())
+        with tempfile.TemporaryDirectory() as tmp:
+            export=Path(tmp)/'export';export.mkdir()
+            for name in FILES:
+                target=export/name;target.parent.mkdir(parents=True,exist_ok=True)
+                shutil.copyfile(output/name,target)
+            for operation in analysis['operations'][:2]:
+                self.assertTrue(query_task(export,operation_id=operation['operation_id'])['verified_original_evidence'])
+            for change in analysis['changes'][:2]:
+                self.assertTrue(query_task(export,change_id=change['event_id'])['verified_original_evidence'])
+        for name in sorted(FILES):
+            with self.subTest(name=name):
+                target=output/name;original=target.read_bytes()
+                target.write_bytes(original+b' ')
+                self.assertFalse(bundle.audit([row],self.root)['valid'])
+                target.write_bytes(original)
+
+    def test_dual_rehashed_forgery_and_missing_original_rejected(self):
+        row,output=self.make_dual()
+        graph=output/'graph.json';value=json.loads(graph.read_text())
+        value['edges'][0]['candidate_state']='forged'
+        graph.write_bytes(canonical(value)+b'\n')
+        manifest=output/'run_manifest.json';core=json.loads(manifest.read_text())
+        for entry in core['artifacts']:
+            if entry['path']=='graph.json':
+                entry['sha256']=bundle.sha(graph);entry['size_bytes']=graph.stat().st_size
+        core['result_hashes']['graph']=fingerprint(value)
+        manifest.write_bytes(canonical(core)+b'\n')
+        wrapper=output/'manifest.json';published=json.loads(wrapper.read_text())
+        for entry in published['artifacts']:
+            path=output/entry['path'];entry['sha256']=bundle.sha(path);entry['size']=path.stat().st_size
+        wrapper.write_bytes(canonical(published)+b'\n')
+        (self.root/row['artifact_path']).unlink()
+        new_digest=bundle.sha(wrapper)
+        (output/(new_digest+'.json')).write_bytes(wrapper.read_bytes())
+        row['artifact_path']=(output/(new_digest+'.json')).relative_to(self.root).as_posix()
+        row['artifact_sha256']=new_digest
+        result=bundle.audit([row],self.root)
+        self.assertFalse(result['valid']);self.assertIn('projection_mismatch',result['errors'][0]['reason'])
+        network=self.root/row['payload']['network']['path'];network.unlink()
+        result=bundle.audit([row],self.root)
+        self.assertFalse(result['valid']);self.assertIn('missing file',result['errors'][0]['reason'])
+
     def test_packet_full_refs_and_original_field_query(self):
         from cpag_core.packet_job import query_evidence
         capture=self.make_packet()
