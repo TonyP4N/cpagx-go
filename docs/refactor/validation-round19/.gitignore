@@ -1,0 +1,5 @@
+# Private local measurement records contain transient credentials and database dumps.
+/capacity-S-offline-dev-attempt1/
+/capacity-dev-probe-attempt1/
+/capacity-reference-probe-attempt1/
+/capacity-reference-probe-attempt2/

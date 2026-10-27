@@ -8,6 +8,6 @@ test_imported_bundle_revalidates_all_independent_reference_declarations (test_ro
 test_no_reference_or_tampered_result_is_trusted (test_round19_bundle.BundleTests.test_no_reference_or_tampered_result_is_trusted) ... ok
 
 ----------------------------------------------------------------------
-Ran 8 tests in 1.339s
+Ran 8 tests in 1.299s
 
 OK

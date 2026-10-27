@@ -1,0 +1,564 @@
+[
+  {
+    "database_dump_returncode": null,
+    "dev_run": false,
+    "environment": {
+      "commit": "402d0b0bc253e124d2b7bd7fba7d33d746dde851",
+      "cpu_count": 10,
+      "dirty": true,
+      "docker_ready": false,
+      "free_bytes": 45465600000,
+      "harness_sha256": "c4685c214d9ebe0a0a1bd0ffb638521ecbc6251508ed708b197bb089b989d7cd",
+      "machine": "arm64",
+      "memory_bytes": null,
+      "os_id": null,
+      "os_version": null,
+      "reference_environment_qualified": false,
+      "reference_refusal_reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "host_not_16gib_class",
+        "ssd_unverified",
+        "docker_unavailable",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "source_tree_sha256": "1ac34fc376bb4c0d959a412453d10a963ce52984257e7172f9f41d164ddfde39",
+      "ssd_verified": false,
+      "system": "Darwin",
+      "tracked_diff_sha256": "e9f0287f9dbf89865afcf0427709ca8f3f26b7095114ead335f14d1bc09f1fff"
+    },
+    "error": "reference_environment_refused:host_not_linux,host_not_ubuntu_24_04,host_not_x86_64,host_not_8_vcpu,host_not_16gib_class,ssd_unverified,docker_unavailable,docker_not_x86_64,docker_resources_below_proposed_profile",
+    "error_type": "RuntimeError",
+    "finished_at": "2026-10-27T12:06:06.223995+00:00",
+    "measurements": {},
+    "private_evidence_root": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-reference-probe-attempt1",
+    "private_record_sha256": "8018fa4c5424f3e9e65d7fab7d88462f1ab9d1cfe6a333325ee6c913611747ca",
+    "reference_accepted": false,
+    "run_id": null,
+    "schema_version": "r19-capacity-measurement-1",
+    "stages": [
+      {
+        "elapsed_seconds": 1.0451117090124171,
+        "finished_at": "2026-10-27T12:06:06.220706+00:00",
+        "name": "environment_probe",
+        "started_at": "2026-10-27T12:06:05.175056+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 0.002067374996840954,
+        "error": "reference_environment_refused:host_not_linux,host_not_ubuntu_24_04,host_not_x86_64,host_not_8_vcpu,host_not_16gib_class,ssd_unverified,docker_unavailable,docker_not_x86_64,docker_resources_below_proposed_profile",
+        "error_type": "RuntimeError",
+        "finished_at": "2026-10-27T12:06:06.223550+00:00",
+        "name": "reference_environment_gate",
+        "started_at": "2026-10-27T12:06:06.221092+00:00",
+        "status": "failed"
+      }
+    ],
+    "started_at": "2026-10-27T12:06:05.174352+00:00",
+    "status": "failed",
+    "target": {
+      "evidence_bytes": 8388608,
+      "evidence_seconds": 10,
+      "network_files": 4,
+      "network_per_file_bytes": 67108864,
+      "network_total_bytes": 134217728,
+      "process_bytes": 8388608,
+      "process_columns": 16,
+      "process_records": 10000,
+      "wall_seconds": 1800
+    },
+    "terminal": null,
+    "worker_attempts": []
+  },
+  {
+    "database_dump_returncode": null,
+    "dev_run": true,
+    "environment": {
+      "commit": "402d0b0bc253e124d2b7bd7fba7d33d746dde851",
+      "cpu_count": 10,
+      "dirty": true,
+      "docker": {
+        "architecture": "aarch64",
+        "cpus": 10,
+        "driver": "overlayfs",
+        "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+        "memory_bytes": 8217448448,
+        "os": "Docker Desktop",
+        "version": "29.1.3"
+      },
+      "docker_ready": true,
+      "free_bytes": 45783822336,
+      "harness_sha256": "c4685c214d9ebe0a0a1bd0ffb638521ecbc6251508ed708b197bb089b989d7cd",
+      "machine": "arm64",
+      "memory_bytes": 17179869184,
+      "os_id": null,
+      "os_version": null,
+      "reference_environment_qualified": false,
+      "reference_refusal_reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "source_tree_sha256": "33036781b24d5c3f5fa8345bca3e8d0ad94d1327e5eb2da681426d2e0d6bc989",
+      "ssd_verified": false,
+      "system": "Darwin",
+      "tracked_diff_sha256": "93524cbb4a4124fcc0629274536c0047f3a03f9fc5f8474ebd9198b4c77c0bd2"
+    },
+    "error": null,
+    "error_type": null,
+    "finished_at": "2026-10-27T12:07:36.835038+00:00",
+    "measurements": {},
+    "private_evidence_root": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-dev-probe-attempt1",
+    "private_record_sha256": "4e30f06bbf241c3289f83252809e6f46c99d0fc44ef4fb84a28309ba5e4f6ced",
+    "reference_accepted": false,
+    "run_id": null,
+    "schema_version": "r19-capacity-measurement-1",
+    "stages": [
+      {
+        "elapsed_seconds": 0.926775041007204,
+        "finished_at": "2026-10-27T12:07:36.833762+00:00",
+        "name": "environment_probe",
+        "started_at": "2026-10-27T12:07:35.906480+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 1.2920063454657793e-06,
+        "finished_at": "2026-10-27T12:07:36.834685+00:00",
+        "name": "reference_environment_gate",
+        "started_at": "2026-10-27T12:07:36.834290+00:00",
+        "status": "succeeded"
+      }
+    ],
+    "started_at": "2026-10-27T12:07:35.905658+00:00",
+    "status": "development_probe",
+    "target": {
+      "evidence_bytes": 8388608,
+      "evidence_seconds": 10,
+      "network_files": 4,
+      "network_per_file_bytes": 67108864,
+      "network_total_bytes": 134217728,
+      "process_bytes": 8388608,
+      "process_columns": 16,
+      "process_records": 10000,
+      "wall_seconds": 1800
+    },
+    "terminal": null,
+    "worker_attempts": []
+  },
+  {
+    "database_dump_returncode": null,
+    "dev_run": false,
+    "environment": {
+      "commit": "402d0b0bc253e124d2b7bd7fba7d33d746dde851",
+      "cpu_count": 10,
+      "dirty": true,
+      "docker": {
+        "architecture": "aarch64",
+        "cpus": 10,
+        "driver": "overlayfs",
+        "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+        "memory_bytes": 8217448448,
+        "os": "Docker Desktop",
+        "version": "29.1.3"
+      },
+      "docker_ready": true,
+      "free_bytes": 45699997696,
+      "harness_sha256": "f3af18bddaade75e3d8b6e95f283ee8b15463ee1322693857966667ef387ba35",
+      "machine": "arm64",
+      "memory_bytes": 17179869184,
+      "os_id": null,
+      "os_version": null,
+      "reference_environment_qualified": false,
+      "reference_refusal_reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "source_tree_sha256": "5533e5c4940f7b370b32319ef4947443f644c68158bd1ff07010c5a08665521a",
+      "ssd_verified": false,
+      "system": "Darwin",
+      "tracked_diff_sha256": "01986f3ae008fe318ede19f619a6de87f0fbeceab05b96b06a0221e272b5c6d5"
+    },
+    "error": "reference_environment_refused:host_not_linux,host_not_ubuntu_24_04,host_not_x86_64,host_not_8_vcpu,ssd_unverified,docker_not_x86_64,docker_resources_below_proposed_profile",
+    "error_type": "RuntimeError",
+    "finished_at": "2026-10-27T12:11:41.443412+00:00",
+    "measurements": {},
+    "private_evidence_root": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-reference-probe-attempt2",
+    "private_record_sha256": "f6083d8fd2178870e2d66141d0ea95d6103dc4303fa40e76eb03d68be57c554e",
+    "reference_accepted": false,
+    "run_id": null,
+    "schema_version": "r19-capacity-measurement-1",
+    "stages": [
+      {
+        "elapsed_seconds": 1.2968755830079317,
+        "finished_at": "2026-10-27T12:11:41.436874+00:00",
+        "name": "environment_probe",
+        "started_at": "2026-10-27T12:11:40.139328+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 0.0034088749962393194,
+        "error": "reference_environment_refused:host_not_linux,host_not_ubuntu_24_04,host_not_x86_64,host_not_8_vcpu,ssd_unverified,docker_not_x86_64,docker_resources_below_proposed_profile",
+        "error_type": "RuntimeError",
+        "explicit_dev_override": false,
+        "finished_at": "2026-10-27T12:11:41.442171+00:00",
+        "name": "reference_environment_gate",
+        "reasons": [
+          "host_not_linux",
+          "host_not_ubuntu_24_04",
+          "host_not_x86_64",
+          "host_not_8_vcpu",
+          "ssd_unverified",
+          "docker_not_x86_64",
+          "docker_resources_below_proposed_profile"
+        ],
+        "reference_environment_qualified": false,
+        "started_at": "2026-10-27T12:11:41.437692+00:00",
+        "status": "failed"
+      }
+    ],
+    "started_at": "2026-10-27T12:11:40.137893+00:00",
+    "status": "failed",
+    "target": {
+      "active_attempts": 1,
+      "candidates": 100000,
+      "changes": 10000,
+      "configuration_bytes": 8388608,
+      "container_cpu_seconds": 6000,
+      "container_cpus": 4,
+      "container_memory_bytes": 8589934592,
+      "container_pids": 64,
+      "container_swap_memory_bytes": 8589934592,
+      "evidence_bytes": 8388608,
+      "evidence_items": 100,
+      "evidence_seconds": 10,
+      "frames": 100000,
+      "network_files": 4,
+      "network_per_file_bytes": 67108864,
+      "network_total_bytes": 134217728,
+      "operations": 10000,
+      "output_bytes": 1073741824,
+      "persistent_handoff_bytes": 4294967296,
+      "process_bytes": 8388608,
+      "process_columns": 16,
+      "process_records": 10000,
+      "temporary_disk_bytes": 4294967296,
+      "wall_seconds": 1800
+    },
+    "terminal": null,
+    "worker_attempts": []
+  },
+  {
+    "case": {
+      "cache_condition": "unverified_cold",
+      "case_manifest_sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+      "id": "S-dual_source-1",
+      "input_fingerprints": [
+        {
+          "bytes": 23424,
+          "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt1/network.pcap",
+          "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85"
+        },
+        {
+          "bytes": 3010,
+          "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt1/process.csv",
+          "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55"
+        },
+        {
+          "bytes": 2045,
+          "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt1/offline-profile.json",
+          "sha256": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281"
+        }
+      ],
+      "input_logical_records": 100,
+      "mode": "dual_source",
+      "repetition": 1,
+      "scale": "S"
+    },
+    "database_dump_returncode": 0,
+    "dev_run": true,
+    "environment": {
+      "commit": "402d0b0bc253e124d2b7bd7fba7d33d746dde851",
+      "cpu_count": 10,
+      "dirty": true,
+      "docker": {
+        "architecture": "aarch64",
+        "cpus": 10,
+        "driver": "overlayfs",
+        "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+        "memory_bytes": 8217448448,
+        "os": "Docker Desktop",
+        "version": "29.1.3"
+      },
+      "docker_ready": true,
+      "free_bytes": 45776896000,
+      "harness_sha256": "c4685c214d9ebe0a0a1bd0ffb638521ecbc6251508ed708b197bb089b989d7cd",
+      "machine": "arm64",
+      "memory_bytes": 17179869184,
+      "os_id": null,
+      "os_version": null,
+      "reference_environment_qualified": false,
+      "reference_refusal_reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "source_tree_sha256": "abfc7c6742a0ab0ff44a634ecab12495daac1997033c7aba9157ae1c885f9c79",
+      "ssd_verified": false,
+      "system": "Darwin",
+      "tracked_diff_sha256": "93524cbb4a4124fcc0629274536c0047f3a03f9fc5f8474ebd9198b4c77c0bd2"
+    },
+    "error": "formal_worker_terminal_failed",
+    "error_type": "RuntimeError",
+    "finished_at": "2026-10-27T12:10:27.248223+00:00",
+    "measurements": {
+      "submit_to_terminal_seconds": 110.60326116697979
+    },
+    "private_evidence_root": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-offline-dev-attempt1",
+    "private_record_sha256": "da5fbdbb72b1b3e9ac253f1723d072fe60a4ad9f3de6f660129be852bc7fd712",
+    "reference_accepted": false,
+    "run_id": "8e4f65b41f466c83bd984cdf86698907",
+    "schema_version": "r19-capacity-measurement-1",
+    "stages": [
+      {
+        "elapsed_seconds": 0.9319608749938197,
+        "finished_at": "2026-10-27T12:08:29.948045+00:00",
+        "name": "environment_probe",
+        "started_at": "2026-10-27T12:08:29.015475+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 1.0420044418424368e-06,
+        "finished_at": "2026-10-27T12:08:29.949019+00:00",
+        "name": "reference_environment_gate",
+        "started_at": "2026-10-27T12:08:29.948624+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 0.001096082996809855,
+        "finished_at": "2026-10-27T12:08:29.950867+00:00",
+        "name": "raw_case_validation",
+        "started_at": "2026-10-27T12:08:29.949408+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 0.033405582973500714,
+        "finished_at": "2026-10-27T12:08:29.985248+00:00",
+        "name": "worker_image_binding",
+        "started_at": "2026-10-27T12:08:29.951326+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 117.25900416701916,
+        "error": "formal_worker_terminal_failed",
+        "error_type": "RuntimeError",
+        "finished_at": "2026-10-27T12:10:27.246409+00:00",
+        "name": "formal_chain_case",
+        "started_at": "2026-10-27T12:08:29.986293+00:00",
+        "status": "failed"
+      },
+      {
+        "elapsed_seconds": 2.189620500023011,
+        "finished_at": "2026-10-27T12:08:32.263209+00:00",
+        "name": "build_formal_binaries",
+        "started_at": "2026-10-27T12:08:30.072815+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 2.2841532499878667,
+        "finished_at": "2026-10-27T12:08:34.549369+00:00",
+        "name": "database_start_and_migrations",
+        "started_at": "2026-10-27T12:08:32.264418+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 1.110251000005519,
+        "finished_at": "2026-10-27T12:08:35.661765+00:00",
+        "name": "application_and_worker_start",
+        "started_at": "2026-10-27T12:08:34.550489+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 0.16266612499020994,
+        "finished_at": "2026-10-27T12:08:35.826028+00:00",
+        "name": "catalog_upload_preflight_config",
+        "started_at": "2026-10-27T12:08:35.662812+00:00",
+        "status": "succeeded"
+      },
+      {
+        "elapsed_seconds": 110.60720749999746,
+        "error": "formal_worker_terminal_failed",
+        "error_type": "RuntimeError",
+        "finished_at": "2026-10-27T12:10:26.441124+00:00",
+        "name": "submit_queue_container_to_terminal",
+        "started_at": "2026-10-27T12:08:35.828912+00:00",
+        "status": "failed"
+      },
+      {
+        "elapsed_seconds": 0.7915375829907134,
+        "finished_at": "2026-10-27T12:10:27.243258+00:00",
+        "name": "retain_database_and_stop_disposable_services",
+        "started_at": "2026-10-27T12:10:26.443613+00:00",
+        "status": "succeeded"
+      }
+    ],
+    "started_at": "2026-10-27T12:08:29.014736+00:00",
+    "status": "failed",
+    "target": {
+      "evidence_bytes": 8388608,
+      "evidence_seconds": 10,
+      "network_files": 4,
+      "network_per_file_bytes": 67108864,
+      "network_total_bytes": 134217728,
+      "process_bytes": 8388608,
+      "process_columns": 16,
+      "process_records": 10000,
+      "wall_seconds": 1800
+    },
+    "terminal": {
+      "attempt": 3,
+      "attempt_history": [
+        {
+          "attempt": 1,
+          "exited_at": "2026-10-27T20:09:08.299198+08:00",
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:b37826ec83eb99cf1e0fe7c3",
+          "publication_state": "fenced"
+        },
+        {
+          "attempt": 2,
+          "exited_at": "2026-10-27T20:09:43.655211+08:00",
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:b37826ec83eb99cf1e0fe7c3",
+          "publication_state": "fenced"
+        },
+        {
+          "attempt": 3,
+          "exited_at": "2026-10-27T20:10:26.065828+08:00",
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:b37826ec83eb99cf1e0fe7c3",
+          "publication_state": "fenced"
+        }
+      ],
+      "config_version_id": "c45959592309ce6426673608506364c0",
+      "created_at": "2026-10-27T20:08:36.043908+08:00",
+      "dataset_id": "a60d421d4643a443d82a82137ea22844",
+      "id": "8e4f65b41f466c83bd984cdf86698907",
+      "last_error": "calculation_exit (compute returncode=-9): ",
+      "lease_valid": false,
+      "mode": "dual_source",
+      "network_file_ids": null,
+      "preflight_id": "8122c74af6abe6704bf8a9142d4b6857",
+      "preflight_link_origin": "native_gate",
+      "replay_version": null,
+      "state": "failed"
+    },
+    "worker_attempts": [
+      {
+        "attempt": "attempt-1.worker",
+        "failure": {
+          "compute_returncode": -9,
+          "error": "calculation_exit (compute returncode=-9): ",
+          "failure_category": "calculation_exit"
+        },
+        "failure_sha256": "46601c1668bc61b9ba0c7350d65b6625c5a0e4dec1060a44a17d44c3f23f37d1",
+        "image_id": "sha256:6a44c15c25f6c9e9040053735b190fa07e7d9b126b246ac80ef1095954979b55",
+        "limits": {
+          "Memory": 268435456,
+          "MemorySwap": 268435456,
+          "NanoCpus": 500000000,
+          "NetworkMode": "none",
+          "PidsLimit": 64,
+          "ReadonlyRootfs": true,
+          "Tmpfs": {
+            "/output": "rw,nosuid,nodev,size=16777216,mode=1777",
+            "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+            "/tmp": "rw,nosuid,nodev,size=18874368,mode=1777"
+          }
+        },
+        "source_sha256": "68f19d8207f6ba1958ad2808a0246360626eddc9fd013868d2841a0b4d5ea91a",
+        "state": {
+          "ExitCode": 137,
+          "FinishedAt": "2026-10-27T12:09:08.15929042Z",
+          "OOMKilled": true,
+          "StartedAt": "2026-10-27T12:08:36.958177544Z",
+          "Status": "exited"
+        }
+      },
+      {
+        "attempt": "attempt-2.worker",
+        "failure": {
+          "compute_returncode": -9,
+          "error": "calculation_exit (compute returncode=-9): ",
+          "failure_category": "calculation_exit"
+        },
+        "failure_sha256": "46601c1668bc61b9ba0c7350d65b6625c5a0e4dec1060a44a17d44c3f23f37d1",
+        "image_id": "sha256:6a44c15c25f6c9e9040053735b190fa07e7d9b126b246ac80ef1095954979b55",
+        "limits": {
+          "Memory": 268435456,
+          "MemorySwap": 268435456,
+          "NanoCpus": 500000000,
+          "NetworkMode": "none",
+          "PidsLimit": 64,
+          "ReadonlyRootfs": true,
+          "Tmpfs": {
+            "/output": "rw,nosuid,nodev,size=16777216,mode=1777",
+            "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+            "/tmp": "rw,nosuid,nodev,size=18874368,mode=1777"
+          }
+        },
+        "source_sha256": "f73512dcada5df8b61caaf88f5964c3d1551ad4604308bc944910bba8599b85d",
+        "state": {
+          "ExitCode": 137,
+          "FinishedAt": "2026-10-27T12:09:43.229099089Z",
+          "OOMKilled": true,
+          "StartedAt": "2026-10-27T12:09:09.901739087Z",
+          "Status": "exited"
+        }
+      },
+      {
+        "attempt": "attempt-3.worker",
+        "failure": {
+          "compute_returncode": -9,
+          "error": "calculation_exit (compute returncode=-9): ",
+          "failure_category": "calculation_exit"
+        },
+        "failure_sha256": "46601c1668bc61b9ba0c7350d65b6625c5a0e4dec1060a44a17d44c3f23f37d1",
+        "image_id": "sha256:6a44c15c25f6c9e9040053735b190fa07e7d9b126b246ac80ef1095954979b55",
+        "limits": {
+          "Memory": 268435456,
+          "MemorySwap": 268435456,
+          "NanoCpus": 500000000,
+          "NetworkMode": "none",
+          "PidsLimit": 64,
+          "ReadonlyRootfs": true,
+          "Tmpfs": {
+            "/output": "rw,nosuid,nodev,size=16777216,mode=1777",
+            "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+            "/tmp": "rw,nosuid,nodev,size=18874368,mode=1777"
+          }
+        },
+        "source_sha256": "0da147f653ba031088461c60eab127c13b67d515b4cb4bf31d5e2b5d97c5ec52",
+        "state": {
+          "ExitCode": 137,
+          "FinishedAt": "2026-10-27T12:10:25.711110053Z",
+          "OOMKilled": true,
+          "StartedAt": "2026-10-27T12:09:46.311935715Z",
+          "Status": "exited"
+        }
+      }
+    ]
+  }
+]

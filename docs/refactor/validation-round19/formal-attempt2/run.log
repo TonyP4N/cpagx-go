@@ -1,0 +1,3 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  trigger "v3_capture_binding_validate" for relation "v3_run_bindings" does not exist, skipping
+NOTICE:  trigger "v3_capture_source_protect" for relation "v3_dataset_files" does not exist, skipping

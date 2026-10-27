@@ -1,0 +1,15 @@
+{
+  "schema_version": "r19-raw-scale-fixture-1",
+  "scale": "S",
+  "operations": 100,
+  "request_frames": 100,
+  "response_frames": 100,
+  "logical_process_records": 100,
+  "arrival_steps": 304,
+  "replay_profile_bytes": 30289,
+  "bytes": {
+    "network": 23424,
+    "process": 3010
+  },
+  "claim": "generated density fixture only; current runtime may explicitly refuse limits; no byte-boundary or industrial coverage"
+}

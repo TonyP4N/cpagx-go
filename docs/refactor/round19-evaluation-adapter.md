@@ -110,3 +110,15 @@ CLI 用 `--source-mode network|process --source PATH --profile PATH --output PAT
 
 本适配器保留所有终态预测，不截断到旧 evaluator 的 500 事件上限；
 超出 evaluator 已支持范围必须明确拒绝或通过另行版本化能力处理，不能静默删事件。
+
+## 冻结侧包一致性复核
+
+实施复核先增加回归，记录在 `validation-round19/bundle-audit-before.log`：
+四类问题共12个失败子例，涉及核验耗时跨越解封、导入侧包的冻结时间顺序、
+导入时缺少独立参考复核、以及重新哈希后允许冒称原件已验证或改变合同字段。
+修复后 `bundle-audit-after.log` 中8项侧包测试（含全部子例）通过。
+
+创建和导入现在同时要求 `registered_at <= observed_frozen_at < holdout_opened_at`；
+冻结时间在最终产物核验后采集，发布完成还要检查没有跨越解封，失败删除本次创建的目录。
+创建与导入复用同一参考校验；冻结、清单、结果绑定采用精确字段和版本/来源状态常量。
+这些检查证明本地合同与时间顺序一致，仍不等于密码学保管链、可信硬件时钟或独立标注的外部证明。
