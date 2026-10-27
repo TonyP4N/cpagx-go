@@ -102,6 +102,17 @@ class CatalogBackupTests(unittest.TestCase):
     def audited(self,catalog=None):
         return bundle.audit_catalog(catalog if catalog is not None else self.catalog,[self.job],self.root)
 
+    def test_old_format4_catalog_without_evaluation_table_still_audits(self):
+        old=copy.deepcopy(self.catalog);old.pop('v3_evaluations')
+        self.assertTrue(self.audited(old)['valid'])
+
+    def test_evaluation_cannot_reference_cancelled_or_missing_run(self):
+        changed=copy.deepcopy(self.catalog)
+        changed['v3_evaluations']=[{'id':'e1','job_id':self.job['id'],'dataset_id':'d1','created_by':'u1','document':{},'document_json':'{}','document_sha256':'0'*64}]
+        result=self.audited(changed)
+        self.assertFalse(result['valid'])
+        self.assertTrue(any(e['scope']=='v3_evaluations' for e in result['errors']))
+
     def test_empty_v3_tables_do_not_change_legacy_m4_backup(self):
         empty={table:[] for table in bundle.CATALOG_TABLES}
         report=bundle.audit_catalog(empty,[],self.root)
@@ -262,7 +273,7 @@ class CatalogBackupTests(unittest.TestCase):
         dest=Path(self.temp.name)/'backup'
         with patch.object(bundle.subprocess,'Popen',return_value=connection),patch.object(bundle,'pg',side_effect=dump):
             result=bundle.backup('mock','m4_validation',self.root,dest)
-        self.assertEqual(result['format_version'],4)
+        self.assertEqual(result['format_version'],5)
         self.assertTrue(result['catalog_audit']['valid'])
         self.assertEqual(result['source_audit']['unreferenced_files'],[])
         self.assertIn('v3_run_bindings',connection.stdin.getvalue())

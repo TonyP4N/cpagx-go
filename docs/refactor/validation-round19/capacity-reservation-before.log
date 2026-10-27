@@ -1,0 +1,42 @@
+test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) ... 
+  test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) (count=2) ... FAIL
+  test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) (count=4) ... FAIL
+test_budget_includes_later_original_copy (test_round19_capacity.ReservationTests.test_budget_includes_later_original_copy) ... FAIL
+test_missing_later_original_refuses_reservation (test_round19_capacity.ReservationTests.test_missing_later_original_refuses_reservation) ... FAIL
+
+======================================================================
+FAIL: test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) (count=2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/isolated/test_round19_capacity.py", line 33, in test_all_sources_counted_once_and_repeat_is_idempotent
+    self.assertEqual(ledger['reservations']['test:1'],sum(100*(i+1) for i in range(count))+20+200+2097152)
+AssertionError: 2097472 != 2097672
+
+======================================================================
+FAIL: test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) (count=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/isolated/test_round19_capacity.py", line 33, in test_all_sources_counted_once_and_repeat_is_idempotent
+    self.assertEqual(ledger['reservations']['test:1'],sum(100*(i+1) for i in range(count))+20+200+2097152)
+AssertionError: 2097472 != 2098372
+
+======================================================================
+FAIL: test_budget_includes_later_original_copy (test_round19_capacity.ReservationTests.test_budget_includes_later_original_copy)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/isolated/test_round19_capacity.py", line 44, in test_budget_includes_later_original_copy
+    with self.assertRaises(OSError):worker.capacity(claim)
+AssertionError: OSError not raised
+
+======================================================================
+FAIL: test_missing_later_original_refuses_reservation (test_round19_capacity.ReservationTests.test_missing_later_original_refuses_reservation)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/isolated/test_round19_capacity.py", line 38, in test_missing_later_original_refuses_reservation
+    with self.assertRaises(FileNotFoundError):worker.capacity(claim)
+AssertionError: FileNotFoundError not raised
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.014s
+
+FAILED (failures=4)

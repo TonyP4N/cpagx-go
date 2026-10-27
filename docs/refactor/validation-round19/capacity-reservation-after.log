@@ -1,0 +1,8 @@
+test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) ... ok
+test_budget_includes_later_original_copy (test_round19_capacity.ReservationTests.test_budget_includes_later_original_copy) ... ok
+test_missing_later_original_refuses_reservation (test_round19_capacity.ReservationTests.test_missing_later_original_refuses_reservation) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.016s
+
+OK

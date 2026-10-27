@@ -37,6 +37,11 @@ def valid_digest(value):
     return isinstance(value,str) and re.fullmatch('[a-f0-9]{64}',value) is not None
 
 
+def checked_time(value):
+    if not isinstance(value,str):raise ValueError('evaluation_timestamp_invalid')
+    return instant(value)
+
+
 def validate_freeze(frozen,registration):
     exact_fields(frozen,FREEZE_FIELDS,'frozen_contract_invalid')
     if (frozen['version']!=VERSION or frozen['matching']!=MATCHING_VERSION
@@ -44,8 +49,8 @@ def validate_freeze(frozen,registration):
         raise ValueError('unsupported_evaluation_version_or_custody')
     if any(not valid_digest(frozen[name]) for name in FREEZE_FIELDS if name.endswith('_sha256')):
         raise ValueError('frozen_digest_invalid')
-    observed=instant(frozen['observed_frozen_at']);registered=instant(registration['registered_at'])
-    opening=instant(registration['holdout_opened_at'])
+    observed=checked_time(frozen['observed_frozen_at']);registered=checked_time(registration['registered_at'])
+    opening=checked_time(registration['holdout_opened_at'])
     if registered>observed:raise ValueError('registration_cannot_follow_observed_freeze')
     if not registered<=observed<opening:raise ValueError('system_freeze_must_precede_declared_opening')
 
@@ -67,7 +72,7 @@ def validate_bundle_binding(binding):
         raise ValueError('evaluation_binding_version_or_reference_status_invalid')
     if any(not valid_digest(binding[name]) for name in BINDING_FIELDS if name.endswith('_sha256')):
         raise ValueError('evaluation_binding_digest_invalid')
-    instant(binding['observed_opened_at'])
+    checked_time(binding['observed_opened_at'])
 
 
 def read(path):
@@ -172,6 +177,7 @@ def evaluate_bundle(frozen,artifact,annotations,references,output):
 def verify_bundle(root,artifact):
     root=Path(root);manifest=read(root/'manifest.json')
     exact_fields(manifest,{'version','files'},'evaluation_manifest_contract_invalid')
+    exact_fields(manifest['files'],FILES,'evaluation_manifest_files_contract_invalid')
     if manifest.get('version')!=VERSION or set(manifest.get('files',{}))!=FILES or {p.name for p in root.iterdir()}!=FILES|{'manifest.json'}:
         raise ValueError('evaluation_inventory_invalid')
     if any(not valid_digest(value) for value in manifest['files'].values()):raise ValueError('evaluation_manifest_digest_invalid')

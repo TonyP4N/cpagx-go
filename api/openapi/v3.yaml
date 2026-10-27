@@ -193,6 +193,43 @@ paths:
     get:
       security: [{ cookieAuth: [] }]
       responses: { '200': { description: Verified M4 dual or replay result; replay data contains final analysis, graph, events and replay summary; optional revision selects snapshot_number }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/evaluation-input:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Read-only R19 observation projection from the currently published verified offline or terminal replay artifact. Batch comes from the authorized dataset and sample_sha256 is the verified composite input_fingerprint. No annotations, analysis submission, frozen registration or persisted evaluation are accepted here. Network/process are views of this run, not independently executed single-source experiments. Bounded to 10 seconds and 8 MiB output.
+      parameters: [{ in: query, name: projection, required: false, schema: { type: string, enum: [network, process, dual], default: dual } }]
+      responses: { '200': { description: Unchanged final-artifact adapter contract including predictions, version/artifact binding, exclusions, event links, process statistics and limitations }, '401': { $ref: '#/components/responses/Error' }, '404': { description: Missing run or no dataset read permission }, '409': { description: Unpublished, changed, unsupported or unavailable bounded projection }, '422': { description: Unsupported, repeated or unknown query parameter }, '503': { description: Adapter or read audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Import one complete CLI evaluation bundle document (filename to parsed JSON object, including manifest.json), maximum 8 MiB. Dataset write access required; viewers cannot import. The server re-verifies the current publication, frozen inputs, independent-reference declarations and computed result before transactionally storing the document with its canonical Python digest and audit entry. Batch and composite sample fingerprint must equal server dataset/publication context. Declaration is not independent custody proof. No analysis is submitted.
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses: { '201': { description: New saved evaluation metadata and verified result }, '200': { description: Identical document already saved for this run }, '403': { description: Dataset write permission required }, '404': { description: Missing run or no dataset read permission }, '409': { description: Bundle, original publication or context failed verification }, '422': { description: Body exceeds 8 MiB or unsupported query }, '503': { description: Storage or audit unavailable; no import committed } }
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Latest 100 saved evaluation metadata records. Listing does not certify current original evidence; detail, download and evidence reads re-verify it.
+      responses: { '200': { description: Metadata records, limit and explicit saved-only status }, '404': { description: Missing run or no dataset read permission }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Saved metadata and result after complete bundle and current original publication re-verification }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Saved document, versions, current attempt or original evidence unavailable or changed }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}/download:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified complete filename-to-JSON bundle document as JSON attachment; retained serialization preserves Python number semantics }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Bundle or current original evidence failed re-verification }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}/evidence:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Query a retained prediction, exclusion or unlabelled relation through the existing verified original-evidence query. reference=true returns the independent reference declaration, explicitly without claiming original reference bytes were inspected. Entire saved bundle and current publication are re-verified. No arbitrary paths accepted. Queries are bounded to 10 seconds and 8 MiB output.
+      parameters:
+        - { in: query, name: event, required: true, schema: { type: string, minLength: 1, maxLength: 1024 } }
+        - { in: query, name: reference, required: false, schema: { type: string, const: 'true' } }
+      responses: { '200': { description: Saved evaluation metadata and verified evidence or declared independent reference }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Unknown event, changed bundle, expired attempt binding or missing original evidence }, '422': { description: Missing, repeated or unsupported query parameter }, '503': { description: Database or audit unavailable } }
   /api/v3/runs/{run_id}/graph:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:

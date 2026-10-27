@@ -40,6 +40,9 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
+	if s.serveEvaluations(w, r, p, dataset, id, parts) {
+		return
+	}
 	if len(parts) == 2 && r.Method == "GET" {
 		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, json.RawMessage(captureIDs), replayVersion)
 		return
@@ -65,6 +68,9 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	}
 	if len(parts) == 3 && r.Method == "GET" {
 		switch parts[2] {
+		case "evaluation-input":
+			s.evaluationInput(w, r, p, dataset, id, mode)
+			return
 		case "result", "graph", "evidence":
 			if mode == "dual_source_replay" {
 				s.replayProjection(w, r, p, dataset, id, parts[2])

@@ -83,7 +83,8 @@ class DockerExecutor:
                 used=sum(p.stat().st_size for folder in (base,output) if folder.exists() for p in folder.rglob('*') if p.is_file() and not p.is_symlink())
                 reservations[key]=used+65536
             elif key not in reservations:
-                sizes=sum(beneath(self.root,claim['payload'][role]['path']).stat().st_size for role in ('network','process','profile'))
+                refs=network_refs(claim['payload'])+[claim['payload'][role] for role in ('process','profile')]
+                sizes=sum(beneath(self.root,ref['path']).stat().st_size for ref in refs)
                 reserve=sizes+2*self.output_bytes+2097152
                 outside=sum(p.stat().st_size for folder in (self.root,self.control) for p in folder.rglob('*') if p.is_file() and not p.is_symlink() and not p.is_relative_to(folder/'jobs') and p.name not in ('capacity.json','capacity.lock'))
                 if sum(reservations.values())+outside+reserve>self.host_budget_bytes:raise OSError(28,'executor host storage budget exhausted')

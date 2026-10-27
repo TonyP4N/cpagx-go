@@ -1,0 +1,135 @@
+{
+  "checks": [
+    {
+      "job": "6aa6aca095d2bbd2fcb88b3ea13b81f1",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "f34fdf93be824ee96c48474f4d10facf",
+      "evidence_available": true
+    },
+    {
+      "job": "806f0936b5c14710be0e94bc3e6c03c6",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "evaluation_id": "54c42c132889886efb270417c1a2db7e",
+      "evidence_available": true
+    },
+    {
+      "job": "d652e89bb4c8235726d2799ef18e585a",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "8e330208c9abce4c6a636698a22ae6d3",
+      "evidence_available": true
+    },
+    {
+      "job": "7e852e0dd824cdb1e0648a3d16aa44c0",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "11b2e7f74835e900de14dbc97f230b43",
+      "evidence_available": true
+    },
+    {
+      "job": "5265ece8e3929c6316ef672c92f255d3",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "dd51c099d34f20bf0efae7cfe5b510b1",
+      "evidence_available": true
+    },
+    {
+      "job": "6aa6aca095d2bbd2fcb88b3ea13b81f1",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "f34fdf93be824ee96c48474f4d10facf",
+      "evidence_available": true
+    },
+    {
+      "job": "806f0936b5c14710be0e94bc3e6c03c6",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "evaluation_id": "54c42c132889886efb270417c1a2db7e",
+      "evidence_available": true
+    },
+    {
+      "job": "d652e89bb4c8235726d2799ef18e585a",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "8e330208c9abce4c6a636698a22ae6d3",
+      "evidence_available": true
+    },
+    {
+      "job": "7e852e0dd824cdb1e0648a3d16aa44c0",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "11b2e7f74835e900de14dbc97f230b43",
+      "evidence_available": true
+    },
+    {
+      "job": "5265ece8e3929c6316ef672c92f255d3",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "evaluation_id": "dd51c099d34f20bf0efae7cfe5b510b1",
+      "evidence_available": true
+    }
+  ],
+  "scope": "formal synthetic task plus terminal PG/file restore; not capacity or industrial validation"
+}

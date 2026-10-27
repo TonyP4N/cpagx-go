@@ -87,6 +87,7 @@ jobs:
           python -m unittest discover -s tests/replay -v
           python -m unittest discover -s tests/replay_inputs -v
           python -m unittest discover -s tests/validation -p test_round18_acceptance.py -v
+          python -m unittest discover -s tests/validation -p "test_round19*.py" -v
       - name: Backup reference validation
         env:
           PYTHONPATH: services/analysis/src
@@ -426,6 +427,8 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
         run: bash scripts/validation/round18_acceptance.sh "$RUNNER_TEMP/round18"
+      - name: R19 independent final artifact evaluation and PostgreSQL restore
+        run: python scripts/validation/round19_evaluation_acceptance.py --output "$RUNNER_TEMP/round19-evaluation"
       - name: Replay cancellation, failure, interrupted Worker and new attempt
         run: python scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"
       - uses: actions/upload-artifact@v4
@@ -438,5 +441,6 @@ jobs:
             ${{ runner.temp }}/round18/*.log
             ${{ runner.temp }}/round18/browser
             ${{ runner.temp }}/round18-pacing
+            ${{ runner.temp }}/round19-evaluation/public
             ${{ runner.temp }}/round18-lifecycle/public
             ${{ runner.temp }}/round18-lifecycle/*.log

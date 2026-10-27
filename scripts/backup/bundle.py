@@ -31,6 +31,8 @@ CATALOG_TABLES = (
     'v3_source_files', 'v3_dataset_files', 'v3_config_versions',
     'v3_run_bindings', 'v3_preflights', 'v3_audit_events',
 )
+LEGACY_CATALOG_TABLES = CATALOG_TABLES
+CATALOG_TABLES = (*CATALOG_TABLES, 'v3_evaluations')
 CATALOG_ORDER = {
     'v3_dataset_acl': 'dataset_id,user_id',
     'v3_run_bindings': 'job_id',
@@ -54,9 +56,9 @@ def catalog_query(table, prefix=False):
     return f'SELECT {marker}{result} FROM {table} t;'
 
 
-def catalog_now(container, db):
+def catalog_now(container, db, tables=CATALOG_TABLES):
     catalog = {}
-    for table in CATALOG_TABLES:
+    for table in tables:
         result = pg(container, db, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
                     '-c', catalog_query(table), capture_output=True, text=True)
         catalog[table] = json.loads(result.stdout)
@@ -404,9 +406,9 @@ def audit_catalog(catalog, rows, root):
     No credential verifiers or session tokens are accepted in this projection.
     """
     errors=[]; referenced=set(); counts={}; tables={}
-    if not isinstance(catalog,dict) or set(catalog)!=set(CATALOG_TABLES):
+    if not isinstance(catalog,dict) or set(catalog) not in (set(CATALOG_TABLES),set(LEGACY_CATALOG_TABLES)):
         return {'valid':False,'errors':[{'scope':'catalog','reason':'incomplete catalog table set'}]}
-    for table in CATALOG_TABLES:
+    for table in catalog:
         value=catalog[table]
         if not isinstance(value,list) or any(not isinstance(row,dict) for row in value):
             errors.append({'scope':table,'reason':'catalog table must be an array of objects'})
@@ -694,6 +696,28 @@ def audit_catalog(catalog, rows, root):
                 raise ValueError('run linked to later preflight')
         except ValueError as exc:
             errors.append({'scope':'v3_run_bindings','job_id':job_id,'reason':str(exc)})
+    # Evaluation JSON lives in PostgreSQL, outside all computation input mounts.
+    evaluation_ids=set()
+    for row in tables.get('v3_evaluations',[]):
+        try:
+            if row.get('id') in evaluation_ids:raise ValueError('duplicate evaluation identity')
+            evaluation_ids.add(row.get('id'))
+            job=jobs.get(row.get('job_id'))
+            binding=next((v for v in tables['v3_run_bindings'] if v['job_id']==row.get('job_id')),None)
+            if job is None or job.get('state')!='succeeded' or binding is None or binding['dataset_id']!=row.get('dataset_id') or not user_exists(row.get('created_by')):
+                raise ValueError('evaluation ownership/publication mismatch')
+            from cpag_core.evaluation_bundle import verify_document
+            document=strict_json(row.get('document_json',''))
+            if document!=row.get('document'):raise ValueError('evaluation document projection mismatch')
+            if hashlib.sha256(canonical(document)).hexdigest()!=row.get('document_sha256'):raise ValueError('evaluation document checksum mismatch')
+            result=verify_document(document,safe(root,str(Path(job['artifact_path']).parent)))
+            identity=document['adapted.json']['binding']
+            if (identity['run_id']!=job['id'] or identity['attempt_id']!=job['attempt']
+                    or identity['batch']!=datasets[row['dataset_id']]['batch']
+                    or identity['sample_sha256']!=identity['input_fingerprint']):
+                raise ValueError('evaluation run/attempt mismatch')
+        except (ValueError,OSError,KeyError,TypeError) as exc:
+            errors.append({'scope':'v3_evaluations','id':row.get('id'),'reason':str(exc)})
     for row in tables['v3_audit_events']:
         if ((row.get('user_id') is not None and row['user_id'] not in users) or
                 (row.get('dataset_id') is not None and row['dataset_id'] not in datasets) or
@@ -812,7 +836,7 @@ def backup(container, db, root, destination):
         phase='final_integrity'
         if inventory(destination/'files')!=files or inventory(root)!=files:raise ValueError('files changed during database dump')
         phase='bundle_publication'
-        bundle={'format_version':4 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
+        bundle={'format_version':5 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
                 'database_sha256':sha(destination/'database.dump'),'source_audit':before,'copied_audit':copied,'attempt_audit':history,
                 'consistency':'exported PostgreSQL snapshot + SHARE lock; terminal tasks only; file pre/post hashes'}
         if catalog is not None:
@@ -860,7 +884,7 @@ def restore(container, bundle_dir, destination):
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
         if bundle['format_version']==3:
             raise ValueError('legacy v3 catalog bundle lacks verified preflight snapshots; restore with b208bc9 in an isolated maintenance environment, apply migration 007, run cpagx-v3 --backfill-legacy, then create a format-4 backup')
-        if bundle['format_version'] not in (2,4) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
+        if bundle['format_version'] not in (2,4,5) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
         if sha(safe(bundle_dir,'database.dump'))!=bundle['database_sha256'] or inventory(bundle_dir/'files')!=bundle['files']:
             raise ValueError('bundle integrity mismatch')
         phase='pre_restore_references'
@@ -868,7 +892,8 @@ def restore(container, bundle_dir, destination):
         if not before['valid']: raise ValueError('bundle references invalid: '+json.dumps(before['errors']))
         history=audit_attempts(bundle['rows'],bundle.get('attempts',[]))
         if not history['valid']:raise ValueError('bundle attempt history invalid: '+json.dumps(history['errors']))
-        has_catalog=bundle['format_version']==4
+        has_catalog=bundle['format_version'] in (4,5)
+        if bundle['format_version']==5 and set(bundle.get('catalog',{}))!=set(CATALOG_TABLES):raise ValueError('format5 evaluation catalog required')
         if has_catalog:
             directory=audit_catalog(bundle['catalog'],bundle['rows'],bundle_dir/'files')
             if not directory['valid']:
@@ -889,7 +914,7 @@ def restore(container, bundle_dir, destination):
         if rows!=bundle['rows']: raise ValueError('restored task metadata differs from snapshot')
         if attempts_now(container,'m4_restore_validation')!=bundle.get('attempts',[]):raise ValueError('restored attempt history differs from snapshot')
         if has_catalog:
-            restored_catalog=catalog_now(container,'m4_restore_validation')
+            restored_catalog=catalog_now(container,'m4_restore_validation',tuple(bundle['catalog']))
             if restored_catalog!=bundle['catalog']:
                 raise ValueError('restored catalog metadata differs from snapshot')
         result=audit(rows,destination)

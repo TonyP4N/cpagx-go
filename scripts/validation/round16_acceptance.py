@@ -316,7 +316,7 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
             raise RuntimeError('CLI cancellation did not match API state')
         stop(source_app);source_app=None
         snapshot=bundle.backup(container,'m4_validation',source_root,work/'bundle')
-        if snapshot['format_version']!=4 or not snapshot['catalog_audit']['valid']:
+        if snapshot['format_version']!=5 or not snapshot['catalog_audit']['valid']:
             raise RuntimeError('catalog backup failed')
         restored_audit=bundle.restore(container,work/'bundle',restored_root)
         if not restored_audit['valid'] or not restored_audit.get('catalog_equal'):
