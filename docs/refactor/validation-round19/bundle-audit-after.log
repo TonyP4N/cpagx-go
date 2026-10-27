@@ -1,0 +1,13 @@
+test_duplicate_output_does_not_overwrite (test_round19_bundle.BundleTests.test_duplicate_output_does_not_overwrite) ... ok
+test_freeze_completion_must_precede_opening_and_future_registration_refused (test_round19_bundle.BundleTests.test_freeze_completion_must_precede_opening_and_future_registration_refused) ... ok
+test_freeze_open_verify_query_and_portable_copy (test_round19_bundle.BundleTests.test_freeze_open_verify_query_and_portable_copy) ... ok
+test_frozen_policy_and_tolerance_changes_refused (test_round19_bundle.BundleTests.test_frozen_policy_and_tolerance_changes_refused) ... ok
+test_imported_bundle_rejects_late_freeze_even_when_rehashed (test_round19_bundle.BundleTests.test_imported_bundle_rejects_late_freeze_even_when_rehashed) ... ok
+test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) ... ok
+test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) ... ok
+test_no_reference_or_tampered_result_is_trusted (test_round19_bundle.BundleTests.test_no_reference_or_tampered_result_is_trusted) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 1.339s
+
+OK
