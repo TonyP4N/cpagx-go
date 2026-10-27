@@ -150,9 +150,15 @@ class DockerExecutor:
         publication=json.loads((output/'manifest.json').read_text())
         payload=status['payload']
         if publication['config_fingerprint']!=payload['config_fingerprint'] or publication['inputs']!={name:payload[name]['sha256'] for name in ('network','process','profile')}:raise ValueError('handoff identity differs')
+        dual_source=payload.get('kind')=='dual-source'
+        if dual_source:
+            from cpag_core.dual_source_export import FILES, verify_task
+            if {entry['path'] for entry in publication['artifacts']}!=FILES or len(publication['artifacts'])!=len(FILES):raise ValueError('dual-source handoff inventory differs')
+            manifest=verify_task(output)
+            if manifest['run_id']!=record['id'] or manifest['attempt_id']!=record['attempt']:raise ValueError('dual-source handoff identity differs')
         for entry in publication['artifacts']:
-            if Path(entry['path']).name!=entry['path']:raise ValueError('unsafe handoff path')
-            path=output/entry['path']
+            if not dual_source and Path(entry['path']).name!=entry['path']:raise ValueError('unsafe handoff path')
+            path=beneath(output,entry['path'])
             if path.is_symlink() or digest(path)!=entry['sha256'] or path.stat().st_size!=entry['size']:raise ValueError('handoff artifact changed')
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
@@ -309,7 +315,7 @@ class DockerExecutor:
         except (OSError,ValueError,KeyError,TypeError,AttributeError,subprocess.SubprocessError):
             outcomes.append({'scope':'global','pending':'discovery_unavailable','retryable':True})
         return outcomes
-    def read_output(self,container,target,payload):
+    def read_output(self,container,target,payload,*,run_id=None,attempt_id=None):
         if shutil.disk_usage(self.root).free-self.output_bytes<self.min_free_bytes:raise OSError(28,'executor minimum free storage before handoff')
         process=subprocess.Popen(['docker','exec',container,'tar','-C','/output/run','-cf','-','.'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
         expired=threading.Event()
@@ -326,15 +332,27 @@ class DockerExecutor:
             if process.poll() is None:process.kill();process.wait()
         if len(raw)>self.output_bytes+1048576: raise ValueError('output transfer limit')
         target.mkdir(mode=0o700)
+        dual_source=payload.get('kind')=='dual-source'
+        if dual_source:
+            from cpag_core.dual_source_export import FILES, DIRECTORIES
         with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
             total=0
+            seen=set()
             for member in archive:
                 if member.isdir() and member.name in ('.','./'): continue
                 name=member.name.removeprefix('./')
-                if not member.isfile() or Path(name).name!=name or name in ('','manifest.json'):
+                name=name.rstrip('/') if member.isdir() else name
+                allowed_dir=dual_source and member.isdir() and name in DIRECTORIES
+                allowed_file=member.isfile() and (name in FILES if dual_source else Path(name).name==name and name not in ('','manifest.json'))
+                if name in seen or not (allowed_dir or allowed_file):
                     raise ValueError('unsafe output archive member')
+                seen.add(name)
+                if allowed_dir:
+                    (target/name).mkdir(mode=0o700,parents=True,exist_ok=True)
+                    continue
                 total+=member.size
                 if total>self.output_bytes: raise ValueError('output transfer limit')
+                (target/name).parent.mkdir(mode=0o700,parents=True,exist_ok=True)
                 with (target/name).open('xb') as stream:
                     shutil.copyfileobj(archive.extractfile(member),stream)
                     stream.flush();os.fsync(stream.fileno())
@@ -343,25 +361,32 @@ class DockerExecutor:
         from cpag_core.contracts import validate
         validate('RunManifest',manifest)
         if manifest['config_fingerprint']!=payload['config_fingerprint']: raise ValueError('configuration mismatch')
-        expected={'dataset.json','events.json','graph.json','quality.json'}
+        if dual_source and (manifest['run_id']!=run_id or manifest['attempt_id']!=attempt_id):raise ValueError('dual-source run/attempt identity mismatch')
+        expected=set(FILES)-{'run_manifest.json'} if dual_source else {'dataset.json','events.json','graph.json','quality.json'}
         if payload.get('kind')=='packet': expected.add('packet_observations.json')
         entries=manifest['artifacts']
         if {e['path'] for e in entries}!=expected or len(entries)!=len(expected): raise ValueError('artifact set differs')
         for entry in entries:
-            path=target/entry['path']
+            path=beneath(target.resolve(),entry['path'])
             if digest(path)!=entry['sha256'] or path.stat().st_size!=entry['size_bytes']: raise ValueError('artifact hash/size mismatch')
-            value=json.loads(path.read_text())
+            value=json.loads(path.read_text()) if path.suffix=='.json' else None
             schema={'dataset.json':'DatasetManifest','graph.json':'GraphArtifact'}.get(path.name)
             if schema:validate(schema,value)
-            if path.name=='events.json':
+            if path.name=='events.json' and not dual_source:
                 for event in value:validate('NetworkEvent' if event['event_id'].startswith('packet-') or 'protocol' in event else 'ProcessObservation',event)
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(target,beneath(self.root,payload['network']['path']))
-        if {p.name for p in target.iterdir()}!=expected|{'run_manifest.json'}: raise ValueError('unexpected output file')
+        if dual_source:
+            from cpag_core.dual_source_export import verify_task
+            verify_task(target)
+            found={p.relative_to(target).as_posix() for p in target.rglob('*') if p.is_file()}
+            if found!=FILES:raise ValueError('unexpected dual-source output file')
+        elif {p.name for p in target.iterdir()}!=expected|{'run_manifest.json'}: raise ValueError('unexpected output file')
         publication={'config_fingerprint':payload['config_fingerprint'],
                      'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')},
-                     'artifacts':[{'path':p.name,'sha256':digest(p),'size':p.stat().st_size} for p in sorted(target.iterdir())]}
+                     'artifacts':[{'path':p.relative_to(target).as_posix(),'sha256':digest(p),'size':p.stat().st_size}
+                                  for p in sorted(target.rglob('*')) if p.is_file()]}
         atomic_json(target/'manifest.json',publication);sync_dir(target)
         return digest(target/'manifest.json')
     def attempt(self,claim):
@@ -387,11 +412,14 @@ class DockerExecutor:
                 with (inputs/(name+source.suffix)).open('rb') as stream:os.fsync(stream.fileno())
                 os.chmod(inputs/(name+source.suffix),0o444)
             sync_dir(inputs);os.chmod(inputs,0o555)
-            module='cpag_core.packet_job' if claim['payload'].get('kind')=='packet' else 'cpag_core'
+            kind=claim['payload'].get('kind')
+            module='cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
             command=self.command or ['python','-m',module]
             command=command+sum((["--"+name,"/inputs/"+name+Path(claim['payload'][name]['path']).suffix] for name in ('network','process','profile')),[])+['--output','/output/run','--synthetic']
+            if kind=='dual-source':command+=['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
             nonce=uuid.uuid4().hex
             atomic_json(base/'create-intent.json',{**self.identity(claim),'nonce':nonce,'location':self.location()})
+            compute_tmpfs=['--tmpfs','/tmp:rw,nosuid,nodev,size='+str(self.output_bytes+2097152)+',mode=1777'] if kind=='dual-source' else []
             container=self.docker('create','--name','cpag-isolated-'+nonce,'--network','none','--read-only','--user','65532:65532',
                 '--cap-drop','ALL','--security-opt','no-new-privileges','--memory','256m','--memory-swap','256m',
                 '--cpus','.5','--pids-limit','64','--log-driver','local','--log-opt','max-size=64k','--log-opt','max-file=2',
@@ -399,6 +427,7 @@ class DockerExecutor:
                 '--mount','type=bind,src='+str(inputs)+',dst=/inputs,readonly',
                 '--tmpfs','/output:rw,nosuid,nodev,size='+str(self.output_bytes)+',mode=1777',
                 '--tmpfs','/runtime:rw,nosuid,nodev,size=1m,mode=1777',
+                *compute_tmpfs,
                 '-e','CPAG_CONTAINER_SECONDS='+str(self.timeout),self.image,*command)
             self.checkpoint('after_create')
             record={**self.identity(claim),'container_id':container,'location':self.location()}
@@ -441,7 +470,7 @@ class DockerExecutor:
             output=beneath(self.root,claim['output_dir']);output.parent.mkdir(parents=True,exist_ok=True)
             stage=output.parent/('.handoff-'+uuid.uuid4().hex)
             atomic_json(base/'stage.json',{'path':str(stage.relative_to(self.root))})
-            sha=self.read_output(container,stage,claim['payload'])
+            sha=self.read_output(container,stage,claim['payload'],run_id=claim['id'],attempt_id=claim['attempt'])
             self.checkpoint('after_copy')
             if not lease_health['owned'] or lease_health['cancelled'] or self.stopping:
                 self.stop_container(record)
@@ -455,7 +484,9 @@ class DockerExecutor:
             lock=os.open(str(output)+'.publish-lock',os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
             os.fsync(lock);os.close(lock);sync_dir(output.parent)
             if output.exists():raise ValueError('immutable output already exists')
-            for path in stage.iterdir():os.chmod(path,0o444)
+            for path in stage.rglob('*'):
+                if path.is_file():os.chmod(path,0o444)
+                elif path.is_dir():os.chmod(path,0o555)
             sync_dir(stage)
             os.rename(stage,output);sync_dir(output.parent);stage=None
             self.checkpoint('after_publish')
@@ -481,7 +512,10 @@ class DockerExecutor:
             keep_done.set()
             if keep_thread:keep_thread.join(timeout=4)
             if stage and stage.exists():
-                os.chmod(stage,0o700);shutil.rmtree(stage)
+                os.chmod(stage,0o700)
+                for path in stage.rglob('*'):
+                    if path.is_dir():os.chmod(path,0o700)
+                shutil.rmtree(stage)
             try:
                 proof=base/'exit.json'
                 removed=proof.exists() and json.loads(proof.read_text()).get('removed') is True

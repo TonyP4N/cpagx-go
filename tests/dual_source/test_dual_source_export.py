@@ -121,6 +121,35 @@ class DualSourceExportTests(unittest.TestCase):
                 restore_task(base/'incomplete', base/'third')
             self.assertFalse((base/'third').exists())
 
+    def test_claim_identity_and_published_wrapper_are_verified(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base = Path(tmp)
+            paths = make_case(base/'inputs')
+            output = base/'export'
+            manifest = export_task(*paths, output, run_id='queued-dual-job', attempt_id=2)
+            self.assertEqual((manifest['run_id'],manifest['attempt_id']), ('queued-dual-job',2))
+            wrapper = {'config_fingerprint':manifest['config_fingerprint'],
+                       'inputs':dict(zip(('network','process','profile'),(file_hash(path) for path in paths))),
+                       'artifacts':[{'path':name,'sha256':file_hash(output/name),'size':(output/name).stat().st_size}
+                                    for name in sorted(p.relative_to(output).as_posix() for p in output.rglob('*') if p.is_file())]}
+            (output/'manifest.json').write_bytes(canonical(wrapper)+b'\n')
+            self.assertEqual(verify_task(output), manifest)
+            anchor=output/(file_hash(output/'manifest.json')+'.json')
+            anchor.write_bytes((output/'manifest.json').read_bytes())
+            self.assertEqual(verify_task(output), manifest)
+            anchor.unlink()
+            wrapper['artifacts'][0]['sha256'] = '0'*64
+            (output/'manifest.json').write_bytes(canonical(wrapper)+b'\n')
+            with self.assertRaisesRegex(ValueError, 'publication_integrity_mismatch'):
+                verify_task(output)
+
+    def test_invalid_attempt_identity_does_not_reserve_output(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            base=Path(tmp);paths=make_case(base/'inputs')
+            with self.assertRaisesRegex(ValueError,'invalid_attempt_id'):
+                export_task(*paths,base/'export',run_id='job',attempt_id=0)
+            self.assertFalse((base/'export').exists())
+
 
 if __name__ == '__main__':
     unittest.main()

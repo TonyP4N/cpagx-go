@@ -3,6 +3,7 @@
 The original dual-source result and all source bytes remain beneath ``dual/``.
 Every read verifies the retained run and rebuilds the standard projection.
 """
+import argparse
 import json
 import os
 from pathlib import Path
@@ -99,7 +100,15 @@ def _inventory(root):
             if not path.is_file():
                 raise ValueError('nonregular_artifact')
             found.add(path.relative_to(root).as_posix())
-    if found != FILES or found_dirs != DIRECTORIES:
+    extras = found-FILES
+    if extras:
+        publication = root/'manifest.json'
+        anchor = file_hash(publication)+'.json' if publication.is_file() else None
+        if extras not in ({'manifest.json'}, {'manifest.json',anchor}):
+            raise ValueError('artifact_inventory_mismatch')
+        if anchor in extras and (root/anchor).read_bytes() != publication.read_bytes():
+            raise ValueError('publication_anchor_mismatch')
+    if not FILES <= found or found_dirs != DIRECTORIES:
         raise ValueError('artifact_inventory_mismatch')
 
 
@@ -156,11 +165,33 @@ def verify_task(output):
             or manifest['status'] != ('succeeded_with_warnings' if manifest['warnings'] else 'succeeded')
             or manifest['limitations'] != LIMITATIONS or manifest['mode'] != 'offline'):
         raise ValueError('run_manifest_status_mismatch')
+    publication_path = output/'manifest.json'
+    if publication_path.exists():
+        publication = _read_json(publication_path)
+        if (set(publication) != {'config_fingerprint', 'inputs', 'artifacts'}
+                or publication['config_fingerprint'] != manifest['config_fingerprint']
+                or publication['inputs'] != {name:file_hash(dual/'sources'/filename)
+                    for name,filename in (('network','network.pcap'),('process','process.csv'),('profile','profile.json'))}):
+            raise ValueError('publication_identity_mismatch')
+        records = publication['artifacts']
+        if (not isinstance(records,list) or len(records) != len(FILES)
+                or {entry.get('path') for entry in records if isinstance(entry,dict)} != FILES):
+            raise ValueError('publication_inventory_mismatch')
+        for entry in records:
+            name = entry['path']
+            path = output/name
+            if (set(entry) != {'path','sha256','size'} or path.stat().st_size != entry['size']
+                    or file_hash(path) != entry['sha256']):
+                raise ValueError('publication_integrity_mismatch: '+name)
     return manifest
 
 
-def export_task(network, process, profile, output):
+def export_task(network, process, profile, output, *, run_id=None, attempt_id=1):
     """Publish an immutable standard run with the complete original dual run."""
+    if run_id is not None and (not isinstance(run_id,str) or not run_id or len(run_id)>128):
+        raise ValueError('invalid_run_id')
+    if type(attempt_id) is not int or attempt_id < 1:
+        raise ValueError('invalid_attempt_id')
     output = Path(output)
     if output.exists() or output.is_symlink():
         raise ValueError('output_already_exists')
@@ -176,8 +207,8 @@ def export_task(network, process, profile, output):
             path = output/name
             entries.append({'path':name, 'sha256':file_hash(path), 'size_bytes':path.stat().st_size})
         warnings = _warnings(result)
-        manifest = {'schema_version':'1.0.0', 'synthetic':True, 'run_id':str(uuid.uuid4()),
-                    'attempt_id':1, 'input_fingerprint':result['input_fingerprint'],
+        manifest = {'schema_version':'1.0.0', 'synthetic':True, 'run_id':run_id or str(uuid.uuid4()),
+                    'attempt_id':attempt_id, 'input_fingerprint':result['input_fingerprint'],
                     'config_fingerprint':result['config_fingerprint'],
                     'tool_versions':{'core':__version__, 'python':platform.python_version()},
                     'mode':'offline', 'artifacts':entries,
@@ -234,3 +265,24 @@ def restore_task(bundle, destination):
         if destination.exists() and not destination.is_symlink():
             shutil.rmtree(destination)
         raise
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    for name in ('network','process','profile','output'):
+        parser.add_argument('--'+name, required=True)
+    parser.add_argument('--synthetic', action='store_true', required=True)
+    parser.add_argument('--run-id')
+    parser.add_argument('--attempt-id', type=int, default=1)
+    args = parser.parse_args()
+    try:
+        manifest = export_task(args.network,args.process,args.profile,args.output,
+                               run_id=args.run_id,attempt_id=args.attempt_id)
+    except (OSError,ValueError,KeyError,TypeError) as error:
+        parser.exit(2,str(error)+'\n')
+    print(json.dumps({'run_id':manifest['run_id'],'attempt_id':manifest['attempt_id'],
+                      'output':args.output},sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()

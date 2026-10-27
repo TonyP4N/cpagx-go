@@ -74,8 +74,12 @@ class Worker:
                 # Another invocation owns this immutable namespace. Never fail
                 # its live claim or overwrite its recovery evidence.
                 return 'reconciliation_required'
-            command = self.command or [sys.executable,'-m','cpag_core']
+            kind = payload.get('kind')
+            module = 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core.packet_job' if kind == 'packet' else 'cpag_core'
+            command = self.command or [sys.executable,'-m',module]
             command = command + ['--network',str(paths['network']),'--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output),'--synthetic']
+            if kind == 'dual-source':
+                command += ['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
             # Deliberately pass only runtime environment; no database/API credentials.
             env = {key:value for key,value in os.environ.items() if key in ('PATH','PYTHONPATH','LANG','LC_ALL','SYSTEMROOT','TMPDIR')}
             config = {'identity':{'id':claim['id'],'attempt':claim['attempt'],'worker':self.worker,'token':claim['token']},'command':command,'env':env,'timeout':self.timeout,'kill_grace':1,'log_bytes':self.log_bytes,'memory_bytes':self.memory_bytes,'file_bytes':self.file_bytes,'cpu_seconds':self.cpu_seconds,'pid_file':str(control/'child.pid'),'exit_file':str(control/'exit.json'),'stdout':str(control/'stdout.log'),'stderr':str(control/'stderr.log')}
@@ -118,6 +122,11 @@ class Worker:
                 raise ValueError('core '+result['reason']+' (exit '+str(result['returncode'])+')')
             manifest = json.loads((output/'run_manifest.json').read_text())
             if manifest['config_fingerprint'] != payload['config_fingerprint']: raise ValueError('configuration fingerprint mismatch')
+            if kind == 'dual-source':
+                from cpag_core.dual_source_export import verify_task
+                verify_task(output)
+                if manifest['run_id'] != claim['id'] or manifest['attempt_id'] != claim['attempt']:
+                    raise ValueError('dual-source run/attempt identity mismatch')
             publication = {'config_fingerprint':manifest['config_fingerprint'],'inputs':{name:payload[name]['sha256'] for name in paths},'artifacts':[]}
             for entry in manifest['artifacts']:
                 path = beneath(output,entry['path'])

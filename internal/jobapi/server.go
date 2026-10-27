@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TonyP4N/cpagx-go/internal/contracts"
 	"github.com/TonyP4N/cpagx-go/internal/jobs"
 	"io"
 	"net/http"
@@ -155,7 +156,7 @@ func (s *Server) check(ref Ref) (int64, error) {
 	return n, nil
 }
 func (s *Server) validPayload(p Payload) error {
-	if p.Kind != "" && p.Kind != "packet" {
+	if p.Kind != "" && p.Kind != "packet" && p.Kind != "dual-source" {
 		return errors.New("unsupported payload kind")
 	}
 	if !shaPattern.MatchString(p.Fingerprint) {
@@ -193,7 +194,7 @@ func (s *Server) validPayload(p Payload) error {
 				return errors.New("M4 profile excludes Unicode line separators")
 			}
 		case json.Number:
-			if string(x) == "-0" || strings.ContainsAny(string(x), ".eE") {
+			if p.Kind != "dual-source" && (string(x) == "-0" || strings.ContainsAny(string(x), ".eE")) {
 				return errors.New("M4 profile numbers must be integers")
 			}
 		case map[string]any:
@@ -220,14 +221,22 @@ func (s *Server) validPayload(p Payload) error {
 			return errors.New("invalid packet profile")
 		}
 	}
+	if p.Kind == "dual-source" {
+		if err := contracts.Validate(dualSchemaDir(), "DualSourceProfile", raw); err != nil {
+			return err
+		}
+		if err := validateDualProfile(config); err != nil {
+			return err
+		}
+	}
 	if err = numericCheck(config); err != nil {
 		return err
 	}
-	var canon bytes.Buffer
-	enc := json.NewEncoder(&canon)
-	enc.SetEscapeHTML(false)
-	enc.Encode(config)
-	sum := sha256.Sum256(bytes.TrimSuffix(canon.Bytes(), []byte("\n")))
+	canon, err := pythonCanonical(config)
+	if err != nil {
+		return err
+	}
+	sum := sha256.Sum256(canon)
 	if hex.EncodeToString(sum[:]) != p.Fingerprint {
 		return errors.New("profile config fingerprint mismatch")
 	}
@@ -237,6 +246,8 @@ func (s *Server) validPayload(p Payload) error {
 		}
 		if n, err := s.check(ref); err != nil {
 			return err
+		} else if p.Kind == "dual-source" && ((ref.Path == p.Process.Path && n > 2<<20) || (ref.Path == p.Profile.Path && n > 65536)) {
+			return errors.New("dual-source input exceeds service limit")
 		} else if n > 16<<20 {
 			return errors.New("input exceeds 16MiB")
 		}
@@ -249,7 +260,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if coordinatorOp {
 		expected = s.CoordinatorSecret
 	}
-	if expected == "" || subtle.ConstantTimeCompare([]byte(r.Header.Get("Authorization")), []byte("Bearer "+expected)) != 1 {
+	credential := []byte(r.Header.Get("Authorization"))
+	dualRead := strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence")
+	authenticated := expected != "" && subtle.ConstantTimeCompare(credential, []byte("Bearer "+expected)) == 1
+	if dualRead && s.CoordinatorSecret != "" {
+		authenticated = authenticated || subtle.ConstantTimeCompare(credential, []byte("Bearer "+s.CoordinatorSecret)) == 1
+	}
+	if !authenticated {
 		reply(w, 401, map[string]string{"error": "unauthorized"})
 		return
 	}
@@ -393,6 +410,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		reply(w, 200, st)
+		return
+	}
+	if len(parts) == 4 && r.Method == "GET" && (parts[3] == "dual-result" || parts[3] == "dual-evidence") {
+		if err := s.serveDual(w, r, id, parts[3]); err != nil {
+			reply(w, 409, map[string]string{"error": err.Error()})
+		}
 		return
 	}
 	if len(parts) == 4 && parts[3] == "attempts" && r.Method == "GET" {
@@ -556,7 +579,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	}
 	seen := map[string]bool{}
 	for _, a := range m.Artifacts {
-		if seen[a.Path] || a.Path == "manifest.json" || filepath.Base(a.Path) != a.Path {
+		if seen[a.Path] || a.Path == "manifest.json" || !validArtifactPath(a.Path, p.Kind) {
 			return errors.New("invalid artifact name")
 		}
 		seen[a.Path] = true
@@ -571,6 +594,8 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	required := []string{"dataset.json", "events.json", "graph.json", "quality.json", "run_manifest.json"}
 	if p.Kind == "packet" {
 		required = append(required, "packet_observations.json")
+	} else if p.Kind == "dual-source" {
+		required = dualArtifactNames()
 	}
 	if len(m.Artifacts) != len(required) {
 		return errors.New("wrapper artifact set mismatch")
@@ -623,7 +648,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	}
 	coreSeen := map[string]bool{}
 	for _, a := range core.Artifacts {
-		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json")) {
+		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (p.Kind == "dual-source" && dualArtifactSet()[a.Path])) {
 			return errors.New("invalid core artifact set")
 		}
 		coreSeen[a.Path] = true
@@ -639,6 +664,11 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	}
 	if p.Kind == "packet" {
 		if err = s.validatePacket(base, p); err != nil {
+			return err
+		}
+	}
+	if p.Kind == "dual-source" {
+		if err = s.validateDual(base, p, m, coreRaw); err != nil {
 			return err
 		}
 	}
