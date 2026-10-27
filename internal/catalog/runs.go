@@ -338,7 +338,11 @@ func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *p
 	if kind == "graph" {
 		m, _ := value.(map[string]any)
 		d, _ := m["data"].(map[string]any)
-		value = map[string]any{"synthetic": m["synthetic"], "graph": d["graph"]}
+		graphResponse := map[string]any{"synthetic": m["synthetic"], "graph": d["graph"]}
+		if compatibility, exists := m["compatibility"]; exists {
+			graphResponse["compatibility"] = compatibility
+		}
+		value = graphResponse
 	}
 	if s.audit(r.Context(), p, dataset, id, "result_read", "ok") != nil {
 		fail(w, 503, "audit_unavailable", "read audit unavailable")

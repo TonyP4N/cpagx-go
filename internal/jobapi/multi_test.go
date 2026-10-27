@@ -118,6 +118,12 @@ export_task([a,b],paths[1],paths[2],root/'jobs/test/attempt-1',run_id='test',att
 				t.Fatal(e)
 			}
 			analysis, _ := obj(v)
+			if analysis["analysis_version"] != currentBoundedAnalysisVersion {
+				t.Fatalf("new bounded export used %v", analysis["analysis_version"])
+			}
+			if e := validateDualPublicationVersion(str(analysis["analysis_version"]), false); e != nil {
+				t.Fatal(e)
+			}
 			if analysis["synthetic"] == real {
 				t.Fatal("source category changed")
 			}
@@ -138,6 +144,9 @@ export_task([a,b],paths[1],paths[2],root/'jobs/test/attempt-1',run_id='test',att
 				var reply map[string]any
 				if e := json.Unmarshal(rec.Body.Bytes(), &reply); e != nil {
 					t.Fatal(e)
+				}
+				if _, historical := reply["compatibility"]; historical {
+					t.Fatal("new version marked historical")
 				}
 				selection, _ := obj(reply["selection"])
 				got, _ := obj(selection["rule_finding"])

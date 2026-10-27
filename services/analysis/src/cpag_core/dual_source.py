@@ -16,7 +16,8 @@ from .parsers import parse_process
 from .pipeline import canonical, file_hash, fingerprint
 
 VERSION = 'synthetic-dual-source-1'
-R17_VERSION = 'bounded-dual-source-1'
+R17_LEGACY_VERSION = 'bounded-dual-source-1'
+R17_VERSION = 'bounded-dual-source-2'
 LIMITATIONS = ['synthetic_only', 'no_attack_or_causality_decision',
                'response_success_is_not_physical_effect', 'endpoint_not_authenticated_actor',
                'configured_offsets_not_estimated', 'existing_bounded_protocol_subset']
@@ -66,8 +67,19 @@ def references(values):
     return [result[k] for k in sorted(result)]
 
 
-def analyze(network, process, config):
+def operation_time_reasons(operation):
+    """Time-quality summary only; absent-response protocol facts keep prior semantics."""
+    return [reason for reason in operation['unknown_reasons']
+            if reason.startswith('request_') or
+               (isinstance(operation['response'].get('time'),dict) and reason.startswith('response_'))]
+
+
+def analyze(network, process, config, *, _analysis_version=None):
     extended=validate_profile(config)
+    analysis_version=(R17_VERSION if extended else VERSION) if _analysis_version is None else _analysis_version
+    if analysis_version not in ((R17_LEGACY_VERSION,R17_VERSION) if extended else (VERSION,)):
+        raise ValueError('unsupported_analysis_version')
+    response_clock_guard=analysis_version==R17_VERSION
     synthetic=config['synthetic']
     networks=network_paths(network)
     if len(networks)>1 and not extended:raise ValueError('multiple_captures_require_analysis_mode')
@@ -100,6 +112,12 @@ def analyze(network, process, config):
         low=outward(min(exact)) if extended else min(times)
         high=outward(max(exact),True) if extended else max(times)
         timing=clock_time(raw_ticks,low,high,config['clocks']['network'],corrected,extended)
+        if response_clock_guard and (timing['status']!='configured' or timing['interval'] is None):
+            reasons=list(timing.get('unknown_reasons',[]))
+            if not isinstance(timing['basis'],str) or not timing['basis'].strip():reasons.append('clock_basis_missing')
+            if timing['offset_seconds'] is None:reasons.append('clock_offset_missing')
+            if timing['uncertainty_seconds'] is None:reasons.append('clock_uncertainty_missing')
+            timing['unknown_reasons']=sorted(set(reasons or ['clock_time_unknown']))
         network_events.append({'event':event,'observation':obs,'time':timing})
     process_events=[];groups=defaultdict(list)
     column_keys=defaultdict(list)
@@ -183,6 +201,20 @@ def analyze(network, process, config):
         uncertain_mappings=[rule for rule in raw_matches if validity(rule,interval) in ('unknown','uncertain')]
         if uncertain_mappings:matches+=uncertain_mappings
         unknown=list(global_unknown)
+        response_time_blocked=False
+        if response_clock_guard:
+            unknown.extend('request_'+reason for reason in wrapped['time'].get('unknown_reasons',[]))
+            if len(replies)==1:
+                response_time=replies[0]['time']
+                unknown.extend('response_'+reason for reason in response_time.get('unknown_reasons',[]))
+                response_interval=response_time['interval']
+                if response_time['status']!='configured' or response_interval is None:
+                    response_time_blocked=True
+                elif interval is not None:
+                    if response_interval[1]<interval[0]:
+                        unknown.append('response_precedes_request');response_time_blocked=True
+                    elif response_interval[0]<=interval[1]:
+                        unknown.append('response_order_uncertain');response_time_blocked=True
         if uncertain_mappings:unknown.append('mapping_validity_uncertain')
         if raw_matches and not matches:unknown.append('mapping_outside_validity')
         if extended and any(not all(r.get(k) for k in ('version','basis','valid_from','valid_to')) for r in matches):unknown.append('mapping_materials_missing')
@@ -207,7 +239,7 @@ def analyze(network, process, config):
             op['mapping']['versions']=[{k:r[k] for k in ('rule_id','version','basis','valid_from','valid_to') if k in r} for r in matches]
         if len(matches)==1:
             op['mapping'].update(asset_id=matches[0]['asset_id'],tag=matches[0]['tag'],expected_value=matches[0]['expected_value'])
-        if len(matches)==1 and interval is not None and not global_unknown and not uncertain_mappings and 'mapping_materials_missing' not in unknown:
+        if len(matches)==1 and interval is not None and not global_unknown and not uncertain_mappings and 'mapping_materials_missing' not in unknown and not response_time_blocked and (not response_clock_guard or wrapped['time']['status']=='configured'):
             rule=matches[0];key=(rule['asset_id'],rule['tag']);rows=groups.get(key,[])
             op['mapping'].update(asset_id=key[0],tag=key[1],expected_value=rule['expected_value'])
             unknown.extend(group_issues.get(key,[]))
@@ -283,7 +315,7 @@ def analyze(network, process, config):
         elif c['unknown_reasons']:c['state']='unknown'
         else:c['state']='supported_candidate'
     index.verify()
-    result={'schema_version':'1.0.0','synthetic':synthetic,'analysis_version':R17_VERSION if extended else VERSION,'config_version':config['config_version'],
+    result={'schema_version':'1.0.0','synthetic':synthetic,'analysis_version':analysis_version,'config_version':config['config_version'],
             'rule_version':config['rule_version'],'config_fingerprint':fingerprint(config),
             'input_fingerprint':fingerprint([{'kind':kind,'sha256':file_hash(path),'size_bytes':Path(path).stat().st_size}
                 for kind,path in [('network',p) for p in networks]+[('process',process)]]),'limitations':LIMITATIONS if synthetic else REAL_LIMITATIONS,
@@ -292,6 +324,9 @@ def analyze(network, process, config):
             'quality':{'source_ranges':ranges,'unknown_reasons':global_unknown,'process':parsed['quality'],
                        'network_unsupported':capture['unsupported'],'process_issues':issues,
                        'group_issues':[{'asset_id':k[0],'tag':k[1],'reasons':v} for k,v in group_issues.items() if v]}}
+    if response_clock_guard:
+        result['quality']['operation_time_issues']=[{'operation_id':operation['operation_id'],
+            'reasons':operation_time_reasons(operation)} for operation in operations if operation_time_reasons(operation)]
     if extended:
         result['analysis_mode']=config['analysis_mode']
         result['source_provenance']=config.get('source_provenance')
@@ -370,8 +405,12 @@ def query(output, operation_id=None, change_id=None):
         if (output/name).is_symlink() or file_hash(output/name)!=manifest['files'][name]:raise ValueError('artifact_integrity_mismatch')
     config=strict_json((output/'sources/profile.json').read_text())
     result=strict_json((output/'analysis.json').read_text())
-    # Rebuild to reject a changed analysis even if its superficial checksum is updated.
-    actual=analyze(network_sources if len(network_sources)>1 else network_sources[0],output/'sources/process.csv',config)
+    # Select historical semantics only from the retained, checked manifest. New
+    # execution has no version override and always publishes the current version.
+    retained_version=manifest.get('analysis_version')
+    if retained_version not in (VERSION,R17_LEGACY_VERSION,R17_VERSION):raise ValueError('unsupported_analysis_version')
+    if result.get('analysis_version')!=retained_version:raise ValueError('analysis_version_mismatch')
+    actual=analyze(network_sources if len(network_sources)>1 else network_sources[0],output/'sources/process.csv',config,_analysis_version=retained_version)
     if canonical(actual)!=canonical(result) or manifest['config_fingerprint']!=fingerprint(config):
         raise ValueError('analysis_does_not_match_sources')
     if operation_id is not None:
@@ -400,7 +439,10 @@ def query(output, operation_id=None, change_id=None):
             'source_ranges':result['quality']['source_ranges'],'quality':result['quality'],
             'verified_original_evidence':resolved,'verified_network_fields':fields,
             'config_version':config['config_version'],'config_fingerprint':fingerprint(config),'limitations':result['limitations'],
-            **({'source_provenance':result['source_provenance']} if 'analysis_mode' in result else {})}
+            **({'source_provenance':result['source_provenance']} if 'analysis_mode' in result else {}),
+            **({'compatibility':{'analysis_version':R17_LEGACY_VERSION,'status':'historical_semantics',
+                 'known_limitations':['response_clock_quality_not_enforced'],'reanalysis_required':True}}
+               if retained_version==R17_LEGACY_VERSION else {})}
 
 
 def main():

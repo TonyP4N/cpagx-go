@@ -13,7 +13,7 @@ import uuid
 
 from . import __version__
 from .contracts import validate
-from .dual_source import analyze, query, run_dual, strict_json, VERSION, LIMITATIONS, retained_networks, R17_VERSION
+from .dual_source import analyze, query, run_dual, strict_json, VERSION, LIMITATIONS, retained_networks, R17_VERSION, R17_LEGACY_VERSION
 from .pipeline import canonical, file_hash, fingerprint
 
 
@@ -88,6 +88,8 @@ def projection(result, source_dir):
 def _warnings(result):
     quality = result['quality']
     warnings = list(quality['unknown_reasons'])
+    if result['analysis_version']==R17_VERSION:
+        warnings += ['operation: '+reason for issue in quality['operation_time_issues'] for reason in issue['reasons']]
     if result['synthetic'] is False:warnings.append('real_source_unvalidated')
     if any(f['state']=='unknown' for f in result.get('rule_findings',[])):warnings.append('finite_rules_have_unknown_findings')
     warnings += ['process: '+reason for reason in quality['process']['reasons']]
@@ -165,14 +167,15 @@ def verify_task(output):
     source_names={p.relative_to(dual).as_posix() for p in networks}|{'sources/process.csv','sources/profile.json','analysis.json'}
     if (set(dual_manifest) != ({'schema_version','synthetic','analysis_version','config_fingerprint','files','network_inputs'} if len(networks)>1 else {'schema_version','synthetic','analysis_version','config_fingerprint','files'})
             or dual_manifest['schema_version'] != '1.0.0' or dual_manifest['synthetic'] is not manifest['synthetic']
-            or dual_manifest['analysis_version'] not in (VERSION,R17_VERSION)
+            or dual_manifest['analysis_version'] not in (VERSION,R17_LEGACY_VERSION,R17_VERSION)
             or set(dual_manifest.get('files', {})) != source_names):
         raise ValueError('dual_manifest_inventory_mismatch')
     for name in source_names:
         if file_hash(dual/name) != dual_manifest['files'][name]:
             raise ValueError('dual_source_integrity_mismatch: '+name)
     config = _read_json(dual/'sources/profile.json')
-    actual = analyze(networks if len(networks)>1 else networks[0], dual/'sources/process.csv', config)
+    actual = analyze(networks if len(networks)>1 else networks[0], dual/'sources/process.csv', config,
+                     _analysis_version=dual_manifest['analysis_version'])
     if actual['synthetic'] is not manifest['synthetic']:raise ValueError('synthetic_manifest_mismatch')
     if dual_manifest['analysis_version'] != actual['analysis_version']:raise ValueError('dual_analysis_version_mismatch')
     retained = _read_json(dual/'analysis.json')

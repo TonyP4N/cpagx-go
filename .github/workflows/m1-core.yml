@@ -7,7 +7,7 @@ jobs:
   unified-catalog:
     needs: frontend
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -34,6 +34,10 @@ jobs:
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
         run: bash scripts/validation/round17_acceptance.sh "$RUNNER_TEMP/round17"
+      - name: R17 response clock rejection through Worker, restore and browser
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round17_response_acceptance.sh "$RUNNER_TEMP/round17-response"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -44,6 +48,8 @@ jobs:
             ${{ runner.temp }}/round16/supplement/public
             ${{ runner.temp }}/round17/public
             ${{ runner.temp }}/round17/environment/public
+            ${{ runner.temp }}/round17-response/public
+            ${{ runner.temp }}/round17-response/environment/public
   core:
     runs-on: ubuntu-latest
     steps:
@@ -299,7 +305,9 @@ jobs:
           python-version: '3.11'
       - run: python -m pip install -r services/analysis/requirements-test.txt
       - name: Independently specified dual-source scenarios and evidence boundaries
-        run: python -m unittest discover -s tests/dual_source -v
+        run: |
+          python -m unittest discover -s tests/dual_source -v
+          python -m unittest discover -s tests/validation -p test_round17_response_acceptance.py -v
       - name: Full synthetic dual-source CLI and original-evidence example
         run: python scripts/validation/round12_dual_source.py --output "$RUNNER_TEMP/dual-source-example"
       - uses: actions/upload-artifact@v4

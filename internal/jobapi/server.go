@@ -714,6 +714,14 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		if err = s.validateDual(base, p, m, coreRaw); err != nil {
 			return err
 		}
+		value, e := s.readDualJSON(base, "analysis.json")
+		if e != nil {
+			return e
+		}
+		analysis, _ := obj(value)
+		if e = validateDualPublicationVersion(str(analysis["analysis_version"]), done); e != nil {
+			return e
+		}
 	}
 	key, err := jobs.ArtifactKey(c, sha)
 	if err != nil {

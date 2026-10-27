@@ -457,14 +457,20 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	if !validSynthetic {
 		return errors.New("missing source category")
 	}
-	version := "synthetic-dual-source-1"
-	if profileDoc["analysis_mode"] == "bounded-real-capable-v1" {
-		version = "bounded-dual-source-1"
-	}
 	if core["synthetic"] != synthetic {
 		return errors.New("core source category mismatch")
 	}
 	dual, ok := obj(dualValue)
+	if !ok {
+		return errors.New("invalid dual source manifest")
+	}
+	version, err := dualAnalysisVersion(profileDoc, dual["analysis_version"])
+	if err != nil {
+		return err
+	}
+	if declared, exists := core["analysis_version"]; exists && declared != version {
+		return errors.New("core analysis version mismatch")
+	}
 	if !ok || (len(dual) != 5 && len(dual) != 6) || dual["schema_version"] != "1.0.0" || dual["synthetic"] != synthetic || dual["analysis_version"] != version || dual["config_fingerprint"] != p.Fingerprint {
 		return errors.New("invalid dual source manifest")
 	}
@@ -1068,7 +1074,9 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 		if err != nil {
 			return err
 		}
-		reply(w, 200, map[string]any{"synthetic": analysis["synthetic"], "data": map[string]any{"analysis": analysis, "graph": graph, "events": events, "quality": quality, "dataset": dataset}})
+		response := map[string]any{"synthetic": analysis["synthetic"], "data": map[string]any{"analysis": analysis, "graph": graph, "events": events, "quality": quality, "dataset": dataset}}
+		addDualCompatibility(response, analysis)
+		reply(w, 200, response)
 		return nil
 	}
 	return s.serveDualEvidence(w, r, base, p, analysis)
@@ -1160,6 +1168,7 @@ func (s *Server) serveDualEvidence(w http.ResponseWriter, r *http.Request, base 
 	if analysis["analysis_mode"] != nil {
 		response["source_provenance"] = analysis["source_provenance"]
 	}
+	addDualCompatibility(response, analysis)
 	reply(w, 200, response)
 	return nil
 }
