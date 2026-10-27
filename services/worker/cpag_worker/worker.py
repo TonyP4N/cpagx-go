@@ -75,7 +75,7 @@ class Worker:
                 # its live claim or overwrite its recovery evidence.
                 return 'reconciliation_required'
             kind = payload.get('kind')
-            module = 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core.packet_job' if kind == 'packet' else 'cpag_core'
+            module = 'cpag_core.dual_source_export' if kind == 'dual-source' else 'cpag_core'
             command = self.command or [sys.executable,'-m',module]
             command = command + ['--network',str(paths['network']),'--process',str(paths['process']),'--profile',str(paths['profile']),'--output',str(output),'--synthetic']
             if kind == 'dual-source':
