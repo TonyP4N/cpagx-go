@@ -30,7 +30,9 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	}
 	var dataset, config, mode, linkOrigin string
 	var preflightID *string
-	var captureIDs json.RawMessage
+	// Scan SQL NULL through the standard byte slice destination. A named
+	// json.RawMessage slice cannot receive nil through database/sql.
+	var captureIDs []byte
 	var at time.Time
 	e := s.DB.QueryRowContext(r.Context(), "SELECT dataset_id,config_version_id,mode,created_at,preflight_id,preflight_link_origin,network_file_ids FROM v3_run_bindings WHERE job_id=$1", id).Scan(&dataset, &config, &mode, &at, &preflightID, &linkOrigin, &captureIDs)
 	if e != nil || !s.can(r.Context(), p, dataset, false) {
@@ -38,7 +40,7 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 		return
 	}
 	if len(parts) == 2 && r.Method == "GET" {
-		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, captureIDs)
+		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, json.RawMessage(captureIDs))
 		return
 	}
 	if len(parts) == 3 && parts[2] == "cancel" && r.Method == "POST" {
