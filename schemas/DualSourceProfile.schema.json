@@ -552,6 +552,9 @@
         ],
         "additionalProperties": false
       }
+    },
+    "replay": {
+      "$ref": "ReplayProfile.schema.json"
     }
   },
   "required": [

@@ -24,9 +24,8 @@ FILES = frozenset((*STANDARD, 'run_manifest.json', *DUAL))
 DIRECTORIES = frozenset(('dual', 'dual/sources'))
 
 
-def projection(result, source_dir):
-    """Make a deterministic graph of observations, transitions and candidate claims."""
-    source_dir = Path(source_dir)
+def event_graph(result, *, replay=False):
+    """Shared standard observation projection; only the reference schema differs."""
     finite_events=[]
     for finding in result.get('rule_findings',[]):
         interval=finding['interval']
@@ -59,6 +58,21 @@ def projection(result, source_dir):
              'statistics':{'nodes':len(nodes), 'edges':len(edges)},
              'truncation':{'truncated':False, 'reason':None}}
     graph['graph_id'] = 'dual-graph-' + fingerprint({k:v for k,v in graph.items() if k!='graph_id'})
+    for item in result['network']:
+        validate(('Replay' if replay else '')+'NetworkEvent', item['event'])
+    for item in result['process']:
+        validate(('Replay' if replay else '')+'ProcessObservation', item['event'])
+    for event in result['changes']+finite_events:
+        validate(('Replay' if replay else '')+'DerivedEvent', event)
+    validate(('Replay' if replay else '')+'GraphArtifact', graph)
+    return {'events.json':events, 'graph.json':graph}
+
+
+def projection(result, source_dir):
+    """Make a deterministic graph of observations, transitions and candidate claims."""
+    source_dir = Path(source_dir)
+    projected=event_graph(result)
+    events,graph=projected['events.json'],projected['graph.json']
     source_manifest=_read_json(source_dir.parent/'manifest.json')
     source_networks=retained_networks(source_dir.parent,source_manifest)
     files = [{'name':name, 'sha256':file_hash(source_dir/name),
@@ -73,14 +87,7 @@ def projection(result, source_dir):
     if result['synthetic'] is False:
         provenance=result['source_provenance']
         dataset.update({key:provenance[key] for key in ('source','release','collection_range','timezone_basis','authorization_ref')})
-    for item in result['network']:
-        validate('NetworkEvent', item['event'])
-    for item in result['process']:
-        validate('ProcessObservation', item['event'])
-    for event in result['changes']+finite_events:
-        validate('DerivedEvent', event)
     validate('DatasetManifest', dataset)
-    validate('GraphArtifact', graph)
     return {'dataset.json':dataset, 'events.json':events, 'graph.json':graph,
             'quality.json':result['quality'], 'analysis.json':result}
 

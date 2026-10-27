@@ -7,12 +7,20 @@ from cpag_core.contracts import validate, ContractError, SCHEMAS
 class ContractTests(unittest.TestCase):
     def test_strict_schema_documents(self):
         paths=list(SCHEMAS.glob('*.schema.json'))
-        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration'})
+        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest'})
         for path in paths:
             schema=json.loads(path.read_text())
             self.assertFalse(schema['additionalProperties'])
-            self.assertEqual(schema['properties']['schema_version']['const'],'1.0.0')
-            self.assertIn('synthetic',schema['required'])
+            if path.name not in ('ReplayProfile.schema.json','ReplaySourceRef.schema.json'):
+                self.assertEqual(schema['properties']['schema_version']['const'],'1.0.0')
+                self.assertIn('synthetic',schema['required'])
+            elif path.name=='ReplayProfile.schema.json':
+                self.assertEqual(schema['properties']['version']['const'],'dual-source-replay-1')
+                self.assertIn('arrival_time_basis',schema['required'])
+            else:
+                self.assertIn('record_sha256',schema['required'])
+                self.assertIn('source_slot',schema['required'])
+                self.assertNotIn('file_sha256',schema['properties'])
             import jsonschema
             jsonschema.Draft202012Validator.check_schema(schema)
 

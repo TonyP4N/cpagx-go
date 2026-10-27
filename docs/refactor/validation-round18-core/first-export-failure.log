@@ -1,0 +1,18 @@
+test_expired_response_keeps_history_and_originals_without_candidate (test_replay_export.ReplayExportTests.test_expired_response_keeps_history_and_originals_without_candidate) ... ok
+test_explicit_source_end_and_output_limits_fail_without_publication (test_replay_export.ReplayExportTests.test_explicit_source_end_and_output_limits_fail_without_publication) ... ok
+test_restore_copy_and_historical_tamper_rejected_even_rehashed (test_replay_export.ReplayExportTests.test_restore_copy_and_historical_tamper_rejected_even_rehashed) ... ok
+test_three_runs_cli_history_and_independent_pending_expected (test_replay_export.ReplayExportTests.test_three_runs_cli_history_and_independent_pending_expected) ... FAIL
+
+======================================================================
+FAIL: test_three_runs_cli_history_and_independent_pending_expected (test_replay_export.ReplayExportTests.test_three_runs_cli_history_and_independent_pending_expected)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/replay/test_replay_export.py", line 40, in test_three_runs_cli_history_and_independent_pending_expected
+    self.assertEqual(snapshot_task(out,pending['snapshot_number']),pending)
+AssertionError: {'schema_version': '1.0.0', 'replay_version[17347 chars]]}}]} != {'analysis': {'analysis_mode': 'bounded-rea[17347 chars]ed'}}
+Diff is 44069 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 4 tests in 1.614s
+
+FAILED (failures=1)

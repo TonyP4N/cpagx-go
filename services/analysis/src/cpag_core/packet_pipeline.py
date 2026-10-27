@@ -164,6 +164,8 @@ class PacketEvidence:
 
 
 def standard_ref(frame):
+    if 'source_ref' in frame:
+        return dict(frame['source_ref'])
     return {'file_sha256': frame['file_sha256'], 'frame_number': frame['frame_number'],
             'record_number': None, 'column': None, 'raw_time': str(frame['raw_timestamp'])}
 
@@ -176,17 +178,34 @@ def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, ca
     started = time.monotonic()
     bounds = stream_limits or StreamLimits()
     index = PacketEvidence(path, synthetic=synthetic, limits=limits, capture_limits=capture_limits)
+    return _analyze_packet_index(index, synthetic=synthetic, bounds=bounds, started=started, extended=extended, multiple=isinstance(path, (list, tuple)))
+
+
+def _ref_key(ref):
+    return (ref.get('file_sha256', ref.get('source_slot')), ref['frame_number'])
+
+
+def analyze_prepared_frames(index, *, synthetic, final=False, stream_limits=None):
+    """Analyze only the bounded arrived frames supplied by an in-memory index."""
+    return _analyze_packet_index(index, synthetic=synthetic, bounds=stream_limits or StreamLimits(),
+                                 started=time.monotonic(), extended=True, replay=True, final=final)
+
+
+def _analyze_packet_index(index, *, synthetic, bounds, started, extended, multiple=False, replay=False, final=True):
     frames = index.envelope['frames']
     streams, connections = {}, {}
     controls = []
     rejected_epochs = set()
     rejected, observations = [], []
+    incomplete = []
     pdu_count = 0
     def check_time():
         if time.monotonic() - started > bounds.max_processing_seconds:
             raise CaptureError('processing_deadline')
     def reject(reason, refs):
-        rejected.append({'reason': reason, 'source_refs': refs})
+        item = {'reason': reason, 'source_refs': refs}
+        waiting = reason in ('stream_gap', 'incomplete_encapsulation', 'segmentation_or_coalescing_unsupported')
+        (incomplete if replay and not final and waiting else rejected).append(item)
     for f in frames:
         check_time()
         t, ref = f['transport'], standard_ref(f)
@@ -344,7 +363,7 @@ def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, ca
                                            'sha256':hashlib.sha256(value).hexdigest()})
                     named_fields[name] = {'pdu_byte_offset':start, 'length':length,
                                           'hex':pdu[start:start+length].hex(), 'slices':pieces}
-                pending.append({**decoded, 'source_refs': contributing, 'field_slices': fields,
+                pending.append({**decoded, **({'stream_sequence':low+cursor} if replay else {}), 'source_refs': contributing, 'field_slices': fields,
                                 'fields': named_fields,
                                 'pdu_sha256': hashlib.sha256(pdu).hexdigest(), 'pdu_hex': pdu.hex(),
                                 'endpoints': endpoints, 'epoch': epoch,
@@ -356,16 +375,16 @@ def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, ca
                 observations.extend(pending)
             reject(str(error), refs)
     # Invalid direction of an epoch blocks association in both directions.
-    bad_frames = {(r['file_sha256'], r['frame_number']) for item in rejected for r in item['source_refs']}
+    bad_frames = {_ref_key(r) for item in rejected for r in item['source_refs']}
     blocked = {(tuple(sorted(v['endpoints'])), v['epoch']) for v in observations
-               if any((r['file_sha256'], r['frame_number']) in bad_frames for r in v['source_refs'])}
+               if any(_ref_key(r) in bad_frames for r in v['source_refs'])}
     blocked.update(rejected_epochs)
     # Rejects can belong to the opposite direction, so derive blocked epochs explicitly.
     for control in controls:
-        if (control['source_ref']['file_sha256'], control['source_ref']['frame_number']) in bad_frames:
+        if _ref_key(control['source_ref']) in bad_frames:
             blocked.add((tuple(sorted(control['endpoints'])), control['epoch']))
     for (flow, epoch, _), s in streams.items():
-        if any((r['file_sha256'], r['frame_number']) in bad_frames for r in s['all_refs']):
+        if any(_ref_key(r) in bad_frames for r in s['all_refs']):
             blocked.add((flow, epoch))
     groups = defaultdict(list)
     unknown_transport = any('source_port' not in f['transport'] for f in frames)
@@ -380,7 +399,7 @@ def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, ca
                obs['session_handle'], obs['sender_context'], obs['service'])
         if not unknown_transport and (tuple(sorted(endpoints)), obs['epoch']) not in blocked and obs['sender_context'] != '0000000000000000':
             groups[key].append(i)
-        event = {'schema_version':'1.0.0', 'synthetic':synthetic, 'event_id':'packet-'+fingerprint(obs),
+        event = {'schema_version':'1.0.0', 'synthetic':synthetic, 'event_id':'packet-'+fingerprint([obs['endpoints'],obs['epoch'],obs['stream_sequence'],obs['pdu_sha256']] if replay else obs),
                  'source_ref':obs['source_refs'][0], 'event_time':None, 'ingest_time':None,
                  'quality':{'status':'partial', 'reasons':list(obs['quality'])},
                  'endpoints':dict(zip(('source','destination'), (f'{ip}:{port}' for ip,port in endpoints))),
@@ -421,17 +440,22 @@ def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, ca
             edges.append({'id':claim_id, 'source':events[a]['event_id'], 'target':events[b]['event_id'], 'claim_id':claim_id})
             events[a]['correlation_id'] = events[b]['correlation_id'] = claim_id
     for e in events:
-        validate('NetworkEvent', e)
+        if not replay:
+            validate('NetworkEvent', e)
     graph = {'schema_version':'1.0.0', 'synthetic':synthetic, 'graph_id':'packet-graph-'+index.digest,
              'nodes':[{'id':e['event_id'], 'event_id':e['event_id'], 'kind':'network', 'evidence_refs':o['source_refs']}
                       for e,o in zip(events,observations)], 'edges':edges, 'claims':claims,
              'input_fingerprint':index.digest, 'core_version':('bounded-packet-2' if extended else 'synthetic-packet-1'),
              'statistics':{'nodes':len(events), 'edges':len(edges)}, 'truncation':{'truncated':False,'reason':None}}
-    validate('GraphArtifact', graph)
+    if not replay:
+        validate('GraphArtifact', graph)
     index._verified()
+    if replay:
+        return {'events':events, 'observations':observations, 'unsupported':rejected, 'pending':incomplete,
+                'connection_controls':controls, 'quality':{'status':'partial','reasons':['arrived_prefix_only','bounded_subset']}}
     return {'adapter_version':('bounded-packet-2' if extended else 'synthetic-packet-1'), 'synthetic':synthetic, 'file_sha256':index.digest,
             **({'file_sha256s':index.file_sha256s, 'capture_order':'declared_file_then_original_frame'}
-               if isinstance(path, (list, tuple)) else {}),
+               if multiple else {}),
             'events':events, 'graph':graph, 'observations':observations, 'unsupported':rejected,
             'connection_controls':controls,
             'quality':{'status':'partial', 'reasons':[('synthetic_only' if synthetic else 'real_source_unvalidated'),'real_data_unvalidated','bounded_subset']}}

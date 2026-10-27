@@ -34,6 +34,8 @@ def validity(item, interval):
 def validate_profile(config):
     validate('DualSourceProfile', config)
     extended = config.get('analysis_mode') == MODE
+    if 'replay' in config and not extended:
+        raise ValueError('replay_requires_bounded_analysis_mode')
     if extended:
         def check_precision(value):
             if isinstance(value,dict):
@@ -140,7 +142,7 @@ def compare(left, operator, right):
             'lt':lambda:left<right, 'le':lambda:left<=right}[operator]()
 
 
-def finite_findings(config, groups, group_issues):
+def finite_findings(config, groups, group_issues, *, filtered_record_numbers=()):
     """Emit one evidence-backed supported/refuted/unknown finding per applicable input.
 
     Rules use exact synchronous intervals for other-tag inputs. Ratios are scalar;
@@ -182,7 +184,9 @@ def finite_findings(config, groups, group_issues):
                     if previous is None:unknown.append('previous_valid_sample_missing')
                     else:
                         selected.append(previous)
-                        if interval[1]-previous['time']['interval'][0]>config['max_sample_gap_seconds']:unknown.append('sampling_gap')
+                        a,b=previous['event']['source_ref']['record_number'],event['source_ref']['record_number']
+                        if a is not None and b is not None and any(min(a,b)<number<max(a,b) for number in filtered_record_numbers):unknown.append('filtered_process_record_gap')
+                        elif interval[1]-previous['time']['interval'][0]>config['max_sample_gap_seconds']:unknown.append('sampling_gap')
                         else:result=not compare(left,'eq',previous['event']['value'])
                 elif rule['kind']=='process_constraint':
                     right=companion(rule['other_tag'],rule['other_unit'])

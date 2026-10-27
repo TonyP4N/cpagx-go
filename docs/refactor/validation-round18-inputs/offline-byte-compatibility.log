@@ -1,0 +1,6 @@
+normal: canonical equality PASS; sha256=2314717119e85e81e82adc226642d7a4392b8fe88ae14cb33ede70ef09e336ea
+segmented_out_of_order_retransmitted: canonical equality PASS; sha256=70e88e0edc29df02ee3aa68ed597424c9e6841b0917036768d0d2e9d242394c4
+gap: canonical equality PASS; sha256=dcc7d0b1042a3165fbfcda05da5ed2513471760d81f8f7e0fe5eb4365337ce3a
+half_close: canonical equality PASS; sha256=799fcf1ceaf3ec1d77a8f0f26f78332b1cf38a66fc663ecb7b1b102ed4e40feb
+unknown_service: canonical equality PASS; sha256=502a9cc75d7e3365df0c4ef645d6da48a26bceddee3122c087861441f97a33df
+Baseline packet_pipeline=25b2f1c; current shared dependencies unchanged for these packet cases; offline default semantics preserved.

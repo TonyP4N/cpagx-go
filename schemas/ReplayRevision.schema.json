@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ReplayRevision.schema.json",
+  "title": "ReplayRevision",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "replay_version": {
+      "const": "dual-source-replay-1"
+    },
+    "revision_id": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "revision_number": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "old_snapshot_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "new_snapshot_id": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "old_state_fingerprint": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "new_state_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "available_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "trigger": {
+      "type": "object"
+    },
+    "config_version": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "semantic_config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "rule_version": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "ReplaySourceRef.schema.json"
+      }
+    },
+    "old_snapshot_number": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "new_snapshot_number": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "synthetic": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "schema_version",
+    "replay_version",
+    "revision_id",
+    "revision_number",
+    "old_snapshot_id",
+    "new_snapshot_id",
+    "old_state_fingerprint",
+    "new_state_fingerprint",
+    "available_at",
+    "trigger",
+    "config_version",
+    "config_fingerprint",
+    "semantic_config_fingerprint",
+    "rule_version",
+    "reason",
+    "evidence_refs",
+    "old_snapshot_number",
+    "new_snapshot_number",
+    "synthetic"
+  ],
+  "additionalProperties": false
+}

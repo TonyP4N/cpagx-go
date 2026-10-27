@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ReplayGraphArtifact.schema.json",
+  "title": "ReplayGraphArtifact",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "graph_id": {
+      "type": "string"
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "event_id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "network",
+              "process",
+              "derived_event"
+            ]
+          },
+          "evidence_refs": {
+            "type": "array",
+            "items": {
+              "$ref": "ReplaySourceRef.schema.json"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "event_id",
+          "kind",
+          "evidence_refs"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "claim_id": {
+            "type": "string"
+          },
+          "rule_id": {
+            "type": "string"
+          },
+          "rule_version": {
+            "type": "string"
+          },
+          "config_version": {
+            "type": "string"
+          },
+          "config_fingerprint": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "candidate_state": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "source",
+          "target",
+          "claim_id"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "$ref": "ReplayClaim.schema.json"
+      }
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "core_version": {
+      "type": "string"
+    },
+    "statistics": {
+      "type": "object",
+      "properties": {
+        "nodes": {
+          "type": "integer"
+        },
+        "edges": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "nodes",
+        "edges"
+      ],
+      "additionalProperties": false
+    },
+    "truncation": {
+      "type": "object",
+      "properties": {
+        "truncated": {
+          "type": "boolean"
+        },
+        "reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "truncated",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "graph_id",
+    "nodes",
+    "edges",
+    "claims",
+    "input_fingerprint",
+    "core_version",
+    "statistics",
+    "truncation"
+  ],
+  "additionalProperties": false
+}

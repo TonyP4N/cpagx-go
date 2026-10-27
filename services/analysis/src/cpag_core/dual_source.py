@@ -57,7 +57,8 @@ def references(values):
     result={}
     def visit(value):
         if isinstance(value,dict):
-            if {'file_sha256','frame_number','record_number','column','raw_time'}<=set(value):
+            if ({'file_sha256','frame_number','record_number','column','raw_time'}<=set(value) or
+                {'source_slot','record_sha256','frame_number','record_number','column','raw_time'}<=set(value)):
                 result[canonical(value)]=value
             else:
                 for item in value.values():visit(item)
@@ -101,13 +102,48 @@ def analyze(network, process, config, *, _analysis_version=None):
         raise ValueError('unsupported_or_empty_process: '+','.join(parsed['quality']['reasons']))
     if any(r.startswith(('invalid_csv_record_width','invalid_or_truncated_csv')) for r in parsed['quality']['reasons']):
         raise ValueError('malformed_csv_cannot_establish_adjacent_observations')
+    return _analyze_prepared(capture,parsed,packet,config,
+        fingerprint([{'kind':kind,'sha256':file_hash(path),'size_bytes':Path(path).stat().st_size}
+            for kind,path in [('network',p) for p in networks]+[('process',process)]]),
+        _analysis_version=analysis_version,verify_sources=index.verify)
+
+
+def _analyze_prepared(capture, parsed, frame_accessor, config, input_fingerprint, *,
+                      allow_empty=False, source_contract='offline', _analysis_version=None,
+                      verify_sources=None, identity_config=None):
+    """Shared bounded judgement over material already admitted by an adapter.
+
+    Replay callers supply only arrived records, genuine ReplaySourceRef values and
+    a frame accessor unable to read another record. Offline keeps its own complete
+    input checks, original reference contract and retained-version dispatch.
+    """
+    extended=validate_profile(config)
+    synthetic=config['synthetic']
+    identity_config=config if identity_config is None else identity_config
+    analysis_version=(R17_VERSION if extended else VERSION) if _analysis_version is None else _analysis_version
+    if analysis_version not in ((R17_LEGACY_VERSION,R17_VERSION) if extended else (VERSION,)):
+        raise ValueError('unsupported_analysis_version')
+    if source_contract not in ('offline','replay'):raise ValueError('unsupported_source_contract')
+    if source_contract=='replay' and not extended:raise ValueError('replay_requires_bounded_profile')
+    if not allow_empty and (not capture['events'] or not parsed['events']):raise ValueError('unsupported_or_empty_prepared_sources')
+    if len(capture['events'])!=len(capture['observations']):raise ValueError('prepared_observation_count_mismatch')
+    response_clock_guard=analysis_version==R17_VERSION
+    def validate_event(name,value):
+        return validate('Replay'+name if source_contract=='replay' else name,value)
+    if source_contract=='replay':
+        for event in capture['events']:validate_event('NetworkEvent',event)
+    filtered_records=parsed.get('filtered_record_numbers',[]) if source_contract=='replay' else []
+    def crosses_filtered(before,after):
+        left,right=before['source_ref']['record_number'],after['source_ref']['record_number']
+        return left is not None and right is not None and any(min(left,right)<number<max(left,right) for number in filtered_records)
     issues=[]
     network_events=[]
     for event,obs in zip(capture['events'],capture['observations']):
-        ticks=[packet.frame(r) if hasattr(packet,'frame') else packet.frames[r['frame_number']] for r in obs['source_refs']]
+        ticks=[frame_accessor.frame(r) if hasattr(frame_accessor,'frame') else frame_accessor.frames[r['frame_number']] for r in obs['source_refs']]
         times=[f['raw_timestamp']/f['ticks_per_second'] for f in ticks]
         raw_ticks=[{'frame_number':f['frame_number'],'raw_timestamp':f['raw_timestamp'],
-                    'ticks_per_second':f['ticks_per_second'],**({'file_sha256':r['file_sha256']} if extended else {})} for f,r in zip(ticks,obs['source_refs'])]
+                    'ticks_per_second':f['ticks_per_second'],
+                    **({'source_ref':r} if source_contract=='replay' else {'file_sha256':r['file_sha256']} if extended else {})} for f,r in zip(ticks,obs['source_refs'])]
         exact=[Fraction(f['raw_timestamp'],f['ticks_per_second']) for f in ticks]
         low=outward(min(exact)) if extended else min(times)
         high=outward(max(exact),True) if extended else max(times)
@@ -124,7 +160,7 @@ def analyze(network, process, config, *, _analysis_version=None):
     for column,definition in config['process']['columns'].items():
         column_keys[(definition['asset_id'],definition['tag'])].append(column)
     for event in parsed['events']:
-        validate('ProcessObservation',event)
+        validate_event('ProcessObservation',event)
         when=datetime.fromisoformat(event['event_time'].replace('Z','+00:00')).timestamp() if event['event_time'] else None
         low=high=when
         if extended and event['event_time']:
@@ -158,7 +194,9 @@ def analyze(network, process, config, *, _analysis_version=None):
             if previous is not None:
                 before=previous['event'];prior=previous['time']['interval']
                 gap=interval[1]-prior[0]
-                if gap>config['max_sample_gap_seconds']:
+                if crosses_filtered(before,event):
+                    issues.append({'reason':'filtered_process_record_gap','evidence_refs':[before['source_ref'],event['source_ref']]})
+                elif gap>config['max_sample_gap_seconds']:
                     issues.append({'reason':'sampling_gap','evidence_refs':[before['source_ref'],event['source_ref']]})
                 elif not equal(before['value'],event['value'],config['change_epsilon']):
                     change={'schema_version':'1.0.0','synthetic':synthetic,'event_id':'',
@@ -170,7 +208,7 @@ def analyze(network, process, config, *, _analysis_version=None):
                             'result':{'asset_id':key[0],'tag':key[1],'before':before['value'],'after':event['value'],
                                       'interval':[prior[0],interval[1]],'before_event_id':before['event_id'],
                                       'after_event_id':event['event_id'],'time_semantics':'transition_somewhere_between_samples','interval_start_inclusive':False}}
-                    change['event_id']='change-'+fingerprint(change);validate('DerivedEvent',change);changes.append(change)
+                    change['event_id']='change-'+fingerprint(change);validate_event('DerivedEvent',change);changes.append(change)
             previous=row
     n_intervals=[e['time']['interval'] for e in network_events if e['time']['interval'] is not None]
     p_intervals=[e['time']['interval'] for e in process_events if e['time']['interval'] is not None]
@@ -258,7 +296,7 @@ def analyze(network, process, config, *, _analysis_version=None):
                     # A candidate may intersect a possible window without proving order.
                     if times[0]<interval[1] or times[1]>interval[0]+config['window_seconds']:
                         uncertainty.append('temporal_order_or_window_uncertain')
-                    candidate={'candidate_id':'candidate-'+fingerprint([op['operation_id'],change['event_id'],config]),
+                    candidate={'candidate_id':'candidate-'+fingerprint([op['operation_id'],change['event_id'],identity_config]),
                                'operation_id':op['operation_id'],'change_id':change['event_id'],
                                'state':'unknown','rule_id':rule['rule_id'],'rule_version':config['rule_version'],
                                'config_version':config['config_version'],'window':window,
@@ -270,7 +308,7 @@ def analyze(network, process, config, *, _analysis_version=None):
                                         'counterevidence':references(counter),'rule_id':rule['rule_id'],
                                         'assumptions':['configured_mapping_and_clock_basis','sampling_does_not_prove_action_time',
                                                        'no_causality_attack_or_physical_execution_asserted']}}
-                    candidate['claim']['claim_id']=candidate['candidate_id'];validate('Claim',candidate['claim'])
+                    candidate['claim']['claim_id']=candidate['candidate_id'];validate_event('Claim',candidate['claim'])
                     candidates.append(candidate);op['candidates'].append(candidate['candidate_id'])
                     if len(candidates)>10000:raise ValueError('candidate_limit')
                 if expected:
@@ -285,7 +323,7 @@ def analyze(network, process, config, *, _analysis_version=None):
                         selected=rows[rows.index(left):rows.index(right)+1]
                     op['observation_evidence']=[r['event']['source_ref'] for r in selected]
                     complete=bool(selected) and all(r['event']['value'] is not None for r in selected)
-                    complete=complete and all(b['time']['interval'][1]-a['time']['interval'][0]<=config['max_sample_gap_seconds']
+                    complete=complete and all(not crosses_filtered(a['event'],b['event']) and b['time']['interval'][1]-a['time']['interval'][0]<=config['max_sample_gap_seconds']
                                               for a,b in zip(selected,selected[1:]))
                     if any(reason.startswith('invalid_csv_record_width') or reason.startswith('invalid_or_truncated_csv')
                            for reason in parsed['quality']['reasons']):complete=False
@@ -308,17 +346,16 @@ def analyze(network, process, config, *, _analysis_version=None):
                 'evidence_refs':references([operation_lookup[i]['request_evidence'] for i in competing]+
                     [change_lookup[i]['evidence_refs'] for i in alternatives])})
             c['claim']['counterevidence']=references(c['counterevidence'])
-        validate('Claim',c['claim'])
+        validate_event('Claim',c['claim'])
         if len(by_change[c['change_id']])>1 or len(by_op[c['operation_id']])>1:
             c['state']='ambiguous';c['unknown_reasons'].append('multiple_possible_operations_or_changes')
         elif c['counterevidence']:c['state']='counterevidence_present'
         elif c['unknown_reasons']:c['state']='unknown'
         else:c['state']='supported_candidate'
-    index.verify()
+    if verify_sources is not None:verify_sources()
     result={'schema_version':'1.0.0','synthetic':synthetic,'analysis_version':analysis_version,'config_version':config['config_version'],
-            'rule_version':config['rule_version'],'config_fingerprint':fingerprint(config),
-            'input_fingerprint':fingerprint([{'kind':kind,'sha256':file_hash(path),'size_bytes':Path(path).stat().st_size}
-                for kind,path in [('network',p) for p in networks]+[('process',process)]]),'limitations':LIMITATIONS if synthetic else REAL_LIMITATIONS,
+            'rule_version':config['rule_version'],'config_fingerprint':fingerprint(identity_config),
+            'input_fingerprint':input_fingerprint,'limitations':LIMITATIONS if synthetic else REAL_LIMITATIONS,
             'network':network_events,'process':process_events,'changes':changes,'operations':operations,
             'candidates':candidates,'orphan_change_ids':[c['event_id'] for c in changes if c['event_id'] not in by_change],
             'quality':{'source_ranges':ranges,'unknown_reasons':global_unknown,'process':parsed['quality'],
@@ -330,7 +367,7 @@ def analyze(network, process, config, *, _analysis_version=None):
     if extended:
         result['analysis_mode']=config['analysis_mode']
         result['source_provenance']=config.get('source_provenance')
-        result['rule_findings']=finite_findings(config,groups,group_issues)
+        result['rule_findings']=finite_findings(config,groups,group_issues,filtered_record_numbers=filtered_records)
         result['execution_limits']={'max_network_files':4,'aggregate_network_bytes':16*1024*1024,'max_frames':10000,'process_bytes':2*1024*1024,'process_records':1000,'max_finite_rules':100,'max_finite_findings':10000,'max_operations':100,'max_candidates':10000,'max_mappings':100,'max_process_columns':16,'max_profile_bytes':65536}
     return result
 

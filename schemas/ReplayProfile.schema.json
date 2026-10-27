@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ReplayProfile.schema.json",
+  "title": "ReplayProfile",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": "dual-source-replay-1"
+    },
+    "simulation_start": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "arrival_time_basis": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "warmup_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 60
+    },
+    "allowed_lateness_seconds": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 60
+    },
+    "buffer_seconds": {
+      "type": "number",
+      "minimum": 1,
+      "maximum": 300
+    },
+    "max_buffer_records": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 11000
+    },
+    "max_snapshots": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4096
+    },
+    "max_revisions": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 8192
+    },
+    "max_output_bytes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 16777216
+    },
+    "sequence": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "finish_at": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "speed": {
+      "enum": [
+        1,
+        10
+      ]
+    },
+    "realtime": {
+      "type": "boolean"
+    },
+    "realtime_pacing": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "version",
+    "simulation_start",
+    "arrival_time_basis",
+    "warmup_seconds",
+    "allowed_lateness_seconds",
+    "buffer_seconds",
+    "max_buffer_records",
+    "max_snapshots",
+    "max_revisions",
+    "max_output_bytes"
+  ],
+  "additionalProperties": false
+}
