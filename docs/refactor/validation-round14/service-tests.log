@@ -26,7 +26,7 @@ test_real_core_http_artifacts_and_batch (test_synthetic_http.SyntheticHTTP.test_
 test_recoverable_records_publish_warning_and_correct_raw_evidence (test_synthetic_http.SyntheticHTTP.test_recoverable_records_publish_warning_and_correct_raw_evidence) ... ok
 
 ----------------------------------------------------------------------
-Ran 26 tests in 0.468s
+Ran 26 tests in 0.582s
 
 OK
 InfluxDB client initialized successfully: http://localhost:8086

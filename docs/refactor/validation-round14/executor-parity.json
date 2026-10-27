@@ -2,8 +2,8 @@
   "synthetic_only": true,
   "cases": {
     "success": {
-      "persistent_id": "dual-78514490e4134f5cae91cf249b5c2e90",
-      "celery_id": "f0d69a11-1f06-4e5a-b64c-f1017e8ef345",
+      "persistent_id": "dual-876ba3bf91d7437ca8a9b750ace23cac",
+      "celery_id": "bd735bb5-2f29-45a4-98da-7f0e6e5b0282",
       "equal": [
         "analysis",
         "events",
@@ -16,8 +16,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "f1c0e0b1-f714-4b56-9833-971e7ccb7e9f",
-          "persistent": "dual-78514490e4134f5cae91cf249b5c2e90"
+          "celery": "a3c5d68f-4291-4a8c-b4ad-7329f0c77a30",
+          "persistent": "dual-876ba3bf91d7437ca8a9b750ace23cac"
         },
         "attempt_id": {
           "celery": 1,
@@ -35,8 +35,8 @@
       "all_nested_artifact_hashes_equal": true
     },
     "error": {
-      "persistent_id": "dual-499fd98205314181bb59785cc5dea343",
-      "celery_id": "d2e15b5c-e6ff-403c-b058-cd08c4c5ac1e",
+      "persistent_id": "dual-b70e0d8853464a4bacb575461a533f7a",
+      "celery_id": "0f5669a6-2c55-4a56-95f5-af31a5e96cb1",
       "equal": [
         "analysis",
         "events",
@@ -49,8 +49,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "06fbb408-49b7-47ce-a73e-4f862136374c",
-          "persistent": "dual-499fd98205314181bb59785cc5dea343"
+          "celery": "7f75040d-c9af-41d6-853f-3e9c01419548",
+          "persistent": "dual-b70e0d8853464a4bacb575461a533f7a"
         },
         "attempt_id": {
           "celery": 1,
@@ -68,8 +68,8 @@
       "all_nested_artifact_hashes_equal": true
     },
     "missing_response": {
-      "persistent_id": "dual-cadea97bf42c40e5880a78df2f13405b",
-      "celery_id": "a8b8fd57-ff9e-4ef1-83f8-c4ac50012f36",
+      "persistent_id": "dual-c94a7f4eeee24cd8ae8ef45b0ccbe4b7",
+      "celery_id": "5529770e-a095-4320-bd78-10aebe20e846",
       "equal": [
         "analysis",
         "events",
@@ -82,8 +82,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "9a19db4a-8a1a-4462-a671-7b6f8e67b9f8",
-          "persistent": "dual-cadea97bf42c40e5880a78df2f13405b"
+          "celery": "8a5ce6a4-7e6b-4307-b1cb-05e9128ffdf9",
+          "persistent": "dual-c94a7f4eeee24cd8ae8ef45b0ccbe4b7"
         },
         "attempt_id": {
           "celery": 1,
@@ -101,8 +101,8 @@
       "all_nested_artifact_hashes_equal": true
     },
     "mapping_missing": {
-      "persistent_id": "dual-e000e04789de44c89c23ba4276ea7933",
-      "celery_id": "2cc428e0-e473-4612-892d-3afa659b691e",
+      "persistent_id": "dual-74491fea3c234b18a0816b0f47b05802",
+      "celery_id": "d49e024d-aa19-4ac2-926f-bb2317beff76",
       "equal": [
         "analysis",
         "events",
@@ -115,8 +115,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "90c53b76-777d-49df-b538-c3d30c7358a7",
-          "persistent": "dual-e000e04789de44c89c23ba4276ea7933"
+          "celery": "942127d9-85f4-4156-9594-9e9545309889",
+          "persistent": "dual-74491fea3c234b18a0816b0f47b05802"
         },
         "attempt_id": {
           "celery": 1,
@@ -134,8 +134,8 @@
       "all_nested_artifact_hashes_equal": true
     },
     "mapping_conflict": {
-      "persistent_id": "dual-324aee8842824202b35cb82845ea9598",
-      "celery_id": "0665c632-0632-4105-9de7-fb7e0094fb29",
+      "persistent_id": "dual-349a3c13d0994ef7b06cfee09caa37b1",
+      "celery_id": "fe70a0db-1628-414f-ba09-24d59362311c",
       "equal": [
         "analysis",
         "events",
@@ -148,8 +148,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "5c44c45f-4fd2-40c0-b89f-0ff1468b0af9",
-          "persistent": "dual-324aee8842824202b35cb82845ea9598"
+          "celery": "dba95c49-7a5f-43c8-9224-2f564322047e",
+          "persistent": "dual-349a3c13d0994ef7b06cfee09caa37b1"
         },
         "attempt_id": {
           "celery": 1,
@@ -167,8 +167,8 @@
       "all_nested_artifact_hashes_equal": true
     },
     "ambiguous": {
-      "persistent_id": "dual-a7e85a79fec145e3bebb49f88bcb19d7",
-      "celery_id": "125d769c-3994-4652-9c9e-31b476019422",
+      "persistent_id": "dual-ca3aafd7aba94e0391b1b198077aa97f",
+      "celery_id": "2fd24506-dfc3-402e-b890-649b75337656",
       "equal": [
         "analysis",
         "events",
@@ -181,8 +181,8 @@
       "attempt": 1,
       "runtime_metadata": {
         "run_id": {
-          "celery": "3f7856fa-71bd-40e1-8f03-25742790527a",
-          "persistent": "dual-a7e85a79fec145e3bebb49f88bcb19d7"
+          "celery": "267d6b0b-4d9a-4d01-8d3a-8b53b5ef5a80",
+          "persistent": "dual-ca3aafd7aba94e0391b1b198077aa97f"
         },
         "attempt_id": {
           "celery": 1,
@@ -200,7 +200,7 @@
       "all_nested_artifact_hashes_equal": true
     },
     "invalid": {
-      "persistent_id": "dual-db53f0cd257043c09e6846fa8154a246",
+      "persistent_id": "dual-48a1ffb073824b2782c555d61902dc0a",
       "status": "failed"
     }
   },

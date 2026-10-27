@@ -15,12 +15,14 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   report.checks.restored_task_four_original_refs=true;await shot('restored-evidence');
   await page.getByRole('button',{name:/查看候选连线/}).first().click();await evidence();report.checks.graph_candidate_and_evidence=true;
   const download=page.waitForEvent('download');await page.getByRole('button',{name:'下载 analysis.json',exact:true}).click();await (await download).saveAs(path.join(out,'restored-analysis.json'));report.checks.controlled_download=true;
-  const file=path.join(run.shared_root,'jobs',run.job,'attempt-1','dual','sources','process.csv');const original=fs.readFileSync(file);
+  const file=path.join(run.shared_root,'jobs',run.job,'attempt-1','dual','sources','process.csv');const original=fs.readFileSync(file);const originalMode=fs.statSync(file).mode & 0o777;const parentMode=fs.statSync(path.dirname(file)).mode & 0o777;
   for(const mode of ['missing','tampered']){
    try{
+    // Fault injection only in the disposable restored tree; production stays sealed.
+    fs.chmodSync(path.dirname(file),0o700);fs.chmodSync(file,0o600);
     if(mode==='missing')fs.unlinkSync(file);else fs.writeFileSync(file,Buffer.concat([original,Buffer.from('tampered')]));
     await page.getByRole('button',{name:'刷新当前任务',exact:true}).click();await page.getByRole('alert').filter({hasText:'409'}).waitFor();assert.equal(await page.getByRole('region',{name:'双源结果摘要',exact:true}).count(),0);report.checks[mode+'_refused']=true;await shot(mode);
-   }finally{fs.writeFileSync(file,original);}
+   }finally{fs.writeFileSync(file,original);fs.chmodSync(file,originalMode);fs.chmodSync(path.dirname(file),parentMode);}
    await open(run.job);
   }
   const fixtures=path.join(run.source_shared_root,'inputs');

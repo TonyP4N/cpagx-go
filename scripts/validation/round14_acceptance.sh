@@ -13,7 +13,7 @@ cleanup() {
 trap cleanup EXIT
 cd "$repo"
 docker build -t cpag-isolated:round5 -f deployments/isolated-executor/Dockerfile . > "$work/image-build.log" 2>&1
-"$python_bin" scripts/backup/validate_dual.py --serve --work-dir "$work/backup" > "$work/backup.log" 2>&1 &
+"$python_bin" scripts/backup/validate_dual.py --isolated --serve --work-dir "$work/backup" > "$work/backup.log" 2>&1 &
 backup_pid=$!
 "$python_bin" scripts/validation/round13_celery.py --serve --output "$work/celery" --ui-port 18313 > "$work/celery-startup.log" 2>&1 &
 celery_pid=$!

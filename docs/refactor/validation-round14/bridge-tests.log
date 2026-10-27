@@ -1,0 +1,13 @@
+test_disabled_is_explicit (test_persistent_dual_http.PersistentHTTP.test_disabled_is_explicit) ... ok
+test_failed_task_reports_worker_error (test_persistent_dual_http.PersistentHTTP.test_failed_task_reports_worker_error) ... ok
+test_identity_and_kind (test_persistent_dual_http.PersistentHTTP.test_identity_and_kind) ... ok
+test_missing_selection (test_persistent_dual_http.PersistentHTTP.test_missing_selection) ... ok
+test_no_download_for_unpublished_or_arbitrary_files (test_persistent_dual_http.PersistentHTTP.test_no_download_for_unpublished_or_arbitrary_files) ... ok
+test_only_local_api_supported (test_persistent_dual_http.PersistentHTTP.test_only_local_api_supported) ... ok
+test_recovery_reason_and_cancel_state_retained (test_persistent_dual_http.PersistentHTTP.test_recovery_reason_and_cancel_state_retained) ... ok
+test_upload_preserves_fractional_profile_and_immutable_refs (test_persistent_dual_http.PersistentHTTP.test_upload_preserves_fractional_profile_and_immutable_refs) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.092s
+
+OK

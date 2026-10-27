@@ -2,7 +2,6 @@
 import argparse
 import json
 from pathlib import Path
-import copy
 import sys
 import time
 from urllib.parse import urlencode

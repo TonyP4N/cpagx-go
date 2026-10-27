@@ -4,7 +4,7 @@
   "base_commit": "23635e9",
   "commands": [
     ".venv/bin/python -m unittest discover -s tests/backup -q",
-    ".venv/bin/python scripts/backup/validate_dual.py --work-dir /private/tmp/cpag-r14-dual-backup-retry-drill2"
+    ".venv/bin/python scripts/backup/validate_dual.py --isolated --work-dir /private/tmp/cpag-r14-dual-backup-isolated-final"
   ],
   "unit_tests": {
     "passed": 30
@@ -48,8 +48,21 @@
       "guardian_exit_proofs_bound_to_history_and_equal_after_restore": true,
       "source_result_equal_to_restored_result": true,
       "restored_operation_original_references": 4
+    },
+    "main_executor": {
+      "kind": "isolated-v2",
+      "database_attempt_history": {
+        "attempt": 1,
+        "executor_kind": "isolated-v2",
+        "publication_state": "published",
+        "exit_recorded": true,
+        "exit_scope": "container",
+        "container_removed": true
+      },
+      "database_exit_receipt_equal_after_restore": true
     }
   },
   "credential_note": "private state file mode 0600 contains disposable credentials; API and database stopped after this non-serving drill; no credentials included here",
-  "private_state_file": "/private/tmp/cpag-r14-dual-backup-retry-drill2/state.json"
+  "private_state_file": "/private/tmp/cpag-r14-dual-backup-isolated-final/state.json",
+  "boundary": "Terminal-only database task and attempt history, original inputs, and published artifacts are in this bundle. The isolated host control directory is outside this bundle and was not restored; its container exit receipt is recorded in PostgreSQL attempt history."
 }

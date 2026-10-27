@@ -27,6 +27,7 @@ import bundle
 from dual_source_fixtures import make_case
 from cpag_core.dual_source import strict_json
 from cpag_core.pipeline import fingerprint
+from cpag_worker.isolated import DockerExecutor
 from cpag_worker.worker import API, Worker, digest
 
 IMAGE='mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94'
@@ -54,7 +55,9 @@ def restored_api_refusals(work, api_binary, env, token, job, restored, network_r
         root=work/('negative-'+name)
         shutil.copytree(restored,root)
         target=root/relative
-        if action=='missing':target.unlink()
+        if action=='missing':
+            target.parent.chmod(0o700)
+            target.unlink()
         else:
             target.chmod(0o600)
             target.write_bytes(target.read_bytes()+b'corruption')
@@ -82,10 +85,12 @@ def restored_api_refusals(work, api_binary, env, token, job, restored, network_r
     return cases
 
 
-def run_drill(work, serve=False):
+def run_drill(work, serve=False, isolated=False, isolated_image='cpag-isolated:round5'):
     container='cpag-r14-dual-backup-'+secrets.token_hex(4)
     pg_port,api_port=free_port(),free_port()
     shared=work/'source';shared.mkdir()
+    control=work/'control'
+    if isolated:control.mkdir()
     api_process=None;created=False
     try:
         subprocess.run(['docker','run','--name',container,'-d','-e','POSTGRES_DB=m4_validation',
@@ -110,6 +115,7 @@ def run_drill(work, serve=False):
         env.update(CPAG_ENABLE_M4='1',M4_DATABASE_URL=f'postgres://postgres:m4-disposable-only@127.0.0.1:{pg_port}/m4_validation?sslmode=disable',
                    CPAG_SHARED_ROOT=str(shared),CPAG_WORKER_TOKEN=token,
                    CPAG_COORDINATOR_TOKEN=secrets.token_urlsafe(32),CPAG_JOB_API_ADDR=f'127.0.0.1:{api_port}')
+        if isolated:env['CPAG_CONTROL_ROOT']=str(control)
         api_url=f'http://127.0.0.1:{api_port}'
         def start_api():
             nonlocal api_process
@@ -132,7 +138,13 @@ def run_drill(work, serve=False):
         api=API(api_url,token,timeout=10)
         job='r14-dual-backup'
         api.post('/v1/jobs',{'id':job,'max_attempts':1,'payload':payload})
-        outcome=Worker(api,shared,'r14-backup-worker',lease=15,heartbeat=.2,timeout=120).once()
+        if isolated:
+            executor=DockerExecutor(api,API(api_url,env['CPAG_COORDINATOR_TOKEN'],timeout=10),
+                                    shared,control,'r14-backup-isolated',image=isolated_image,
+                                    lease=30,heartbeat=.2,timeout=120)
+            outcome=executor.once()
+        else:
+            outcome=Worker(api,shared,'r14-backup-worker',lease=15,heartbeat=.2,timeout=120).once()
         status=get(api_url+'/v1/jobs/'+job,token)
         if outcome!='succeeded' or status['state']!='succeeded':
             raise RuntimeError('dual worker failed: '+json.dumps({'outcome':outcome,'state':status['state'],'error':status.get('last_error')}))
@@ -158,6 +170,19 @@ def run_drill(work, serve=False):
         snapshot=bundle.backup(container,'m4_validation',shared,work/'bundle')
         if not snapshot['source_audit']['valid'] or not snapshot['attempt_audit']['valid']:
             raise RuntimeError('source snapshot audit failed')
+        main_attempt=next(item for item in snapshot['attempts'] if item['job_id']==job)
+        if isolated:
+            receipt=main_attempt.get('exit_receipt')
+            if (main_attempt.get('executor_kind')!='isolated-v2'
+                    or main_attempt.get('publication_state')!='published'
+                    or not main_attempt.get('container_id') or not main_attempt.get('exited_at')
+                    or not isinstance(receipt,dict) or receipt.get('scope')!='container'
+                    or receipt.get('removed') is not True or receipt.get('exited') is not True
+                    or receipt.get('container_id')!=main_attempt['container_id']
+                    or receipt.get('worker')!=main_attempt['worker']
+                    or receipt.get('attempt')!=main_attempt['attempt']
+                    or receipt.get('token')!=main_attempt['attempt_token']):
+                raise RuntimeError('isolated exit receipt missing from source attempt history')
         retry_attempts=sorted((item for item in snapshot['attempts'] if item['job_id']==retry_job),
                               key=lambda item:item['attempt'])
         if [item['attempt'] for item in retry_attempts]!=[1,2]:
@@ -180,6 +205,10 @@ def run_drill(work, serve=False):
         audit=bundle.restore(container,work/'bundle',restored)
         if not audit['valid'] or not audit['metadata_equal'] or not audit['attempt_history_equal']:
             raise RuntimeError('restored metadata/attempt audit failed')
+        if isolated:
+            restored_main=next(item for item in bundle.attempts_now(container,'m4_restore_validation') if item['job_id']==job)
+            if restored_main!=main_attempt:
+                raise RuntimeError('isolated execution/exit history differs after restore')
         env.update(M4_DATABASE_URL=env['M4_DATABASE_URL'].replace('/m4_validation?','/m4_restore_validation?'),
                    CPAG_SHARED_ROOT=str(restored))
         start_api()
@@ -213,6 +242,14 @@ def run_drill(work, serve=False):
         negative=restored_api_refusals(work,work/'api',env,token,job,restored,
                                        persisted_payload['network']['path'],persisted_payload['process']['path'])
         state={'valid':True,'synthetic_only':True,'job':job,'state':'succeeded',
+               'main_executor':'isolated-v2' if isolated else 'legacy',
+               'main_isolated_exit_receipt_equal_after_restore':True if isolated else None,
+               'main_attempt_history':{'attempt':main_attempt['attempt'],
+                                       'executor_kind':main_attempt.get('executor_kind'),
+                                       'publication_state':main_attempt.get('publication_state'),
+                                       'exit_recorded':bool(main_attempt.get('exited_at')),
+                                       'exit_scope':(main_attempt.get('exit_receipt') or {}).get('scope'),
+                                       'container_removed':(main_attempt.get('exit_receipt') or {}).get('removed')},
                'container':container,'api_url':api_url,'shared_root':str(restored),
                'source_shared_root':str(shared),'database':'m4_restore_validation',
                'bundle':str(work/'bundle'),'restore_audit':str(restored.parent/(restored.name+'-audit.json')),
@@ -247,14 +284,16 @@ def run_drill(work, serve=False):
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serve',action='store_true')
+    parser.add_argument('--isolated',action='store_true',help='run the main dual job through the prebuilt isolated Docker image')
+    parser.add_argument('--isolated-image',default='cpag-isolated:round5')
     parser.add_argument('--work-dir',type=Path)
     args=parser.parse_args()
     if args.work_dir:
         args.work_dir.mkdir(mode=0o700,parents=False,exist_ok=False)
-        run_drill(args.work_dir,args.serve)
+        run_drill(args.work_dir,args.serve,args.isolated,args.isolated_image)
     else:
         with tempfile.TemporaryDirectory(prefix='cpag-r14-dual-backup-') as tmp:
-            run_drill(Path(tmp),False)
+            run_drill(Path(tmp),False,args.isolated,args.isolated_image)
 
 
 if __name__=='__main__':main()

@@ -71,3 +71,19 @@ CPAG_PYTHON=.venv/bin/python bash scripts/validation/round14_acceptance.sh /tmp/
 本机最初有两个构建检查先后进入同一构建目录，产生webpack缓存竞争警告；已停止重复构建，使用当前提交远端成功的前端产物完成界面验收。未改变构建门槛或既有页面。此前失败、修复后结果分别保留。
 
 本轮另修复持久状态未返回分析失败原因的问题：状态新增可选last_error，界面优先显示失败原因，恢复原因仍保留；无效CSV对照要求failed且原因非空。桥接本地API地址改为解析主机与端口，拒绝含用户信息的伪本地URL，避免误发服务端凭证。
+
+## 最终整链复验与冻结检查
+
+最新代码的 `round14_acceptance.sh` 在独立临时环境一次完成：真实Celery对照、含两次attempt的终态数据库快照、新空库/新目录恢复、隔离任务提交和现有页面四证据查询；脚本退出0且测试API、Worker、队列和数据库已清理。`final-chain-restore.json`、`executor-parity.json`、`browser-results.json`保存结果。
+
+RC1标签仍指向 `49e998545b9b7b47f2b1dc9b19e6d8562f780765`；对原归档重新计算SHA-256仍为 `c199dd417e1c59c55563c5535e32d26197b164c95ae17c0ef3bb621f7228b49e`。未重新打包或修改默认入口。
+
+中间提交 `cdcdfd8` 的14个既有CI作业成功，新增持久双源作业因测试脚本硬编码本机 `.venv/bin/python` 在Linux runner不存在而失败，未进入该步分析。现改为可配置 `CPAG_PYTHON`、默认python3；失败日志保留 `ci-intermediate-failure.log`。不会将该中间提交标为全通过；最终提交需要全部15项通过后交付。
+
+## 限定退出条件结论
+
+功能提交 `ac3dada0b15fab2664a5fd194ee3e967b661d31a` 的 [远端CI 40439571011](https://github.com/TonyP4N/cpagx-go/actions/runs/40439571011) **15项全部成功**，含新增真实持久任务故障、空库恢复、Celery一致性和浏览器作业；未用中间失败版本代替。作业明细见 `ci-functional.json`。
+
+随后加强备份验收：整链命令显式使用 `--isolated`，备份主任务实际由 DockerExecutor 生成，容器退出证明与尝试行一起恢复；同时保留另一任务的宿主进程两次attempt退出证明。最新本机整链命令再次退出0，恢复后页面四条原始证据、密封产物故障注入后拒绝、新提交的隔离任务及同输入一致性全部通过。最终 `final-chain-restore.json` 明示 main_executor=isolated-v2 和退出证明恢复一致；故障注入只临时修改独立恢复副本的权限，finally恢复，不改变生产产物策略。
+
+本轮限定契约、一致性、故障恢复、终态空库成套恢复及界面门槛均有运行证据。提交/推送后的对应最终CI链接与状态由交付消息附上，完整记录可按提交在 Actions 查询。M4/R09—R10 和 R13 是增补工程退出证据，仍按上表部分完成；本轮未实现范围和外部材料阻塞项没有合并为一类。真实工业验证、整体重构完成或默认切换均不在本结论内。
