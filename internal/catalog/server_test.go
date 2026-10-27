@@ -153,3 +153,29 @@ func TestControlRootSeparation(t *testing.T) {
 		t.Fatal("sibling root rejected")
 	}
 }
+func TestIntakeConfigReadIsBoundedEvenWithMatchingHash(t *testing.T) {
+	root := t.TempDir()
+	root, _ = filepath.EvalSymlinks(root)
+	rel := filepath.Join("inputs", "catalog", "dataset1", "profiles", "config.json")
+	path := filepath.Join(root, rel)
+	if e := os.MkdirAll(filepath.Dir(path), 0700); e != nil {
+		t.Fatal(e)
+	}
+	s := &Server{Root: root}
+	valid := []byte(`{"dataset_id":"dataset1","synthetic":true}`)
+	if e := os.WriteFile(path, valid, 0600); e != nil {
+		t.Fatal(e)
+	}
+	sum := sha256.Sum256(valid)
+	if _, e := s.verifiedFileHash(rel, hex.EncodeToString(sum[:])); e != nil {
+		t.Fatalf("legal retained config rejected: %v", e)
+	}
+	large := make([]byte, 65537)
+	if e := os.WriteFile(path, large, 0600); e != nil {
+		t.Fatal(e)
+	}
+	sum = sha256.Sum256(large)
+	if _, e := s.verifiedFileHash(rel, hex.EncodeToString(sum[:])); e == nil {
+		t.Fatal("matching SHA oversized config accepted")
+	}
+}

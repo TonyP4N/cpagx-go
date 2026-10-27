@@ -169,6 +169,10 @@ func (s *Server) verifiedFileHash(rel, sha string) (string, error) {
 	if e != nil || real != p {
 		return "", errors.New("missing config")
 	}
+	st, e := os.Stat(p)
+	if e != nil || !st.Mode().IsRegular() || st.Size() > 65536 {
+		return "", errors.New("config size changed")
+	}
 	raw, e := os.ReadFile(p)
 	if e != nil {
 		return "", e
