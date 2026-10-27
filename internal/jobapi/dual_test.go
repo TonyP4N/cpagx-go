@@ -18,6 +18,11 @@ func TestPythonCanonicalFractionalFingerprints(t *testing.T) {
 		{`{"a":-0.0,"b":0.0001,"c":1e-5}`, "a521482b1fdf78cf5afa781f2262679baa7ad0197eb8bbbdaed76e7c5c8ffc92"},
 		{`{"a":1.2345678901234567,"b":1e16}`, "9992c0eeb8d4725b5a9a6f66489852ff3fdf989e8ccba548e6d5deaaa21e4e68"},
 		{`{"x":"中文<>&","y":0.000001}`, "23f40a7eded020654e1ad7a3ca6bb837c99c77fc2b43ea7825954f3fe5ec4efa"},
+		{`{"x":"a\u2028b\u2029c"}`, "02c8598f2d595b9e88439011d18c964d2feb930ca9b141591669e911fee12c6e"},
+		{`{"x":"\\u2028 and \\u003c"}`, "1cbc93a974d8b30e247efef20e140d9df7abc43aedd63c4f4983903e3a80789d"},
+		{`{"x":"\\u003c","y":"\\u2028","z":"<>&"}`, "7a9aa2bb133e050e6706c86892f4c9b931754933eb127fc66b187b5ecde7d656"},
+		{`{"x":"a\u2028b\\u2029c"}`, "5d222805d0bbceea1681a304d80df335f59f2c7c48a1e285920bec11bd6171f2"},
+		{`{"x":"\u0000\b\f\n\r\t\"\\"}`, "ebff1bb96d6a583776208a495591013d22916a8de6f015d3de5c87e939d5d3ec"},
 	}
 	for _, tc := range cases {
 		value, err := parseValue([]byte(tc.raw))

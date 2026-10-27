@@ -190,7 +190,7 @@ func (s *Server) validPayload(p Payload) error {
 	numericCheck = func(v any) error {
 		switch x := v.(type) {
 		case string:
-			if strings.ContainsAny(x, "\u2028\u2029") {
+			if p.Kind != "dual-source" && strings.ContainsAny(x, "\u2028\u2029") {
 				return errors.New("M4 profile excludes Unicode line separators")
 			}
 		case json.Number:

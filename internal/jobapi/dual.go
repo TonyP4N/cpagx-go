@@ -15,6 +15,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"regexp"
+	"runtime"
 	"sort"
 	"strconv"
 	"strings"
@@ -37,7 +38,15 @@ func boolInt(value bool) int {
 }
 
 func dualSchemaDir() string {
-	for _, dir := range []string{"schemas", "../../schemas", "/app/schemas"} {
+	locations := []string{os.Getenv("CPAG_SCHEMAS_DIR")}
+	if _, source, _, ok := runtime.Caller(0); ok {
+		locations = append(locations, filepath.Join(filepath.Dir(source), "../../schemas"))
+	}
+	locations = append(locations, "/app/schemas", "schemas", "../../schemas")
+	for _, dir := range locations {
+		if dir == "" {
+			continue
+		}
 		if info, err := os.Stat(filepath.Join(dir, "DualSourceProfile.schema.json")); err == nil && info.Mode().IsRegular() {
 			return dir
 		}
@@ -79,14 +88,32 @@ func pythonCanonical(value any) ([]byte, error) {
 				b.WriteString("false")
 			}
 		case string:
-			encoded, err := json.Marshal(x)
-			if err != nil {
-				return err
+			b.WriteByte('"')
+			for _, r := range x {
+				switch r {
+				case '\\':
+					b.WriteString(`\\`)
+				case '"':
+					b.WriteString(`\"`)
+				case '\b':
+					b.WriteString(`\b`)
+				case '\f':
+					b.WriteString(`\f`)
+				case '\n':
+					b.WriteString(`\n`)
+				case '\r':
+					b.WriteString(`\r`)
+				case '\t':
+					b.WriteString(`\t`)
+				default:
+					if r < 0x20 {
+						fmt.Fprintf(&b, `\u%04x`, r)
+					} else {
+						b.WriteRune(r)
+					}
+				}
 			}
-			encoded = bytes.ReplaceAll(encoded, []byte(`\u003c`), []byte("<"))
-			encoded = bytes.ReplaceAll(encoded, []byte(`\u003e`), []byte(">"))
-			encoded = bytes.ReplaceAll(encoded, []byte(`\u0026`), []byte("&"))
-			b.Write(encoded)
+			b.WriteByte('"')
 		case json.Number:
 			lex := string(x)
 			if strings.ContainsAny(lex, ".eE") {
@@ -1110,9 +1137,6 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 				piece, _ := obj(value)
 				ref, _ := obj(piece["source_ref"])
 				n, _ := intValue(ref["frame_number"])
-				if !selectedFrames[n] {
-					continue
-				}
 				offset, _ := intValue(piece["frame_byte_offset"])
 				length, _ := intValue(piece["length"])
 				if n < 1 || n > len(frames) || !packetRange(offset, length, len(frames[n-1].Data)) {

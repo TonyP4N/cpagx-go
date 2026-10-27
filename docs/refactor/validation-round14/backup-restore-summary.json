@@ -1,0 +1,43 @@
+{
+  "scope": "synthetic dual-source software-flow backup and restore; no real industrial data validation",
+  "branch": "refactor/m1-evidence-core",
+  "base_commit": "23635e9",
+  "commands": [
+    ".venv/bin/python -m unittest discover -s tests/backup -q",
+    ".venv/bin/python scripts/backup/validate_dual.py --serve --work-dir /private/tmp/cpag-r14-dual-backup-live7"
+  ],
+  "unit_tests": {
+    "passed": 30
+  },
+  "disposable_postgresql": {
+    "source": "m4_validation",
+    "restored": "m4_restore_validation",
+    "restore_target_database_absent_before": true,
+    "task_rows_equal": true,
+    "attempt_history_equal": true,
+    "file_inventory_equal": true
+  },
+  "restored_api": {
+    "job": "r14-dual-backup",
+    "state": "succeeded",
+    "source_result_equal_to_restored_result": true,
+    "operation_original_references": 4,
+    "change_original_references": 2,
+    "missing_or_tampered_refusals": {
+      "missing_original_capture": {
+        "rejected": true,
+        "http_status": 409
+      },
+      "tampered_original_process": {
+        "rejected": true,
+        "http_status": 409
+      },
+      "missing_nested_artifact": {
+        "rejected": true,
+        "http_status": 409
+      }
+    }
+  },
+  "private_live_state_file": "/private/tmp/cpag-r14-dual-backup-live7/state.json",
+  "credential_note": "private state file mode 0600 contains disposable worker and coordinator credentials; no credentials included here"
+}
