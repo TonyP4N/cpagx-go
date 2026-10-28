@@ -40,6 +40,17 @@ class EngineeringSnapshotTests(unittest.TestCase):
         self.assertIn('control/jobs/a/proof.json', meta['host_files'])
         self.assertIn('config.json', meta['host_files'])
 
+    def test_format6_requires_exact_preparation_metadata_set_but_legacy_stays_readable(self):
+        self.data.update(format_version=6,catalog={name:[] for name in bundle.V5_CATALOG_TABLES})
+        path=self.source/'database-and-shared/bundle.json'
+        def write():
+            path.write_text(json.dumps(self.data));self.meta['database_bundle_sha256']=bundle.sha(path)
+            (self.source/'snapshot.json').write_text(json.dumps(self.meta))
+        write()
+        with self.assertRaisesRegex(ValueError,'format6 preparation catalog missing'):engineering.verify(self.source)
+        self.data['catalog']={name:[] for name in bundle.CATALOG_TABLES};write()
+        self.assertEqual(engineering.verify(self.source)[1]['format_version'],6)
+
     def test_missing_and_tampered_control_proof_rejected(self):
         proof = self.source/'host/control/jobs/a/proof.json'
         proof.write_text('altered')

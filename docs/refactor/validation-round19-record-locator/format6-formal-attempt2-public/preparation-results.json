@@ -1,0 +1,541 @@
+{
+  "checks": [
+    {
+      "run_id": "6424c9eb949ecbd63de06f1e749ba031",
+      "stage": "original",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.2739835,
+          "storage_seconds": 0.006656374999999992,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.011415042,
+          "projection_seconds": 0.077495917,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.17829975,
+          "child_resource_records": [
+            {
+              "pid": 26868,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "0a7c3b9a2e0b8754ca05e72d4eb19b1f1ec7ad8f35a40c4758d930f00f96f02f",
+        "document_size": 6280,
+        "duration_seconds": 0.2739835,
+        "id": "0790bf1ad2f94a42582842e5daa775da6ad7e831fa93265833ad019c32483b5c",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "dacf0c92bd93541dcdeca0a1f58057612ccd9be3ad177506785864783fda2b4f",
+        "reason_code": "",
+        "run_id": "6424c9eb949ecbd63de06f1e749ba031",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "3889aa6b1f4b80001f5d126ae8bf7d99",
+      "stage": "original",
+      "mode": "offline",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.089832834,
+          "storage_seconds": 0.002252625000000008,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.007132417,
+          "projection_seconds": 0.065092041,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.015236417,
+          "child_resource_records": [
+            {
+              "pid": 27589,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "8f21e8ed2317c8e7b804c68e314ab31f64d504a86b6279f99a0e7fa87431ccc4",
+        "document_size": 5432,
+        "duration_seconds": 0.089832834,
+        "id": "04e7283ebd44337bb00dc94767b98290a8fda0e0216aae7e4b82ca4d4218551d",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "6c959d6c04a6a91f0675e8689765f48fb6cca6ce5ba849b657743fcda4127eb6",
+        "reason_code": "",
+        "run_id": "3889aa6b1f4b80001f5d126ae8bf7d99",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "a3515576ea1a7ad1f65982389ba9c036",
+      "stage": "original",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.240410708,
+          "storage_seconds": 0.004930208000000019,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.011993833,
+          "projection_seconds": 0.097343167,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.126021792,
+          "child_resource_records": [
+            {
+              "pid": 28635,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "6af0de86a12deabfa909c71d703f8221993a992bcc8b743da0e0ca5cbb6ba141",
+        "document_size": 6280,
+        "duration_seconds": 0.240410708,
+        "id": "7a7a8f6083b0b7d8d733115ec4e1814a5175d1f80490f7f831c10d3b7ea1a8e4",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "464ffea6de25a3949472197fab2d63895d1a6fe71ef732bdbaaad3c45ac1edf2",
+        "reason_code": "",
+        "run_id": "a3515576ea1a7ad1f65982389ba9c036",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "2592cd473349ea72fb22cd88163dd58a",
+      "stage": "original",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.273498,
+          "storage_seconds": 0.008381875000000039,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.030162,
+          "projection_seconds": 0.080788417,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.154045125,
+          "child_resource_records": [
+            {
+              "pid": 29623,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "d2dbb9347648688f7b9402ce74e9a03d7afbd176eaac905fe3cf1435508e3d80",
+        "document_size": 6280,
+        "duration_seconds": 0.273498,
+        "id": "33092f8b93088f386959ea3493d148bdc2d1d15314a79477e8a5bb0ad678bae3",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "f4fde12c645877076218f46af4ec9c1ee7946d9048a60e63d671effe74c03ea4",
+        "reason_code": "",
+        "run_id": "2592cd473349ea72fb22cd88163dd58a",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "c9a1c3575ed849ebf880f08fff21ef9c",
+      "stage": "original",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.239790667,
+          "storage_seconds": 0.003065666999999994,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.010530667,
+          "projection_seconds": 0.087144042,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.138901875,
+          "child_resource_records": [
+            {
+              "pid": 32199,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "e1de2162bdc5bc5d24a0be097aeca30ec778c91d164f697893261d5a924ccc77",
+        "document_size": 6280,
+        "duration_seconds": 0.239790667,
+        "id": "43d23f6c6ceb72397d7cb42450082042b6b6af44b0275a9140296405e5a94ec7",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "73cec551a5cdaed6e0070ba636187071188aa238a4a92dddc1905bddd37c651a",
+        "reason_code": "",
+        "run_id": "c9a1c3575ed849ebf880f08fff21ef9c",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "216db5ed0d2f6b66286f0529499bae7a",
+      "stage": "original",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.268423625,
+          "storage_seconds": 0.0029826669999999944,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.008400541,
+          "projection_seconds": 0.070123708,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.1866165,
+          "child_resource_records": [
+            {
+              "pid": 33300,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "48c599309ff52bd11ec5160686c80149c81c07e32665252a45666a8603982f3e",
+        "document_size": 6280,
+        "duration_seconds": 0.268423625,
+        "id": "90203402e28ab4fd8bbbd14b74f67d268b1d49a5bee5280744fdd28ef0dfeb75",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "73e8d3a80e7df85416a6ced9e4ae53439dadbe94dce15d3c8f0354c0daf02796",
+        "reason_code": "",
+        "run_id": "216db5ed0d2f6b66286f0529499bae7a",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": false
+    },
+    {
+      "run_id": "6424c9eb949ecbd63de06f1e749ba031",
+      "stage": "restored",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.2739835,
+          "storage_seconds": 0.006656374999999992,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.011415042,
+          "projection_seconds": 0.077495917,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.17829975,
+          "child_resource_records": [
+            {
+              "pid": 26868,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "0a7c3b9a2e0b8754ca05e72d4eb19b1f1ec7ad8f35a40c4758d930f00f96f02f",
+        "document_size": 6280,
+        "duration_seconds": 0.2739835,
+        "id": "0790bf1ad2f94a42582842e5daa775da6ad7e831fa93265833ad019c32483b5c",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "dacf0c92bd93541dcdeca0a1f58057612ccd9be3ad177506785864783fda2b4f",
+        "reason_code": "",
+        "run_id": "6424c9eb949ecbd63de06f1e749ba031",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    },
+    {
+      "run_id": "3889aa6b1f4b80001f5d126ae8bf7d99",
+      "stage": "restored",
+      "mode": "offline",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.089832834,
+          "storage_seconds": 0.002252625000000008,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.007132417,
+          "projection_seconds": 0.065092041,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.015236417,
+          "child_resource_records": [
+            {
+              "pid": 27589,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "8f21e8ed2317c8e7b804c68e314ab31f64d504a86b6279f99a0e7fa87431ccc4",
+        "document_size": 5432,
+        "duration_seconds": 0.089832834,
+        "id": "04e7283ebd44337bb00dc94767b98290a8fda0e0216aae7e4b82ca4d4218551d",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "6c959d6c04a6a91f0675e8689765f48fb6cca6ce5ba849b657743fcda4127eb6",
+        "reason_code": "",
+        "run_id": "3889aa6b1f4b80001f5d126ae8bf7d99",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    },
+    {
+      "run_id": "a3515576ea1a7ad1f65982389ba9c036",
+      "stage": "restored",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.240410708,
+          "storage_seconds": 0.004930208000000019,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.011993833,
+          "projection_seconds": 0.097343167,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.126021792,
+          "child_resource_records": [
+            {
+              "pid": 28635,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "6af0de86a12deabfa909c71d703f8221993a992bcc8b743da0e0ca5cbb6ba141",
+        "document_size": 6280,
+        "duration_seconds": 0.240410708,
+        "id": "7a7a8f6083b0b7d8d733115ec4e1814a5175d1f80490f7f831c10d3b7ea1a8e4",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "464ffea6de25a3949472197fab2d63895d1a6fe71ef732bdbaaad3c45ac1edf2",
+        "reason_code": "",
+        "run_id": "a3515576ea1a7ad1f65982389ba9c036",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    },
+    {
+      "run_id": "2592cd473349ea72fb22cd88163dd58a",
+      "stage": "restored",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.273498,
+          "storage_seconds": 0.008381875000000039,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.030162,
+          "projection_seconds": 0.080788417,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.154045125,
+          "child_resource_records": [
+            {
+              "pid": 29623,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "d2dbb9347648688f7b9402ce74e9a03d7afbd176eaac905fe3cf1435508e3d80",
+        "document_size": 6280,
+        "duration_seconds": 0.273498,
+        "id": "33092f8b93088f386959ea3493d148bdc2d1d15314a79477e8a5bb0ad678bae3",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "f4fde12c645877076218f46af4ec9c1ee7946d9048a60e63d671effe74c03ea4",
+        "reason_code": "",
+        "run_id": "2592cd473349ea72fb22cd88163dd58a",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    },
+    {
+      "run_id": "c9a1c3575ed849ebf880f08fff21ef9c",
+      "stage": "restored",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.239790667,
+          "storage_seconds": 0.003065666999999994,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.010530667,
+          "projection_seconds": 0.087144042,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.138901875,
+          "child_resource_records": [
+            {
+              "pid": 32199,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "e1de2162bdc5bc5d24a0be097aeca30ec778c91d164f697893261d5a924ccc77",
+        "document_size": 6280,
+        "duration_seconds": 0.239790667,
+        "id": "43d23f6c6ceb72397d7cb42450082042b6b6af44b0275a9140296405e5a94ec7",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "73cec551a5cdaed6e0070ba636187071188aa238a4a92dddc1905bddd37c651a",
+        "reason_code": "",
+        "run_id": "c9a1c3575ed849ebf880f08fff21ef9c",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    },
+    {
+      "run_id": "216db5ed0d2f6b66286f0529499bae7a",
+      "stage": "restored",
+      "mode": "replay",
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 0.268423625,
+          "storage_seconds": 0.0029826669999999944,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.008400541,
+          "projection_seconds": 0.070123708,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.1866165,
+          "child_resource_records": [
+            {
+              "pid": 33300,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "48c599309ff52bd11ec5160686c80149c81c07e32665252a45666a8603982f3e",
+        "document_size": 6280,
+        "duration_seconds": 0.268423625,
+        "id": "90203402e28ab4fd8bbbd14b74f67d268b1d49a5bee5280744fdd28ef0dfeb75",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "73e8d3a80e7df85416a6ced9e4ae53439dadbe94dce15d3c8f0354c0daf02796",
+        "reason_code": "",
+        "run_id": "216db5ed0d2f6b66286f0529499bae7a",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      },
+      "ready_without_recreation_after_restore": true
+    }
+  ],
+  "negative": [
+    {
+      "mutation": "ready_missing_bytea",
+      "result": "database_check_constraint_rejected"
+    },
+    {
+      "mutation": "queued",
+      "result": "backup_refused_nonterminal_preparation"
+    },
+    {
+      "mutation": "preparing",
+      "result": "backup_refused_nonterminal_preparation"
+    },
+    {
+      "mutation": "same_size_prepared_bytea",
+      "result": "backup_refused_checksum_mismatch",
+      "size_unchanged": true
+    }
+  ],
+  "roles": [
+    {
+      "stage": "original",
+      "ungranted_preparation_read": 404,
+      "granted_preparation_read": 200,
+      "viewer_prepare_write": 403
+    },
+    {
+      "stage": "restored",
+      "granted_preparation_read": 200,
+      "viewer_prepare_write": 403
+    }
+  ],
+  "scope": "small synthetic real service preparation + v3 logical CSV locator + format6 dump/empty database restore; no capacity or industrial acceptance"
+}

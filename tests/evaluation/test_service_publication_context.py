@@ -55,6 +55,9 @@ class ServicePublicationTests(unittest.TestCase):
                 changed=copy.deepcopy(expected);changed['binding'][key]=value
                 with self.subTest(key=key),service_publication(out,sha,prepared_adapted=changed),self.assertRaisesRegex(ValueError,'prepared_projection'):
                     adapt_artifact(out,**CONTEXT)
+            changed=copy.deepcopy(expected);changed['predictions']['run_id']='other-run'
+            with service_publication(out,sha,prepared_adapted=changed),self.assertRaisesRegex(ValueError,'prepared_prediction_identity_mismatch'):
+                adapt_artifact(out,**CONTEXT)
             with self.assertRaisesRegex(ValueError,'requires_service_publication'):
                 with service_publication(out,None,prepared_adapted=expected):pass
 

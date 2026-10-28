@@ -1,0 +1,5 @@
+--- FAIL: TestPreparationForeignScopeCannotClaimOrSilentlyWait (0.00s)
+    evaluation_preparation_test.go:106: foreign coordinator exit is unconfirmed but safe reason is missing
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	0.480s
+FAIL

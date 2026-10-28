@@ -71,8 +71,12 @@ func (s *Server) spoolCLI(parent context.Context, base, action string, seconds t
 		return nil, errors.New("replay spool bridge deadline exceeded while queued")
 	}
 	temporaryBase := ""
-	if s.ControlRoot != "" {
+	if execution, ok := PreparationExecutionFrom(parent); ok {
+		temporaryBase = execution.TemporaryRoot
+	} else if s.ControlRoot != "" {
 		temporaryBase = filepath.Join(s.ControlRoot, "spool-bridge")
+	}
+	if temporaryBase != "" {
 		if err = os.MkdirAll(temporaryBase, 0700); err != nil {
 			return nil, err
 		}
@@ -91,7 +95,12 @@ func (s *Server) spoolCLI(parent context.Context, base, action string, seconds t
 	}
 	defer os.RemoveAll(scratch)
 	argv := []string{"-m", "cpag_core.replay_spool_cli", "--root", root, "--action", action}
-	cmd := exec.CommandContext(ctx, python, append(argv, args...)...)
+	guarded, files, err := GuardPreparationCommand(parent, append(argv, args...))
+	if err != nil {
+		return nil, err
+	}
+	cmd := exec.CommandContext(ctx, python, guarded...)
+	cmd.ExtraFiles = files
 	cmd.WaitDelay = time.Second
 	cmd.Env = os.Environ()
 	pythonPath := s.PythonPath
@@ -99,6 +108,9 @@ func (s *Server) spoolCLI(parent context.Context, base, action string, seconds t
 		pythonPath = filepath.Clean(filepath.Join(dualSchemaDir(), "../services/analysis/src"))
 	}
 	cmd.Env = append(cmd.Env, "PYTHONPATH="+pythonPath, "PYTHONDONTWRITEBYTECODE=1", "TMPDIR="+scratch)
+	if execution, ok := PreparationExecutionFrom(parent); ok {
+		cmd.Env = append(cmd.Env, "CPAG_PREPARATION_METRICS="+filepath.Join(execution.TemporaryRoot, "guard.jsonl"))
+	}
 	stdout, stderr := &boundedCLIOutput{maximum: spoolJSONLimit}, &boundedCLIOutput{maximum: 65536}
 	cmd.Stdout = stdout
 	cmd.Stderr = stderr

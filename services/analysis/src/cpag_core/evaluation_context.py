@@ -91,6 +91,9 @@ def prepared_projection(root):
                 'config_fingerprint', 'tool_versions', 'result_hashes'):
         if binding.get(key) != manifest.get(key):
             raise ValueError('prepared_projection_publication_mismatch: ' + key)
+    for key in ('run_id','synthetic','input_fingerprint','config_fingerprint'):
+        if adapted['predictions'].get(key) != manifest.get(key):
+            raise ValueError('prepared_prediction_identity_mismatch: ' + key)
     if binding.get('artifact_sha256') != hashes:
         raise ValueError('prepared_projection_artifact_binding_mismatch')
     return adapted

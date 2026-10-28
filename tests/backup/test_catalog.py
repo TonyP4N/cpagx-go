@@ -103,7 +103,11 @@ class CatalogBackupTests(unittest.TestCase):
         return bundle.audit_catalog(catalog if catalog is not None else self.catalog,[self.job],self.root)
 
     def test_old_format4_catalog_without_evaluation_table_still_audits(self):
-        old=copy.deepcopy(self.catalog);old.pop('v3_evaluations')
+        old={name:copy.deepcopy(self.catalog[name]) for name in bundle.LEGACY_CATALOG_TABLES}
+        self.assertTrue(self.audited(old)['valid'])
+
+    def test_old_format5_evaluation_catalog_still_audits_without_preparation_tables(self):
+        old={name:copy.deepcopy(self.catalog[name]) for name in bundle.V5_CATALOG_TABLES}
         self.assertTrue(self.audited(old)['valid'])
 
     def test_evaluation_cannot_reference_cancelled_or_missing_run(self):
@@ -238,30 +242,32 @@ class CatalogBackupTests(unittest.TestCase):
         self.assertNotIn('secret',json.dumps(self.audited(changed)))
 
     def test_restore_revokes_sessions_before_file_copy(self):
-        source=Path(self.temp.name)/'bundle';source.mkdir()
-        shutil.copytree(self.root,source/'files')
-        (source/'database.dump').write_bytes(b'mocked dump')
-        manifest={'format_version':4,'synthetic_validation_only':True,'rows':[self.job],
-                  'attempts':[],'catalog':self.catalog,'database_sha256':bundle.sha(source/'database.dump'),
-                  'files':bundle.inventory(source/'files')}
-        (source/'bundle.json').write_text(json.dumps(manifest))
-        dest=Path(self.temp.name)/'restored'
-        calls=[]
-        def revoke(_):calls.append('revoke');return 1
-        def copy(src,dst,*args,**kwargs):
-            calls.append('copy');return shutil_copy(src,dst,*args,**kwargs)
-        shutil_copy=shutil.copytree
-        with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
-             patch.object(bundle,'rows_now',return_value=[self.job]),\
-             patch.object(bundle,'attempts_now',return_value=[]),\
-             patch.object(bundle,'catalog_now',return_value=self.catalog),\
-             patch.object(bundle,'revoke_restored_sessions',side_effect=revoke),\
-             patch.object(bundle.shutil,'copytree',side_effect=copy):
-            result=bundle.restore('mock',source,dest)
-        self.assertTrue(result['valid'],result)
-        self.assertEqual(calls[0],'revoke')
-        self.assertIn('copy',calls[1:])
-        self.assertEqual(result['sessions_revoked'],1)
+        for version,names in ((4,bundle.LEGACY_CATALOG_TABLES),(5,bundle.V5_CATALOG_TABLES),(6,bundle.CATALOG_TABLES)):
+            selected={name:copy.deepcopy(self.catalog[name]) for name in names}
+            source=Path(self.temp.name)/('bundle'+str(version));source.mkdir()
+            shutil.copytree(self.root,source/'files')
+            (source/'database.dump').write_bytes(b'mocked dump')
+            manifest={'format_version':version,'synthetic_validation_only':True,'rows':[self.job],
+                      'attempts':[],'catalog':selected,'database_sha256':bundle.sha(source/'database.dump'),
+                      'files':bundle.inventory(source/'files')}
+            (source/'bundle.json').write_text(json.dumps(manifest))
+            dest=Path(self.temp.name)/('restored'+str(version))
+            calls=[]
+            def revoke(_):calls.append('revoke');return 1
+            def tracked_copy(src,dst,*args,**kwargs):
+                calls.append('copy');return shutil_copy(src,dst,*args,**kwargs)
+            shutil_copy=shutil.copytree
+            with patch.object(bundle.subprocess,'run'),patch.object(bundle,'pg'),\
+                 patch.object(bundle,'rows_now',return_value=[self.job]),\
+                 patch.object(bundle,'attempts_now',return_value=[]),\
+                 patch.object(bundle,'catalog_now',return_value=selected),\
+                 patch.object(bundle,'revoke_restored_sessions',side_effect=revoke),\
+                 patch.object(bundle.shutil,'copytree',side_effect=tracked_copy):
+                result=bundle.restore('mock',source,dest)
+            self.assertTrue(result['valid'],result)
+            self.assertEqual(calls[0],'revoke')
+            self.assertIn('copy',calls[1:])
+            self.assertEqual(result['sessions_revoked'],1)
 
     def test_v3_snapshot_includes_catalog_without_auth_verifiers(self):
         output='CATALOG_PRESENT:true\nSNAPSHOT:mock\nROWS:'+json.dumps([self.job])+'\nATTEMPTS:[]\n'
@@ -273,7 +279,7 @@ class CatalogBackupTests(unittest.TestCase):
         dest=Path(self.temp.name)/'backup'
         with patch.object(bundle.subprocess,'Popen',return_value=connection),patch.object(bundle,'pg',side_effect=dump):
             result=bundle.backup('mock','m4_validation',self.root,dest)
-        self.assertEqual(result['format_version'],5)
+        self.assertEqual(result['format_version'],6)
         self.assertTrue(result['catalog_audit']['valid'])
         self.assertEqual(result['source_audit']['unreferenced_files'],[])
         self.assertIn('v3_run_bindings',connection.stdin.getvalue())

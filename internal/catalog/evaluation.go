@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -73,6 +74,18 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 	internal, ok := s.Internal.(*jobapi.Server)
 	if !ok {
 		fail(w, 503, "evaluation_adapter_unavailable", "evaluation adapter unavailable")
+		return
+	}
+	if prepared, _, handled, err := s.trustedPreparedAdapted(r, id, projection); handled {
+		if err != nil {
+			fail(w, 409, "evaluation_preparation_not_ready", "prepared projection is not ready or its source changed")
+			return
+		}
+		if s.audit(ctx, p, dataset, id, "evaluation_input_read", "ok") != nil {
+			fail(w, 503, "audit_unavailable", "evaluation projection audit unavailable")
+			return
+		}
+		respond(w, 200, json.RawMessage(prepared))
 		return
 	}
 	items, base, err := internal.VerifiedDualArtifacts(r, id) // also verifies replay publications
@@ -194,17 +207,25 @@ func (s *Server) runEvaluationProjection(ctx context.Context, artifact, batch, s
 		}
 		args = append(args, "--service-publication-sha256", digest)
 	}
+	args, extra, err := jobapi.GuardPreparationCommand(ctx, args)
+	if err != nil {
+		return nil, err
+	}
 	cmd := exec.CommandContext(ctx, s.cfg.PythonBin, args...)
+	cmd.ExtraFiles = extra
 	cmd.Env = os.Environ()
 	if s.cfg.PythonPath != "" {
 		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
+	}
+	if execution, ok := jobapi.PreparationExecutionFrom(ctx); ok {
+		cmd.Env = append(cmd.Env, "TMPDIR="+execution.TemporaryRoot, "CPAG_PREPARATION_METRICS="+filepath.Join(execution.TemporaryRoot, "guard.jsonl"))
 	}
 	cmd.WaitDelay = time.Second
 	out := &evaluationBuffer{limit: limit}
 	diagnostics := &evaluationBuffer{limit: 8192}
 	cmd.Stdout, cmd.Stderr = out, diagnostics
 	if err := cmd.Run(); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("%w: %s", err, diagnostics.String())
 	}
 	decoder := json.NewDecoder(bytes.NewReader(out.Bytes()))
 	var value map[string]any

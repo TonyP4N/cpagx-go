@@ -144,6 +144,19 @@ class CapacityGateTests(unittest.TestCase):
             path, value = self.case(root); value['cache_condition'] = 'verified_cold'; path.write_text(json.dumps(value))
             with self.assertRaisesRegex(ValueError, 'cold_cache_evidence'): capacity.read_case(path)
 
+    def test_missing_backlog_values_remain_unknown_not_zero(self):
+        result = capacity.backlog_measurement({'backlog': {'samples': [{}, {'waiting_operations': 3}]}})
+        for field in ('unparsed_records', 'waiting_operations', 'open_window_operations'):
+            self.assertIsNone(result['max_' + field])
+        empty = capacity.backlog_measurement({})
+        self.assertIsNone(empty['max_unparsed_records'])
+        valid = capacity.backlog_measurement({'backlog': {'samples': [
+            {'unparsed_records': 0, 'waiting_operations': 2, 'open_window_operations': 1},
+            {'unparsed_records': 0, 'waiting_operations': 0, 'open_window_operations': 3}]}})
+        self.assertEqual(valid['max_unparsed_records'], 0)
+        self.assertEqual(valid['max_waiting_operations'], 2)
+        self.assertEqual(valid['max_open_window_operations'], 3)
+
     def test_command_bootstraps_without_pythonpath(self):
         import os
         env = dict(os.environ); env.pop('PYTHONPATH', None)

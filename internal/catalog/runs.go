@@ -40,6 +40,10 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 		fail(w, 404, "not_found", "run not found")
 		return
 	}
+	if len(parts) == 3 && parts[2] == "evaluation-preparation" {
+		s.evaluationPreparation(w, r, p, dataset, id, mode)
+		return
+	}
 	if s.serveEvaluations(w, r, p, dataset, id, parts) {
 		return
 	}

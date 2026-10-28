@@ -32,16 +32,20 @@ CATALOG_TABLES = (
     'v3_run_bindings', 'v3_preflights', 'v3_audit_events',
 )
 LEGACY_CATALOG_TABLES = CATALOG_TABLES
-CATALOG_TABLES = (*CATALOG_TABLES, 'v3_evaluations')
+V5_CATALOG_TABLES = (*CATALOG_TABLES, 'v3_evaluations')
+PREPARATION_TABLES = ('v3_evaluation_preparations','v3_evaluation_preparation_attempts')
+CATALOG_TABLES = (*V5_CATALOG_TABLES, *PREPARATION_TABLES)
 CATALOG_ORDER = {
     'v3_dataset_acl': 'dataset_id,user_id',
     'v3_run_bindings': 'job_id',
+    'v3_evaluation_preparation_attempts': 'preparation_id,attempt',
 }
 CATALOG_REDACT = {
     # The database dump is private operational material. The human-readable
     # manifest must not duplicate authentication verifiers or session tokens.
     'v3_users': " - 'password_hash'",
     'v3_sessions': " - 'token_hash' - 'revoked_at'",
+    'v3_evaluation_preparation_attempts': " - 'owner'",
 }
 
 
@@ -51,6 +55,15 @@ def catalog_query(table, prefix=False):
         raise ValueError('unsupported catalog table')
     order = CATALOG_ORDER.get(table, 'id')
     projection = 'to_jsonb(t)' + CATALOG_REDACT.get(table, '')
+    if table=='v3_evaluation_preparations':
+        # Do not build to_jsonb(t) and subtract bytea afterwards: PostgreSQL
+        # would already have expanded each 128 MiB body to a huge hex string.
+        names=('id','job_id','dataset_id','attempt','payload_sha256','publication_sha256',
+            'artifact_path','config_fingerprint','input_fingerprint','batch','projection',
+            'strategy_version','state','preparation_attempt','coordination_scope','reason_code',
+            'document_limit','document_sha256','document_size','inventory_json','cost_json',
+            'created_at','updated_at','started_at','finished_at')
+        projection='jsonb_build_object('+','.join("'"+name+"',t."+name for name in names)+            ",'document_bytes_present',t.document_bytes IS NOT NULL,'document_stored_size',octet_length(t.document_bytes))"
     result = f"coalesce(jsonb_agg({projection} ORDER BY {order}),'[]'::jsonb)::text"
     marker = "'CATALOG:" + table + ":'||" if prefix else ''
     return f'SELECT {marker}{result} FROM {table} t;'
@@ -412,6 +425,132 @@ def audit_attempts(rows, attempts):
     return {'valid':not errors,'errors':errors,'attempt_count':len(attempts),'verified_attempt_count':len(seen)}
 
 
+def audit_preparation_metadata(tables, rows, root):
+    """Format-6 terminal metadata and publication bytes, without large DB bodies."""
+    full_digest=lambda value:hashlib.sha256(canonical(value)).hexdigest()
+    errors=[];jobs={row.get('id'):row for row in rows};seen=set();total=0
+    preparations={};bindings={row.get('job_id'):row for row in tables.get('v3_run_bindings',[])}
+    datasets={row.get('id'):row for row in tables.get('v3_datasets',[])}
+    digest_ok=lambda value:isinstance(value,str) and len(value)==64 and all(c in '0123456789abcdef' for c in value)
+    for row in tables.get('v3_evaluation_preparations',[]):
+        try:
+            identity=row.get('id')
+            if not isinstance(identity,str) or not identity or identity in preparations:raise ValueError('preparation identity invalid or duplicate')
+            preparations[identity]=row
+            if any(key in row for key in ('document_bytes','owner','error_detail')):raise ValueError('private preparation fields in catalog metadata')
+            if row.get('state') not in ('ready','failed'):raise ValueError('pending evaluation preparation blocks terminal snapshot')
+            if not isinstance(row.get('cost_json'),dict) or len(canonical(row['cost_json']))>16384:raise ValueError('preparation cost metadata invalid')
+            if row.get('strategy_version')!='evaluation-preparation-1' or row.get('projection') not in ('network','process','dual'):raise ValueError('unsupported preparation strategy or projection')
+            job=jobs.get(row.get('job_id'));binding=bindings.get(row.get('job_id'));dataset=datasets.get(row.get('dataset_id'))
+            if (job is None or job.get('state')!='succeeded' or binding is None or dataset is None
+                    or binding.get('dataset_id')!=row.get('dataset_id') or row.get('batch')!=dataset.get('batch')
+                    or row.get('attempt')!=job.get('attempt') or row.get('artifact_path')!=job.get('artifact_path')
+                    or row.get('publication_sha256')!=job.get('artifact_sha256')
+                    or row.get('payload_sha256')!=full_digest(job.get('payload'))
+                    or row.get('config_fingerprint')!=job.get('payload',{}).get('config_fingerprint')):
+                raise ValueError('preparation job/publication/context mismatch')
+            unique=(row['job_id'],row['attempt'],row['payload_sha256'],row['publication_sha256'],row['batch'],row['projection'],row['strategy_version'])
+            if unique in seen:raise ValueError('duplicate preparation publication/projection')
+            seen.add(unique)
+            if row.get('document_limit') not in (8388608,134217728):raise ValueError('unsupported preparation byte budget')
+            expected_limit=134217728 if job['payload'].get('resource_profile') in ('r19-dev-s100-1','engineering-capacity-1') else 8388608
+            if row['document_limit']!=expected_limit:raise ValueError('preparation resource byte budget mismatch')
+            attempt=row.get('preparation_attempt')
+            if type(attempt) is not int or not 1<=attempt<=100:raise ValueError('preparation attempt missing')
+            if row['state']=='failed':
+                if (row.get('document_bytes_present') is not False or row.get('document_size')!=0
+                        or row.get('document_stored_size') is not None or row.get('document_sha256') is not None):
+                    raise ValueError('failed preparation exposes partial bytes')
+                continue
+            size=row.get('document_size')
+            if (row.get('document_bytes_present') is not True or type(size) is not int or not 0<size<=row['document_limit']
+                    or type(row.get('document_stored_size')) is not int or row.get('document_stored_size')!=size or not digest_ok(row.get('document_sha256'))
+                    or not digest_ok(row.get('input_fingerprint'))):raise ValueError('ready preparation byte identity invalid')
+            total+=size
+            if total>1073741824:raise ValueError('preparation global ready byte budget exceeded')
+            snapshot=row.get('inventory_json')
+            fields={'version','run_id','attempt_id','payload_sha256','artifact_path','publication_sha256',
+                'core_manifest_sha256','config_fingerprint','input_fingerprint','mode','files'}
+            if not isinstance(snapshot,dict) or set(snapshot)!=fields or snapshot.get('version')!='verified-publication-snapshot-1':raise ValueError('preparation snapshot version/shape invalid')
+            expected={'run_id':row['job_id'],'attempt_id':row['attempt'],**{key:row[key] for key in ('payload_sha256','artifact_path','publication_sha256','config_fingerprint','input_fingerprint')}}
+            if any(snapshot[key]!=value for key,value in expected.items()):raise ValueError('preparation frozen snapshot mismatch')
+            base=Path(row['artifact_path']).parent
+            wrapper_path=safe(root,(base/'manifest.json').as_posix());wrapper=strict_json(wrapper_path.read_text(encoding='utf-8'))
+            if sha(wrapper_path)!=row['publication_sha256'] or safe(root,row['artifact_path']).read_bytes()!=wrapper_path.read_bytes():raise ValueError('preparation publication anchor bytes changed')
+            files=snapshot['files'];expected_files=[{'path':item['path'],'sha256':item['sha256'],'size_bytes':item['size']} for item in wrapper['artifacts']]
+            if files!=expected_files:raise ValueError('preparation exact artifact inventory mismatch')
+            for item in files:
+                if (set(item)!= {'path','sha256','size_bytes'} or not digest_ok(item['sha256'])
+                        or type(item['size_bytes']) is not int or item['size_bytes']<0):raise ValueError('preparation artifact entry invalid')
+                file=safe(root,(base/item['path']).as_posix())
+                if not file.is_file() or file.stat().st_size!=item['size_bytes'] or sha(file)!=item['sha256']:raise ValueError('preparation original/publication bytes changed')
+            manifest_path=safe(root,(base/'run_manifest.json').as_posix());manifest=strict_json(manifest_path.read_text(encoding='utf-8'))
+            if sha(manifest_path)!=snapshot['core_manifest_sha256']:raise ValueError('preparation core manifest bytes changed')
+            if (manifest.get('run_id')!=row['job_id'] or manifest.get('attempt_id')!=row['attempt']
+                    or manifest.get('mode')!=snapshot['mode'] or manifest.get('input_fingerprint')!=row['input_fingerprint']
+                    or manifest.get('config_fingerprint')!=row['config_fingerprint']):raise ValueError('preparation core source identity mismatch')
+        except (ValueError,OSError,KeyError,TypeError) as error:
+            errors.append({'scope':'v3_evaluation_preparations','id':row.get('id'),'reason':str(error)})
+    attempts={}
+    for row in tables.get('v3_evaluation_preparation_attempts',[]):
+        try:
+            key=(row.get('preparation_id'),row.get('attempt'));parent=preparations.get(key[0])
+            if 'owner' in row:raise ValueError('private preparation owner in metadata')
+            if parent is None or key in attempts or type(key[1]) is not int or not 1<=key[1]<=parent['preparation_attempt']:raise ValueError('preparation attempt ownership/identity mismatch')
+            if row.get('state') not in ('ready','failed') or row.get('finished_at') is None:raise ValueError('pending preparation attempt blocks terminal snapshot')
+            if row.get('state')=='ready' and not digest_ok(row.get('document_sha256')):raise ValueError('ready preparation attempt digest missing')
+            if row.get('state')=='failed' and row.get('document_sha256') is not None:raise ValueError('failed preparation attempt carries ready digest')
+            if key[1]==parent['preparation_attempt'] and (row['state']!=parent['state'] or row.get('document_sha256')!=parent.get('document_sha256')):raise ValueError('latest preparation attempt differs from parent')
+            attempts[key]=row
+        except (ValueError,KeyError,TypeError) as error:
+            errors.append({'scope':'v3_evaluation_preparation_attempts','id':row.get('preparation_id'),'reason':str(error)})
+    for identity,row in preparations.items():
+        number=row.get('preparation_attempt')
+        if type(number) is int and 1<=number<=100 and any((identity,n) not in attempts for n in range(1,number+1)):
+            errors.append({'scope':'v3_evaluation_preparation_attempts','id':identity,'reason':'preparation attempt history incomplete'})
+    return {'valid':not errors,'errors':errors,'ready_bytes':total,'scope':'terminal metadata and actual publication bytes; prepared document bytea verified separately'}
+
+
+def audit_preparation_documents(container,db,catalog,rows,root,*,semantic_cache=None):
+    """Read bounded real bytea chunks and independently compare source projection.
+
+    Bodies are retained only in pg_dump, never duplicated into public metadata.
+    Full offline adaptation is done once per run/projection; its cost is reported.
+    """
+    import time
+    from cpag_core.evaluation_artifacts import adapt_artifact
+    metadata=audit_preparation_metadata(catalog,rows,root)
+    if not metadata['valid']:raise ValueError('preparation metadata invalid: '+json.dumps(metadata['errors']))
+    cache={} if semantic_cache is None else semantic_cache;results=[]
+    for row in catalog.get('v3_evaluation_preparations',[]):
+        if row['state']!='ready':continue
+        started=time.monotonic();digest=hashlib.sha256();size=0
+        # Quote the data value, not the fixed SQL structure. No shell execution.
+        quoted="'"+row['id'].replace("'","''")+"'"
+        with tempfile.TemporaryFile() as retained:
+            while size<row['document_size']:
+                count=min(1024*1024,row['document_size']-size)
+                query=f"SELECT encode(substring(document_bytes FROM {size+1} FOR {count}),'hex') FROM v3_evaluation_preparations WHERE id={quoted};"
+                response=pg(container,db,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-c',query,capture_output=True,text=True).stdout.strip()
+                try:chunk=bytes.fromhex(response)
+                except ValueError as error:raise ValueError('preparation bytea encoding invalid') from error
+                if len(chunk)!=count:raise ValueError('preparation bytea missing or truncated')
+                size+=len(chunk);digest.update(chunk);retained.write(chunk)
+            if size!=row['document_size'] or digest.hexdigest()!=row['document_sha256']:raise ValueError('preparation bytea checksum mismatch')
+            retained.seek(0);adapted=strict_json(retained.read().decode('utf-8'))
+        key=tuple(row[name] for name in ('job_id','attempt','payload_sha256','publication_sha256','batch','projection','strategy_version'))
+        computed=False
+        if key not in cache:
+            expected=adapt_artifact(safe(root,str(Path(row['artifact_path']).parent)),batch=row['batch'],
+                sample_sha256=row['input_fingerprint'],projection=row['projection'])
+            cache[key]=hashlib.sha256(canonical(expected)).hexdigest();computed=True
+        if hashlib.sha256(canonical(adapted)).hexdigest()!=cache[key]:raise ValueError('prepared document differs from independently verified source projection')
+        results.append({'id':row['id'],'document_sha256':row['document_sha256'],'size_bytes':size,
+            'source_projection_equal':True,'semantic_verification_executed':computed,'elapsed_seconds':round(time.monotonic()-started,6)})
+    return {'valid':True,'ready_bytes':metadata['ready_bytes'],'documents':results,
+        'scope':'actual database bytea and independent offline source projection; not HTTP latency acceptance'}
+
+
 def audit_catalog(catalog, rows, root):
     """Verify V3 directory ownership and original bytes, including unused uploads.
 
@@ -421,7 +560,7 @@ def audit_catalog(catalog, rows, root):
     No credential verifiers or session tokens are accepted in this projection.
     """
     errors=[]; referenced=set(); counts={}; tables={}
-    if not isinstance(catalog,dict) or set(catalog) not in (set(CATALOG_TABLES),set(LEGACY_CATALOG_TABLES)):
+    if not isinstance(catalog,dict) or set(catalog) not in (set(CATALOG_TABLES),set(V5_CATALOG_TABLES),set(LEGACY_CATALOG_TABLES)):
         return {'valid':False,'errors':[{'scope':'catalog','reason':'incomplete catalog table set'}]}
     for table in catalog:
         value=catalog[table]
@@ -739,6 +878,7 @@ def audit_catalog(catalog, rows, root):
                 raise ValueError('evaluation run/attempt mismatch')
         except (ValueError,OSError,KeyError,TypeError) as exc:
             errors.append({'scope':'v3_evaluations','id':row.get('id'),'reason':str(exc)})
+    errors.extend(audit_preparation_metadata(tables,rows,root)['errors'])
     for row in tables['v3_audit_events']:
         if ((row.get('user_id') is not None and row['user_id'] not in users) or
                 (row.get('dataset_id') is not None and row['dataset_id'] not in datasets) or
@@ -793,7 +933,7 @@ def backup(container, db, root, destination):
     if db!='m4_validation': raise ValueError('backup source must be disposable m4_validation')
     # Hold SHARE locks across dump and copy. Writers cannot change the M4 task
     # history or V3 directory metadata while the exported snapshot is in use.
-    created_destination=False;phase='database_snapshot'
+    created_destination=False;phase='database_snapshot';preparation_cache={};preparations=None;copied_preparations=None
     conn=subprocess.Popen(['docker','exec','-i',container,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
         conn.stdin.write("BEGIN; SET LOCAL lock_timeout='5s'; "
@@ -836,6 +976,7 @@ def backup(container, db, root, destination):
             if not directory['valid']:
                 raise ValueError('source catalog invalid: '+json.dumps(directory['errors']))
             include_catalog_references(before,directory)
+            preparations=audit_preparation_documents(container,db,catalog,rows,root,semantic_cache=preparation_cache)
         destination.mkdir(mode=0o700);created_destination=True
         phase='copy_files';files=inventory(root)
         shutil.copytree(root,destination/'files',symlinks=False)
@@ -851,18 +992,20 @@ def backup(container, db, root, destination):
             if not copied_directory['valid']:
                 raise ValueError('copied catalog invalid: '+json.dumps(copied_directory['errors']))
             include_catalog_references(copied,copied_directory)
+            copied_preparations=audit_preparation_documents(container,db,catalog,rows,destination/'files',semantic_cache=preparation_cache)
         phase='database_dump'
         with (destination/'database.dump').open('xb') as dump:
             pg(container,db,'pg_dump','-Fc','--snapshot='+snapshot[9:],stdout=dump)
         phase='final_integrity'
         if inventory(destination/'files')!=files or inventory(root)!=files:raise ValueError('files changed during database dump')
         phase='bundle_publication'
-        bundle={'format_version':5 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
+        bundle={'format_version':6 if catalog is not None else 2,'synthetic_validation_only':True,'rows':rows,'attempts':attempts,'files':files,
                 'database_sha256':sha(destination/'database.dump'),'source_audit':before,'copied_audit':copied,'attempt_audit':history,
                 'consistency':'exported PostgreSQL snapshot + SHARE lock; terminal tasks only; file pre/post hashes'}
         if catalog is not None:
             bundle.update(catalog=catalog,catalog_audit=directory,copied_catalog_audit=copied_directory,
-                          session_restore_policy='revoke_all_sessions_before_restored_service_start')
+                          session_restore_policy='revoke_all_sessions_before_restored_service_start',
+                          preparation_audit=preparations,copied_preparation_audit=copied_preparations)
         write_report(destination/'bundle.json',bundle)
         return bundle
     except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
@@ -905,7 +1048,7 @@ def restore(container, bundle_dir, destination):
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
         if bundle['format_version']==3:
             raise ValueError('legacy v3 catalog bundle lacks verified preflight snapshots; restore with b208bc9 in an isolated maintenance environment, apply migration 007, run cpagx-v3 --backfill-legacy, then create a format-4 backup')
-        if bundle['format_version'] not in (2,4,5) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
+        if bundle['format_version'] not in (2,4,5,6) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
         if sha(safe(bundle_dir,'database.dump'))!=bundle['database_sha256'] or inventory(bundle_dir/'files')!=bundle['files']:
             raise ValueError('bundle integrity mismatch')
         phase='pre_restore_references'
@@ -913,8 +1056,9 @@ def restore(container, bundle_dir, destination):
         if not before['valid']: raise ValueError('bundle references invalid: '+json.dumps(before['errors']))
         history=audit_attempts(bundle['rows'],bundle.get('attempts',[]))
         if not history['valid']:raise ValueError('bundle attempt history invalid: '+json.dumps(history['errors']))
-        has_catalog=bundle['format_version'] in (4,5)
-        if bundle['format_version']==5 and set(bundle.get('catalog',{}))!=set(CATALOG_TABLES):raise ValueError('format5 evaluation catalog required')
+        has_catalog=bundle['format_version'] in (4,5,6)
+        if bundle['format_version']==5 and set(bundle.get('catalog',{}))!=set(V5_CATALOG_TABLES):raise ValueError('format5 evaluation catalog required')
+        if bundle['format_version']==6 and set(bundle.get('catalog',{}))!=set(CATALOG_TABLES):raise ValueError('format6 preparation catalog required')
         if has_catalog:
             directory=audit_catalog(bundle['catalog'],bundle['rows'],bundle_dir/'files')
             if not directory['valid']:
@@ -945,6 +1089,8 @@ def restore(container, bundle_dir, destination):
             if not directory['valid']:
                 raise ValueError('restored catalog invalid: '+json.dumps(directory['errors']))
             include_catalog_references(result,directory)
+            if bundle['format_version']==6:
+                result['preparation_audit']=audit_preparation_documents(container,'m4_restore_validation',restored_catalog,rows,destination)
         if inventory(destination)!=bundle['files']:raise ValueError('restored file inventory differs from bundle')
         result.update(phase='completed',database='m4_restore_validation',metadata_equal=True,
                       file_inventory_equal=True,attempt_history_equal=True)

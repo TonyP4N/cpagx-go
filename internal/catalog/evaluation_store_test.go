@@ -27,10 +27,16 @@ type evaluationTx struct{ c *evaluationConn }
 
 func (t evaluationTx) Commit() error {
 	t.c.state.Saved = t.c.pending
+	t.c.state.Prepared = t.c.pendingPreparation
 	t.c.transaction = false
 	return nil
 }
-func (t evaluationTx) Rollback() error { t.c.pending = nil; t.c.transaction = false; return nil }
+func (t evaluationTx) Rollback() error {
+	t.c.pending = nil
+	t.c.pendingPreparation = nil
+	t.c.transaction = false
+	return nil
+}
 func (c *evaluationConn) evaluationQuery(q string, args []driver.NamedValue) (driver.Rows, error) {
 	saved := c.state.Saved
 	if c.transaction {

@@ -42,6 +42,7 @@ func main() {
 	if e != nil {
 		log.Fatal(e)
 	}
+	defer public.Close()
 	if *backfill {
 		ctx, stop := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer stop()

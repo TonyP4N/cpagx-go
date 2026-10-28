@@ -21,6 +21,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -41,11 +42,16 @@ type Config struct {
 	ResourceProfile        string `json:"resource_profile,omitempty"`
 }
 type Server struct {
-	DB       *sql.DB
-	Root     string
-	Internal http.Handler
-	cfg      Config
-	repo     jobs.Repository
+	DB                      *sql.DB
+	Root                    string
+	Internal                http.Handler
+	cfg                     Config
+	preparationHealthMu     sync.Mutex
+	preparationHealthReason string
+	preparationCancel       context.CancelFunc
+	preparationDone         chan struct{}
+	preparationWake         chan struct{}
+	repo                    jobs.Repository
 }
 type principal struct {
 	ID       string `json:"id"`
@@ -191,6 +197,7 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	if e = s.bootstrap(context.Background()); e != nil {
 		return nil, e
 	}
+	s.startPreparationWorker()
 	return s, nil
 }
 func contained(parent, child string) bool {

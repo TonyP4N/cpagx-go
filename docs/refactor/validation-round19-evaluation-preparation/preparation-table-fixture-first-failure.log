@@ -1,0 +1,9 @@
+--- FAIL: TestEvaluationInputPublishedOfflineAndReplayViews (0.52s)
+    --- FAIL: TestEvaluationInputPublishedOfflineAndReplayViews/false (0.14s)
+        evaluation_test.go:226: projection network: 409 {"error":{"code":"evaluation_preparation_not_ready","message":"prepared projection is not ready or its source changed"}}
+    --- FAIL: TestEvaluationInputPublishedOfflineAndReplayViews/true (0.38s)
+        evaluation_test.go:226: projection network: 409 {"error":{"code":"evaluation_preparation_not_ready","message":"prepared projection is not ready or its source changed"}}
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	13.275s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	5.407s
+FAIL

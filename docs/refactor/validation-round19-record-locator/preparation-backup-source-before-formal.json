@@ -1,0 +1,12 @@
+{
+  "baseline": "9aeab6bf0a618044835ce20d1d35461476a6860e",
+  "recorded_at": "2026-10-28T07:15:31.433442+00:00",
+  "scope": "format6 backup implementation and unit tests before first real preparation fixture",
+  "files": {
+    "scripts/backup/bundle.py": "bcf238d201840612e666afb9fd4e75b06481d5c48180efdf150d99d13bcd065e",
+    "scripts/backup/engineering.py": "81814c001f862e2176cca6f7c0f684767966f0f820efaab73b349076f2846e03",
+    "tests/backup/test_catalog.py": "c2a771e00841cbf855d385556750445d000f8d35d34f20c27bb9776bed861e4c",
+    "tests/backup/test_engineering.py": "ffaa791e5b9bdaf8eaf41f6bb14187fa90335c3b64f81a0205848d2baa0b8680",
+    "tests/backup/test_evaluation_preparations.py": "0eb3cb364c26717a254ea435afc7be72ad2dd6db0e524cbd37f3096fb42a447f"
+  }
+}

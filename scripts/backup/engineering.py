@@ -119,6 +119,10 @@ def verify(source):
         raise ValueError('shared snapshots disagree')
     if not bundle.audit(data['rows'], source/'host/shared')['valid'] or not bundle.audit_attempts(data['rows'], data['attempts'])['valid']:
         raise ValueError('snapshot reference/history audit failed')
+    if data.get('format_version')==6:
+        if set(data.get('catalog',{}))!=set(bundle.CATALOG_TABLES):raise ValueError('snapshot format6 preparation catalog missing')
+        if not bundle.audit_catalog(data['catalog'],data['rows'],source/'host/shared')['valid']:
+            raise ValueError('snapshot preparation catalog audit failed')
     ledger_check(source/'host', Path(meta['data_root']))
     control_check(source/'host', data['attempts'])
     return meta, data
@@ -151,11 +155,25 @@ def restore(project, source, root, confirm):
             raise ValueError('restored database differs')
         if bundle.inventory(root) != meta['host_files'] or not bundle.audit(data['rows'], root/'shared')['valid']:
             raise ValueError('restored files/references differ')
+        preparation_audit=None;revoked_sessions=None
+        if data.get('format_version')==6:
+            restored_catalog=bundle.catalog_now(container,'m4_validation',tuple(data['catalog']))
+            if restored_catalog!=data['catalog']:raise ValueError('restored preparation catalog differs')
+            catalog_audit=bundle.audit_catalog(restored_catalog,data['rows'],root/'shared')
+            if not catalog_audit['valid']:raise ValueError('restored preparation catalog invalid')
+            preparation_audit=bundle.audit_preparation_documents(container,'m4_validation',restored_catalog,data['rows'],root/'shared')
+            # Engineering restore uses m4_validation, so revoke explicitly here.
+            bundle.pg(container,'m4_validation','psql','-X','-qAt','-v','ON_ERROR_STOP=1','-c',
+                'UPDATE v3_sessions SET revoked_at=clock_timestamp() WHERE revoked_at IS NULL;',capture_output=True,text=True)
+            remaining=bundle.pg(container,'m4_validation','psql','-X','-qAt','-c','SELECT count(*) FROM v3_sessions WHERE revoked_at IS NULL;',capture_output=True,text=True).stdout.strip()
+            if remaining!='0':raise ValueError('restored preparation login sessions remain active')
+            revoked_sessions=True
         capacity = ledger_check(root, root)
         control = control_check(root, data['attempts'])
         result = {'valid': True, 'synthetic_only': True, 'source_version': meta['source_version'],
                   'metadata_equal': True, 'history_equal': True, 'files_equal': True,
                   'evidence_audit': True, 'capacity': capacity, 'control': control}
+        if preparation_audit is not None:result.update(preparation_audit=preparation_audit,restored_sessions_revoked=revoked_sessions)
         bundle.write_report(report, result)
         return result
     except Exception as error:

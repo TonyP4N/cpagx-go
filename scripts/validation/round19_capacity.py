@@ -11,6 +11,7 @@ import csv
 from datetime import datetime, timezone
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -34,6 +35,21 @@ TARGET = {'network_files': 4, 'network_per_file_bytes': 64 * 1024 ** 2,
           'temporary_disk_bytes': 4 * GIB, 'persistent_handoff_bytes': 4 * GIB,
           'output_bytes': GIB, 'frames': 100000, 'operations': 10000,
           'changes': 10000, 'candidates': 100000, 'configuration_bytes': 8 * 1024 ** 2}
+
+
+def backlog_measurement(value):
+    """Unknown samples cannot supply zero or a complete measured maximum."""
+    samples = value.get('backlog', {}).get('samples', [])
+    result = {'version': 'backlog-measurement-2', 'samples': len(samples),
+              'definition': 'maximum over all retained arrival samples; missing values remain unknown'}
+    for field in ('unparsed_records', 'waiting_operations', 'open_window_operations'):
+        observed = [row[field] for row in samples if isinstance(row, dict)
+                    and isinstance(row.get(field), (int, float)) and not isinstance(row[field], bool)
+                    and math.isfinite(row[field]) and row[field] >= 0]
+        result['max_' + field] = max(observed) if observed and len(observed) == len(samples) else None
+        result[field + '_coverage'] = {'valid_samples': len(observed), 'total_samples': len(samples),
+                                      'reason': None if observed and len(observed) == len(samples) else 'missing_or_invalid_measurements'}
+    return result
 
 
 def utc():
@@ -230,7 +246,7 @@ def read_case(path):
     return case
 
 
-def formal_case(recorder, case, image, resource_profile=None):
+def formal_case(recorder, case, image, resource_profile=None, *, evaluation_lifecycle=False):
     # Existing formal acceptance helpers share the real catalog/auth/preflight,
     # PG migrations, Worker service, and retained-artifact verification path.
     import round16_acceptance as r
@@ -241,7 +257,7 @@ def formal_case(recorder, case, image, resource_profile=None):
     pg, public, internal = [r.port() for _ in range(3)]
     env = dict(os.environ, PYTHONPATH=os.pathsep.join([str(REPO / 'services/worker'), str(REPO / 'services/analysis/src')]),
                GOCACHE=os.environ.get('GOCACHE', '/tmp/cpag-go-build'), GOMODCACHE=os.environ.get('GOMODCACHE', '/tmp/cpag-go-mod'))
-    app = worker = None; database_created = False; job = None
+    app = worker = restored_app = None; database_created = False; job = None
     try:
         with recorder.stage('build_formal_binaries'):
             r.build(work, env, skip_image_build=True)
@@ -362,9 +378,45 @@ def formal_case(recorder, case, image, resource_profile=None):
                     os.chmod(original.parent,parent_mode)
                 client.expect('GET',endpoint,timeout=10)
                 row['restored_original_query']=True
+        if evaluation_lifecycle:
+            if case['scale'] not in ('S','M','L'):raise ValueError('density_evaluation_requires_density_case')
+            with recorder.stage('formal_evaluation_lifecycle'):
+                from round19_density_evaluation import run as evaluate_density
+                def restart_for_cold():
+                    nonlocal app
+                    previous_pid=app.pid
+                    r.stop(app)
+                    app=r.start_app(work,'app-evaluation-restart',work/'cpagx-v3',config)
+                    restarted=r.Client(f'http://127.0.0.1:{public}')
+                    restarted.expect('POST','/api/v3/session',{'username':'r19-capacity','password':password})
+                    recorder.record['evaluation_restart']={'previous_pid':previous_pid,'new_pid':app.pid,'os_cache':'unverified'}
+                    recorder.flush()
+                    return restarted
+                recorder.record['evaluation_lifecycle']=evaluate_density(client,job,output,work/'density-evaluation',
+                    scale=case['scale'],restart=restart_for_cold,deadline_seconds=max(1,TARGET['wall_seconds']-(time.monotonic()-chain_start)))
         total = time.monotonic() - chain_start
         recorder.record['measurements']['submit_through_verify_and_evidence_seconds'] = total
         if total > TARGET['wall_seconds']: raise RuntimeError('whole_chain_1800_second_deadline')
+        if evaluation_lifecycle:
+            with recorder.stage('terminal_bundle_empty_database_restore'):
+                from round19_density_evaluation import verify_restored
+                r.stop(worker);worker=None;r.stop(app);app=None
+                backup=r.bundle.backup(container,'m4_validation',source,work/'terminal-bundle')
+                restored_root=work/'restored-new-directory';restored_control=work/'restored-control';restored_control.mkdir()
+                audit=r.bundle.restore(container,work/'terminal-bundle',restored_root)
+                recorder.record['restore_audit']=audit
+                if not all(audit.get(key) for key in ('valid','catalog_equal','metadata_equal','attempt_history_equal','file_inventory_equal')):
+                    raise ValueError('terminal_backup_restore_audit_failed')
+                rpublic,rinternal=r.port(),r.port()
+                restored_config=r.make_config(pg,'m4_restore_validation',restored_root,restored_control,rpublic,rinternal,wt,ct,'r19-capacity',password,REPO/'webui/out')
+                if resource_profile:restored_config.update(resource_profile=resource_profile,capacity_policy='engineering-capacity-1')
+                restored_app=r.start_app(work,'restored-app',work/'cpagx-v3',restored_config)
+                restored_client=r.Client(f'http://127.0.0.1:{rpublic}')
+                restored_client.expect('POST','/api/v3/session',{'username':'r19-capacity','password':password})
+                restored_status=restored_client.expect('GET',f'/api/v3/runs/{job}')['run']
+                if restored_status['state']!='succeeded' or restored_status['attempt']!=recorder.record['terminal']['attempt']:
+                    raise ValueError('restored_task_or_attempt_changed')
+                recorder.record['restored_evaluation']=verify_restored(restored_client,job,work/'density-evaluation',work/'restored-density-evaluation')
         runtime = output / 'runtime_metrics.json'
         if runtime.is_file():
             value = json.loads(runtime.read_text())
@@ -373,18 +425,15 @@ def formal_case(recorder, case, image, resource_profile=None):
                 'arrival_samples': len(value.get('samples', [])), 'core_samples': len(value.get('core_samples', []))}
         metrics = output / 'metrics.json'
         if metrics.is_file():
-            value = json.loads(metrics.read_text()); samples = value.get('backlog', {}).get('samples', [])
-            recorder.record['measurements']['backlog'] = {'path': str(metrics), 'sha256': sha(metrics),
-                'samples': len(samples), 'max_unparsed_records': max((row.get('unparsed_records', 0) for row in samples), default=0),
-                'max_waiting_operations': max((row.get('waiting_operations', 0) for row in samples), default=0),
-                'max_open_window_operations': max((row.get('open_window_operations', 0) for row in samples), default=0)}
+            value = json.loads(metrics.read_text())
+            recorder.record['measurements']['backlog'] = {'path': str(metrics), 'sha256': sha(metrics), **backlog_measurement(value)}
         recorder.record['measurements']['phase_breakdown'] = {'parse_seconds': None, 'association_seconds': None, 'write_seconds': None, 'cpu_seconds': None, 'rss_peak_bytes': None, 'reason': 'current runtime does not expose separate phase/CPU/RSS totals; raw sampled Docker stats retained; cannot satisfy complete R19 measurement gate'}
     finally:
         with recorder.stage('retain_database_and_stop_disposable_services'):
             if job:
                 # Preserve all attempts and raw failure receipts. Do not reset/retry.
                 recorder.record['retained_attempt_root'] = str(control / 'jobs' / job)
-            r.stop(worker); r.stop(app)
+            r.stop(worker); r.stop(app); r.stop(restored_app)
             if database_created:
                 with (work / 'database.sql').open('wb') as stream:
                     result = subprocess.run(['docker', 'exec', container, 'pg_dump', '-U', 'postgres', 'm4_validation'], stdout=stream, stderr=subprocess.PIPE)
@@ -395,7 +444,7 @@ def formal_case(recorder, case, image, resource_profile=None):
                 if result.returncode == 0: recorder.command('postgres-remove', ['docker', 'rm', container], timeout=15)
 
 
-def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, image='cpag-isolated:r19-capacity', resource_profile=None):
+def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, image='cpag-isolated:r19-capacity', resource_profile=None, evaluation_lifecycle=False):
     recorder = Recorder(output, dev_run)
     try:
         with recorder.stage('environment_probe'):
@@ -421,7 +470,7 @@ def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, imag
                 recorder.record['worker_image'] = image
             with recorder.stage('formal_chain_case'):
                 recorder.record['resource_profile']=resource_profile or 'legacy-default'
-                formal_case(recorder, case, image, resource_profile)
+                formal_case(recorder, case, image, resource_profile, evaluation_lifecycle=evaluation_lifecycle)
         recorder.record['status'] = 'development_probe' if probe_only and dev_run else 'reference_probe' if probe_only else 'development_case_measured_incomplete_gate' if dev_run else 'reference_case_measured_incomplete_gate'
         returncode = 0
     except BaseException as error:
@@ -477,8 +526,9 @@ def main():
     parser.add_argument('--case-manifest', type=Path)
     parser.add_argument('--image', default='cpag-isolated:r19-capacity')
     parser.add_argument('--resource-profile', choices=('r19-dev-s100-1','engineering-capacity-1'))
+    parser.add_argument('--evaluation-lifecycle', action='store_true', help='explicit generated-density preparation/freeze/save/query through the formal API')
     args = parser.parse_args()
-    code, record = execute(args.output, dev_run=args.dev_run, probe_only=args.probe_only, case_manifest=args.case_manifest, image=args.image, resource_profile=args.resource_profile)
+    code, record = execute(args.output, dev_run=args.dev_run, probe_only=args.probe_only, case_manifest=args.case_manifest, image=args.image, resource_profile=args.resource_profile, evaluation_lifecycle=args.evaluation_lifecycle)
     print(json.dumps({'status': record['status'], 'reference_accepted': False, 'record': str(args.output.resolve() / 'record.json')}))
     return code
 

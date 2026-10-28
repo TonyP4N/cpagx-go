@@ -1,0 +1,26 @@
+{
+  "recorded_at": "2026-10-28T07:36:07.716656+00:00",
+  "baseline": "9aeab6bf0a618044835ce20d1d35461476a6860e",
+  "source_aggregate_before_sha256": "393a22528418273570e9ab3a7e7071bc80a33602da25dd8e8fb9fd51efa37b75",
+  "worker_image": {
+    "tag": "cpag-isolated:spool-final-1",
+    "id": "sha256:5979b0d9e5ad655c2340cfc1aa33148dd83085b153459eb91e34c788f644ab25",
+    "repo_digests": [
+      "cpag-isolated@sha256:5979b0d9e5ad655c2340cfc1aa33148dd83085b153459eb91e34c788f644ab25"
+    ]
+  },
+  "docker_context": "desktop-linux",
+  "actual_host_binary_sha256": {
+    "cpagx-v3": "4504aeb6a81ded6622e3f6fa82d5dab7c73dd43930c7e40c9526a690ee7eb019",
+    "cpagctl": "419a7ebc3a003c7afc9a7231a90a94ed1af21fadbe21be9cae8dd4d45681e645"
+  },
+  "existing_runtime_source_changes_after_build": {
+    "internal/catalog/evaluation_preparation.go": {
+      "before": "9e2c36f9cbba49c7276acaa991b1f577c8039f2eea8393037cdad78e9d1d03bc",
+      "after": "23221d891c46c899ab2a021e5d0bcb67aaa91f078a92797c257b8bb5bf41a12f"
+    }
+  },
+  "existing_python_source_unchanged": true,
+  "scope": "small synthetic correctness integration; old immutable Worker only analyzes; new host binary/Python verifies preparation, v3 locator and format6 restore; not target capacity or reference-environment/industrial validation",
+  "unaccepted_attempt1": "source freeze failed before record; SIGINT cleanup; retained and excluded"
+}

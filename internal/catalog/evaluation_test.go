@@ -21,23 +21,26 @@ import (
 )
 
 type evaluationDBState struct {
-	Payload           json.RawMessage `json:"payload"`
-	ArtifactPath      string          `json:"artifact_path"`
-	ArtifactSHA       string          `json:"artifact_sha"`
-	Mode              string          `json:"mode"`
-	State             string
-	ACL               bool
-	AuditFail         bool
-	RevokePublication bool
-	StatusReads       int
-	Saved             *evaluationSavedRow
-	Batch             string
+	ForeignPreparation int
+	Prepared           *evaluationPreparation
+	Payload            json.RawMessage `json:"payload"`
+	ArtifactPath       string          `json:"artifact_path"`
+	ArtifactSHA        string          `json:"artifact_sha"`
+	Mode               string          `json:"mode"`
+	State              string
+	ACL                bool
+	AuditFail          bool
+	RevokePublication  bool
+	StatusReads        int
+	Saved              *evaluationSavedRow
+	Batch              string
 }
 type evaluationDriver struct{}
 type evaluationConn struct {
-	state       *evaluationDBState
-	pending     *evaluationSavedRow
-	transaction bool
+	state              *evaluationDBState
+	pending            *evaluationSavedRow
+	pendingPreparation *evaluationPreparation
+	transaction        bool
 }
 
 var evaluationStates sync.Map
@@ -56,6 +59,7 @@ func (*evaluationConn) Close() error { return nil }
 func (c *evaluationConn) Begin() (driver.Tx, error) {
 	c.transaction = true
 	c.pending = c.state.Saved
+	c.pendingPreparation = c.state.Prepared
 	return evaluationTx{c}, nil
 }
 func (c *evaluationConn) QueryContext(_ context.Context, q string, args []driver.NamedValue) (driver.Rows, error) {
@@ -64,12 +68,39 @@ func (c *evaluationConn) QueryContext(_ context.Context, q string, args []driver
 		return c.evaluationQuery(q, args)
 	}
 	switch {
+	case strings.Contains(q, "pg_try_advisory_lock"):
+		return &runBindingRows{[]string{"locked"}, [][]driver.Value{{true}}}, nil
+	case strings.Contains(q, "SELECT count(*) FROM v3_evaluation_preparations"):
+		return &runBindingRows{[]string{"count"}, [][]driver.Value{{int64(s.ForeignPreparation)}}}, nil
+	case strings.Contains(q, "FROM v3_evaluation_preparations"):
+		rows := &runBindingRows{columns: strings.Split(preparationColumns, ",")}
+		if p := s.Prepared; p != nil {
+			var input, docsha driver.Value
+			if p.Input.Valid {
+				input = p.Input.String
+			}
+			if p.DocumentSHA.Valid {
+				docsha = p.DocumentSHA.String
+			}
+			rows.values = [][]driver.Value{{p.ID, p.Job, p.Dataset, int64(p.Attempt), p.PayloadSHA, p.PublicationSHA, p.ArtifactPath, p.Config, input, p.Batch, p.Projection, p.Strategy, p.State, int64(p.PreparationAttempt), p.Owner, p.Reason, int64(p.Limit), p.Document, docsha, p.DocumentSize, p.Inventory, []byte(p.Cost)}}
+		}
+		return rows, nil
 	case strings.Contains(q, "FROM v3_run_bindings WHERE job_id="):
 		return &runBindingRows{[]string{"dataset", "config", "mode", "created", "preflight", "origin", "networks", "replay"}, [][]driver.Value{{"dataset", "config", s.Mode, time.Now(), nil, "native_gate", nil, nil}}}, nil
 	case strings.Contains(q, "FROM v3_dataset_acl"):
 		rows := &runBindingRows{columns: []string{"access"}}
 		if s.ACL {
 			rows.values = [][]driver.Value{{"viewer"}}
+		}
+		return rows, nil
+	case strings.Contains(q, "SELECT d.batch FROM v3_datasets d JOIN v3_run_bindings"):
+		rows := &runBindingRows{columns: []string{"batch"}}
+		if args[1].Value == "dataset" {
+			batch := s.Batch
+			if batch == "" {
+				batch = "dataset-batch"
+			}
+			rows.values = [][]driver.Value{{batch}}
 		}
 		return rows, nil
 	case strings.Contains(q, "SELECT batch FROM v3_datasets"):
@@ -96,7 +127,25 @@ func (c *evaluationConn) QueryContext(_ context.Context, q string, args []driver
 		return nil, fmt.Errorf("unexpected evaluation query: %s", q)
 	}
 }
-func (c *evaluationConn) ExecContext(_ context.Context, q string, _ []driver.NamedValue) (driver.Result, error) {
+func (c *evaluationConn) ExecContext(_ context.Context, q string, args []driver.NamedValue) (driver.Result, error) {
+	if strings.Contains(q, "INSERT INTO v3_evaluation_preparations(") {
+		p := &evaluationPreparation{ID: args[0].Value.(string), Job: args[1].Value.(string), Dataset: args[2].Value.(string), Attempt: int(args[3].Value.(int64)), PayloadSHA: args[4].Value.(string), PublicationSHA: args[5].Value.(string), ArtifactPath: args[6].Value.(string), Config: args[7].Value.(string), Batch: args[8].Value.(string), Projection: args[9].Value.(string), Strategy: args[10].Value.(string), State: "queued", Limit: int(args[11].Value.(int64)), Cost: json.RawMessage(`{}`)}
+		if c.transaction {
+			c.pendingPreparation = p
+		} else {
+			c.state.Prepared = p
+		}
+		return driver.RowsAffected(1), nil
+	}
+	if strings.Contains(q, "pg_advisory_unlock") {
+		return driver.RowsAffected(1), nil
+	}
+	if strings.Contains(q, "coordination_scope_mismatch") {
+		if c.state.Prepared != nil {
+			c.state.Prepared.Reason = "coordination_scope_mismatch"
+		}
+		return driver.RowsAffected(1), nil
+	}
 	if !strings.Contains(q, "INSERT INTO v3_audit_events") {
 		return nil, fmt.Errorf("unexpected exec: %s", q)
 	}

@@ -158,7 +158,7 @@ func (s *Server) serveEvaluations(w http.ResponseWriter, r *http.Request, p *pri
 		return true
 	}
 	if kind == "evidence" {
-		respond(w, 200, map[string]any{"evaluation": saved, "evidence": verified.Evidence})
+		respondEvaluationEvidence(w, map[string]any{"evaluation": saved, "evidence": verified.Evidence})
 		return true
 	}
 	respond(w, 200, map[string]any{"evaluation": saved, "result": verified.Result})
@@ -245,19 +245,47 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 	if !ok {
 		return output, errors.New("evaluation adapter unavailable")
 	}
-	before, base, err := internal.VerifiedDualArtifacts(r, id)
+	var documentHeader map[string]json.RawMessage
+	var adaptedHeader struct {
+		Binding struct {
+			Projection string `json:"projection"`
+		} `json:"binding"`
+	}
+	if json.Unmarshal(document, &documentHeader) != nil || json.Unmarshal(documentHeader["adapted.json"], &adaptedHeader) != nil || !validPreparationProjection(adaptedHeader.Binding.Projection) {
+		return output, errors.New("evaluation projection unavailable")
+	}
+	prepared, snapshot, handled, err := s.trustedPreparedAdapted(r, id, adaptedHeader.Binding.Projection)
 	if err != nil {
 		return output, err
+	}
+	var base, publicationSHA string
+	var verifyAfter func() error
+	if handled {
+		base = filepath.Dir(snapshot.ArtifactPath) + "/"
+		publicationSHA = snapshot.CoreManifestSHA256
+		verifyAfter = func() error { _, _, err := internal.RecheckPublicationSnapshot(r, id, *snapshot); return err }
+	} else {
+		before, legacyBase, verifyErr := internal.VerifiedDualArtifacts(r, id)
+		if verifyErr != nil {
+			return output, verifyErr
+		}
+		base = legacyBase
+		for _, item := range before {
+			if item.Path == "run_manifest.json" && shaRE.MatchString(item.SHA) {
+				publicationSHA = item.SHA
+			}
+		}
+		verifyAfter = func() error {
+			after, afterBase, err := internal.VerifiedDualArtifacts(r, id)
+			if err != nil || afterBase != base || !reflect.DeepEqual(after, before) {
+				return errors.New("publication changed during evaluation verification")
+			}
+			return nil
+		}
 	}
 	var batch string
 	if err = s.DB.QueryRowContext(r.Context(), "SELECT batch FROM v3_datasets WHERE id=$1", dataset).Scan(&batch); err != nil || strings.TrimSpace(batch) == "" {
 		return output, errors.New("dataset batch unavailable")
-	}
-	var publicationSHA string
-	for _, item := range before {
-		if item.Path == "run_manifest.json" && shaRE.MatchString(item.SHA) {
-			publicationSHA = item.SHA
-		}
 	}
 	if publicationSHA == "" {
 		return output, errors.New("verified publication manifest absent")
@@ -270,7 +298,16 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 		}
 	}
 	cmd := exec.CommandContext(r.Context(), s.cfg.PythonBin, args...)
-	cmd.Stdin = bytes.NewReader(document)
+	if handled {
+		envelope, err := json.Marshal(map[string]any{"version": "evaluation-service-envelope-1", "document": json.RawMessage(document), "prepared_adapted": json.RawMessage(prepared)})
+		if err != nil {
+			return output, err
+		}
+		cmd.Args = append(cmd.Args, "--service-envelope")
+		cmd.Stdin = bytes.NewReader(envelope)
+	} else {
+		cmd.Stdin = bytes.NewReader(document)
+	}
 	cmd.Env = os.Environ()
 	if s.cfg.PythonPath != "" {
 		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
@@ -303,9 +340,22 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 	if json.Unmarshal(doc["adapted.json"], &adapted) != nil || adapted.Binding.RunID != id || adapted.Binding.Batch != batch || adapted.Binding.Sample != adapted.Binding.Input || !shaRE.MatchString(adapted.Binding.Input) {
 		return output, errors.New("evaluation service context differs")
 	}
-	after, afterBase, err := internal.VerifiedDualArtifacts(r, id)
-	if err != nil || afterBase != base || !reflect.DeepEqual(after, before) {
-		return output, errors.New("publication changed during evaluation verification")
+	if err = verifyAfter(); err != nil {
+		return output, err
 	}
 	return output, nil
+}
+
+// Marshal the complete response before headers so an oversized original is
+// explicitly rejected and cannot become a partial successful evidence body.
+func respondEvaluationEvidence(w http.ResponseWriter, value any) {
+	raw, err := json.Marshal(value)
+	if err != nil || len(raw)+1 > evaluationProjectionLimit {
+		fail(w, 409, "evaluation_evidence_limit_exceeded", "complete evaluation evidence exceeds 8 MiB query budget")
+		return
+	}
+	w.Header().Set("Content-Type", "application/json; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-store")
+	w.WriteHeader(200)
+	w.Write(append(raw, '\n'))
 }

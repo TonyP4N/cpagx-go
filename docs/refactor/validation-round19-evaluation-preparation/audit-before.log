@@ -1,0 +1,7 @@
+--- FAIL: TestPreparationAuditFailureCannotLeaveQueuedWork (0.18s)
+    evaluation_preparation_test.go:118: failed authorization audit left queued preparation
+--- FAIL: TestPreparationStatusRequiresAudit (0.11s)
+    evaluation_preparation_test.go:127: status audit failure exposed state: 200
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	0.635s
+FAIL

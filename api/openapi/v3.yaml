@@ -196,20 +196,51 @@ paths:
     get:
       security: [{ cookieAuth: [] }]
       responses: { '200': { description: Verified M4 dual or replay result; replay data contains final analysis, graph, events and replay summary; optional revision selects snapshot_number }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/evaluation-preparation:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Explicit evaluation-preparation-1 for the current successful publication. Dataset write permission is required. The service derives run, attempt, payload, publication and dataset bindings; clients cannot supply trusted hashes, labels or prepared content. Preparation is bounded to 1800 seconds and preserves every preparation attempt. A queued response is not completion. Repeating a ready request is idempotent; retrying a failed preparation retains its previous attempt history. Only the requested projection is prepared.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { projection: { type: string, enum: [network, process, dual], default: dual } }
+              additionalProperties: false
+      responses:
+        '202': { description: Queued or preparing; poll status until ready or failed, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '200': { description: Existing ready preparation after current byte and permission verification, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '403': { description: Dataset write permission required }
+        '404': { description: Missing run or no dataset read permission }
+        '409': { description: Current publication unavailable or source changed }
+        '422': { description: Unknown fields, query or projection }
+        '503': { description: Queue, database, adapter or audit unavailable }
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Authorized preparation state, source attempt and bounded cost diagnostics. Ready content is bound to the current publication and all input/artifact bytes are rechecked. This status response does not return the prediction document. Its cost distinguishes verification, projection, postcheck and elapsed preparation; these are host measurements, not Worker container quotas or reference-platform performance. Pending or failed states do not certify a result.
+      parameters: [{ in: query, name: projection, required: false, schema: { type: string, enum: [network, process, dual], default: dual } }]
+      responses:
+        '200': { description: Current explicit state and costs, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '404': { description: No preparation requested, missing run or no dataset permission }
+        '409': { description: Prepared publication bytes or identity changed }
+        '422': { description: Repeated or unsupported query }
+        '503': { description: Database or audit unavailable }
   /api/v3/runs/{run_id}/evaluation-input:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      description: Read-only R19 observation projection from the currently published verified offline or terminal replay artifact. Batch comes from the authorized dataset and sample_sha256 is the verified composite input_fingerprint. No annotations, analysis submission, frozen registration or persisted evaluation are accepted here. Network/process are views of this run, not independently executed single-source experiments. Bounded to 10 seconds and 8 MiB output.
+      description: Read-only R19 observation projection from the currently published verified offline or terminal replay artifact. Batch comes from the authorized dataset and sample_sha256 is the verified composite input_fingerprint. No annotations, analysis submission, frozen registration or persisted evaluation are accepted here. Network/process are views of this run, not independently executed single-source experiments. Bounded to 10 seconds; legacy runs use an 8 MiB projection budget and explicitly versioned R19 resource profiles permit 128 MiB. Once preparation is requested, queued/preparing/failed returns evaluation_preparation_not_ready; only ready content with current byte, attempt and ACL checks can be read. Without a preparation record the legacy verification path is retained.
       parameters: [{ in: query, name: projection, required: false, schema: { type: string, enum: [network, process, dual], default: dual } }]
       responses: { '200': { description: Unchanged final-artifact adapter contract including predictions, version/artifact binding, exclusions, event links, process statistics and limitations }, '401': { $ref: '#/components/responses/Error' }, '404': { description: Missing run or no dataset read permission }, '409': { description: Unpublished, changed, unsupported or unavailable bounded projection }, '422': { description: Unsupported, repeated or unknown query parameter }, '503': { description: Adapter or read audit unavailable } }
   /api/v3/runs/{run_id}/evaluations:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     post:
       security: [{ cookieAuth: [] }]
-      description: Import one complete CLI evaluation bundle document (filename to parsed JSON object, including manifest.json), maximum 8 MiB. Dataset write access required; viewers cannot import. The server re-verifies the current publication, frozen inputs, independent-reference declarations and computed result before transactionally storing the document with its canonical Python digest and audit entry. Batch and composite sample fingerprint must equal server dataset/publication context. Declaration is not independent custody proof. No analysis is submitted.
+      description: Import one complete CLI evaluation bundle document (filename to parsed JSON object, including manifest.json), maximum 8 MiB for evaluation-bundle-1 and 128 MiB for evaluation-bundle-2/3. Version 2 verifies retained reference bytes; version 3 additionally requires csv-logical-record-1 locators verified against logical CSV records. Old declarations never become located references automatically. Dataset write access required; viewers cannot import. The server re-verifies the current publication, frozen inputs, independent-reference declarations and computed result before transactionally storing the document with its canonical Python digest and audit entry. Batch and composite sample fingerprint must equal server dataset/publication context. Declaration is not independent custody proof. No analysis is submitted.
       requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
-      responses: { '201': { description: New saved evaluation metadata and verified result }, '200': { description: Identical document already saved for this run }, '403': { description: Dataset write permission required }, '404': { description: Missing run or no dataset read permission }, '409': { description: Bundle, original publication or context failed verification }, '422': { description: Body exceeds 8 MiB or unsupported query }, '503': { description: Storage or audit unavailable; no import committed } }
+      responses: { '201': { description: New saved evaluation metadata and verified result }, '200': { description: Identical document already saved for this run }, '403': { description: Dataset write permission required }, '404': { description: Missing run or no dataset read permission }, '409': { description: Bundle, original publication or context failed verification }, '422': { description: Body exceeds its version budget, unsupported version or query }, '503': { description: Storage or audit unavailable; no import committed } }
     get:
       security: [{ cookieAuth: [] }]
       description: Latest 100 saved evaluation metadata records. Listing does not certify current original evidence; detail, download and evidence reads re-verify it.
@@ -228,7 +259,7 @@ paths:
     parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
     get:
       security: [{ cookieAuth: [] }]
-      description: Query a retained prediction, exclusion or unlabelled relation through the existing verified original-evidence query. reference=true returns the independent reference declaration, explicitly without claiming original reference bytes were inspected. Entire saved bundle and current publication are re-verified. No arbitrary paths accepted. Queries are bounded to 10 seconds and 8 MiB output.
+      description: Query a retained prediction, exclusion or unlabelled relation through the existing verified original-evidence query. reference=true preserves bundle-specific status; v1 is an unverified declaration; v2 verifies retained original bytes but does not resolve its free-text record; v3 returns the exact logical CSV record, requested fields and raw byte fragment under csv-logical-record-1. Byte and locator checks do not prove annotation independence or correctness. Entire saved bundle and current publication are re-verified. No arbitrary paths accepted. Queries are bounded to 10 seconds and 8 MiB output.
       parameters:
         - { in: query, name: event, required: true, schema: { type: string, minLength: 1, maxLength: 1024 } }
         - { in: query, name: reference, required: false, schema: { type: string, const: 'true' } }
@@ -287,6 +318,30 @@ paths:
       responses: { '200': { description: Recent audit metadata }, '403': { $ref: '#/components/responses/Error' } }
 components:
   schemas:
+    EvaluationPreparationResponse:
+      type: object
+      required: [preparation]
+      properties:
+        preparation:
+          type: object
+          required: [id, run_id, attempt, source_attempt, projection, strategy_version, state, reason_code, preparation_attempt, publication_sha256, document_size, cost]
+          properties:
+            id: { type: string }
+            run_id: { type: string }
+            attempt: { type: integer, minimum: 1 }
+            source_attempt: { type: integer, minimum: 1 }
+            preparation_attempt: { type: integer, minimum: 0, maximum: 100 }
+            projection: { enum: [network, process, dual] }
+            strategy_version: { const: evaluation-preparation-1 }
+            state: { enum: [queued, preparing, ready, failed] }
+            reason_code: { type: string }
+            publication_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            document_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            document_size: { type: integer, minimum: 0, maximum: 134217728 }
+            duration_seconds: { type: number, minimum: 0 }
+            cost: { type: object, additionalProperties: true }
+          additionalProperties: false
+      additionalProperties: false
     CapacityProfileDeclaration:
       type: object
       description: Optional fields within the full immutable dual profile. This fragment does not replace the complete DualSourceProfile schema.

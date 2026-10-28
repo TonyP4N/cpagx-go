@@ -1,0 +1,7 @@
+# github.com/TonyP4N/cpagx-go/internal/catalog
+internal/jobapi/dual.go:25:2: open $USER_HOME/Library/Caches/go-build/ef/efa155ceb3dce3988f9a8d83cf012c77cdda93ed1a7540d15ad3475c2c8587a2-d: operation not permitted
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog [setup failed]
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/dual.go:25:2: open $USER_HOME/Library/Caches/go-build/ef/efa155ceb3dce3988f9a8d83cf012c77cdda93ed1a7540d15ad3475c2c8587a2-d: operation not permitted
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi [setup failed]
+FAIL

@@ -1,0 +1,42 @@
+{
+  "api_binary_sha256": "a9f04058f022cafb41c997a1e4b4a3ca7e535c598e568d9059eae430dd9090de",
+  "cli_skipped": true,
+  "error": "[Errno 1] Operation not permitted",
+  "error_type": "PermissionError",
+  "finished_at": "2026-10-28T07:20:27.311250+00:00",
+  "functional_acceptance": false,
+  "identity": {
+    "artifacts": {
+      "analysis.json": "b8454759a8f13613350758b4378b14735c676adac47788c24f1f253c800c6e1c",
+      "dataset.json": "ed22bb68830d990430c0573b6e3b57b24bfb007fe0fb146facf142c0a289ec8b",
+      "dual/analysis.json": "b8454759a8f13613350758b4378b14735c676adac47788c24f1f253c800c6e1c",
+      "dual/manifest.json": "89fb4ca831403a7f80ee82d1e607ad831217a54471269cb50ce77895aae7b3c2",
+      "dual/sources/network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+      "dual/sources/process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+      "dual/sources/profile.json": "aa20f55a23967e417204037ed9a1eb7b07956b037086b55ab63d9a45652f8246",
+      "events.json": "beeb6d664c6600b91a956c801c72ea6bba4db231271ef1b61d6bae10e4664a9a",
+      "graph.json": "35e82be156037bf40a6613dec0a6557aa08c3ae059f5f672e5cf70402777bd3e",
+      "quality.json": "619283961188192873ea42131b8e4f860ddfbe682c06da138ae59f58da87c584",
+      "run_manifest.json": "ff997a6c4674ea0c44d9f089b029a28e43ba7d9b4947390db2d8e6655a1b1ce6"
+    },
+    "attempt_id": 1,
+    "config_fingerprint": "2ef09464b6feb3202ab1fbf45e160400e655fa9355ab04bc15ca899ccfcc1c5f",
+    "input_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+    "mode": "offline",
+    "run_id": "ab5812b2ca4c36dabc1b36cbd035b0d0",
+    "total_core_bytes": 398584992
+  },
+  "measurements": [],
+  "original_artifact": "/private/tmp/cpag-r19-fixed-s100-run1/source/jobs/ab5812b2ca4c36dabc1b36cbd035b0d0/attempt-1",
+  "probe_sha256": "081839fde443a220320c3f465bd30a819424e2fda2b9850ba8f94dba5ca8cf30",
+  "reference_accepted": false,
+  "runtime_head": "9aeab6bf0a618044835ce20d1d35461476a6860e",
+  "runtime_kind": "working runtime snapshot; archive commit is base only",
+  "runtime_source_fingerprint": "06a063d594914caae23e87f1e57551f9cfee03d01e4865499014bee0887592bb",
+  "schema_version": "r19-evaluation-input-request-probe-1",
+  "scope": "same retained S100 read-only projection baseline; not new analysis or reference performance",
+  "source_archive_sha256": "3fe7d44c5286d0b409649bbd24570f2137bf90a20d70e0dc9c8140c6e3d38a73",
+  "source_commit": "aa16a4db525e55d0c435fc16bad5bb5edbab94b6",
+  "started_at": "2026-10-28T07:20:23.300426+00:00",
+  "status": "failed"
+}

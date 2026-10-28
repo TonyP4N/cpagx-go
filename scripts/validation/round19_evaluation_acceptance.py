@@ -30,13 +30,14 @@ from cpag_core.evaluation_details import V2_MATCHING_VERSION
 EXPECTED=[('manual-operation','network_operation','["192.0.2.2",44818]','2026-01-01T00:00:10Z'),
           ('manual-transition','process_change','["synthetic-pump","pump_state"]','2026-01-01T00:00:12Z')]
 
-def run(work, *, bundle_version=eb.V2_VERSION):
+def run(work, *, bundle_version=eb.V2_VERSION, before_evaluation=None):
     if bundle_version not in (eb.V2_VERSION, eb.V3_VERSION):raise ValueError("unsupported_acceptance_bundle_version")
     located=bundle_version==eb.V3_VERSION
     original=r18.check_run;records={};checks=[];offline={};offline_checked=set();role_checks=[]
     def checked(client,job,root,attempt,config,case):
         result=original(client,job,root,attempt,config,case) if case!='offline' else {}
         if case not in ('normal','offline'):return result
+        if before_evaluation is not None:before_evaluation(client,job,root,attempt,config,case)
         artifact=root/'jobs'/job/f'attempt-{attempt}'
         projection=client.expect('GET',f'/api/v3/runs/{job}/evaluation-input?projection=dual')
         assert len(projection['predictions']['events'])==2
