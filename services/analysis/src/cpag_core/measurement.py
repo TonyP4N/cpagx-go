@@ -21,6 +21,9 @@ def phase(name):
             target=os.environ.get('CPAG_PHASE_METRICS')
             if not target:return fn(*args,**kwargs)
             global _COUNT
+            if os.environ.get('CPAG_PHASE_STRATEGY')=='phase-resources-3':
+                from .measurement_v3 import begin
+                begin(target)
             start=time.perf_counter();before=resource.getrusage(resource.RUSAGE_SELF)
             status='failed'
             try:
@@ -28,7 +31,13 @@ def phase(name):
             finally:
                 after=resource.getrusage(resource.RUSAGE_SELF);_COUNT+=1
                 strategy=os.environ.get('CPAG_PHASE_STRATEGY','offline-phase-resources-1')
-                if strategy=='phase-resources-2':
+                if strategy=='phase-resources-3':
+                    from .measurement_v3 import record
+                    record(target,name,status,time.perf_counter()-start,
+                           (after.ru_utime-before.ru_utime)+(after.ru_stime-before.ru_stime),
+                           after.ru_maxrss*(1 if sys.platform=='darwin' else 1024))
+                    row=None
+                elif strategy=='phase-resources-2':
                     from .measurement_v2 import record
                     record(target,name,status,time.perf_counter()-start,
                            after.ru_utime+after.ru_stime-before.ru_utime-before.ru_stime,

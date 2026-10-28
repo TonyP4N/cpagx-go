@@ -62,6 +62,25 @@ class CompactReplayCore(ReplayCore):
         self._judgement_key=key;self._judgement_value=result
         return result
 
+    def _prepared_analysis(self,capture,parsed):
+        from .dual_source import _analyze_prepared
+        key=(getattr(self,'_collection_generation',0),self.prefix_fingerprint,
+             len(self.network),len(self.process),len(self.expired))
+        if getattr(self,'_prepared_key',None)!=key:
+            value=_analyze_prepared(capture,parsed,self.frame_accessor,self.analysis_profile,self.prefix_fingerprint,
+                allow_empty=True,source_contract='replay',identity_config=self.identity_profile)
+            self._prepared_key=key;self._prepared_value=value
+        source=self._prepared_value
+        # All subsequent replay writes are top-level collection replacements,
+        # operation replay/status fields, or quality.network_pending. Nested
+        # source/claim values remain private immutable observations. Never lend
+        # this cached object to an external reader or a later input prefix.
+        result=dict(source)
+        result['operations']=[dict(operation) for operation in source['operations']]
+        for name in ('network','process','changes','candidates'):result[name]=list(source[name])
+        result['quality']=dict(source['quality'])
+        return result
+
     def _merge_frozen(self,result):
         # Match legacy insertion order: live values followed by closed insertion
         # order; change definitions use first occurrence, never overwrite.

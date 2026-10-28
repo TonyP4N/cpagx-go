@@ -117,5 +117,26 @@ class CompactFixtureControls(unittest.TestCase):
             self.assertEqual(code,1);launch.assert_not_called();command.assert_not_called()
             self.assertIn('density_budget_design_refused',record['error'])
 
+    def test_version6_only_adds_explicit_judgement_strategy_to_version5(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for scale in ('S','M','L'):
+                source=Path(directory)/(scale+'-5');target=Path(directory)/(scale+'-6')
+                fixture.generate(source,scale,version=fixture.COMPACT_STANDARD_VERSION)
+                before={name:(source/name).read_bytes() for name in ('network.pcap','process.csv','offline-profile.json','replay-profile.json')}
+                fixture.upgrade(source,target,version=fixture.COMPACT_CACHED_VERSION)
+                self.assertEqual({name:(source/name).read_bytes() for name in before},before)
+                for name in fixture.RAW_SHA256[scale]:self.assertEqual((target/name).read_bytes(),before[name])
+                self.assertEqual((target/'offline-profile.json').read_bytes(),before['offline-profile.json'])
+                previous=json.loads(before['replay-profile.json']);new=json.loads((target/'replay-profile.json').read_text())
+                self.assertEqual(new['replay'].pop('judgement_strategy'),'prepared-prefix-cache-1')
+                self.assertEqual(new,previous)
+                p5=fixture.read_preflight(source/'dual_source_replay-1.json');p6=fixture.read_preflight(target/'dual_source_replay-1.json')
+                self.assertEqual(p6['judgement_strategy'],'prepared-prefix-cache-1')
+                self.assertEqual(p5['storage_budget'],p6['storage_budget'])
+                self.assertEqual(p5['density_math'],p6['density_math'])
+                self.assertEqual(p6['status'],'admissible_for_core_attempt')
+                with self.assertRaisesRegex(ValueError,'downgrade_forbidden'):fixture.upgrade(target,Path(directory)/(scale+'-reject5'),version=fixture.COMPACT_STANDARD_VERSION)
+
+
 
 if __name__=='__main__':unittest.main()

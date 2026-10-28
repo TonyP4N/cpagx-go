@@ -15,7 +15,7 @@ from .dual_source_rules import clock_time, validate_profile, outward
 from .pipeline import canonical, fingerprint
 
 VERSION='dual-source-replay-1'
-TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing','history_format','standard_projection'}
+TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing','history_format','standard_projection','judgement_strategy'}
 
 
 def instant(value):
@@ -139,8 +139,11 @@ class ReplayCore:
                  'unsupported':deepcopy(self.capture_unsupported)}
         parsed={'events':list(self.process.values()),'quality':deepcopy(self.process_quality),
                 'filtered_record_numbers':list(self.filtered_record_numbers)}
-        result=_analyze_prepared(capture,parsed,self.frame_accessor,self.analysis_profile,self.prefix_fingerprint,
-            allow_empty=True,source_contract='replay',identity_config=self.identity_profile)
+        if getattr(self,'compact_history',False) and self.parameters.get('judgement_strategy')=='prepared-prefix-cache-1':
+            result=self._prepared_analysis(capture,parsed)
+        else:
+            result=_analyze_prepared(capture,parsed,self.frame_accessor,self.analysis_profile,self.prefix_fingerprint,
+                allow_empty=True,source_contract='replay',identity_config=self.identity_profile)
         result['semantic_config_fingerprint']=self.config_fingerprint
         result['replay_version']=VERSION
         result['quality']['network_pending']=deepcopy(self.capture_pending)

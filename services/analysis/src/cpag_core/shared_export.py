@@ -184,9 +184,17 @@ def export_task(network,process,profile,output,*,run_id=None,attempt_id=1,mode='
         if not _rebuild:
             with open_reader(output,deadline=deadline):pass
         return manifest
-    except BaseException:
+    except BaseException as error:
         if writer is not None:writer.close()
-        if output.exists():shutil.rmtree(output)
+        # Failed-attempt bytes remain available for diagnosis. The marker makes
+        # the inventory unconditionally untrusted; no approval can be issued.
+        # A new attempt must use a new directory, never overwrite this evidence.
+        if output.exists():
+            try:
+                (output/'FAILED.json').write_bytes(canonical({'version':'compact-failed-attempt-1',
+                    'status':'failed','error_type':type(error).__name__,'reason':str(error),
+                    'trusted_result':False})+b'\n')
+            except OSError:pass  # e.g. disk full: caller still fails explicitly
         raise
     finally:
         if run is not None and run.get('inputs') is not None:run['inputs'].close()

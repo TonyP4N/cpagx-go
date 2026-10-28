@@ -111,4 +111,18 @@ class SharedExportTests(unittest.TestCase):
             with self.assertRaises(ValueError):shared.verify_task(root/'restored')
 
 
+class FailedAttemptRetentionTests(unittest.TestCase):
+    def test_failed_bytes_are_retained_and_never_read_as_trusted_result(self):
+        from unittest.mock import patch
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);paths=fixture(root/'source')
+            with patch.object(shared,'analyze',side_effect=ValueError('independent_injected_analysis_failure')):
+                with self.assertRaisesRegex(ValueError,'independent_injected_analysis_failure'):
+                    shared.export_task(*paths,root/'failed')
+            self.assertTrue((root/'failed/sources/process.csv').is_file())
+            self.assertFalse(json.loads((root/'failed/FAILED.json').read_text())['trusted_result'])
+            with self.assertRaises((ValueError,OSError)):shared.verify_task(root/'failed')
+            with self.assertRaisesRegex(ValueError,'output_already_exists'):shared.export_task(*paths,root/'failed')
+
+
 if __name__=='__main__':unittest.main()

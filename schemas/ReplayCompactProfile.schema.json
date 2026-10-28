@@ -86,6 +86,9 @@
     },
     "standard_projection": {
       "const": "standard-graph-events-1"
+    },
+    "judgement_strategy": {
+      "const": "prepared-prefix-cache-1"
     }
   },
   "required": [
