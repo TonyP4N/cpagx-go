@@ -1,0 +1,36 @@
+{
+  "runtime_commit": "56e106b2a44d88a0c67280d5d9e6a1e13aa79a75",
+  "scope": "local regressions and actual small CLI, no scale capacity assertion",
+  "files": [
+    {
+      "source": "FYP/outputs/cpag-r19-final-strategies-core.log",
+      "source_sha256": "73c2390398632b85b653c3034e03ed30747ef3d06c992eb16b6ea1d6a39ad7d2",
+      "public": "cpag-r19-final-strategies-core.log",
+      "public_sha256": "73c2390398632b85b653c3034e03ed30747ef3d06c992eb16b6ea1d6a39ad7d2"
+    },
+    {
+      "source": "FYP/outputs/cpag-r19-final-dual-regression.log",
+      "source_sha256": "627dbb9a10debd8ade3824cbf5df9506c1834cb4fd2b048ba7e6702cdb02be80",
+      "public": "cpag-r19-final-dual-regression.log",
+      "public_sha256": "627dbb9a10debd8ade3824cbf5df9506c1834cb4fd2b048ba7e6702cdb02be80"
+    },
+    {
+      "source": "FYP/outputs/cpag-r19-final-replay-regression.log",
+      "source_sha256": "0e8deb6b8fe7fc97176da088a451ed46b0be2b39e2a77c214fadf2f6e67b9974",
+      "public": "cpag-r19-final-replay-regression.log",
+      "public_sha256": "0e8deb6b8fe7fc97176da088a451ed46b0be2b39e2a77c214fadf2f6e67b9974"
+    },
+    {
+      "source": "FYP/outputs/cpag-r19-cli-strategy-regression.log",
+      "source_sha256": "8ab84e1ea47be1ed2a87936d5fefaf729f2dbaeeb95f603ea2119e07f646586c",
+      "public": "cpag-r19-cli-strategy-regression.log",
+      "public_sha256": "8ab84e1ea47be1ed2a87936d5fefaf729f2dbaeeb95f603ea2119e07f646586c"
+    },
+    {
+      "source": "FYP/outputs/cpag-r19-core-final-cli-attempt1/report.json",
+      "source_sha256": "02cd2d3db2617b7890d6b2b13d67093e98910149aaffd8cf201a1d9d2b5352de",
+      "public": "actual-cli-report.json",
+      "public_sha256": "02cd2d3db2617b7890d6b2b13d67093e98910149aaffd8cf201a1d9d2b5352de"
+    }
+  ]
+}

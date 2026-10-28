@@ -1,0 +1,36 @@
+{
+  "status": "passed",
+  "scope": "actual CLI small fixture; not scale measurement",
+  "same_complete_manifest": true,
+  "cases": [
+    {
+      "case": "verify-merkle",
+      "returncode": 0,
+      "seconds": 0.10489995800890028,
+      "stdout_sha256": "c210730f088217de2109abda538058cf0d0e118e7d8d46bad33d16da32ed800b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "verify-sqlite",
+      "returncode": 0,
+      "seconds": 0.11027787500643171,
+      "stdout_sha256": "cb1e5f434e22b63e93baadfb40219795428ec979564413bb1fe8facce7a8ee4a",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "case": "evidence",
+      "returncode": 0,
+      "seconds": 0.11218737499439158,
+      "stdout_sha256": "eb2d6cbd6fff945cd1b2d0bfd42fe75c0b523b8ae7480dba8fc7c9e8005d727f",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "original_evidence": 4
+    },
+    {
+      "case": "invalid-strategy",
+      "returncode": 2,
+      "seconds": 0.06387962499866262,
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_sha256": "d71131fd7b54fc2699c65d461b5182a919e9319aa2d3ea9cff800849a0e04aca"
+    }
+  ]
+}
