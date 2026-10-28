@@ -88,9 +88,15 @@ class CompactReplayCore(ReplayCore):
             'status':status,'revision_number':revision_number,'config_version':self.analysis_profile['config_version'],
             'config_fingerprint':self.config_fingerprint,'semantic_config_fingerprint':self.config_fingerprint,
             'state_fingerprint':state_fingerprint,'trigger':deepcopy(trigger)}
-        identity=writer.compose(None,snapshot,{'analysis':state['digest']})
+        fields={'analysis':state['digest']}
+        if self.parameters.get('standard_projection')=='standard-graph-events-1':
+            from .dual_source_export import event_graph
+            projection=event_graph(self._analysis,replay=True,identity_strategy='merkle-json-dag-1')
+            fields['graph']=writer.intern(projection['graph.json'])['digest']
+            fields['events']=writer.intern(projection['events.json'])['digest']
+        identity=writer.compose(None,snapshot,fields)
         snapshot['snapshot_id']='snapshot-'+identity['digest']
-        snapshot_ref=writer.compose(None,snapshot,{'analysis':state['digest']})
+        snapshot_ref=writer.compose(None,snapshot,fields)
         revision_ref=None
         if changed:
             if self._history_count>=self.parameters['max_revisions']:self._failure('revision_limit')

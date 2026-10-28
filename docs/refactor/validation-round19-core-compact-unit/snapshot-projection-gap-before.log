@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "<stdin>", line 5, in <module>
+  File "<repository>/tests/replay/test_compact_semantic_regression.py", line 104, in compare
+    self.assertEqual(canonical(before),canonical(normalized),(name,index,'complete snapshot including graph/events'))
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/unittest/case.py", line 873, in assertEqual
+    assertion_func(first, second, msg=msg)
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/unittest/case.py", line 866, in _baseAssertEqual
+    raise self.failureException(msg)
+AssertionError: b'{"a[2663 chars]v1","events":[],"graph":{"claims":[],"core_ver[850 chars]l"}}' != b'{"a[2663 chars]v1","replay_version":"dual-source-replay-1","r[471 chars]l"}}' : ('normal', 0, 'complete snapshot including graph/events')

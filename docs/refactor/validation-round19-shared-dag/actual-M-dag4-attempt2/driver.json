@@ -1,0 +1,18 @@
+{
+  "command": [
+    "<repository>/.venv/bin/python",
+    "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py",
+    "--fixture",
+    "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/capacity-v2-M",
+    "--output",
+    "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/shared-probe-M-attempt2-dag4",
+    "--seconds",
+    "180",
+    "--version",
+    "shared-observation-dag-4"
+  ],
+  "exit_code": 1,
+  "wall_seconds": 180.4215345409757,
+  "timeout_seconds": 210,
+  "peak_observed_combined_bytes": 876687360
+}

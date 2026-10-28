@@ -1,0 +1,7 @@
+{
+  "scope": "same failed unit-test content; public log removes only line-end spaces for Git whitespace validation",
+  "original_private_path_relative_to_FYP": "outputs/cpag-r19-density-generator-aa16a4d/compressed-unit-attempt1-failure.raw.log",
+  "original_sha256": "8f04d0e98f7999c07633f22a8163e32951cc5f6fa1cd728e1659b643d81ede51",
+  "public_sha256": "7abd257c28fe41a2821dc07584b5aeebf5eefed4541f5af7d98a455fc49c8f9d",
+  "normalization": "strip ASCII spaces/tabs at each line end; preserve line count and every other byte"
+}

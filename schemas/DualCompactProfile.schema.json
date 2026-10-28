@@ -561,6 +561,9 @@
     },
     "storage_format": {
       "const": "shared-observation-dag-6"
+    },
+    "storage_budget_version": {
+      "const": "shared-storage-budget-2"
     }
   },
   "required": [

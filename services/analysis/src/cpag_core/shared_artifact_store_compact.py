@@ -101,7 +101,35 @@ def _physical_decode(kind, raw):
     return (dict(rows) if kind=='dict' else rows),ids
 
 
-class LogicalHasher(previous.SharedArtifactWriter):
+class _FlatValueMemo:
+    """Bounded complete-value memo: never trusts mutable object identity.
+
+    A separate flat-value cache avoids evicting repeated SourceRefs whenever
+    nested candidate containers pass through the ordinary per-root memo. The
+    key is complete canonical bytes, preserving -0.0, scalar types and fields.
+    """
+    def _encode(self,value,depth,active):
+        flat=(type(value) is dict and depth+bool(value)<=self.limits['max_depth']
+              and all(type(k) is str and type(v) in (str,int,float,bool,type(None)) for k,v in value.items()))
+        if not flat:return super()._encode(value,depth,active)
+        key=canonical(value)
+        if not hasattr(self,'_flat_values'):
+            self._flat_values=OrderedDict();self._flat_value_bytes=0
+        found=self._flat_values.get(key)
+        if found is not None:
+            self._flat_values.move_to_end(key)
+            base._deadline(self.deadline)
+            return found[0]
+        node=super()._encode(value,depth,active)
+        weight=previous._memory(key)+previous._memory(node)+128
+        if weight<=self.limits['cache_bytes']:
+            while self._flat_values and (self._flat_value_bytes+weight>self.limits['cache_bytes'] or len(self._flat_values)>=self.limits['cache_entries']):
+                _,(_,removed)=self._flat_values.popitem(last=False);self._flat_value_bytes-=removed
+            self._flat_values[key]=(node,weight);self._flat_value_bytes+=weight
+        return node
+
+
+class LogicalHasher(_FlatValueMemo,previous.SharedArtifactWriter):
     """Complete typed-value digest without a database or logical serialization."""
     def __init__(self, *, limits=None, deadline=None, stable=False):
         self.version = FORMAT
@@ -136,11 +164,11 @@ class LogicalHasher(previous.SharedArtifactWriter):
             self._memo.clear()
 
 
-class SharedArtifactWriter(previous.SharedArtifactWriter):
+class SharedArtifactWriter(_FlatValueMemo,previous.SharedArtifactWriter):
     def __init__(self,root,*,context,version,**kwargs):
         if version != FORMAT:
             raise ValueError('explicit_compact_format_required')
-        super().__init__(root,context=context,version=previous.CONTENT_FORMAT,**kwargs)
+        super().__init__(root,context=context,version=previous.CONTENT_FORMAT,_max_logical_bytes=4*1024**5,**kwargs)
         self.version = FORMAT
         self.connection.execute('DROP TABLE nodes')
         self.connection.execute('DROP TABLE roots')
@@ -294,7 +322,7 @@ class SharedArtifactReader(previous.SharedArtifactReader):
             raise ValueError('shared_manifest_contract_invalid')
         if manifest['version']!=FORMAT or manifest['codec']!=CODEC or manifest['status']!=base.STATUS or raw!=canonical(manifest)+b'\n':
             raise ValueError('shared_manifest_version_or_encoding_invalid')
-        base._context(manifest['context']);previous._limits(manifest['limits'])
+        base._context(manifest['context']);previous._limits(manifest['limits'],max_logical_bytes=4*1024**5)
         if expected_context is not None and manifest['context']!=expected_context:
             raise ValueError('shared_context_changed')
         db=manifest['database']

@@ -28,7 +28,7 @@ MAX_LOGICAL_BYTES = 512*1024**3
 _U32 = struct.Struct('>I')
 
 
-def _limits(value):
+def _limits(value, *, max_logical_bytes=MAX_LOGICAL_BYTES):
     if not isinstance(value,dict) or set(value) != {'max_bytes','max_nodes','max_roots','max_node_bytes','max_array_items','max_depth','cache_entries','max_dict_items','max_logical_root_bytes','cache_bytes'}:
         raise ValueError('shared_limits_invalid')
     ordinary = {key:item for key,item in value.items() if key not in ('max_dict_items','max_logical_root_bytes','cache_bytes')}
@@ -36,7 +36,7 @@ def _limits(value):
         raise ValueError('shared_limits_invalid')
     ordinary['max_nodes'] = min(ordinary['max_nodes'],2000000)
     legacy._limits(ordinary)
-    if value['max_dict_items'] != MAX_DICT_ITEMS or value['cache_bytes'] != CACHE_BYTES or not legacy._int(value['max_logical_root_bytes'],1,MAX_LOGICAL_BYTES):
+    if value['max_dict_items'] != MAX_DICT_ITEMS or value['cache_bytes'] != CACHE_BYTES or not legacy._int(value['max_logical_root_bytes'],1,max_logical_bytes):
         raise ValueError('shared_limits_invalid')
 
 
@@ -132,16 +132,16 @@ def _memory(value):
 
 
 class SharedArtifactWriter(legacy.SharedArtifactWriter):
-    def __init__(self, root, *, context, version, max_nodes=2000000, max_logical_root_bytes=MAX_LOGICAL_BYTES, **kwargs):
+    def __init__(self, root, *, context, version, max_nodes=2000000, max_logical_root_bytes=MAX_LOGICAL_BYTES, _max_logical_bytes=MAX_LOGICAL_BYTES, **kwargs):
         if version not in FORMATS:
             raise ValueError('explicit_shared_compressed_format_required')
         # Reuse the established bounds/inventory creation, then replace the empty
         # prototype schema. No global format state or legacy reader is changed.
-        if not legacy._int(max_nodes,1,8000000) or not legacy._int(max_logical_root_bytes,1,MAX_LOGICAL_BYTES):
+        if not legacy._int(max_nodes,1,8000000) or not legacy._int(max_logical_root_bytes,1,_max_logical_bytes):
             raise ValueError('shared_limits_invalid')
         super().__init__(root, context=context, version=legacy.FORMAT, max_nodes=min(max_nodes,2000000), **kwargs)
         self.limits.update(max_nodes=max_nodes,max_dict_items=MAX_DICT_ITEMS,max_logical_root_bytes=max_logical_root_bytes,cache_bytes=CACHE_BYTES)
-        _limits(self.limits)
+        _limits(self.limits,max_logical_bytes=_max_logical_bytes)
         self.version = version
         self.connection.execute('DROP TABLE nodes')
         self.connection.execute('DROP TABLE roots')

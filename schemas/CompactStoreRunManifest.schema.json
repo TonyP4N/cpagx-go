@@ -176,7 +176,10 @@
       "type": "object",
       "properties": {
         "version": {
-          "const": "shared-storage-budget-1"
+          "enum": [
+            "shared-storage-budget-1",
+            "shared-storage-budget-2"
+          ]
         },
         "physical_bytes": {
           "const": 1073741824
@@ -203,7 +206,10 @@
           "const": 100
         },
         "max_logical_root_bytes": {
-          "const": 549755813888
+          "enum": [
+            549755813888,
+            4503599627370496
+          ]
         }
       },
       "required": [

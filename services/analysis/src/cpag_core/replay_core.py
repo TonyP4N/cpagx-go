@@ -15,7 +15,7 @@ from .dual_source_rules import clock_time, validate_profile, outward
 from .pipeline import canonical, fingerprint
 
 VERSION='dual-source-replay-1'
-TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing','history_format'}
+TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing','history_format','standard_projection'}
 
 
 def instant(value):

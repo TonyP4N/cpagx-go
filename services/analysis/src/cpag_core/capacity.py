@@ -30,6 +30,8 @@ class Budget:
 
 
 def resolve_capacity_profile(config):
+    if 'storage_budget_version' in config and (config.get('capacity_profile')!=COMPACT or config['storage_budget_version']!='shared-storage-budget-2'):
+        raise ValueError('unsupported_storage_budget_version')
     if 'capacity_profile' not in config:
         if 'storage_format' in config:raise ValueError('storage_requires_explicit_capacity')
         return Budget()
@@ -86,4 +88,6 @@ class SharedStorageBudget:
 def shared_storage_budget(config):
     if resolve_capacity_profile(config).version not in (SHARED,COMPACT):
         raise ValueError('shared_storage_budget_requires_capacity_v2')
+    if config.get('storage_budget_version')=='shared-storage-budget-2':
+        return SharedStorageBudget(version='shared-storage-budget-2',max_logical_root_bytes=4*1024**5)
     return SharedStorageBudget()

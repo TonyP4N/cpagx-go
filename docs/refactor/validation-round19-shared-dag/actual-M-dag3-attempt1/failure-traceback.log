@@ -1,0 +1,43 @@
+Traceback (most recent call last):
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 167, in add
+    node=self._encode(value,0,set())
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 151, in _encode
+    child=self._encode(value[key],depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 146, in _encode
+    if type(value) in (list,tuple):node=self._array(value,depth,active)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 114, in _array
+    child=self._encode(value,depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 151, in _encode
+    child=self._encode(value[key],depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 146, in _encode
+    if type(value) in (list,tuple):node=self._array(value,depth,active)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 118, in _array
+    if refs or not nodes:nodes.append(self._put('array_leaf',refs,size,len(refs),height+1))
+                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 101, in _put
+    cursor=self.connection.execute('INSERT OR IGNORE INTO nodes VALUES(?,?,?,?,?,?)',(digest,kind,payload,size,items,height))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+sqlite3.OperationalError: database or disk is full
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_probe.py", line 49, in main
+    descriptor=stage('store_'+name,lambda name=name,value=value:writer.add(name,value))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_probe.py", line 35, in stage
+    value=call();row.update(event='completed',wall_seconds=time.perf_counter()-before,cpu_seconds=time.process_time()-cpu);persist();return value
+          ^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_probe.py", line 49, in <lambda>
+    descriptor=stage('store_'+name,lambda name=name,value=value:writer.add(name,value))
+                                                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 175, in add
+    if isinstance(error,sqlite3.Error):raise ValueError('shared_storage_failed:'+getattr(error,'sqlite_errorname','SQLITE_ERROR')) from error
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: shared_storage_failed:SQLITE_FULL

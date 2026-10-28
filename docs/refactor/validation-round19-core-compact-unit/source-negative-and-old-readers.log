@@ -1,0 +1,8 @@
+test_missing_history_root_mid_snapshot_and_bad_reference_are_rejected (test_shared_source_tampering.RehashedSourceTamperTests.test_missing_history_root_mid_snapshot_and_bad_reference_are_rejected) ... ok
+test_real_historical_dual_and_default_replay_reader_are_preserved (test_shared_source_tampering.RehashedSourceTamperTests.test_real_historical_dual_and_default_replay_reader_are_preserved) ... ok
+test_valid_rehashed_fake_analysis_cannot_get_source_verified_or_read_approval (test_shared_source_tampering.RehashedSourceTamperTests.test_valid_rehashed_fake_analysis_cannot_get_source_verified_or_read_approval) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.993s
+
+OK

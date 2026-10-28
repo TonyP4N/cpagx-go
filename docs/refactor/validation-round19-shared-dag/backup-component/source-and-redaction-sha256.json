@@ -1,0 +1,41 @@
+{
+  "scope": "DAG5 storage-only small component tests; no source/run/Worker acceptance",
+  "source_sha256": {
+    "scripts/backup/shared_storage.py": "8db7ac3b401ea9bd29d436f1d3c54b94d2352821370b4bfed9174333d995ee18",
+    "tests/backup/test_shared_storage.py": "b161b6ecc624ab8fee5e637fe10d423e3a696c41ee19b5d0da86e39a8b05cb2b",
+    "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1"
+  },
+  "logs": [
+    {
+      "controlled_raw_file": "outputs/cpag-r19-dag5-backup-component-first.log",
+      "public_file": "cpag-r19-dag5-backup-component-first.log",
+      "raw_sha256": "fe26edb8b881c4c9bc538a04c8867e55ac8335dc81fca991cb2168319cae2032",
+      "public_sha256": "fe26edb8b881c4c9bc538a04c8867e55ac8335dc81fca991cb2168319cae2032"
+    },
+    {
+      "controlled_raw_file": "outputs/cpag-r19-dag5-backup-component-before-hardening.log",
+      "public_file": "cpag-r19-dag5-backup-component-before-hardening.log",
+      "raw_sha256": "3d126767a8becea8bc97763a154744e206d75362adecc3e093ca573e17d279eb",
+      "public_sha256": "8d30b8e7e64de6eea0321229141dda0ef0222c0ddb75571a9930cd7c357b8f73"
+    },
+    {
+      "controlled_raw_file": "outputs/cpag-r19-dag5-backup-component-after-hardening.log",
+      "public_file": "cpag-r19-dag5-backup-component-after-hardening.log",
+      "raw_sha256": "b38b90d9366ddd66f765abfd98f69d8a34fa21a1a88d2599143a7e541aba5176",
+      "public_sha256": "b38b90d9366ddd66f765abfd98f69d8a34fa21a1a88d2599143a7e541aba5176"
+    },
+    {
+      "controlled_raw_file": "outputs/cpag-r19-dag5-backup-context-before.log",
+      "public_file": "cpag-r19-dag5-backup-context-before.log",
+      "raw_sha256": "5aff3b97d94863a87489f3377d0dd63448bef3b7041cc65fdfb686417090aca1",
+      "public_sha256": "9abdcecc6e8dd86d9bfa1a1478fffd3ab4ed8fb3789592a327a2c4da52b3f285"
+    },
+    {
+      "controlled_raw_file": "outputs/cpag-r19-dag5-backup-context-after.log",
+      "public_file": "cpag-r19-dag5-backup-context-after.log",
+      "raw_sha256": "1a74d83cfbf28796b46dc737906334de72645e263f20d3fc8d1c48043ec00310",
+      "public_sha256": "1a74d83cfbf28796b46dc737906334de72645e263f20d3fc8d1c48043ec00310"
+    }
+  ]
+}

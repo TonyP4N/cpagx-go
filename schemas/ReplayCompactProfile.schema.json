@@ -83,6 +83,9 @@
     },
     "prefix_digest_strategy": {
       "const": "incremental-prefix-digest-2"
+    },
+    "standard_projection": {
+      "const": "standard-graph-events-1"
     }
   },
   "required": [

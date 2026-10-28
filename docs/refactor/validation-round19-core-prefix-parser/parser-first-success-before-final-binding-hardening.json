@@ -1,0 +1,49 @@
+{
+  "version": "r19-core-prefix-parse-cost-1",
+  "scope": "S100 parser only; no ReplayCore/analysis/export/verify/capacity acceptance",
+  "status": "completed",
+  "reference_accepted": false,
+  "source_sha256": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+  "compact_source_sha256": "8b7ac0ae36ba3ab30b3cb2e7398c18292bcedccae0c19d7165749193ca2148fe",
+  "parser_class": "CompactReplayInputs",
+  "parser_cache": {
+    "version": "arrived-parser-cache-1",
+    "cache_limit_bytes": 16777216,
+    "cache_bytes": 4337132,
+    "network_parse_calls": 202,
+    "network_frames_parsed": 20300,
+    "capture_cache_hits": 405,
+    "process_parse_calls": 101,
+    "process_records_parsed": 100,
+    "row_cache_hits": 28682,
+    "evictions": 200,
+    "oversized_uncached": 0
+  },
+  "wall_seconds": 7.197926499997266,
+  "cpu_user_seconds": 6.932237,
+  "cpu_system_seconds": 0.12656,
+  "rss_peak_bytes": 50069504,
+  "snapshots": 607,
+  "stats": {
+    "network": {
+      "calls": 202,
+      "frames": 20300,
+      "seconds": 1.2721290500485338
+    },
+    "process": {
+      "calls": 101,
+      "data_records": 100,
+      "bytes": 4010,
+      "seconds": 0.006510334060294554
+    }
+  },
+  "last_events": {
+    "network": 200,
+    "process": 100
+  },
+  "host": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "limits_enforced": false
+}

@@ -1,0 +1,30 @@
+{
+  "files": {
+    "docs/refactor/round19-two-worker-plan-20261028.md": "5af3cca9c180ebfd788e370335fe673fb9289786618f61b454fb19f24f074b04",
+    "internal/capacity/budget.go": "e5702601f76e7598f1c530ed3eeb0d96ed14593498376486cdeedd36c530b518",
+    "internal/capacity/budget_test.go": "ebb6e13aeb3f7d9b053783d688fe4e943ed0e38b40761070edc8f306aeae28ff",
+    "internal/capacity/http.go": "1c1e745b1e0b431a395168d31c1183ef5a1345066059922dbad61c862b859b74",
+    "internal/catalog/capacity.go": "468e7a3c7841f4fe8a280b5223af344a051f28038c83b4716abe483c84b6313f",
+    "internal/catalog/capacity_test.go": "62afcf511f1d09e88d48dcf37349b8ea33afb437046116fe5e39aa6045968883",
+    "internal/catalog/evaluation.go": "98076a95442446ca12b043f90aef4ba1935c05e7fcfe47a1ca8122b5a0ef0959",
+    "internal/catalog/runs.go": "fac89b39e418aa45aea8bc4c8331664382e49148004ae3cf0f2843bbd68e340f",
+    "internal/catalog/server.go": "b2044cb509b4a0d433ffecdc790ae25eddeea609689584fc2ecf428f745dae5b",
+    "internal/contracts/contracts_test.go": "0b9a0405530fbf91b369eb3c719474e16146ecee40866ccb5e5607eef9a4d7ce",
+    "internal/jobapi/capacity.go": "fcf2fda69bd5d293ac09191cf2020f0e82f3341896507233b0fbff63c89c5610",
+    "internal/jobapi/capacity_test.go": "0bf804fc791da2855d36d1396030fa6f2aa7bd2a63fde588d986380ee4d242ed",
+    "internal/jobapi/dual.go": "4487a50084f020eef0478c342042e617f4ce90991832ee747e91a32d72c3b27b",
+    "internal/jobapi/publication_snapshot.go": "fe665040d0351051d81cb923e922a9b54ddf4d259925bd3b11cf091deaa49a79",
+    "internal/jobapi/replay.go": "db510baf2cc22f891c6f351a81c1fc2e7da06c5b36851a017c57716768b48026",
+    "internal/jobapi/server.go": "1de4d1156992886399c2506a5ffe3b1d253590d570a51bb83706aa78007cede4",
+    "internal/jobs/capacity.go": "8634ed6e019a90016b620ac8f9ff594977f375af2cd5be89fdc75500da03677c",
+    "internal/jobs/migrations/015_shared_capacity_policy.sql": "f5772169edefb7603b5361c36dde1ddb7333ac84ce9aad41fcb6bd492e15d6c7",
+    "scripts/validation/round19_two_workers.py": "009cccab8e8b1653e6d1df1783b27db3592a3f24bf25c373e4e565249980e11f",
+    "services/worker/cpag_worker/resources.py": "fa47a6ca91f9876bf556ec8a87ac3ec7ba41062f2322186f1bf6f85875bf8495",
+    "tests/validation/test_round19_two_workers.py": "c490946467c7caf24bac52cfa4a06b81b200f421637fb20b21da6dd4f9090d97"
+  },
+  "formal_two_worker_executed": false,
+  "head": "f182309cda35808f7ba7f7cf6de4f6d5cd2f626f",
+  "running_processes_owned_by_agent": [],
+  "scope": "uncommitted incomplete capacity2 bindings and unexecuted two-Worker harness; no formal new shared acceptance",
+  "version": "r19-capacity-agent-pause-1"
+}

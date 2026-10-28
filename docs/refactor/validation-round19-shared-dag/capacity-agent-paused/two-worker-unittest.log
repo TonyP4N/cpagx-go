@@ -1,0 +1,8 @@
+test_failed_command_keeps_original_stdout_and_stderr (test_round19_two_workers.RealWorkerEvidenceControls.test_failed_command_keeps_original_stdout_and_stderr) ... ok
+test_intervals_require_complete_nonoverlapping_events (test_round19_two_workers.RealWorkerEvidenceControls.test_intervals_require_complete_nonoverlapping_events) ... ok
+test_setup_failure_preserves_attempt_and_refuses_overwrite (test_round19_two_workers.RealWorkerEvidenceControls.test_setup_failure_preserves_attempt_and_refuses_overwrite) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.006s
+
+OK

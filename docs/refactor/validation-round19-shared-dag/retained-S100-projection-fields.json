@@ -1,0 +1,32 @@
+{
+  "scope": "read-only S100 projection field bytes; any M/L figures are unverified planning, not acceptance",
+  "source": "<workspace>/outputs/cpag-r19-followup-review-aa16a4d/s100-projection-60s.stdout.json",
+  "total_canonical_bytes": 1016280,
+  "fields": {
+    "binding": 2758,
+    "event_links": 755390,
+    "exclusions": 2,
+    "limitations": 465,
+    "predictions": 257341,
+    "process_statistics": 231
+  },
+  "predictions_fields": {
+    "config_fingerprint": 66,
+    "events": 57152,
+    "input_fingerprint": 66,
+    "run_id": 34,
+    "schema_version": 7,
+    "synthetic": 4,
+    "unlabelled_relations": 199893
+  },
+  "counts": {
+    "event_links": 2795,
+    "exclusions": 0
+  },
+  "event_link_sections": {
+    "relation_count": 2596,
+    "relation_value_bytes": 511412,
+    "relation_link_entry_bytes": 711304,
+    "observation_count": 199
+  }
+}

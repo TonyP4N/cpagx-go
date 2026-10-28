@@ -1,0 +1,28 @@
+{
+  "version": "r19-generator5-publication-receipt-1",
+  "raw": "controlled outputs/cpag-r19-core-generator5-evidence-20261028",
+  "files": [
+    {
+      "path": "old4-before-new-tests.log",
+      "original_sha256": "6c04e31f17d5176d8a466c0e7c3309b778c08df88b91ca8022ef0db9cca28919",
+      "public_sha256": "6c04e31f17d5176d8a466c0e7c3309b778c08df88b91ca8022ef0db9cca28919",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "generator-versions-1-through-5.log",
+      "original_sha256": "f01bc5cfa449848889362f6bf5610f01ae5268a34b8ba674f068beccecd9944c",
+      "public_sha256": "f01bc5cfa449848889362f6bf5610f01ae5268a34b8ba674f068beccecd9944c",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "generation-summary.json",
+      "original_sha256": "a6b77bcf69d9b990909f9a80a969958045088d18be55a8a92d19ce9fd16d3da3",
+      "public_sha256": "a6b77bcf69d9b990909f9a80a969958045088d18be55a8a92d19ce9fd16d3da3",
+      "redactions": "personal filesystem prefixes only"
+    }
+  ],
+  "sources": {
+    "scripts/validation/round19_scale_fixture.py": "6d2a5c35422656186b52ab8602ad5b3bdcffa7554f2ec47ee4af5fec986d1a57",
+    "tests/validation/test_round19_compact_fixture.py": "2d88667649efd8c9cc8e9fd7ea76a07c1004638a44646f199c823423930d7676"
+  }
+}

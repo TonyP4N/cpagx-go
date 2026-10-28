@@ -1,0 +1,218 @@
+{
+  "scope": "actual local synthetic M core and isolated store only; not formal M pipeline, new storage publication, evaluation or L acceptance",
+  "format": "shared-observation-dag-5",
+  "source_sha256_before": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_rules.py": "238860a98584688fe8ba5022f141b782da6f69e8a869c0f05f22ca916a65dea0",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "c3ad55fb885bd3b82798ead6a100992f558d8d26d9b978ea2991e599b2805d44",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1"
+  },
+  "status": "failed",
+  "fixture": "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/capacity-v2-M",
+  "samples": [
+    {
+      "name": "actual_core_analysis",
+      "event": "completed",
+      "wall_at_start": 0.002488208992872387,
+      "wall_seconds": 38.83956812499673,
+      "cpu_seconds": 38.555935
+    },
+    {
+      "name": "actual_standard_graph_and_events",
+      "event": "completed",
+      "wall_at_start": 38.84263483399991,
+      "wall_seconds": 52.26482899999246,
+      "cpu_seconds": 51.948509
+    },
+    {
+      "name": "store_analysis.json",
+      "event": "completed",
+      "wall_at_start": 91.1111041670083,
+      "wall_seconds": 62.40772733400809,
+      "cpu_seconds": 61.404781
+    },
+    {
+      "name": "store_dual/analysis.json",
+      "event": "completed",
+      "wall_at_start": 153.51949841700844,
+      "wall_seconds": 0.0005376660265028477,
+      "cpu_seconds": 0.0005019999999831271
+    },
+    {
+      "name": "store_events.json",
+      "event": "completed",
+      "wall_at_start": 153.52053958398756,
+      "wall_seconds": 1.3614413329923991,
+      "cpu_seconds": 1.3522419999999897
+    },
+    {
+      "name": "store_graph.json",
+      "event": "completed",
+      "wall_at_start": 154.88249366698437,
+      "wall_seconds": 17.771721583005274,
+      "cpu_seconds": 17.488658999999984
+    },
+    {
+      "name": "store_quality.json",
+      "event": "completed",
+      "wall_at_start": 172.65481808400364,
+      "wall_seconds": 0.000961750018177554,
+      "cpu_seconds": 0.0009389999999882548
+    },
+    {
+      "name": "seal_store",
+      "event": "completed",
+      "wall_at_start": 172.65631304201088,
+      "wall_seconds": 0.2670182500150986,
+      "cpu_seconds": 0.26567399999999
+    },
+    {
+      "name": "restore_and_verify_nodes",
+      "event": "completed",
+      "wall_at_start": 172.9239393339958,
+      "wall_seconds": 86.01278970800922,
+      "cpu_seconds": 79.139207
+    },
+    {
+      "name": "full_logical_hash_analysis.json",
+      "event": "completed",
+      "wall_at_start": 258.9393638749898,
+      "wall_seconds": 309.4906809999957,
+      "cpu_seconds": 304.30823
+    },
+    {
+      "name": "independent_full_logical_hash_analysis.json",
+      "event": "completed",
+      "wall_at_start": 568.4312749590026,
+      "wall_seconds": 29.671696124976734,
+      "cpu_seconds": 29.19653500000004
+    },
+    {
+      "name": "full_logical_hash_graph.json",
+      "event": "entered",
+      "wall_at_start": 598.1042951669951
+    }
+  ],
+  "input_sha256": {
+    "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+    "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+    "offline-profile.json": "fff5f2ee703925262748eff552f493f3744cbfd86e0c9fdda4db4dadf4a87b8a"
+  },
+  "wall_seconds": 600.0042593750113,
+  "process_peak_rss_bytes": 310771712,
+  "actual_counts": {
+    "network": 2000,
+    "process": 1000,
+    "operations": 1000,
+    "changes": 999,
+    "candidates": 31801
+  },
+  "storage_limits": {
+    "max_bytes": 1073741824,
+    "max_nodes": 2000000,
+    "max_roots": 160000,
+    "max_node_bytes": 8388608,
+    "max_array_items": 500000,
+    "max_depth": 64,
+    "cache_entries": 4096,
+    "max_dict_items": 4096,
+    "max_logical_root_bytes": 549755813888,
+    "cache_bytes": 16777216
+  },
+  "roots": {
+    "analysis.json": {
+      "name": "analysis.json",
+      "digest": "e082920de0a9c93f531cb701f256545a99417b244cbf93ea1c882fcb81a32d32",
+      "logical_bytes": 2563787143,
+      "items": 20,
+      "kind": "dict"
+    },
+    "dual/analysis.json": {
+      "name": "dual/analysis.json",
+      "digest": "e082920de0a9c93f531cb701f256545a99417b244cbf93ea1c882fcb81a32d32",
+      "logical_bytes": 2563787143,
+      "items": 20,
+      "kind": "dict"
+    },
+    "events.json": {
+      "name": "events.json",
+      "digest": "43c75a458ab3ec9054e4ce979aad4a60a50ced4d5c08c2c9cc51f2aed6f8ddcc",
+      "logical_bytes": 3259141,
+      "items": 3999,
+      "kind": "array_branch"
+    },
+    "graph.json": {
+      "name": "graph.json",
+      "digest": "28b2feb1b7be668ab04621bf3fe0b5f0d5a46c76651c1322b3a31f3f77e4f28c",
+      "logical_bytes": 942431348,
+      "items": 10,
+      "kind": "dict"
+    },
+    "quality.json": {
+      "name": "quality.json",
+      "digest": "729ae9bcf3cbacc0ff1659b96ff0cd173d4b96ae4ca81f903ef8238faba3a2bb",
+      "logical_bytes": 269,
+      "items": 7,
+      "kind": "dict"
+    }
+  },
+  "node_count_so_far": 539566,
+  "sqlite_bytes_so_far": 574586880,
+  "sealed": {
+    "manifest": {
+      "version": "shared-observation-dag-5",
+      "codec": "blob32-zlib-or-raw-1",
+      "status": "sealed_store_source_unverified",
+      "context": {
+        "run_id": "prototype-M",
+        "attempt_id": 1,
+        "input_fingerprint": "55dee8f0ded5c8c5485e1dd898b7b1b5ce29e5673efde2d4131ec1ff1b4038d6",
+        "config_fingerprint": "8738929d5bc41bbfd584fc58fc17ef7467a72b561d556688387a65eb9c6b3b9c"
+      },
+      "limits": {
+        "max_bytes": 1073741824,
+        "max_nodes": 2000000,
+        "max_roots": 160000,
+        "max_node_bytes": 8388608,
+        "max_array_items": 500000,
+        "max_depth": 64,
+        "cache_entries": 4096,
+        "max_dict_items": 4096,
+        "max_logical_root_bytes": 549755813888,
+        "cache_bytes": 16777216
+      },
+      "database": {
+        "path": "shared.sqlite3",
+        "sha256": "e8207f3a9b3487dd581f748e187a4693ec8616df2ef7f9b52550475a8de24a08",
+        "size_bytes": 574586880
+      },
+      "root_count": 5,
+      "node_count": 539566,
+      "roots_index_sha256": "c0018b652189890339c47892cdccad3b4185375445779b99b5c91a446048f9ca"
+    },
+    "manifest_sha256": "912fd19d809fc344e6525d00530c60e96b4a68787028999a94f1e23e6f3fa98b"
+  },
+  "complete_canonical_hashes": {
+    "analysis.json": {
+      "reconstructed": "3003f6cbf34c7a5d232091d57b8af55a16334376a9a1494ea53e863e6bb10b3e",
+      "source_object": "3003f6cbf34c7a5d232091d57b8af55a16334376a9a1494ea53e863e6bb10b3e"
+    }
+  },
+  "error_type": "ValueError",
+  "error": "shared_store_deadline_exceeded",
+  "node_count_at_failure": 539566,
+  "sqlite_bytes_at_failure": 574586880,
+  "source_sha256_after": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_rules.py": "238860a98584688fe8ba5022f141b782da6f69e8a869c0f05f22ca916a65dea0",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "c3ad55fb885bd3b82798ead6a100992f558d8d26d9b978ea2991e599b2805d44",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1"
+  },
+  "fixed_source_during_measurement": true
+}
