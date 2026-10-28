@@ -59,33 +59,28 @@ func (r Repository) claim(ctx context.Context, worker string, lease time.Duratio
 		return c, err
 	}
 	token := hex.EncodeToString(tokenBytes)
-	type rowQuery interface {
-		QueryRowContext(context.Context, string, ...any) *sql.Row
+	tx, err := r.DB.BeginTx(ctx, nil)
+	if err != nil {
+		return c, err
 	}
-	var query rowQuery = r.DB
-	var tx *sql.Tx
-	if executor != "" {
-		tx, err = r.DB.BeginTx(ctx, nil)
-		if err != nil {
-			return c, err
-		}
-		defer tx.Rollback()
-		query = tx
+	defer tx.Rollback()
+	if err = claimCapacity(ctx, tx); err != nil {
+		return c, err
 	}
-	err = query.QueryRowContext(ctx, `WITH candidate AS (
+	err = tx.QueryRowContext(ctx, `WITH candidate AS (
  SELECT id FROM m4_jobs WHERE attempt<max_attempts AND
  ((state='queued' AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<=clock_timestamp()))
  ORDER BY available_at,id FOR UPDATE SKIP LOCKED LIMIT 1)
  UPDATE m4_jobs j SET state='running',attempt=j.attempt+1,worker=$1,attempt_token=$3,
  lease_until=clock_timestamp()+($2 * interval '1 millisecond') FROM candidate c WHERE j.id=c.id
  RETURNING j.id,j.attempt,j.worker,j.attempt_token`, worker, lease.Milliseconds(), token).Scan(&c.ID, &c.Attempt, &c.Worker, &c.Token)
-	if err == nil && tx != nil {
+	if err == nil && executor != "" {
 		var result sql.Result
 		result, err = tx.ExecContext(ctx, `UPDATE m4_job_attempts SET executor_kind=$5,location=$6 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4`, c.ID, c.Attempt, c.Worker, c.Token, executor, location)
 		err = affected(result, err)
-		if err == nil {
-			err = tx.Commit()
-		}
+	}
+	if err == nil {
+		err = tx.Commit()
 	}
 	return c, err
 }

@@ -1,4 +1,5 @@
 """Explicit adapters; no raw packet decoding or cross-source alignment."""
+from ..measurement import phase
 import csv
 import io
 import hashlib
@@ -118,6 +119,7 @@ class ProcessLimits:
             raise ValueError('process limits must be positive integers')
 
 
+@phase('process_parse')
 def parse_process(path, profile, *, synthetic=True, evidence=None, limits=None, extended=False):
     """CSV logical records with explicit per-column definitions; no interpolation."""
     path = Path(path)

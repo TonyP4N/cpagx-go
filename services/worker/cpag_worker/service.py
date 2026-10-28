@@ -15,7 +15,7 @@ from .worker import API
 from .isolated import DockerExecutor
 
 REQUIRED={'api_url','shared_root','control_root','worker_token','coordinator_token'}
-OPTIONAL={'worker_id','image','poll_seconds','recovery_seconds'}
+OPTIONAL={'worker_id','image','poll_seconds','recovery_seconds','resource_profile'}
 
 def read_config(path):
     path=Path(path)
@@ -41,12 +41,14 @@ def read_config(path):
         value=config.get(key,default)
         if type(value) not in (int,float) or not 0.2<=value<=60:raise ValueError('service interval out of bounds')
         config[key]=value
+    from .resources import resolve
+    resolve(config.get('resource_profile'))
     return config
 
 def serve(config):
     worker=DockerExecutor(API(config['api_url'].rstrip('/'),config['worker_token']),
         API(config['api_url'].rstrip('/'),config['coordinator_token']),config['shared_root'],
-        config['control_root'],config.get('worker_id','cpag-v3-worker'),image=config.get('image','cpag-isolated:round5'))
+        config['control_root'],config.get('worker_id','cpag-v3-worker'),image=config.get('image','cpag-isolated:round5'),resource_profile=config.get('resource_profile'))
     stopped=threading.Event()
     def stop(*_):stopped.set();worker.stop()
     signal.signal(signal.SIGTERM,stop);signal.signal(signal.SIGINT,stop)

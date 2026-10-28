@@ -1,0 +1,8 @@
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored
+    evaluation_store_test.go:284: restored original 409 {"error":{"code":"evaluation_unavailable","message":"saved evaluation or original evidence unavailable or changed"}}
+--- FAIL: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory (3.65s)
+    --- FAIL: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored (0.01s)
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	4.107s
+FAIL

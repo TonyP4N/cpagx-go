@@ -1,0 +1,18 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  trigger "v3_capture_binding_validate" for relation "v3_run_bindings" does not exist, skipping
+NOTICE:  trigger "v3_capture_source_protect" for relation "v3_dataset_files" does not exist, skipping
+NOTICE:  trigger "m4_capacity_claim" for relation "m4_jobs" does not exist, skipping
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 117, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);a=p.parse_args();run(Path(a.output).resolve())
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 111, in run
+    try:r18.main(work)
+        ^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round18_acceptance.py", line 205, in main
+    checked=check_run(client,job,source,status['attempt'],cases[case]['profile'],case)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 34, in checked
+    result=original(client,job,root,attempt,config,case) if case!='offline' else {}
+           ^^^^^^^^
+UnboundLocalError: cannot access local variable 'original' where it is not associated with a value

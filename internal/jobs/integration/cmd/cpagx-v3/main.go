@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"flag"
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"github.com/TonyP4N/cpagx-go/internal/catalog"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"log"
@@ -54,8 +55,12 @@ func main() {
 		}
 		return
 	}
-	publicServer := &http.Server{Addr: cfg.PublicAddr, Handler: public, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 60 * time.Second, IdleTimeout: 30 * time.Second}
-	internalServer := &http.Server{Addr: cfg.InternalAddr, Handler: public.Internal, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 30 * time.Second}
+	timeouts, err := capacity.HTTPTimeouts(cfg.ResourceProfile)
+	if err != nil {
+		log.Fatal(err)
+	}
+	publicServer := &http.Server{Addr: cfg.PublicAddr, Handler: public, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: timeouts.PublicRead, WriteTimeout: timeouts.PublicWrite, IdleTimeout: 30 * time.Second}
+	internalServer := &http.Server{Addr: cfg.InternalAddr, Handler: public.Internal, ReadHeaderTimeout: 5 * time.Second, ReadTimeout: timeouts.InternalRead, WriteTimeout: timeouts.InternalWrite, IdleTimeout: 30 * time.Second}
 	errors := make(chan error, 2)
 	go func() { errors <- internalServer.ListenAndServe() }()
 	go func() { errors <- publicServer.ListenAndServe() }()

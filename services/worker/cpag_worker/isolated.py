@@ -11,6 +11,7 @@ import shutil
 import signal
 import subprocess
 import tarfile
+import tempfile
 import time
 import threading
 import uuid
@@ -53,8 +54,19 @@ class CalculationFailure(ValueError):
 
 class DockerExecutor:
     def __init__(self,api,coordinator,root,control,worker,*,image='cpag-isolated:round5',timeout=120,
-                 heartbeat=1,lease=15,output_bytes=16777216,command=None,checkpoint=None,host_budget_bytes=1073741824,min_free_bytes=67108864):
+                 heartbeat=1,lease=15,output_bytes=16777216,command=None,checkpoint=None,host_budget_bytes=1073741824,min_free_bytes=67108864,resource_profile=None):
+        from .resources import resolve
+        resources=resolve(resource_profile)
+        self.resource_profile=resource_profile
+        self.memory_bytes,self.cpus,self.transfer_seconds=268435456,'.5',30
+        self.cpu_seconds=None;self.temporary_bytes=output_bytes+2097152
+        if resources is not None:
+            timeout=resources['timeout'];output_bytes=resources['output_bytes']
+            host_budget_bytes=resources['host_budget_bytes'];min_free_bytes=resources['min_free_bytes']
+            self.memory_bytes=resources['memory_bytes'];self.cpus=resources['cpus'];self.transfer_seconds=resources['transfer_seconds']
+            self.cpu_seconds=resources['cpu_seconds'];self.temporary_bytes=resources['temporary_bytes']
         self.api,self.coordinator=api,coordinator
+        self.publication_api=API(api.url,api.token,timeout=resources['publication_seconds']) if resources and isinstance(api,API) else api
         self.root,self.control=Path(root).resolve(),Path(control).resolve()
         if self.control==self.root or self.control.is_relative_to(self.root):
             raise ValueError('control directory must be outside shared artifact root')
@@ -184,7 +196,7 @@ class DockerExecutor:
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(output,beneath(self.root,payload['network']['path']))
-        self.api.post('/v1/jobs/'+record['id']+'/complete',{**{k:record[k] for k in ('worker','attempt','token')},'manifest_sha256':handoff['manifest_sha256']})
+        self.publication_api.post('/v1/jobs/'+record['id']+'/complete',{**{k:record[k] for k in ('worker','attempt','token')},'manifest_sha256':handoff['manifest_sha256']})
         sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
         atomic_json(base/'publication.json',handoff)
         return 'succeeded'
@@ -341,17 +353,27 @@ class DockerExecutor:
         process=subprocess.Popen(['docker','exec',container,'tar','-C','/output/run','-cf','-','.'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
         expired=threading.Event()
         def cutoff(): expired.set();process.kill()
-        timer=threading.Timer(30,cutoff);timer.start()
+        timer=threading.Timer(self.transfer_seconds,cutoff);timer.start()
+        archive_file=tempfile.TemporaryFile(dir=self.root)
         try:
-            raw=process.stdout.read(self.output_bytes+1048577)
-            if len(raw)>self.output_bytes+1048576:process.kill()
+            total_archive=0
+            while True:
+                chunk=process.stdout.read(min(1024*1024,self.output_bytes+1048577-total_archive))
+                if not chunk:break
+                total_archive+=len(chunk)
+                if total_archive>self.output_bytes+1048576:
+                    process.kill();raise ValueError('output transfer limit')
+                archive_file.write(chunk)
             code=process.wait(timeout=3)
             if expired.is_set():raise ValueError('output transfer deadline')
             if code:raise ValueError('output archive command failed')
+            archive_file.seek(0)
+        except BaseException:
+            archive_file.close()
+            raise
         finally:
             timer.cancel();process.stdout.close()
             if process.poll() is None:process.kill();process.wait()
-        if len(raw)>self.output_bytes+1048576: raise ValueError('output transfer limit')
         target.mkdir(mode=0o700)
         dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
@@ -359,7 +381,7 @@ class DockerExecutor:
             export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
             DIRECTORIES=export.DIRECTORIES
             FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None])) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
-        with tarfile.open(fileobj=io.BytesIO(raw),mode='r:') as archive:
+        with archive_file, tarfile.open(fileobj=archive_file,mode='r:') as archive:
             total=0
             seen=set()
             for member in archive:
@@ -393,11 +415,12 @@ class DockerExecutor:
         for entry in entries:
             path=beneath(target.resolve(),entry['path'])
             if digest(path)!=entry['sha256'] or path.stat().st_size!=entry['size_bytes']: raise ValueError('artifact hash/size mismatch')
-            value=json.loads(path.read_text()) if path.suffix=='.json' else None
             schema={'dataset.json':'DatasetManifest','graph.json':'ReplayGraphArtifact' if payload.get('kind')=='dual-source-replay' else 'GraphArtifact'}.get(path.name)
-            if schema:validate(schema,value)
+            if schema:
+                value=json.loads(path.read_text());validate(schema,value)
+                del value
             if path.name=='events.json' and not dual_source:
-                for event in value:validate('NetworkEvent' if event['event_id'].startswith('packet-') or 'protocol' in event else 'ProcessObservation',event)
+                for event in json.loads(path.read_text()):validate('NetworkEvent' if event['event_id'].startswith('packet-') or 'protocol' in event else 'ProcessObservation',event)
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(target,beneath(self.root,payload['network']['path']))
@@ -428,6 +451,8 @@ class DockerExecutor:
             self.capacity(claim)
             inputs=base/'inputs';inputs.mkdir()
             payload=claim['payload'];kind=payload.get('kind');network_arguments=[]
+            if payload.get('resource_profile') != self.resource_profile:
+                raise ValueError('operator resource profile differs from submitted run')
             refs=[('network' if i==0 else f'network-{i:03d}',r) for i,r in enumerate(network_refs(payload))]
             refs += [(name,payload[name]) for name in ('process','profile')]
             profile_path=None
@@ -449,15 +474,18 @@ class DockerExecutor:
             if kind=='dual-source-replay':command+=['--replay-version',payload['replay_version']]
             nonce=uuid.uuid4().hex
             atomic_json(base/'create-intent.json',{**self.identity(claim),'nonce':nonce,'location':self.location()})
-            compute_tmpfs=['--tmpfs','/tmp:rw,nosuid,nodev,size='+str(self.output_bytes+2097152)+',mode=1777'] if kind in ('dual-source','dual-source-replay') else []
+            atomic_json(base/'resources.json',{'version':self.resource_profile or 'legacy-default','memory_bytes':self.memory_bytes,'cpus':self.cpus,'timeout_seconds':self.timeout,'output_bytes':self.output_bytes,'transfer_seconds':self.transfer_seconds,'cpu_seconds':self.cpu_seconds,'temporary_bytes':self.temporary_bytes,'publication_seconds':getattr(self.publication_api,'timeout',None)})
+            compute_tmpfs=['--tmpfs','/tmp:rw,nosuid,nodev,size='+str(self.temporary_bytes)+',mode=1777'] if kind in ('dual-source','dual-source-replay') else []
             container=self.docker('create','--name','cpag-isolated-'+nonce,'--network','none','--read-only','--user','65532:65532',
-                '--cap-drop','ALL','--security-opt','no-new-privileges','--memory','256m','--memory-swap','256m',
-                '--cpus','.5','--pids-limit','64','--log-driver','local','--log-opt','max-size=64k','--log-opt','max-file=2',
+                '--cap-drop','ALL','--security-opt','no-new-privileges','--memory',str(self.memory_bytes),'--memory-swap',str(self.memory_bytes),
+                '--cpus',self.cpus,'--pids-limit','64','--log-driver','local','--log-opt','max-size=64k','--log-opt','max-file=2',
                 '--label','cpag.scope='+self.scope,'--label','cpag.managed=isolated-v1','--label','cpag.execution='+nonce,'--label','cpag.job='+claim['id'],'--label','cpag.attempt='+str(claim['attempt']),'--label','cpag.worker='+claim['worker'],
                 '--mount','type=bind,src='+str(inputs)+',dst=/inputs,readonly',
                 '--tmpfs','/output:rw,nosuid,nodev,size='+str(self.output_bytes)+',mode=1777',
                 '--tmpfs','/runtime:rw,nosuid,nodev,size=1m,mode=1777',
                 *compute_tmpfs,
+                *(['--ulimit','cpu='+str(self.cpu_seconds)+':'+str(self.cpu_seconds)] if self.cpu_seconds else []),
+                *(['-e','CPAG_PHASE_METRICS=/runtime/phases.jsonl'] if self.resource_profile and kind=='dual-source' else []),
                 '-e','CPAG_CONTAINER_SECONDS='+str(self.timeout),self.image,*command)
             self.checkpoint('after_create')
             record={**self.identity(claim),'container_id':container,'location':self.location()}
@@ -496,6 +524,15 @@ class DockerExecutor:
                 self.stop_container(record)
                 if cancelled:self.api.post(endpoint+'/ack-cancel',identity)
                 return 'cancelled' if cancelled else 'lost_lease'
+            if result:
+                atomic_json(base/'compute-result.json',result)
+                if self.resource_profile and kind=='dual-source':
+                    try:
+                        rows=self.docker('exec',container,'cat','/runtime/phases.jsonl')
+                        if len(rows.encode())>262144:raise ValueError('phase_measurement_limit')
+                        atomic_json(base/'compute-phases.json',[json.loads(line) for line in rows.splitlines() if line])
+                    except subprocess.CalledProcessError:
+                        atomic_json(base/'compute-phases.json',{'unavailable':'image_has_no_phase_measurements'})
             if not result or result['returncode']!=0:raise CalculationFailure(result.get('returncode') if result else None,self.bounded_container_logs(container))
             output=beneath(self.root,claim['output_dir']);output.parent.mkdir(parents=True,exist_ok=True)
             stage=output.parent/('.handoff-'+uuid.uuid4().hex)
@@ -520,7 +557,7 @@ class DockerExecutor:
             sync_dir(stage)
             os.rename(stage,output);sync_dir(output.parent);stage=None
             self.checkpoint('after_publish')
-            self.api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
+            self.publication_api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
             sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
             atomic_json(base/'publication.json',{'manifest_sha256':sha,'output_dir':claim['output_dir']})
             return 'succeeded'

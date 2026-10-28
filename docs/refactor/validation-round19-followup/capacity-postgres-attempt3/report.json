@@ -1,0 +1,9 @@
+{
+  "container": "cpag-capacity-policy-9e672831",
+  "status": "passed",
+  "scope": "disposable PostgreSQL concurrency and exit-proof gate only",
+  "reference_capacity_accepted": false,
+  "returncode": 0,
+  "database_dump_returncode": 0,
+  "cleanup_returncode": 0
+}

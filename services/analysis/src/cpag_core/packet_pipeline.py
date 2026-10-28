@@ -4,6 +4,8 @@ Never imported by the default pipeline. CLI also resolves raw frame/field eviden
 """
 from collections import defaultdict
 from dataclasses import dataclass
+from contextlib import contextmanager
+from .measurement import phase
 import hashlib
 import json
 from pathlib import Path
@@ -141,9 +143,26 @@ class PacketEvidence:
         start = frame['byte_offset']
         return self._cached_data[start:start + frame['captured_length']]
 
+    @contextmanager
+    def verified_batch(self):
+        """Hash each original once before and after a bounded evidence query.
+
+        Bytes are pinned only for this scope; no cross-request stat cache. A
+        modified/missing original at scope exit rejects the complete query.
+        """
+        if getattr(self,'_batch_data',None) is not None:
+            raise CaptureError('nested_evidence_batch')
+        data={key:self._verified(key) for key in self.file_sha256s}
+        self._batch_data=data
+        try:yield self
+        finally:
+            self._batch_data=None
+            self._verified()
+
     def resolve(self, ref, field=None):
         f = self.frame(ref)
-        data = self._verified(ref['file_sha256'])
+        batch=getattr(self,'_batch_data',None)
+        data = batch[ref['file_sha256']] if batch is not None else self._verified(ref['file_sha256'])
         if ref.get('raw_time') != str(f['raw_timestamp']):
             raise CaptureError('evidence_raw_time_mismatch')
         for key in ('byte_offset', 'captured_length', 'original_length', 'frame_sha256'):
@@ -170,6 +189,7 @@ def standard_ref(frame):
             'record_number': None, 'column': None, 'raw_time': str(frame['raw_timestamp'])}
 
 
+@phase('network_parse')
 def analyze_capture(path, *, synthetic=None, limits=None, stream_limits=None, capture_limits=None, extended=None):
     if extended is None:
         extended = synthetic is False or isinstance(path, (list, tuple))

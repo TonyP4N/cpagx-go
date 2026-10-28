@@ -1,0 +1,41 @@
+{
+  "observed_at": "2026-10-28T03:02:23.485454+00:00",
+  "status": "synthetic_evaluator_development_success",
+  "scope": "Local synthetic evaluator only; not final-artifact, Worker, reference environment or real-material acceptance.",
+  "python": "3.11.9",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "source_sha256_before": {
+    "evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+    "evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "pipeline.py": "ad40062fb2e8c8bc7c9af71b8eefdfd965c26615d15a6197b688a28b8d0b99b9"
+  },
+  "source_sha256_after": {
+    "evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+    "evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "pipeline.py": "ad40062fb2e8c8bc7c9af71b8eefdfd965c26615d15a6197b688a28b8d0b99b9"
+  },
+  "matching_version": "indexed-temporal-one-to-one-v2",
+  "scenario": "22000 per side, identical time and batch/kind/asset, tolerance0; handwritten expectedTP22000FP0FN0",
+  "matching": {
+    "wall_seconds": 0.41157541700522415,
+    "cpu_seconds": 0.06104100000000001,
+    "tp": 22000
+  },
+  "evaluate_wall_seconds": 38.8070979170152,
+  "evaluate_cpu_seconds": 1.9338149999999998,
+  "measurement_boundary": "Validation, indexing, matching, metric/details construction and input hashing; result serialization and CLI/bundle/Worker excluded.",
+  "process_peak_rss_bytes": 117424128,
+  "memory_boundary": "Process lifetime high-water mark; not exclusive algorithm memory.",
+  "result_canonical_bytes": 2579026,
+  "metrics": {
+    "tp": 22000,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "normal_hours": 1.0,
+    "false_alarms_per_normal_hour": 0.0
+  }
+}

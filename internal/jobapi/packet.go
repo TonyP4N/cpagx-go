@@ -31,7 +31,14 @@ type packetFrame struct {
 	RawTime string
 }
 
-func packetFrames(data []byte) ([]packetFrame, error) {
+func packetFrames(data []byte, selected ...int) ([]packetFrame, error) {
+	maxFrames := 10000
+	if len(selected) > 0 {
+		maxFrames = selected[0]
+	}
+	if maxFrames <= 0 || maxFrames > 100000 {
+		return nil, fmt.Errorf("unsupported frame budget")
+	}
 	bad := func() ([]packetFrame, error) { return nil, fmt.Errorf("invalid packet capture envelope") }
 	if len(data) < 24 {
 		return bad()
@@ -62,7 +69,7 @@ func packetFrames(data []byte) ([]packetFrame, error) {
 			}
 			frames = append(frames, packetFrame{data[pos+16 : pos+16+n], fmt.Sprint(uint64(order.Uint32(data[pos:pos+4]))*resolution + uint64(order.Uint32(data[pos+4:pos+8])))})
 			pos += 16 + n
-			if len(frames) > 10000 {
+			if len(frames) > maxFrames {
 				return bad()
 			}
 		}
@@ -105,7 +112,7 @@ func packetFrames(data []byte) ([]packetFrame, error) {
 				return bad()
 			}
 			frames = append(frames, packetFrame{data[pos+28 : pos+28+captured], fmt.Sprint(uint64(order.Uint32(data[pos+12:pos+16]))<<32 | uint64(order.Uint32(data[pos+16:pos+20])))})
-			if len(frames) > 10000 {
+			if len(frames) > maxFrames {
 				return bad()
 			}
 		} else if kind != 1 && kind != 0x0a0d0d0a {

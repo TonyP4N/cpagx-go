@@ -1,0 +1,7 @@
+# github.com/TonyP4N/cpagx-go/internal/jobapi [github.com/TonyP4N/cpagx-go/internal/jobapi.test]
+../../jobapi/replay_validate.go:498:58: undefined: p
+../../jobapi/replay_validate.go:506:66: undefined: p
+ok  	github.com/TonyP4N/cpagx-go/internal/capacity	0.431s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.432s [no tests to run]
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi [build failed]
+FAIL

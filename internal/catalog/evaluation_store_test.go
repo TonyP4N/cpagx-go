@@ -5,6 +5,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http/httptest"
 	"os"
 	"os/exec"
@@ -12,6 +13,10 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
+	"github.com/TonyP4N/cpagx-go/internal/jobapi"
+	"github.com/TonyP4N/cpagx-go/internal/jobs"
 )
 
 type evaluationSavedRow struct {
@@ -70,25 +75,34 @@ func evaluationStoreRequest(s *Server, method, path string, body []byte, p *prin
 	s.serveRuns(w, r, p, parts)
 	return w
 }
-func evaluationDocumentFixture(t *testing.T, s *Server, root string) []byte {
+func evaluationDocumentFixture(t *testing.T, s *Server, root string, withOriginals ...bool) []byte {
 	t.Helper()
 	script := `from pathlib import Path
 from datetime import datetime,timezone,timedelta
-import json,sys,time
+import json,sys,time,hashlib
 from cpag_core.evaluation import digest
-from cpag_core.evaluation_bundle import freeze,evaluate_bundle
+from cpag_core.evaluation_bundle import freeze,evaluate_bundle,V2_VERSION
+from cpag_core.reference_inventory import build_inventory
+from cpag_core.evaluation_details import V2_MATCHING_VERSION
 root=Path(sys.argv[1]);artifact=root/'jobs/run/attempt-1';core=json.loads((artifact/'run_manifest.json').read_text());sample=core['input_fingerprint']
+originals=sys.argv[2]=='true';kwargs={};reference_sha='b'*64
+if originals:
+ source=root/'controlled-reference-originals';source.mkdir()
+ data=b'Independent reference notes: request at 10s, transition upper bound at 12s.\n'
+ (source/'review.txt').write_bytes(data);reference_sha=hashlib.sha256(data).hexdigest()
+ kwargs={'bundle_version':V2_VERSION,'matching_version':V2_MATCHING_VERSION,'reference_inventory':build_inventory(source,{'review.txt':reference_sha})}
 split={'schema_version':'1.0.0','synthetic':True,'rule_windows_seconds':{'coupling':60},'isolation_seconds':60,'blocks':[{'partition':'calibration','batch':'dataset-batch','start':'2025-12-31T22:00:00Z','end':'2025-12-31T23:00:00Z','sample_sha256':['a'*64],'normal':False},{'partition':'holdout','batch':'dataset-batch','start':'2026-01-01T00:00:00Z','end':'2026-01-01T00:01:00Z','sample_sha256':[sample],'normal':False}]}
-now=datetime.now(timezone.utc);opened=now+timedelta(seconds=.15)
+now=datetime.now(timezone.utc);opened=now+timedelta(seconds=3)
 reg={'schema_version':'1.0.0','synthetic':True,'registered_at':(now-timedelta(seconds=1)).isoformat(),'holdout_opened_at':opened.isoformat(),'input_fingerprint':sample,'config_fingerprint':core['config_fingerprint'],'split_sha256':digest(split),'tolerance_seconds':2,'thresholds':{}}
-freeze(artifact,split,reg,root/'frozen',batch='dataset-batch',sample_sha256=sample)
+freeze(artifact,split,reg,root/'frozen',batch='dataset-batch',sample_sha256=sample,**kwargs)
 # Independent oracle is authored here; no predicted event is copied as gold.
 labels={'schema_version':'1.0.0','synthetic':True,'origin':'independent','source_ref':'hand-authored-service-oracle','review_ref':'fixture-author','annotation_version':'1','events':[{'id':'manual-operation','batch':'dataset-batch','kind':'network_operation','asset':'["192.0.2.2",44818]','time':'2026-01-01T00:00:10Z','sample_sha256':sample},{'id':'manual-change','batch':'dataset-batch','kind':'process_change','asset':'["synthetic-pump","pump_state"]','time':'2026-01-01T00:00:12Z','sample_sha256':sample}],'disputed_intervals':[]}
-references={e['id']:{'source_ref':'handwritten-service-fixture','record':e['id'],'sha256':'b'*64} for e in labels['events']}
+references={e['id']:{'source_ref':'handwritten-service-fixture','record':e['id'],'sha256':reference_sha} for e in labels['events']}
 time.sleep(max(0,(opened-datetime.now(timezone.utc)).total_seconds()))
 evaluate_bundle(root/'frozen',artifact,labels,references,root/'bundle')
 print(json.dumps({p.name:json.loads(p.read_text()) for p in (root/'bundle').iterdir()}))`
-	cmd := exec.Command(s.cfg.PythonBin, "-c", script, root)
+	useOriginals := len(withOriginals) == 1 && withOriginals[0]
+	cmd := exec.Command(s.cfg.PythonBin, "-c", script, root, fmt.Sprint(useOriginals))
 	cmd.Env = append(os.Environ(), "PYTHONPATH="+s.cfg.PythonPath)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
@@ -144,7 +158,8 @@ func TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence(t *testing.T
 	state.AuditFail = false
 	w = evaluationStoreRequest(s, "POST", "evaluations", document, admin)
 	if w.Code != 201 || state.Saved == nil {
-		t.Fatalf("import: %d %s", w.Code, w.Body.String())
+		_, diagnostic := s.verifyEvaluationDocument(httptest.NewRequest("GET", "/", nil), "run", "dataset", document, "", false)
+		t.Fatalf("import: %d %s (%v)", w.Code, w.Body.String(), diagnostic)
 	}
 	identity := state.Saved.ID
 	sha := state.Saved.SHA
@@ -208,5 +223,125 @@ func TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence(t *testing.T
 	w = evaluationStoreRequest(s, "GET", "evaluations/"+identity+"/download", nil, viewer)
 	if w.Code != 409 {
 		t.Fatalf("changed originals: %d", w.Code)
+	}
+}
+
+func TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory(t *testing.T) {
+	s, state, root := evaluationFixture(t, false)
+	document := evaluationDocumentFixture(t, s, root, true)
+	admin, viewer := &principal{ID: "admin", Role: "admin"}, &principal{ID: "viewer", Role: "viewer"}
+	w := evaluationStoreRequest(s, "POST", "evaluations", document, admin)
+	if w.Code != 201 || state.Saved == nil {
+		t.Fatalf("v2 import: %d %s", w.Code, w.Body.String())
+	}
+	identity := state.Saved.ID
+	path := "evaluations/" + identity + "/evidence?event=manual-operation&reference=true"
+	state.ACL = false
+	state.StatusReads = 0
+	w = evaluationStoreRequest(s, "GET", path, nil, viewer)
+	if w.Code != 404 || state.StatusReads != 0 {
+		t.Fatalf("unauthorized original read %d status reads %d", w.Code, state.StatusReads)
+	}
+	state.ACL = true
+	w = evaluationStoreRequest(s, "GET", path, nil, viewer)
+	if w.Code != 200 || !strings.Contains(w.Body.String(), "reference_original_bytes_sha256_verified") || !strings.Contains(w.Body.String(), "content_base64") {
+		t.Fatalf("original bytes: %d %s", w.Code, w.Body.String())
+	}
+	// A new catalog connection and directory retain the exact stored JSON. Full
+	// PostgreSQL dump/empty-db restore is exercised by the formal harness.
+	t.Run("restored", func(t *testing.T) {
+		restored, err := filepath.EvalSymlinks(t.TempDir())
+		if err != nil {
+			t.Fatal(err)
+		}
+		if err := filepath.WalkDir(root, func(path string, entry fs.DirEntry, err error) error {
+			if err != nil {
+				return err
+			}
+			rel, err := filepath.Rel(root, path)
+			if err != nil {
+				return err
+			}
+			target := filepath.Join(restored, rel)
+			if entry.IsDir() {
+				return os.MkdirAll(target, 0700)
+			}
+			data, err := os.ReadFile(path)
+			if err != nil {
+				return err
+			}
+			return os.WriteFile(target, data, 0600)
+		}); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.RemoveAll(filepath.Join(restored, "controlled-reference-originals")); err != nil {
+			t.Fatal(err)
+		}
+		copied := *state
+		row := *state.Saved
+		copied.Saved = &row
+		db := evaluationDB(t, &copied)
+		restoredServer := &Server{DB: db, Root: restored, cfg: s.cfg, Internal: &jobapi.Server{Root: restored, Repo: jobs.Repository{DB: db}}}
+		w := evaluationStoreRequest(restoredServer, "GET", path, nil, viewer)
+		if w.Code != 200 || !strings.Contains(w.Body.String(), "reference_original_bytes_sha256_verified") {
+			t.Fatalf("restored original %d %s", w.Code, w.Body.String())
+		}
+		copied.Saved.Document = strings.Replace(copied.Saved.Document, "content_base64", "missing_original_content", 1)
+		w = evaluationStoreRequest(restoredServer, "GET", path, nil, viewer)
+		if w.Code != 409 {
+			t.Fatalf("restored missing original %d", w.Code)
+		}
+	})
+	for _, mutation := range []string{"missing", "tampered"} {
+		var changed map[string]any
+		if err := json.Unmarshal(document, &changed); err != nil {
+			t.Fatal(err)
+		}
+		inventory := changed["reference_inventory.json"].(map[string]any)
+		if mutation == "missing" {
+			inventory["files"] = map[string]any{}
+		} else {
+			for _, value := range inventory["files"].(map[string]any) {
+				entry := value.(map[string]any)
+				encoded := entry["content_base64"].(string)
+				entry["content_base64"] = "A" + encoded[1:]
+				break
+			}
+		}
+		raw, err := json.Marshal(changed)
+		if err != nil {
+			t.Fatal(err)
+		}
+		w = evaluationStoreRequest(s, "POST", "evaluations", raw, admin)
+		if w.Code != 409 {
+			t.Fatalf("%s original import %d", mutation, w.Code)
+		}
+	}
+}
+
+func TestEvaluationVersionedJSONAndResourceBudgets(t *testing.T) {
+	for _, test := range []struct {
+		profile, operator string
+		want              int
+		ok                bool
+	}{
+		{"", "", evaluationProjectionLimit, true}, {capacity.DevelopmentS100, capacity.DevelopmentS100, evaluationV2DocumentLimit, true},
+		{capacity.Engineering, capacity.Engineering, evaluationV2DocumentLimit, true}, {"", capacity.Engineering, 0, false}, {"unknown", "unknown", 0, false},
+	} {
+		actual, err := evaluationResourceProjectionLimit(test.profile, test.operator)
+		if (err == nil) != test.ok || (err == nil && actual != test.want) {
+			t.Fatalf("projection policy %q %q got %d %v", test.profile, test.operator, actual, err)
+		}
+	}
+	large := strings.Repeat("x", evaluationProjectionLimit)
+	for _, version := range []string{"evaluation-bundle-1", "evaluation-bundle-2"} {
+		raw, _ := json.Marshal(map[string]any{"manifest.json": map[string]any{"version": version}, "padding": large})
+		limit, err := evaluationDocumentLimit(raw)
+		if version == "evaluation-bundle-1" && err == nil {
+			t.Fatal("legacy JSON budget expanded")
+		}
+		if version == "evaluation-bundle-2" && (err != nil || limit != evaluationV2DocumentLimit) {
+			t.Fatalf("explicit v2 budget %d %v", limit, err)
+		}
 	}
 }

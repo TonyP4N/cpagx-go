@@ -1,0 +1,3 @@
+ok  	github.com/TonyP4N/cpagx-go/internal/capacity	0.163s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.166s [no tests to run]
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	0.652s

@@ -34,6 +34,34 @@ type verifiedEvaluationDocument struct {
 	Evidence json.RawMessage `json:"evidence,omitempty"`
 }
 
+const evaluationV2DocumentLimit = 128 << 20
+const evaluationEnvelopeLimit = 3*evaluationV2DocumentLimit + 16<<20
+
+func evaluationDocumentLimit(raw []byte) (int, error) {
+	if len(raw) == 0 || len(raw) > evaluationV2DocumentLimit || validateUniqueJSON(raw) != nil {
+		return 0, errors.New("invalid bounded evaluation JSON")
+	}
+	var header map[string]json.RawMessage
+	var manifest struct {
+		Version string `json:"version"`
+	}
+	if json.Unmarshal(raw, &header) != nil || json.Unmarshal(header["manifest.json"], &manifest) != nil {
+		return 0, errors.New("evaluation manifest required")
+	}
+	limit := evaluationProjectionLimit
+	switch manifest.Version {
+	case "evaluation-bundle-1":
+	case "evaluation-bundle-2":
+		limit = evaluationV2DocumentLimit
+	default:
+		return 0, errors.New("unsupported evaluation version")
+	}
+	if len(raw) > limit {
+		return 0, errors.New("evaluation document outside versioned budget")
+	}
+	return limit, nil
+}
+
 // serveEvaluations is reached only after serveRuns checks dataset read access.
 // Imports additionally require dataset write access. All read results bind to
 // the current verified publication, including after restoration or a retry.
@@ -142,9 +170,13 @@ func (s *Server) importEvaluation(w http.ResponseWriter, r *http.Request, p *pri
 		fail(w, 422, "invalid_evaluation_query", "query parameters unsupported")
 		return
 	}
-	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, evaluationProjectionLimit))
+	raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, evaluationV2DocumentLimit))
 	if err != nil {
-		fail(w, 422, "invalid_evaluation_document", "evaluation document must fit 8 MiB")
+		fail(w, 422, "invalid_evaluation_document", "evaluation document exceeds maximum budget")
+		return
+	}
+	if _, err = evaluationDocumentLimit(raw); err != nil {
+		fail(w, 422, "invalid_evaluation_document", "evaluation JSON exceeds its registered version budget")
 		return
 	}
 	verified, err := s.verifyEvaluationDocument(r, id, dataset, raw, "", false)
@@ -205,7 +237,8 @@ func (s *Server) listEvaluations(w http.ResponseWriter, r *http.Request, p *prin
 
 func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, document []byte, event string, reference bool) (verifiedEvaluationDocument, error) {
 	var output verifiedEvaluationDocument
-	if len(document) == 0 || len(document) > evaluationProjectionLimit {
+	limit, budgetErr := evaluationDocumentLimit(document)
+	if budgetErr != nil {
 		return output, errors.New("evaluation document outside bounds")
 	}
 	internal, ok := s.Internal.(*jobapi.Server)
@@ -234,14 +267,17 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
 	}
 	cmd.WaitDelay = time.Second
-	out, diagnostics := &evaluationBuffer{limit: evaluationProjectionLimit}, &evaluationBuffer{limit: 8192}
+	out, diagnostics := &evaluationBuffer{limit: evaluationEnvelopeLimit}, &evaluationBuffer{limit: 8192}
 	cmd.Stdout, cmd.Stderr = out, diagnostics
 	if err = cmd.Run(); err != nil {
 		return output, err
 	}
 	decoder := json.NewDecoder(bytes.NewReader(out.Bytes()))
-	if decoder.Decode(&output) != nil || decoder.Decode(new(any)) != io.EOF || !shaRE.MatchString(output.SHA) || len(output.Document) == 0 || len(output.Document) > evaluationProjectionLimit || len(output.Result) == 0 || (event != "" && len(output.Evidence) == 0) {
+	if decoder.Decode(&output) != nil || decoder.Decode(new(any)) != io.EOF || !shaRE.MatchString(output.SHA) || len(output.Document) == 0 || len(output.Document) > limit || len(output.Result) == 0 || (event != "" && len(output.Evidence) == 0) {
 		return output, errors.New("invalid verified evaluation envelope")
+	}
+	if returnedLimit, err := evaluationDocumentLimit(output.Document); err != nil || returnedLimit != limit {
+		return output, errors.New("verified evaluation budget changed")
 	}
 	var doc map[string]json.RawMessage
 	if json.Unmarshal(output.Document, &doc) != nil {

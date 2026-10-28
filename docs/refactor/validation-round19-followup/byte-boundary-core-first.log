@@ -1,0 +1,5 @@
+{'network': 2, 'process': 10000, 'operations': 1, 'changes': 1, 'candidates': 1}
+{'wall_seconds': 1.5772421669971664, 'rss_peak_bytes': 293830656, 'scope': 'macOS development core only'}
+Traceback (most recent call last):
+  File "<stdin>", line 8, in <module>
+AssertionError

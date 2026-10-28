@@ -706,8 +706,14 @@ def audit_catalog(catalog, rows, root):
             binding=next((v for v in tables['v3_run_bindings'] if v['job_id']==row.get('job_id')),None)
             if job is None or job.get('state')!='succeeded' or binding is None or binding['dataset_id']!=row.get('dataset_id') or not user_exists(row.get('created_by')):
                 raise ValueError('evaluation ownership/publication mismatch')
-            from cpag_core.evaluation_bundle import verify_document
-            document=strict_json(row.get('document_json',''))
+            from cpag_core.evaluation_bundle import verify_document,enforce_document_limit,V2_DOCUMENT_BYTES,document_limit
+            retained=row.get('document_json','')
+            if not isinstance(retained,str) or len(retained.encode('utf-8'))>V2_DOCUMENT_BYTES:
+                raise ValueError('evaluation document exceeds maximum backup budget')
+            document=strict_json(retained)
+            version=enforce_document_limit(document)
+            if len(retained.encode('utf-8'))>document_limit(version):
+                raise ValueError('evaluation document exceeds versioned backup budget')
             if document!=row.get('document'):raise ValueError('evaluation document projection mismatch')
             if hashlib.sha256(canonical(document)).hexdigest()!=row.get('document_sha256'):raise ValueError('evaluation document checksum mismatch')
             result=verify_document(document,safe(root,str(Path(job['artifact_path']).parent)))

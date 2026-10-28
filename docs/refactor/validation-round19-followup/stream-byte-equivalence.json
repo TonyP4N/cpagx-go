@@ -1,0 +1,13 @@
+{
+  "events.json": true,
+  "quality.json": true,
+  "graph.json": true,
+  "analysis.json": true,
+  "run_manifest.json": true,
+  "dataset.json": true,
+  "dual/manifest.json": true,
+  "dual/analysis.json": true,
+  "dual/sources/process.csv": true,
+  "dual/sources/network.pcap": true,
+  "dual/sources/profile.json": true
+}

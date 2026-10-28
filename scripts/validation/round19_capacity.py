@@ -191,9 +191,10 @@ def read_case(path):
     """Raw inputs only. No prior analysis/benchmark JSONL can stand in for PCAP/CSV."""
     path = Path(path).resolve(); case = json.loads(path.read_text())
     required = {'schema_version', 'id', 'scale', 'mode', 'networks', 'process', 'profile', 'repetition', 'cache_condition'}
-    if not isinstance(case, dict) or set(case) != required or case['schema_version'] != 'r19-capacity-case-1':
+    if not isinstance(case, dict) or set(case) != required or case['schema_version'] not in ('r19-capacity-case-1','r19-byte-boundary-case-1'):
         raise ValueError('invalid_capacity_case_manifest')
-    if case['scale'] not in ('S', 'M', 'L') or case['mode'] not in ('dual_source', 'dual_source_replay'):
+    byte_boundary=case['schema_version']=='r19-byte-boundary-case-1'
+    if (byte_boundary and (case['scale']!='byte-boundary' or case['mode']!='dual_source')) or (not byte_boundary and (case['scale'] not in ('S', 'M', 'L') or case['mode'] not in ('dual_source', 'dual_source_replay'))):
         raise ValueError('invalid_capacity_scale_or_mode')
     if type(case['repetition']) is not int or case['repetition'] not in (1, 2, 3): raise ValueError('invalid_repetition')
     if case['cache_condition'] not in ('unverified_cold', 'verified_cold', 'warm'):
@@ -215,16 +216,17 @@ def read_case(path):
     with Path(case['process']).open(newline='', encoding='utf-8-sig') as stream:
         reader = csv.reader(stream, strict=True); header = next(reader)
         records = sum(1 for _ in reader)
-    expected = {'S': 100, 'M': 1000, 'L': 10000}[case['scale']]
+    expected = {'S':100,'M':1000,'L':10000,'byte-boundary':10000}[case['scale']]
     if records != expected: raise ValueError('scale_requires_exact_logical_record_density')
     if not 1 <= len(header) <= TARGET['process_columns']: raise ValueError('process_column_limit')
+    if byte_boundary and (len(case['networks'])!=4 or sum(Path(p).stat().st_size for p in case['networks'])!=128*1024**2 or max(Path(p).stat().st_size for p in case['networks'])!=64*1024**2 or Path(case['process']).stat().st_size!=8*1024**2 or len(header)!=16):raise ValueError('exact_byte_boundary_not_met')
     case['input_logical_records'] = records
     case['input_fingerprints'] = [{'path': str(p), 'bytes': Path(p).stat().st_size, 'sha256': sha(p)} for p in [*case['networks'], case['process'], case['profile']]]
     case['case_manifest_sha256'] = sha(path)
     return case
 
 
-def formal_case(recorder, case, image):
+def formal_case(recorder, case, image, resource_profile=None):
     # Existing formal acceptance helpers share the real catalog/auth/preflight,
     # PG migrations, Worker service, and retained-artifact verification path.
     import round16_acceptance as r
@@ -252,12 +254,15 @@ def formal_case(recorder, case, image):
         with recorder.stage('application_and_worker_start'):
             password, wt, ct = secrets.token_urlsafe(24), secrets.token_urlsafe(32), secrets.token_urlsafe(32)
             config = r.make_config(pg, 'm4_validation', source, control, public, internal, wt, ct, 'r19-capacity', password, REPO / 'webui/out')
+            if resource_profile:
+                config['resource_profile']=resource_profile
+                config['capacity_policy']='engineering-capacity-1'
             app = r.start_app(work, 'app', work / 'cpagx-v3', config)
             client = r.Client(f'http://127.0.0.1:{public}')
             client.expect('POST', '/api/v3/session', {'username': 'r19-capacity', 'password': password})
             worker_id = container + '-worker'
             worker_cfg = work / 'worker.json'
-            r.write_private(worker_cfg, {'api_url': f'http://127.0.0.1:{internal}', 'shared_root': str(source), 'control_root': str(control), 'worker_token': wt, 'coordinator_token': ct, 'worker_id': worker_id, 'image': image, 'poll_seconds': .2, 'recovery_seconds': 2})
+            r.write_private(worker_cfg, {'api_url': f'http://127.0.0.1:{internal}', 'shared_root': str(source), 'control_root': str(control), 'worker_token': wt, 'coordinator_token': ct, 'worker_id': worker_id, 'image': image, 'poll_seconds': .2, 'recovery_seconds': 2, **({'resource_profile':resource_profile} if resource_profile else {})})
             worker = r.start_worker(work, 'worker', worker_cfg, env)
         with recorder.stage('catalog_upload_preflight_config'):
             ds = client.expect('POST', '/api/v3/datasets', {'name': 'R19 capacity ' + str(case['id']), 'source_kind': 'synthetic', 'source': 'generated raw PCAP/CSV capacity fixture', 'batch': 'round19', 'authorization_ref': 'repository generated software fixture'}, code=201)['dataset']['id']
@@ -305,19 +310,54 @@ def formal_case(recorder, case, image):
             result = client.expect('GET', f'/api/v3/runs/{job}/result')
             analysis = json.loads((output / ('analysis.json' if case['mode'] == 'dual_source_replay' else 'dual/analysis.json')).read_text())
             # Count the requested operation density independently of input byte size.
-            count = len(analysis['operations']); expected = {'S': 100, 'M': 1000, 'L': 10000}[case['scale']]
+            count = len(analysis['operations']); expected = {'S':100,'M':1000,'L':10000,'byte-boundary':1}[case['scale']]
             if count != expected: raise ValueError(f'operation_density_mismatch:{count}!={expected}')
+            if case['scale']=='byte-boundary' and (len(analysis['network'])!=2 or len(analysis['changes'])!=1 or len(analysis['candidates'])!=1 or analysis['candidates'][0]['state']!='unknown' or 'unsupported_network_records_present' not in analysis['candidates'][0]['unknown_reasons']):raise ValueError('byte_boundary_independent_oracle_mismatch')
             recorder.record['output'] = {'operation_count': count, 'process_event_count': len(analysis['process']), 'bytes': sum(p.stat().st_size for p in output.rglob('*') if p.is_file()), 'files': [{'path': str(p.relative_to(output)), 'bytes': p.stat().st_size, 'sha256': sha(p)} for p in sorted(output.rglob('*')) if p.is_file()]}
             recorder.record['measurements']['result_api_verified'] = isinstance(result, dict)
         with recorder.stage('evidence_query') as measurement:
             query_start = time.monotonic()
-            answer = client.expect('GET', f'/api/v3/runs/{job}/evidence?' + urlencode({'operation': analysis['operations'][0]['operation_id']}), timeout=10)
-            elapsed = time.monotonic() - query_start
-            size = len(json.dumps(answer, separators=(',', ':')).encode())
-            measurement.update(response_bytes=size, query_seconds=elapsed)
-            if not answer.get('verified_original_evidence'): raise ValueError('verified_original_evidence_missing')
-            measurement['original_evidence_items'] = len(answer['verified_original_evidence'])
-            if elapsed > 10 or size > TARGET['evidence_bytes'] or len(answer['verified_original_evidence']) > TARGET['evidence_items']: raise ValueError('evidence_query_bound_exceeded')
+            pages=[];offset=0
+            while True:
+                page_start=time.monotonic()
+                parameters={'operation':analysis['operations'][0]['operation_id']}
+                if resource_profile:parameters.update(ref_offset=offset,ref_limit=100)
+                answer=client.expect('GET',f'/api/v3/runs/{job}/evidence?'+urlencode(parameters),timeout=10)
+                elapsed=time.monotonic()-page_start
+                size=len(json.dumps(answer,separators=(',',':')).encode())
+                originals=answer.get('verified_original_evidence',[])
+                row={'query_seconds':elapsed,'response_bytes':size,'original_evidence_items':len(originals),'page':answer.get('evidence_page')}
+                pages.append(row);measurement['pages']=pages;recorder.flush()
+                if not originals:raise ValueError('verified_original_evidence_missing')
+                if elapsed>10 or size>TARGET['evidence_bytes'] or len(originals)>TARGET['evidence_items']:raise ValueError('evidence_query_bound_exceeded')
+                if not answer.get('evidence_page',{}).get('has_more'):break
+                offset+=len(originals)
+            measurement.update(query_seconds=time.monotonic()-query_start,original_evidence_items=sum(p['original_evidence_items'] for p in pages),response_bytes=sum(p['response_bytes'] for p in pages))
+        if resource_profile and case['mode']=='dual_source':
+            with recorder.stage('warm_cache_integrity_rejection') as row:
+                original=output/'dual/sources/process.csv'
+                saved=original.read_bytes();mode=original.stat().st_mode & 0o777
+                endpoint=f'/api/v3/runs/{job}/evidence?'+urlencode({'operation':analysis['operations'][0]['operation_id'],'ref_limit':1})
+                try:
+                    os.chmod(original,0o600)
+                    original.write_bytes(bytes([saved[0]^1])+saved[1:])
+                    status,_=client.request('GET',endpoint)
+                    row['same_size_tamper_status']=status
+                    if status!=409:raise ValueError('cached_result_accepted_changed_original')
+                finally:
+                    original.write_bytes(saved);os.chmod(original,mode)
+                parent_mode=original.parent.stat().st_mode & 0o777
+                hidden=original.with_suffix('.missing-probe')
+                try:
+                    os.chmod(original.parent,0o700);original.rename(hidden)
+                    status,_=client.request('GET',endpoint)
+                    row['missing_original_status']=status
+                    if status!=409:raise ValueError('cached_result_accepted_missing_original')
+                finally:
+                    if hidden.exists():hidden.rename(original)
+                    os.chmod(original.parent,parent_mode)
+                client.expect('GET',endpoint,timeout=10)
+                row['restored_original_query']=True
         total = time.monotonic() - chain_start
         recorder.record['measurements']['submit_through_verify_and_evidence_seconds'] = total
         if total > TARGET['wall_seconds']: raise RuntimeError('whole_chain_1800_second_deadline')
@@ -351,7 +391,7 @@ def formal_case(recorder, case, image):
                 if result.returncode == 0: recorder.command('postgres-remove', ['docker', 'rm', container], timeout=15)
 
 
-def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, image='cpag-isolated:r19-capacity'):
+def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, image='cpag-isolated:r19-capacity', resource_profile=None):
     recorder = Recorder(output, dev_run)
     try:
         with recorder.stage('environment_probe'):
@@ -369,7 +409,8 @@ def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, imag
                 recorder.command('worker-image', ['docker', 'image', 'inspect', '--format', '{{json .Id}} {{json .RepoDigests}}', image], check=True)
                 recorder.record['worker_image'] = image
             with recorder.stage('formal_chain_case'):
-                formal_case(recorder, case, image)
+                recorder.record['resource_profile']=resource_profile or 'legacy-default'
+                formal_case(recorder, case, image, resource_profile)
         recorder.record['status'] = 'development_probe' if probe_only and dev_run else 'reference_probe' if probe_only else 'development_case_measured_incomplete_gate' if dev_run else 'reference_case_measured_incomplete_gate'
         returncode = 0
     except BaseException as error:
@@ -388,7 +429,7 @@ def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, imag
 def public_summary(root):
     """Allowlisted public facts; private Worker/DB/session credentials stay local."""
     root = Path(root); record = json.loads((root / 'record.json').read_text())
-    summary = {key: record.get(key) for key in ('schema_version', 'started_at', 'finished_at', 'status', 'dev_run', 'reference_accepted', 'environment', 'measurements', 'run_id', 'terminal', 'error_type', 'error', 'stages', 'target', 'database_dump_returncode')}
+    summary = {key: record.get(key) for key in ('schema_version', 'started_at', 'finished_at', 'status', 'dev_run', 'reference_accepted', 'environment', 'measurements', 'run_id', 'terminal', 'error_type', 'error', 'stages', 'target', 'database_dump_returncode','resource_profile')}
     if 'case' in record:
         summary['case'] = {key: record['case'].get(key) for key in ('id', 'scale', 'mode', 'repetition', 'cache_condition', 'input_logical_records', 'input_fingerprints', 'case_manifest_sha256')}
     summary['private_evidence_root'] = str(root.resolve())
@@ -399,6 +440,15 @@ def public_summary(root):
         item = {'attempt': path.parent.name, 'source_sha256': sha(path), 'image_id': inspection.get('Image'),
                 'state': {key: state.get(key) for key in ('ExitCode', 'OOMKilled', 'StartedAt', 'FinishedAt', 'Status')},
                 'limits': {key: limits.get(key) for key in ('Memory', 'MemorySwap', 'NanoCpus', 'PidsLimit', 'ReadonlyRootfs', 'NetworkMode', 'Tmpfs')}}
+        phases=path.with_name('compute-phases.json')
+        if phases.is_file():
+            item['compute_phases']=json.loads(phases.read_text())
+            item['compute_phases_sha256']=sha(phases)
+        compute = path.with_name('compute-result.json')
+        if compute.is_file():
+            value=json.loads(compute.read_text())
+            item['compute_measurements']={key:value.get(key) for key in ('measurement_version','returncode','wall_seconds','cpu_user_seconds','cpu_system_seconds','rss_peak_bytes','scope')}
+            item['compute_measurements_sha256']=sha(compute)
         failure = path.with_name('failure.json')
         if failure.is_file():
             value = json.loads(failure.read_text())
@@ -415,8 +465,9 @@ def main():
     parser.add_argument('--dev-run', action='store_true', help='explicit local development evidence; never reference accepted')
     parser.add_argument('--case-manifest', type=Path)
     parser.add_argument('--image', default='cpag-isolated:r19-capacity')
+    parser.add_argument('--resource-profile', choices=('r19-dev-s100-1','engineering-capacity-1'))
     args = parser.parse_args()
-    code, record = execute(args.output, dev_run=args.dev_run, probe_only=args.probe_only, case_manifest=args.case_manifest, image=args.image)
+    code, record = execute(args.output, dev_run=args.dev_run, probe_only=args.probe_only, case_manifest=args.case_manifest, image=args.image, resource_profile=args.resource_profile)
     print(json.dumps({'status': record['status'], 'reference_accepted': False, 'record': str(args.output.resolve() / 'record.json')}))
     return code
 

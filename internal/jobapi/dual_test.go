@@ -249,6 +249,18 @@ export_task(*paths,root/'jobs/test/attempt-1')`
 	if err = s.validateDual(base, p, Manifest{}, raw); err != nil {
 		t.Fatalf("valid core export rejected: %v", err)
 	}
+	// A changed operator resource policy cannot prevent old frozen results from
+	// being read, nor may it silently authorize a new mismatched submission.
+	s.ResourceProfile = "r19-dev-s100-1"
+	if err = s.validPayload(p); err == nil {
+		t.Fatal("old payload accepted as new operator-bound submission")
+	}
+	if err = s.validHistoricalPayload(p); err != nil {
+		t.Fatalf("historical payload rejected by new operator: %v", err)
+	}
+	if err = s.validateDual(base, p, Manifest{}, raw); err != nil {
+		t.Fatalf("historical result unreadable under new operator: %v", err)
+	}
 	// Rehashed analysis content must still be grounded in the original source.
 	value, err := s.readDualJSON(base, "analysis.json")
 	if err != nil {

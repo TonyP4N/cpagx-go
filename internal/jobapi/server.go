@@ -18,6 +18,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -26,18 +27,24 @@ type Ref struct {
 	SHA  string `json:"sha256"`
 }
 type Payload struct {
-	Kind          string `json:"kind,omitempty"`
-	Network       Ref    `json:"network"`
-	Networks      []Ref  `json:"networks,omitempty"`
-	Process       Ref    `json:"process"`
-	Profile       Ref    `json:"profile"`
-	Fingerprint   string `json:"config_fingerprint"`
-	ReplayVersion string `json:"replay_version,omitempty"`
+	Kind            string `json:"kind,omitempty"`
+	Network         Ref    `json:"network"`
+	Networks        []Ref  `json:"networks,omitempty"`
+	Process         Ref    `json:"process"`
+	Profile         Ref    `json:"profile"`
+	Fingerprint     string `json:"config_fingerprint"`
+	ReplayVersion   string `json:"replay_version,omitempty"`
+	CapacityProfile string `json:"capacity_profile,omitempty"`
+	ResourceProfile string `json:"resource_profile,omitempty"`
 }
 type Server struct {
-	Repo                           jobs.Repository
-	Root, Secret                   string
-	CoordinatorSecret, ControlRoot string
+	Repo                            jobs.Repository
+	Root, Secret                    string
+	CoordinatorSecret, ControlRoot  string
+	CapacityPolicy, ResourceProfile string
+	dualCacheMu                     sync.Mutex
+	dualCacheKey                    string
+	dualCacheAnalysis               map[string]any
 }
 
 var identity = regexp.MustCompile(`^[A-Za-z0-9_-]{1,100}$`)
@@ -125,6 +132,9 @@ func (s *Server) file(rel string) (string, error) {
 	return p, nil
 }
 func (s *Server) check(ref Ref) (int64, error) {
+	return s.checkBounded(ref, 64<<20)
+}
+func (s *Server) checkBounded(ref Ref, limit int64) (int64, error) {
 	if !shaPattern.MatchString(ref.SHA) {
 		return 0, errors.New("invalid sha256")
 	}
@@ -141,8 +151,8 @@ func (s *Server) check(ref Ref) (int64, error) {
 	if err != nil || !info.Mode().IsRegular() {
 		return 0, errors.New("regular file required")
 	}
-	if info.Size() > 64<<20 {
-		return 0, errors.New("file exceeds 64MiB")
+	if info.Size() > limit {
+		return 0, errors.New("file exceeds selected byte budget")
 	}
 	if strings.HasSuffix(ref.Path, "manifest.json") && info.Size() > 65536 {
 		return 0, errors.New("manifest exceeds 64KiB")
@@ -158,6 +168,12 @@ func (s *Server) check(ref Ref) (int64, error) {
 	return n, nil
 }
 func (s *Server) validPayload(p Payload) error {
+	return s.validatePayload(p, false)
+}
+func (s *Server) validHistoricalPayload(p Payload) error {
+	return s.validatePayload(p, true)
+}
+func (s *Server) validatePayload(p Payload, historical bool) error {
 	if p.Kind != "" && p.Kind != "packet" && !dualFamily(p.Kind) {
 		return errors.New("unsupported payload kind")
 	}
@@ -187,6 +203,17 @@ func (s *Server) validPayload(p Payload) error {
 	}
 	if dec.Decode(new(any)) != io.EOF {
 		return errors.New("invalid profile")
+	}
+	document, _ := config.(map[string]any)
+	budget, err := readPayloadBudget(p, document)
+	if !historical {
+		budget, err = s.payloadBudget(p, document)
+	}
+	if err != nil {
+		return err
+	}
+	if !dualFamily(p.Kind) && (p.CapacityProfile != "" || p.ResourceProfile != "") {
+		return errors.New("resource and capacity profiles require dual-source kind")
 	}
 	var numericCheck func(any) error
 	numericCheck = func(v any) error {
@@ -266,27 +293,45 @@ func (s *Server) validPayload(p Payload) error {
 		}
 	}
 	var networkBytes int64
+	networkSizes := []int64{}
 	for _, ref := range refs {
 		n, e := s.check(ref)
 		if e != nil {
 			return e
 		}
 		networkBytes += n
+		networkSizes = append(networkSizes, n)
 	}
-	if networkBytes > 16<<20 {
-		return errors.New("capture aggregate exceeds 16MiB analysis bound")
+	if len(refs) > budget.NetworkFiles || networkBytes > budget.NetworkTotalBytes {
+		return errors.New("capture aggregate exceeds selected analysis budget")
 	}
+	var processBytes, profileBytes int64
 	for _, ref := range append(refs, p.Process, p.Profile) {
 		if !strings.HasPrefix(ref.Path, "inputs/") {
 			return errors.New("inputs must be under inputs/")
 		}
-		if n, err := s.check(ref); err != nil {
+		n, err := s.check(ref)
+		if err != nil {
 			return err
-		} else if dualFamily(p.Kind) && ((ref.Path == p.Process.Path && n > 2<<20) || (ref.Path == p.Profile.Path && n > 65536)) {
+		} else if dualFamily(p.Kind) && ((ref.Path == p.Process.Path && n > budget.ProcessBytes) || (ref.Path == p.Profile.Path && n > budget.ProfileBytes)) {
 			return errors.New("dual-source input exceeds service limit")
-		} else if n > 16<<20 {
+		} else if (!dualFamily(p.Kind) && n > 16<<20) || (ref.Path != p.Process.Path && ref.Path != p.Profile.Path && n > budget.NetworkFileBytes) {
 			return errors.New("input exceeds 16MiB")
 		}
+		if ref.Path == p.Process.Path {
+			processBytes = n
+		}
+		if ref.Path == p.Profile.Path {
+			profileBytes = n
+		}
+	}
+	if dualFamily(p.Kind) {
+		if err := budget.CheckInputSizes(networkSizes, processBytes, profileBytes); err != nil {
+			return err
+		}
+	}
+	if dualFamily(p.Kind) && budget.Version != "" {
+		return s.validateProcessBudget(p, budget)
 	}
 	return nil
 }
@@ -637,17 +682,26 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		return errors.New("manifest input mismatch or artifact count")
 	}
 	seen := map[string]bool{}
+	var artifactTotal int64
+	artifactLimit, err := s.artifactLimit(p)
+	if err != nil {
+		return err
+	}
 	for _, a := range m.Artifacts {
 		if seen[a.Path] || a.Path == "manifest.json" || !validArtifactPath(a.Path, p.Kind) {
 			return errors.New("invalid artifact name")
 		}
 		seen[a.Path] = true
-		n, e := s.check(Ref{base + a.Path, a.SHA})
+		n, e := s.checkArtifact(p, Ref{base + a.Path, a.SHA})
 		if e != nil {
 			return e
 		}
 		if n != a.Size {
 			return errors.New("artifact size mismatch")
+		}
+		artifactTotal += n
+		if p.ResourceProfile != "" && artifactTotal > artifactLimit {
+			return errors.New("aggregate output exceeds resource profile")
 		}
 	}
 	required := []string{"dataset.json", "events.json", "graph.json", "quality.json", "run_manifest.json"}

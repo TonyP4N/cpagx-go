@@ -1,0 +1,17 @@
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 117, in <module>
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);a=p.parse_args();run(Path(a.output).resolve())
+                                                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 111, in run
+    try:r18.main(work)
+        ^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round18_acceptance.py", line 162, in main
+    r.build(work,env,skip_image_build=True)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round16_acceptance.py", line 99, in build
+    run('go','build','-o',str(work/'cpagx-v3'),'./cmd/cpagx-v3',
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round16_acceptance.py", line 47, in run
+    def run(*args,**kwargs):return subprocess.run(args,check=True,**kwargs)
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/subprocess.py", line 571, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '('go', 'build', '-o', '/private/tmp/cpag-r19-reference-originals-20261028-run1/cpagx-v3', './cmd/cpagx-v3')' returned non-zero exit status 1.

@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"github.com/TonyP4N/cpagx-go/internal/jobapi"
 	"github.com/TonyP4N/cpagx-go/internal/jobs"
 	"golang.org/x/crypto/bcrypt"
@@ -36,6 +37,8 @@ type Config struct {
 	StaticRoot             string `json:"static_root"`
 	PythonBin              string `json:"python_bin"`
 	PythonPath             string `json:"python_path"`
+	CapacityPolicy         string `json:"capacity_policy,omitempty"`
+	ResourceProfile        string `json:"resource_profile,omitempty"`
 }
 type Server struct {
 	DB       *sql.DB
@@ -94,6 +97,12 @@ func LoadConfig(path string) (Config, error) {
 	if d.Decode(new(any)) != io.EOF {
 		return c, errors.New("one config object required")
 	}
+	if c.CapacityPolicy != "" && c.CapacityPolicy != capacity.Engineering {
+		return c, errors.New("unsupported site capacity policy")
+	}
+	if _, e = capacity.ArtifactBytes(c.ResourceProfile); e != nil {
+		return c, e
+	}
 	if c.PublicAddr == "" {
 		c.PublicAddr = "127.0.0.1:8095"
 	}
@@ -123,6 +132,17 @@ func LoopbackAddr(addr string) bool {
 	return host == "127.0.0.1" || host == "[::1]" || host == "::1" || host == "localhost"
 }
 func New(db *sql.DB, c Config) (*Server, error) {
+	if c.CapacityPolicy != "" && c.CapacityPolicy != capacity.Engineering {
+		return nil, errors.New("unsupported site capacity policy")
+	}
+	if _, err := capacity.ArtifactBytes(c.ResourceProfile); err != nil {
+		return nil, err
+	}
+	if c.CapacityPolicy != "" {
+		if err := (jobs.Repository{DB: db}).EnableCapacityPolicy(context.Background(), c.CapacityPolicy); err != nil {
+			return nil, err
+		}
+	}
 	root, e := filepath.Abs(c.SharedRoot)
 	if e != nil {
 		return nil, e
@@ -163,6 +183,8 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	if e != nil {
 		return nil, e
 	}
+	internal.(*jobapi.Server).CapacityPolicy = c.CapacityPolicy
+	internal.(*jobapi.Server).ResourceProfile = c.ResourceProfile
 	s := &Server{DB: db, Root: root, Internal: internal, cfg: c, repo: jobs.Repository{DB: db}}
 	if e = s.bootstrap(context.Background()); e != nil {
 		return nil, e

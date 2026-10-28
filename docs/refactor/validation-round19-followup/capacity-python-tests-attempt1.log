@@ -1,0 +1,8 @@
+test_csv_record_limit_fails_without_returning_partial_events (test_capacity_profile.CapacityProfileTests.test_csv_record_limit_fails_without_returning_partial_events) ... ok
+test_optional_version_does_not_expand_old_defaults (test_capacity_profile.CapacityProfileTests.test_optional_version_does_not_expand_old_defaults) ... ok
+test_parser_options_are_explicit_and_bounded (test_capacity_profile.CapacityProfileTests.test_parser_options_are_explicit_and_bounded) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 3.413s
+
+OK

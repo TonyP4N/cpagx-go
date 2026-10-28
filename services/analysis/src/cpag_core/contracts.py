@@ -1,5 +1,7 @@
 """Strict validation of the checked-in JSON Schema subset (stdlib runtime)."""
 from datetime import datetime
+from contextlib import contextmanager
+from contextvars import ContextVar
 import json
 import math
 from pathlib import Path
@@ -7,17 +9,47 @@ import re
 
 SCHEMAS = Path(__file__).resolve().parents[4] / 'schemas'
 
+_SESSION = ContextVar('cpag_contract_session', default=None)
+
+@contextmanager
+def validation_session():
+    """Reuse immutable schema/ref checks only within a synchronous operation.
+
+    Flat dictionaries are compared with typed scalar snapshots before reuse, so
+    mutation cannot turn a cached success into acceptance of a changed value.
+    Nested/mutable values never enter this memo; the bounded cache is discarded.
+    """
+    token=_SESSION.set({'schemas':{},'flat':{}})
+    try:yield
+    finally:_SESSION.reset(token)
+
+def _schema(name):
+    session=_SESSION.get()
+    if session is None:return json.loads((SCHEMAS/name).read_text())
+    if name not in session['schemas']:session['schemas'][name]=json.loads((SCHEMAS/name).read_text())
+    return session['schemas'][name]
+
 class ContractError(ValueError):
     pass
 
 def validate(name, value):
-    schema = json.loads((SCHEMAS / (name + '.schema.json')).read_text())
+    schema = _schema(name + '.schema.json')
     _validate(schema, value, name)
     return value
 
 def _validate(schema, value, path):
+    session=_SESSION.get();snapshot=None
+    if session is not None and isinstance(value,dict) and all(type(v) in (str,int,float,bool,type(None)) for v in value.values()):
+        snapshot=tuple((k,type(v),v) for k,v in value.items())
+        entry=session['flat'].get((id(schema),id(value)))
+        if entry is not None and entry[0] is value and entry[1]==snapshot:return
+    _validate_impl(schema,value,path)
+    if snapshot is not None and len(session['flat'])<10000:
+        session['flat'][(id(schema),id(value))]=(value,snapshot)
+
+def _validate_impl(schema, value, path):
     if '$ref' in schema:
-        _validate(json.loads((SCHEMAS / schema['$ref']).read_text()), value, path)
+        _validate(_schema(schema['$ref']), value, path)
         return
     if 'const' in schema and (type(value) is not type(schema['const']) or value != schema['const']):
         raise ContractError(f'{path}: wrong constant/schema version')

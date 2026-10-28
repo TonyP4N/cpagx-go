@@ -555,6 +555,9 @@
     },
     "replay": {
       "$ref": "ReplayProfile.schema.json"
+    },
+    "capacity_profile": {
+      "const": "engineering-capacity-1"
     }
   },
   "required": [

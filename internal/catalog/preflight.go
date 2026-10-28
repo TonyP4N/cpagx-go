@@ -197,11 +197,14 @@ func (s *Server) verifiedFileHash(rel, sha string) (string, error) {
 		return "", errors.New("missing config")
 	}
 	st, e := os.Stat(p)
-	if e != nil || !st.Mode().IsRegular() || st.Size() > 65536 {
+	if e != nil || !st.Mode().IsRegular() || st.Size() > s.configBodyLimit() {
 		return "", errors.New("config size changed")
 	}
 	raw, e := os.ReadFile(p)
 	if e != nil {
+		return "", e
+	}
+	if _, e = s.configBudget(raw); e != nil {
 		return "", e
 	}
 	sum := sha256.Sum256(raw)

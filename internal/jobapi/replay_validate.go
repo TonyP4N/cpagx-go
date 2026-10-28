@@ -139,7 +139,7 @@ func (s *Server) validateReplay(base string, p Payload, wrapper Manifest, coreRa
 	if len(parts) != 3 || parts[0] != "jobs" || core["run_id"] != parts[1] || parts[2] != fmt.Sprintf("attempt-%d", attempt) || attempt < 1 || core["replay_version"] != p.ReplayVersion || p.ReplayVersion != ReplayVersion {
 		return fail("replay run/attempt/version mismatch")
 	}
-	profileValue, e := s.readDualJSON(base, "sources/profile.json")
+	profileValue, e := s.readDualJSON(base, "sources/profile.json", p)
 	if e != nil {
 		return nil, e
 	}
@@ -194,7 +194,7 @@ func (s *Server) validateReplay(base string, p Payload, wrapper Manifest, coreRa
 	}
 	refs, _ := p.networkRefs()
 	sourceRows := []any{}
-	datasetValue, e := s.readDualJSON(base, "dataset.json")
+	datasetValue, e := s.readDualJSON(base, "dataset.json", p)
 	if e != nil {
 		return nil, e
 	}
@@ -402,22 +402,22 @@ func (s *Server) validateReplay(base string, p Payload, wrapper Manifest, coreRa
 		return fail("unlinked replay revisions")
 	}
 	last := snapshots[len(snapshots)-1]
-	analysisValue, e := s.readDualJSON(base, "analysis.json")
+	analysisValue, e := s.readDualJSON(base, "analysis.json", p)
 	if e != nil {
 		return nil, e
 	}
 	analysis, _ := obj(analysisValue)
-	graphValue, e := s.readDualJSON(base, "graph.json")
+	graphValue, e := s.readDualJSON(base, "graph.json", p)
 	if e != nil {
 		return nil, e
 	}
 	graph, _ := obj(graphValue)
-	eventsValue, e := s.readDualJSON(base, "events.json")
+	eventsValue, e := s.readDualJSON(base, "events.json", p)
 	if e != nil {
 		return nil, e
 	}
 	events, _ := arr(eventsValue)
-	quality, e := s.readDualJSON(base, "quality.json")
+	quality, e := s.readDualJSON(base, "quality.json", p)
 	if e != nil {
 		return nil, e
 	}
@@ -428,7 +428,7 @@ func (s *Server) validateReplay(base string, p Payload, wrapper Manifest, coreRa
 	if state["phase"] != "finished" {
 		return fail("incomplete replay cannot be published")
 	}
-	replayValue, e := s.readDualJSON(base, "replay.json")
+	replayValue, e := s.readDualJSON(base, "replay.json", p)
 	if e != nil {
 		return nil, e
 	}

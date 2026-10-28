@@ -17,10 +17,25 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"github.com/TonyP4N/cpagx-go/internal/jobapi"
 )
 
 const evaluationProjectionLimit = 8 << 20
+
+func evaluationResourceProjectionLimit(resource, operator string) (int, error) {
+	if resource != operator {
+		return 0, errors.New("evaluation resource profile differs from operator policy")
+	}
+	switch resource {
+	case "":
+		return evaluationProjectionLimit, nil
+	case capacity.DevelopmentS100, capacity.Engineering:
+		return evaluationV2DocumentLimit, nil
+	default:
+		return 0, errors.New("unsupported evaluation resource profile")
+	}
+}
 
 // evaluationInput is only a read-only projection of a verified publication.
 // Dataset ACL authorization is performed by serveRuns before entering here.
@@ -60,6 +75,17 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 		fail(w, 409, "evaluation_input_unavailable", "published artifacts unavailable or changed")
 		return
 	}
+	status, err := internal.Repo.Status(ctx, id)
+	var payload jobapi.Payload
+	if err != nil || json.Unmarshal(status.Payload, &payload) != nil {
+		fail(w, 409, "evaluation_input_unavailable", "published resource policy unavailable")
+		return
+	}
+	projectionLimit, err := evaluationResourceProjectionLimit(payload.ResourceProfile, s.cfg.ResourceProfile)
+	if err != nil {
+		fail(w, 409, "evaluation_input_unavailable", "published resource policy differs")
+		return
+	}
 	var batch string
 	if err = s.DB.QueryRowContext(ctx, "SELECT batch FROM v3_datasets WHERE id=$1", dataset).Scan(&batch); err != nil || strings.TrimSpace(batch) == "" {
 		fail(w, 409, "evaluation_context_unavailable", "dataset batch unavailable")
@@ -96,7 +122,7 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 		fail(w, 409, "evaluation_input_unavailable", "published identity unavailable or changed")
 		return
 	}
-	raw, err := s.runEvaluationProjection(ctx, filepath.Join(s.Root, base), batch, core.Input, projection)
+	raw, err := s.runEvaluationProjection(ctx, filepath.Join(s.Root, base), batch, core.Input, projection, projectionLimit)
 	if err != nil {
 		fail(w, 409, "evaluation_projection_failed", "bounded evaluation projection unavailable")
 		return
@@ -145,14 +171,24 @@ func (b *evaluationBuffer) Write(value []byte) (int, error) {
 	return b.Buffer.Write(value)
 }
 
-func (s *Server) runEvaluationProjection(ctx context.Context, artifact, batch, sample, projection string) ([]byte, error) {
+func (s *Server) runEvaluationProjection(ctx context.Context, artifact, batch, sample, projection string, limits ...int) ([]byte, error) {
+	limit := evaluationProjectionLimit
+	if len(limits) > 1 {
+		return nil, errors.New("one evaluation projection budget required")
+	}
+	if len(limits) == 1 {
+		limit = limits[0]
+	}
+	if limit != evaluationProjectionLimit && limit != evaluationV2DocumentLimit {
+		return nil, errors.New("unsupported evaluation projection budget")
+	}
 	cmd := exec.CommandContext(ctx, s.cfg.PythonBin, "-m", "cpag_core.evaluation_artifacts", "--artifact", artifact, "--batch", batch, "--sample-sha256", sample, "--projection", projection)
 	cmd.Env = os.Environ()
 	if s.cfg.PythonPath != "" {
 		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
 	}
 	cmd.WaitDelay = time.Second
-	out := &evaluationBuffer{limit: evaluationProjectionLimit}
+	out := &evaluationBuffer{limit: limit}
 	diagnostics := &evaluationBuffer{limit: 8192}
 	cmd.Stdout, cmd.Stderr = out, diagnostics
 	if err := cmd.Run(); err != nil {

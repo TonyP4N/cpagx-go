@@ -2,6 +2,7 @@ package jobapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -145,6 +146,33 @@ func TestRetainedBoundedV1FixtureReadAndEvidenceCompatibility(t *testing.T) {
 	compatibility, _ := obj(response["compatibility"])
 	if compatibility["reanalysis_required"] != true || compatibility["status"] != "historical_semantics" {
 		t.Fatal("historical evidence response missing explicit warning")
+	}
+	// Explicit pages preserve exactly the original reference order and bytes.
+	originals, _ := arr(response["verified_original_evidence"])
+	for offset, want := range originals {
+		req = httptest.NewRequest("GET", fmt.Sprintf("/evidence?operation=first&ref_offset=%d&ref_limit=1", offset), nil)
+		rec = httptest.NewRecorder()
+		if e = s.serveDualEvidence(rec, req, base, p, analysis); e != nil {
+			t.Fatal(e)
+		}
+		var page map[string]any
+		if e = json.Unmarshal(rec.Body.Bytes(), &page); e != nil {
+			t.Fatal(e)
+		}
+		rows, _ := arr(page["verified_original_evidence"])
+		if len(rows) != 1 || !sameJSON(rows[0], want) {
+			t.Fatal("page differs from original evidence")
+		}
+		meta, _ := obj(page["evidence_page"])
+		if meta["total"] != float64(len(originals)) || meta["has_more"] != (offset+1 < len(originals)) {
+			t.Fatal(meta)
+		}
+	}
+	for _, query := range []string{"ref_limit=101", "ref_limit=0", "ref_offset=-1", "ref_offset=999999"} {
+		req = httptest.NewRequest("GET", "/evidence?operation=first&"+query, nil)
+		if e = s.serveDualEvidence(httptest.NewRecorder(), req, base, p, analysis); e == nil {
+			t.Fatal("invalid page accepted", query)
+		}
 	}
 	// Even a declared version typo is rejected instead of falling back to old or new semantics.
 	dm, e := s.readDualJSON(base, "dual/manifest.json")

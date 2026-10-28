@@ -172,6 +172,15 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		return
 	}
 	payload := jobapi.Payload{Kind: "dual-source", Profile: jobapi.Ref{Path: cfgPath, SHA: cfgSHA}, Fingerprint: fp}
+	payload.ResourceProfile = s.cfg.ResourceProfile
+	if value, exists := doc["capacity_profile"]; exists {
+		version, ok := value.(string)
+		if !ok || version == "" {
+			fail(w, 422, "invalid_config", "invalid capacity profile")
+			return
+		}
+		payload.CapacityProfile = version
+	}
 	if q.Mode == "dual_source_replay" {
 		payload.Kind = "dual-source-replay"
 		replay, _ := doc["replay"].(map[string]any)

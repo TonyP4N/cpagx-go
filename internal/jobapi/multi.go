@@ -57,11 +57,16 @@ func publicationInputsMatch(p Payload, inputs map[string]string, networks []stri
 }
 
 func (s *Server) dualCaptureFrames(base string, p Payload) (map[string][]packetFrame, error) {
+	budget, err := payloadLimits(p)
+	if err != nil {
+		return nil, err
+	}
 	refs, e := p.networkRefs()
 	if e != nil {
 		return nil, e
 	}
 	out := map[string][]packetFrame{}
+	totalFrames := 0
 	for i, r := range refs {
 		path, e := s.file(base + "dual/" + networkSourceName(i))
 		if e != nil {
@@ -74,9 +79,13 @@ func (s *Server) dualCaptureFrames(base string, p Payload) (map[string][]packetF
 		if e != nil {
 			return nil, e
 		}
-		frames, e := packetFrames(raw)
+		frames, e := packetFrames(raw, budget.Frames)
 		if e != nil {
 			return nil, e
+		}
+		totalFrames += len(frames)
+		if totalFrames > budget.Frames {
+			return nil, fmt.Errorf("aggregate frame budget exceeded")
 		}
 		out[r.SHA] = frames
 	}

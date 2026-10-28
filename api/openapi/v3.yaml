@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CPAG v3 local research API
   version: 0.4.0
-  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Capacity certification remains a later gate.
+  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay is currently refused pending history integration. Capacity certification and unexecuted scales remain incomplete.
 servers:
   - url: http://127.0.0.1:8095
 paths:
@@ -96,6 +96,7 @@ paths:
       responses: { '200': { description: File catalog without storage paths } }
     post:
       security: [{ cookieAuth: [] }]
+      description: Upload limits remain 64MiB per capture and 8MiB per process file; upload success is not analysis capacity acceptance. The versioned analysis profile separately enforces capture aggregate, CSV logical-record and column budgets.
       parameters:
         - { in: query, name: role, required: true, schema: { enum: [network, process] } }
         - { in: query, name: name, required: true, schema: { type: string }, description: Original basename }
@@ -124,6 +125,7 @@ paths:
       responses: { '200': { description: Immutable config versions } }
     post:
       security: [{ cookieAuth: [] }]
+      description: The immutable dual document may declare capacity_profile engineering-capacity-1 with analysis_mode bounded-real-capable-v1. The operator must explicitly enable the matching capacity_policy. Limits are at most four captures, 64MiB each and 128MiB aggregate, CSV 8MiB / 10000 logical records / 16 columns, and profile document 8MiB. Without the declaration historical analysis limits remain 16MiB aggregate / CSV 2MiB / 1000 records / profile 64KiB. The new profile with replay is refused until versioned replay history is integrated; these budgets are not measured acceptance claims. resource_profile and capacity_policy are operator configuration fields, not fields users can raise in uploaded documents or run requests.
       requestBody:
         required: true
         content:
@@ -169,6 +171,7 @@ paths:
       responses: { '200': { description: Authorized runs } }
     post:
       security: [{ cookieAuth: [] }]
+      description: The selected immutable profile binds capacity_profile through its fingerprint. The service independently freezes the operator resource_profile into the job payload. Submission and unfinished publication require operator binding; supported historical results are read under their original frozen budgets and never reinterpreted using a larger current operator policy. Explicit capacity_policy engineering-capacity-1 persists a database-wide single-unexited-attempt gate including expired, failed and cancelling attempts until verified exit or gated non-start proof. It does not clear on an unconfigured restart.
       requestBody:
         required: true
         content:
@@ -245,6 +248,8 @@ paths:
         - { in: query, name: trigger, required: false, schema: { type: string, const: 'true' }, description: Replay only; third mutually exclusive selector for the selected snapshot trigger evidence, including discarded or too_late records; no arbitrary raw references }
         - { in: query, name: operation, required: false, schema: { type: string } }
         - { in: query, name: change, required: false, schema: { type: string } }
+        - { in: query, name: ref_offset, required: false, schema: { type: integer, minimum: 0, default: 0 }, description: Explicit operator resource profile only; offset into the complete selected original-evidence reference list }
+        - { in: query, name: ref_limit, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 100 }, description: Explicit operator resource profile only; at most 100 original references per response, with an independent 8MiB response byte guard; oversized evidence fails rather than truncating. Legacy responses retain their previous shape when pagination is not requested. }
       responses: { '200': { description: Verified bounded original evidence; exactly one operation/change/trigger selector required; trigger accepts exactly true }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/revisions:
     parameters: [{ $ref: '#/components/parameters/runId' }]
@@ -281,6 +286,20 @@ paths:
       description: Administrator only; returns only server selected nonsecret fields.
       responses: { '200': { description: Recent audit metadata }, '403': { $ref: '#/components/responses/Error' } }
 components:
+  schemas:
+    CapacityProfileDeclaration:
+      type: object
+      description: Optional fields within the full immutable dual profile. This fragment does not replace the complete DualSourceProfile schema.
+      properties:
+        capacity_profile: { const: engineering-capacity-1 }
+        analysis_mode: { const: bounded-real-capable-v1 }
+    OperatorBudgetSelection:
+      type: object
+      description: Operator settings fragment from the private server configuration; not a public API request. Omitted settings preserve old defaults. The persisted site policy cannot be disabled through HTTP or by omission on restart. New profiles and hardware capacity still require independent full-chain verification.
+      properties:
+        capacity_policy: { enum: ['', engineering-capacity-1] }
+        resource_profile: { enum: ['', r19-dev-s100-1, engineering-capacity-1] }
+      additionalProperties: false
   securitySchemes:
     cookieAuth: { type: apiKey, in: cookie, name: cpag_session }
   parameters:

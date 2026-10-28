@@ -1,0 +1,322 @@
+{
+  "case": {
+    "cache_condition": "unverified_cold",
+    "case_manifest_sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+    "id": "S-dual_source-1",
+    "input_fingerprints": [
+      {
+        "bytes": 23424,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/network.pcap",
+        "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85"
+      },
+      {
+        "bytes": 3010,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/process.csv",
+        "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55"
+      },
+      {
+        "bytes": 2045,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/offline-profile.json",
+        "sha256": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281"
+      }
+    ],
+    "input_logical_records": 100,
+    "mode": "dual_source",
+    "repetition": 1,
+    "scale": "S"
+  },
+  "database_dump_returncode": 0,
+  "dev_run": true,
+  "environment": {
+    "commit": "e1ca1a71d12e95178f1e9564d6c3c0bdb2fedc40",
+    "cpu_count": 10,
+    "dirty": true,
+    "docker": {
+      "architecture": "aarch64",
+      "cpus": 10,
+      "driver": "overlayfs",
+      "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "memory_bytes": 8217448448,
+      "os": "Docker Desktop",
+      "version": "29.1.3"
+    },
+    "docker_ready": true,
+    "free_bytes": 31925661696,
+    "harness_sha256": "c15c8ca2b0aaac6cd99ab0a3e0928c25b0d4bf4711015647fa6667dde3153c25",
+    "machine": "arm64",
+    "memory_bytes": 17179869184,
+    "os_id": null,
+    "os_version": null,
+    "reference_environment_qualified": false,
+    "reference_refusal_reasons": [
+      "host_not_linux",
+      "host_not_ubuntu_24_04",
+      "host_not_x86_64",
+      "host_not_8_vcpu",
+      "ssd_unverified",
+      "docker_not_x86_64",
+      "docker_resources_below_proposed_profile"
+    ],
+    "source_tree_sha256": "417bd5b5d0433b5e8abf1f9dd7b13943d61247a342b0c262eea86e4b101b4b7e",
+    "ssd_verified": false,
+    "system": "Darwin",
+    "tracked_diff_sha256": "5eacc86ce4373f98e8f0182753f85d3cef2b405aaf34034eb616b163e58b4989"
+  },
+  "error": null,
+  "error_type": null,
+  "finished_at": "2026-10-28T03:24:24.562529+00:00",
+  "measurements": {
+    "phase_breakdown": {
+      "association_seconds": null,
+      "cpu_seconds": null,
+      "parse_seconds": null,
+      "reason": "current runtime does not expose separate phase/CPU/RSS totals; raw sampled Docker stats retained; cannot satisfy complete R19 measurement gate",
+      "rss_peak_bytes": null,
+      "write_seconds": null
+    },
+    "result_api_verified": true,
+    "submit_through_verify_and_evidence_seconds": 114.84661737500574,
+    "submit_to_terminal_seconds": 77.38089191701147
+  },
+  "private_evidence_root": "/private/tmp/cpag-r19-formal-resource-only-20261028-attempt1",
+  "private_record_sha256": "373178cf8c3588edc76cedc4a19f898eddc727a0dc0cd022ec19741925349e83",
+  "reference_accepted": false,
+  "resource_profile": "r19-dev-s100-1",
+  "run_id": "f75ba4b4950679c545d0bdb164c55a66",
+  "schema_version": "r19-capacity-measurement-1",
+  "stages": [
+    {
+      "elapsed_seconds": 0.9286058330035303,
+      "finished_at": "2026-10-28T03:22:24.015196+00:00",
+      "name": "environment_probe",
+      "started_at": "2026-10-28T03:22:23.086088+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 3.6669953260570765e-06,
+      "explicit_dev_override": true,
+      "finished_at": "2026-10-28T03:22:24.016012+00:00",
+      "name": "reference_environment_gate",
+      "reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "reference_environment_qualified": false,
+      "started_at": "2026-10-28T03:22:24.015676+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0020021669915877283,
+      "finished_at": "2026-10-28T03:22:24.018725+00:00",
+      "name": "raw_case_validation",
+      "started_at": "2026-10-28T03:22:24.016402+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.03603087499504909,
+      "finished_at": "2026-10-28T03:22:24.055536+00:00",
+      "name": "worker_image_binding",
+      "started_at": "2026-10-28T03:22:24.019090+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 120.50453245898825,
+      "finished_at": "2026-10-28T03:24:24.561556+00:00",
+      "name": "formal_chain_case",
+      "started_at": "2026-10-28T03:22:24.056249+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 1.5925091660174076,
+      "finished_at": "2026-10-28T03:22:25.730894+00:00",
+      "name": "build_formal_binaries",
+      "started_at": "2026-10-28T03:22:24.137798+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 2.071648458018899,
+      "finished_at": "2026-10-28T03:22:27.804209+00:00",
+      "name": "database_start_and_migrations",
+      "started_at": "2026-10-28T03:22:25.732001+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.7429316670168191,
+      "finished_at": "2026-10-28T03:22:28.549854+00:00",
+      "name": "application_and_worker_start",
+      "started_at": "2026-10-28T03:22:27.805292+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.16796200000680983,
+      "finished_at": "2026-10-28T03:22:28.719400+00:00",
+      "name": "catalog_upload_preflight_config",
+      "started_at": "2026-10-28T03:22:28.550860+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 77.3794912089943,
+      "finished_at": "2026-10-28T03:23:46.101207+00:00",
+      "name": "submit_queue_container_to_terminal",
+      "started_at": "2026-10-28T03:22:28.720214+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 36.02869049998117,
+      "finished_at": "2026-10-28T03:24:22.133000+00:00",
+      "name": "retained_artifact_and_reference_verification",
+      "started_at": "2026-10-28T03:23:46.103093+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.7332064590009395,
+      "finished_at": "2026-10-28T03:24:22.868016+00:00",
+      "name": "evidence_query",
+      "original_evidence_items": 165,
+      "pages": [
+        {
+          "original_evidence_items": 100,
+          "page": {
+            "has_more": true,
+            "limit": 100,
+            "offset": 0,
+            "order": "canonical_source_reference",
+            "returned": 100,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.37491862499155104,
+          "response_bytes": 2237770
+        },
+        {
+          "original_evidence_items": 65,
+          "page": {
+            "has_more": false,
+            "limit": 100,
+            "offset": 100,
+            "order": "canonical_source_reference",
+            "returned": 65,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.3331104579847306,
+          "response_bytes": 2427531
+        }
+      ],
+      "query_seconds": 0.7331951659871265,
+      "response_bytes": 4665301,
+      "started_at": "2026-10-28T03:24:22.134139+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.6962850829877425,
+      "finished_at": "2026-10-28T03:24:23.565849+00:00",
+      "missing_original_status": 409,
+      "name": "warm_cache_integrity_rejection",
+      "restored_original_query": true,
+      "same_size_tamper_status": 409,
+      "started_at": "2026-10-28T03:24:22.868929+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.8876752909854986,
+      "finished_at": "2026-10-28T03:24:24.455442+00:00",
+      "name": "retain_database_and_stop_disposable_services",
+      "started_at": "2026-10-28T03:24:23.567134+00:00",
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-10-28T03:22:23.085489+00:00",
+  "status": "development_case_measured_incomplete_gate",
+  "target": {
+    "active_attempts": 1,
+    "candidates": 100000,
+    "changes": 10000,
+    "configuration_bytes": 8388608,
+    "container_cpu_seconds": 6000,
+    "container_cpus": 4,
+    "container_memory_bytes": 8589934592,
+    "container_pids": 64,
+    "container_swap_memory_bytes": 8589934592,
+    "evidence_bytes": 8388608,
+    "evidence_items": 100,
+    "evidence_seconds": 10,
+    "frames": 100000,
+    "network_files": 4,
+    "network_per_file_bytes": 67108864,
+    "network_total_bytes": 134217728,
+    "operations": 10000,
+    "output_bytes": 1073741824,
+    "persistent_handoff_bytes": 4294967296,
+    "process_bytes": 8388608,
+    "process_columns": 16,
+    "process_records": 10000,
+    "temporary_disk_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "terminal": {
+    "attempt": 1,
+    "attempt_history": [
+      {
+        "attempt": 1,
+        "exited_at": "2026-10-28T11:23:27.300702+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:34e031b3078bbc1983f95497",
+        "publication_state": "published"
+      }
+    ],
+    "config_version_id": "34b9522857787747b51ffd4fa9db499c",
+    "created_at": "2026-10-28T11:22:28.864906+08:00",
+    "dataset_id": "13a8851d3a1cdea01d6666dfeba42141",
+    "id": "f75ba4b4950679c545d0bdb164c55a66",
+    "last_error": null,
+    "lease_valid": false,
+    "mode": "dual_source",
+    "network_file_ids": null,
+    "preflight_id": "76845dd2328c2731bbb4f54d56fe944e",
+    "preflight_link_origin": "native_gate",
+    "replay_version": null,
+    "state": "succeeded"
+  },
+  "worker_attempts": [
+    {
+      "attempt": "attempt-1.worker",
+      "compute_measurements": {
+        "cpu_system_seconds": null,
+        "cpu_user_seconds": null,
+        "measurement_version": null,
+        "returncode": 0,
+        "rss_peak_bytes": null,
+        "scope": null,
+        "wall_seconds": null
+      },
+      "compute_measurements_sha256": "c365161d39236fe0f1d32937fbc549796b8487d8faf65ed3879b96897c78ea5d",
+      "image_id": "sha256:6a44c15c25f6c9e9040053735b190fa07e7d9b126b246ac80ef1095954979b55",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "d1a57f284826bdd3a923a0dfa397863bb874412317871cee5b5f6d40c3b168c6",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T03:23:27.159792966Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T03:22:29.528040134Z",
+        "Status": "exited"
+      }
+    }
+  ]
+}

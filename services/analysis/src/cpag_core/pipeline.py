@@ -21,8 +21,76 @@ def stable_value(value):
         return [stable_value(v) for v in value]
     return value
 
+def json_chunks(value, *, stable=False):
+    """Canonical UTF-8 without materializing the complete serialization.
+
+    Cache only small flat objects during this call; repeated evidence references
+    share bytes, not semantic identity. The cache is bounded and never persisted.
+    Tuple contents intentionally retain the legacy stable_value tuple semantics.
+    """
+    cache = {}
+    cache_bytes = 0
+    def walk(item, strip):
+        nonlocal cache_bytes
+        if isinstance(item, dict):
+            if any(not isinstance(k, str) for k in item):
+                yield canonical(stable_value(item) if strip else item)
+                return
+            flat = all(not isinstance(v, (dict, list, tuple)) for v in item.values())
+            if flat:
+                key = (id(item), strip)
+                entry = cache.get(key)
+                if entry is not None and entry[0] is item:
+                    yield entry[1]
+                    return
+                data = canonical({k:v for k,v in item.items() if not strip or k not in VOLATILE})
+                if len(data) <= 2048 and cache_bytes + len(data) <= 1048576:
+                    cache[key] = (item, data); cache_bytes += len(data)
+                yield data
+                return
+            yield b'{'
+            first = True
+            for key in sorted(item):
+                if strip and key in VOLATILE: continue
+                if not first: yield b','
+                first = False
+                yield canonical(key); yield b':'
+                yield from walk(item[key], strip)
+            yield b'}'
+        elif isinstance(item, (list, tuple)):
+            yield b'['
+            for index, child in enumerate(item):
+                if index: yield b','
+                yield from walk(child, strip and not isinstance(item, tuple))
+            yield b']'
+        else:
+            yield canonical(item)
+    yield from walk(value, stable)
+
+
+def write_canonical(path, value, *, max_bytes=None):
+    """Byte-identical canonical JSON plus newline with bounded encoder memory."""
+    with Path(path).open('wb') as stream:
+        count=1
+        for chunk in json_chunks(value):
+            count+=len(chunk)
+            if max_bytes is not None and count>max_bytes:raise ValueError('artifact_output_limit')
+            stream.write(chunk)
+        stream.write(b'\n')
+
+
+def canonical_file_matches(path, value):
+    """Fast path for generated canonical files, preserving noncanonical readers."""
+    digest = hashlib.sha256()
+    for chunk in json_chunks(value): digest.update(chunk)
+    digest.update(b'\n')
+    return file_hash(path) == digest.hexdigest()
+
+
 def fingerprint(value):
-    return hashlib.sha256(canonical(stable_value(value))).hexdigest()
+    digest = hashlib.sha256()
+    for chunk in json_chunks(value, stable=True): digest.update(chunk)
+    return digest.hexdigest()
 
 def file_hash(path):
     digest = hashlib.sha256()

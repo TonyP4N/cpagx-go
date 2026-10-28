@@ -1,0 +1,17 @@
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/capacity.go:4:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/capacity.go:7:2: open /Users/nbtechx-pyf/Library/Caches/go-build/35/3576a8c8f8d3b700dacf2d6ffa7be984d117290e54270eb0b9cc76b4df658bcc-d: operation not permitted
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/dual.go:25:2: open /Users/nbtechx-pyf/Library/Caches/go-build/49/4933c78496b9827e21ddc6bae470a06dd331ecc7483dec37b2e19c5ced5b0935-d: operation not permitted
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/dual.go:26:2: open /Users/nbtechx-pyf/Library/Caches/go-build/79/795170ad0ad0b58cb8c5ab4ae8a59dab817322cbba2f90c880ef29ceefda4651-d: operation not permitted
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+/usr/local/go/src/crypto/x509/root_darwin.go:8:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+/usr/local/go/src/net/interface_bsd.go:10:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi [setup failed]
+# ./internal/catalog
+open /Users/nbtechx-pyf/Library/Caches/go-build/84/8433a699d5ce5cbeae092b29b6ce525ff1b8928d037422e1ddca7a83c94ee787-d: operation not permitted
+FAIL	./internal/catalog [setup failed]
+FAIL

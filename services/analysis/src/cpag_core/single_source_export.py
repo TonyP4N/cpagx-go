@@ -17,6 +17,7 @@ import uuid
 
 from . import __version__
 from .contracts import validate
+from .capacity import ENGINEERING, resolve_capacity_profile, parser_limits
 from .dual_source import (_analyze_prepared, references, strict_json, R17_VERSION,
                           network_names)
 from .dual_source_export import event_graph
@@ -40,19 +41,37 @@ def _read(path):
     return strict_json(Path(path).read_text(encoding='utf-8'))
 
 
-def _paths(source_mode, source):
+def _paths(source_mode, source, budget=None):
+    budget=budget or resolve_capacity_profile({})
     if source_mode not in ('network', 'process'):
         raise ValueError('unsupported_single_source_mode')
     paths = list(source) if isinstance(source, (list, tuple)) else [source]
-    if (source_mode == 'network' and not 1 <= len(paths) <= 4) or (source_mode == 'process' and len(paths) != 1):
+    if (source_mode == 'network' and not 1 <= len(paths) <= budget.network_files) or (source_mode == 'process' and len(paths) != 1):
         raise ValueError('single_source_file_limit')
     paths = [Path(path) for path in paths]
     if any(path.is_symlink() or not path.is_file() for path in paths):
         raise ValueError('invalid_single_source_file')
-    limit = NETWORK_BYTES if source_mode == 'network' else PROCESS_BYTES
+    limit = budget.network_total_bytes if source_mode == 'network' else budget.process_bytes
+    if source_mode=='network' and any(path.stat().st_size>budget.network_file_bytes for path in paths):
+        raise ValueError('single_source_file_size_limit')
     if sum(path.stat().st_size for path in paths) > limit:
         raise ValueError('single_source_input_size_limit')
     return paths
+
+
+def _read_profile(path):
+    path=Path(path)
+    maximum=resolve_capacity_profile({'analysis_mode':'bounded-real-capable-v1','capacity_profile':ENGINEERING}).profile_bytes
+    if path.is_symlink() or not path.is_file() or path.stat().st_size>maximum:
+        raise ValueError('invalid_or_oversize_single_source_profile')
+    config=_read(path);budget=resolve_capacity_profile(config)
+    if path.stat().st_size>budget.profile_bytes:
+        raise ValueError('single_source_profile_size_limit')
+    return config,budget
+
+
+def _output_limit(budget):
+    return budget.output_bytes if budget.version else OUTPUT_BYTES
 
 
 def _names(source_mode, count):
@@ -66,12 +85,13 @@ def _rows(source_mode, paths):
 
 def analyze_sources(source_mode, source, config):
     """Read one actual source and invoke unchanged prepared-source operators."""
-    paths = _paths(source_mode, source)
+    budget=resolve_capacity_profile(config)
+    paths = _paths(source_mode, source,budget)
     if not validate_profile(config):
         raise ValueError('single_source_requires_explicit_bounded_profile')
     if 'replay' in config:
         raise ValueError('single_source_offline_profile_cannot_declare_replay')
-    if not 1 <= len(config['process']['columns']) <= 16 or len(config['mappings']) > 100:
+    if not 1 <= len(config['process']['columns']) <= budget.process_columns or len(config['mappings']) > 100:
         raise ValueError('profile_size_limit')
     rule_ids = [row['rule_id'] for row in config['mappings']]
     if len(rule_ids) != len(set(rule_ids)):
@@ -84,18 +104,21 @@ def analyze_sources(source_mode, source, config):
     parsed = {'events': [], 'quality': {'status': 'not_supplied', 'event_count': 0,
                                       'reasons': ['process_source_not_supplied']}}
     packet = None; verify_sources = None
+    limits=parser_limits(config)
     if source_mode == 'network':
         network = paths if len(paths) > 1 else paths[0]
-        capture = analyze_capture(network, synthetic=config['synthetic'], extended=True)
+        capture = analyze_capture(network, synthetic=config['synthetic'], extended=True,
+            limits=limits['packet_limits'],capture_limits=limits['capture_limits'],stream_limits=limits['stream_limits'])
         if not capture['events']:
             raise ValueError('unsupported_or_empty_network')
-        packet = PacketEvidence(network, synthetic=config['synthetic'])
+        packet = PacketEvidence(network, synthetic=config['synthetic'],
+            limits=limits['packet_limits'],capture_limits=limits['capture_limits'])
     else:
         index = EvidenceIndex(paths[0])
-        if sum(1 for _ in csv.reader(io.StringIO(index.text), strict=True)) - 1 > 1000:
+        if sum(1 for _ in csv.reader(io.StringIO(index.text), strict=True)) - 1 > budget.process_records:
             raise ValueError('process_record_limit')
         parsed = parse_process(paths[0], config['process'], synthetic=config['synthetic'],
-                               evidence=index, extended=True)
+                               evidence=index, extended=True,limits=limits['process_limits'])
         if parsed['quality']['status'] == 'unsupported' or not parsed['events']:
             raise ValueError('unsupported_or_empty_process')
         if any(reason.startswith(('invalid_csv_record_width', 'invalid_or_truncated_csv'))
@@ -188,11 +211,9 @@ def verify_task(output):
         path = root / entry['path']
         if file_hash(path) != entry['sha256'] or path.stat().st_size != entry['size_bytes']:
             raise ValueError('single_source_artifact_integrity_mismatch: ' + entry['path'])
-    if sum((root / name).stat().st_size for name in expected) > OUTPUT_BYTES:
+    config,budget = _read_profile(root / 'sources/profile.json')
+    if sum((root / name).stat().st_size for name in expected) > _output_limit(budget):
         raise ValueError('single_source_output_limit')
-    if (root / 'sources/profile.json').stat().st_size > PROFILE_BYTES:
-        raise ValueError('single_source_profile_size_limit')
-    config = _read(root / 'sources/profile.json')
     payloads = _payloads(mode, [root / name for name in source_files], config)
     for name, payload in payloads.items():
         if (root / name).read_bytes() != canonical(payload) + b'\n':
@@ -217,10 +238,9 @@ def export_task(source_mode, source, profile, output, *, run_id=None, attempt_id
     if (run_id is not None and (not isinstance(run_id, str) or not 1 <= len(run_id) <= 128)
             or type(attempt_id) is not int or attempt_id < 1):
         raise ValueError('invalid_execution_identity')
-    paths = _paths(source_mode, source); profile = Path(profile); root = Path(output)
-    if profile.is_symlink() or not profile.is_file() or profile.stat().st_size > PROFILE_BYTES:
-        raise ValueError('invalid_or_oversize_single_source_profile')
-    config = _read(profile)
+    profile = Path(profile); root = Path(output)
+    config,budget = _read_profile(profile)
+    paths = _paths(source_mode, source,budget)
     # Validate mode/config before reserving output or copying sources.
     if not validate_profile(config) or 'replay' in config:
         raise ValueError('explicit_bounded_offline_profile_required')
@@ -290,7 +310,9 @@ def query_task(output, operation_id=None, change_id=None):
     refs = references(selected); fields = []
     if mode == 'network':
         paths = [root / name for name in manifest['source_files']]
-        index = PacketEvidence(paths if len(paths) > 1 else paths[0], synthetic=manifest['synthetic'])
+        config,_=_read_profile(root/'sources/profile.json');limits=parser_limits(config)
+        index = PacketEvidence(paths if len(paths) > 1 else paths[0], synthetic=manifest['synthetic'],
+            limits=limits['packet_limits'],capture_limits=limits['capture_limits'])
         frames = {(ref['file_sha256'], ref['frame_number']) for ref in refs}
         for row in analysis['network']:
             if any((ref['file_sha256'], ref['frame_number']) in frames for ref in row['observation']['source_refs']):

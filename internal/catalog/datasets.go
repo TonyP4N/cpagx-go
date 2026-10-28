@@ -433,13 +433,17 @@ func (s *Server) createConfig(w http.ResponseWriter, r *http.Request, p *princip
 		Kind     string          `json:"kind"`
 		Document json.RawMessage `json:"document"`
 	}
-	if body(w, r, &q, 65536) != nil || (q.Kind != "intake" && q.Kind != "dual") || len(q.Document) == 0 {
+	if body(w, r, &q, s.configBodyLimit()) != nil || (q.Kind != "intake" && q.Kind != "dual") || len(q.Document) == 0 {
 		fail(w, 422, "invalid_config", "kind and document required")
 		return
 	}
 	var doc map[string]any
 	if validateUniqueJSON(q.Document) != nil || json.Unmarshal(q.Document, &doc) != nil || doc == nil {
 		fail(w, 422, "invalid_config", "document object required")
+		return
+	}
+	if _, err := s.configBudget(q.Document); err != nil || (q.Kind == "intake" && len(q.Document) > 65536) {
+		fail(w, 422, "invalid_config", "configuration exceeds versioned capacity budget")
 		return
 	}
 	var sourceKind string

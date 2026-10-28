@@ -1,0 +1,14 @@
+test_20000_two_kinds_with_independent_duplicate_and_missed_reference (test_round19_indexed.IndexedEvaluationTests.test_20000_two_kinds_with_independent_duplicate_and_missed_reference) ... ok
+test_22000_dense_same_time_one_to_one_and_bounded_compatibility_examples (test_round19_indexed.IndexedEvaluationTests.test_22000_dense_same_time_one_to_one_and_bounded_compatibility_examples) ... ok
+test_compatibility_range_never_relaxes_absolute_tolerance (test_round19_indexed.IndexedEvaluationTests.test_compatibility_range_never_relaxes_absolute_tolerance) ... ok
+test_dispute_union_reference_exclusion_and_half_open_boundaries (test_round19_indexed.IndexedEvaluationTests.test_dispute_union_reference_exclusion_and_half_open_boundaries) ... ok
+test_exhaustive_independent_maximum_for_small_dense_and_sparse_sets (test_round19_indexed.IndexedEvaluationTests.test_exhaustive_independent_maximum_for_small_dense_and_sparse_sets) ... ok
+test_explicit_version_pair_and_legacy_default_unchanged (test_round19_indexed.IndexedEvaluationTests.test_explicit_version_pair_and_legacy_default_unchanged) ... ok
+test_handwritten_p01_p02_p03_p04_p05_p06 (test_round19_indexed.IndexedEvaluationTests.test_handwritten_p01_p02_p03_p04_p05_p06) ... ok
+test_permutation_invariant_assignment_and_unicode_ids (test_round19_indexed.IndexedEvaluationTests.test_permutation_invariant_assignment_and_unicode_ids) ... ok
+test_v2_rejects_same_provenance_and_split_failures_and_keeps_no_real_scores (test_round19_indexed.IndexedEvaluationTests.test_v2_rejects_same_provenance_and_split_failures_and_keeps_no_real_scores) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 8.290s
+
+OK

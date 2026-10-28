@@ -1,0 +1,312 @@
+{
+  "case": {
+    "cache_condition": "unverified_cold",
+    "case_manifest_sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+    "id": "S-dual_source-1",
+    "input_fingerprints": [
+      {
+        "bytes": 23424,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/network.pcap",
+        "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85"
+      },
+      {
+        "bytes": 3010,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/process.csv",
+        "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55"
+      },
+      {
+        "bytes": 2045,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/offline-profile.json",
+        "sha256": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281"
+      }
+    ],
+    "input_logical_records": 100,
+    "mode": "dual_source",
+    "repetition": 1,
+    "scale": "S"
+  },
+  "database_dump_returncode": 0,
+  "dev_run": true,
+  "environment": {
+    "commit": "e1ca1a71d12e95178f1e9564d6c3c0bdb2fedc40",
+    "cpu_count": 10,
+    "dirty": true,
+    "docker": {
+      "architecture": "aarch64",
+      "cpus": 10,
+      "driver": "overlayfs",
+      "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "memory_bytes": 8217448448,
+      "os": "Docker Desktop",
+      "version": "29.1.3"
+    },
+    "docker_ready": true,
+    "free_bytes": 32504471552,
+    "harness_sha256": "5e1264b12ba433a7c23db47d71b743251a596ddf22fcb8e06dd9ea65b93a6fab",
+    "machine": "arm64",
+    "memory_bytes": 17179869184,
+    "os_id": null,
+    "os_version": null,
+    "reference_environment_qualified": false,
+    "reference_refusal_reasons": [
+      "host_not_linux",
+      "host_not_ubuntu_24_04",
+      "host_not_x86_64",
+      "host_not_8_vcpu",
+      "ssd_unverified",
+      "docker_not_x86_64",
+      "docker_resources_below_proposed_profile"
+    ],
+    "source_tree_sha256": "04580c1176164e75e06921a9de9c404368cd3576a73b0f445aaa3aab12a76518",
+    "ssd_verified": false,
+    "system": "Darwin",
+    "tracked_diff_sha256": "3c3c378c7a5a346537e0820d6d061ea4848fde7d4ec3bb8ab24a8180f0bd82b0"
+  },
+  "error": null,
+  "error_type": null,
+  "finished_at": "2026-10-28T03:20:13.522156+00:00",
+  "measurements": {
+    "phase_breakdown": {
+      "association_seconds": null,
+      "cpu_seconds": null,
+      "parse_seconds": null,
+      "reason": "current runtime does not expose separate phase/CPU/RSS totals; raw sampled Docker stats retained; cannot satisfy complete R19 measurement gate",
+      "rss_peak_bytes": null,
+      "write_seconds": null
+    },
+    "result_api_verified": true,
+    "submit_through_verify_and_evidence_seconds": 97.619881584018,
+    "submit_to_terminal_seconds": 60.53603520899196
+  },
+  "private_evidence_root": "/private/tmp/cpag-r19-formal-s100-20261028-attempt2",
+  "private_record_sha256": "9c68ec41823ec118ef7e4113251c461d1940d7b6dce54002a65a9250ed600c16",
+  "reference_accepted": false,
+  "resource_profile": "r19-dev-s100-1",
+  "run_id": "7a6c844ead6d5b63e3c873ed1af9bb38",
+  "schema_version": "r19-capacity-measurement-1",
+  "stages": [
+    {
+      "elapsed_seconds": 0.8796525829820894,
+      "finished_at": "2026-10-28T03:18:29.584803+00:00",
+      "name": "environment_probe",
+      "started_at": "2026-10-28T03:18:28.704695+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 3.4999975468963385e-06,
+      "explicit_dev_override": true,
+      "finished_at": "2026-10-28T03:18:29.585480+00:00",
+      "name": "reference_environment_gate",
+      "reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "reference_environment_qualified": false,
+      "started_at": "2026-10-28T03:18:29.585185+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0019247499876655638,
+      "finished_at": "2026-10-28T03:18:29.588497+00:00",
+      "name": "raw_case_validation",
+      "started_at": "2026-10-28T03:18:29.586007+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0388776249892544,
+      "finished_at": "2026-10-28T03:18:29.628174+00:00",
+      "name": "worker_image_binding",
+      "started_at": "2026-10-28T03:18:29.588866+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 103.890390207991,
+      "finished_at": "2026-10-28T03:20:13.520197+00:00",
+      "name": "formal_chain_case",
+      "started_at": "2026-10-28T03:18:29.628869+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 2.0240815420111176,
+      "finished_at": "2026-10-28T03:18:31.727581+00:00",
+      "name": "build_formal_binaries",
+      "started_at": "2026-10-28T03:18:29.702972+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 2.0919768750027288,
+      "finished_at": "2026-10-28T03:18:33.820936+00:00",
+      "name": "database_start_and_migrations",
+      "started_at": "2026-10-28T03:18:31.728487+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.9250556670012884,
+      "finished_at": "2026-10-28T03:18:34.748932+00:00",
+      "name": "application_and_worker_start",
+      "started_at": "2026-10-28T03:18:33.822071+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.15896520798560232,
+      "finished_at": "2026-10-28T03:18:34.909684+00:00",
+      "name": "catalog_upload_preflight_config",
+      "started_at": "2026-10-28T03:18:34.750038+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 60.53506500000367,
+      "finished_at": "2026-10-28T03:19:35.447175+00:00",
+      "name": "submit_queue_container_to_terminal",
+      "started_at": "2026-10-28T03:18:34.910835+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 36.259976208006265,
+      "finished_at": "2026-10-28T03:20:11.709455+00:00",
+      "name": "retained_artifact_and_reference_verification",
+      "started_at": "2026-10-28T03:19:35.448732+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.8185899999807589,
+      "finished_at": "2026-10-28T03:20:12.530382+00:00",
+      "name": "evidence_query",
+      "original_evidence_items": 165,
+      "pages": [
+        {
+          "original_evidence_items": 100,
+          "page": {
+            "has_more": true,
+            "limit": 100,
+            "offset": 0,
+            "order": "canonical_source_reference",
+            "returned": 100,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.41855883301468566,
+          "response_bytes": 2237770
+        },
+        {
+          "original_evidence_items": 65,
+          "page": {
+            "has_more": false,
+            "limit": 100,
+            "offset": 100,
+            "order": "canonical_source_reference",
+            "returned": 65,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.3747985840018373,
+          "response_bytes": 2427531
+        }
+      ],
+      "query_seconds": 0.8185802500229329,
+      "response_bytes": 4665301,
+      "started_at": "2026-10-28T03:20:11.710892+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.8591460830066353,
+      "finished_at": "2026-10-28T03:20:13.391134+00:00",
+      "name": "retain_database_and_stop_disposable_services",
+      "started_at": "2026-10-28T03:20:12.531248+00:00",
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-10-28T03:18:28.704215+00:00",
+  "status": "development_case_measured_incomplete_gate",
+  "target": {
+    "active_attempts": 1,
+    "candidates": 100000,
+    "changes": 10000,
+    "configuration_bytes": 8388608,
+    "container_cpu_seconds": 6000,
+    "container_cpus": 4,
+    "container_memory_bytes": 8589934592,
+    "container_pids": 64,
+    "container_swap_memory_bytes": 8589934592,
+    "evidence_bytes": 8388608,
+    "evidence_items": 100,
+    "evidence_seconds": 10,
+    "frames": 100000,
+    "network_files": 4,
+    "network_per_file_bytes": 67108864,
+    "network_total_bytes": 134217728,
+    "operations": 10000,
+    "output_bytes": 1073741824,
+    "persistent_handoff_bytes": 4294967296,
+    "process_bytes": 8388608,
+    "process_columns": 16,
+    "process_records": 10000,
+    "temporary_disk_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "terminal": {
+    "attempt": 1,
+    "attempt_history": [
+      {
+        "attempt": 1,
+        "exited_at": "2026-10-28T11:19:18.02974+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:5ea8740b336a096689020adc",
+        "publication_state": "published"
+      }
+    ],
+    "config_version_id": "1d699a86027d74e6fc4ba6827ab97ca9",
+    "created_at": "2026-10-28T11:18:35.064182+08:00",
+    "dataset_id": "d67edb4882c03a1d107ad8af113b9e54",
+    "id": "7a6c844ead6d5b63e3c873ed1af9bb38",
+    "last_error": null,
+    "lease_valid": false,
+    "mode": "dual_source",
+    "network_file_ids": null,
+    "preflight_id": "d460989eff1d4d8e996496fcb078f74a",
+    "preflight_link_origin": "native_gate",
+    "replay_version": null,
+    "state": "succeeded"
+  },
+  "worker_attempts": [
+    {
+      "attempt": "attempt-1.worker",
+      "compute_measurements": {
+        "cpu_system_seconds": 0.835673,
+        "cpu_user_seconds": 25.357593,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 65429504,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 26.241366179000067
+      },
+      "compute_measurements_sha256": "8f7ed585754429bb521c07479a84928cda65fc6adc7c67570a096939207e44b2",
+      "image_id": "sha256:a2dfa3af7bfbc78054d0d4e8bbcc6867b85a4f7a9f72656a4211790b05c808ed",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "b4f14e226ef3527fc92a97a6e5ce70019d8df11577e1baf56f115abbd11248b9",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T03:19:17.888468795Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T03:18:35.836943512Z",
+        "Status": "exited"
+      }
+    }
+  ]
+}

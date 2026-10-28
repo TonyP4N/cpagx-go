@@ -18,8 +18,13 @@ from .evaluation import check_schema, digest, instant, validate_splits
 from .evaluation_artifacts import adapt_artifact, query_prediction
 from .pipeline import canonical
 from .evaluation_details import MATCHING_VERSION, DETAILS_VERSION
+from . import evaluation_details as details_api
+from .reference_inventory import build_inventory, verify_inventory, query_original, STATUS as ORIGINAL_STATUS
 
 VERSION='evaluation-bundle-1'
+V2_VERSION='evaluation-bundle-2'
+LEGACY_DOCUMENT_BYTES=8*1024*1024
+V2_DOCUMENT_BYTES=128*1024*1024
 FILES={'registration.json','split.json','adapted.json','annotations.json','references.json','result.json','freeze.json'}
 CUSTODY='local_clock_and_files_not_external_independence_proof'
 REFERENCE_STATUS='declared_independent_reference_not_original_bytes_verified'
@@ -27,6 +32,30 @@ FREEZE_FIELDS={'version','observed_frozen_at','registration_sha256','split_sha25
     'binding_sha256','matching','details_version','custody'}
 BINDING_FIELDS={'version','freeze_sha256','artifact_binding_sha256','annotations_sha256',
     'references_sha256','observed_opened_at','reference_status'}
+
+
+def document_limit(version):
+    if version==VERSION:return LEGACY_DOCUMENT_BYTES
+    if version==V2_VERSION:return V2_DOCUMENT_BYTES
+    raise ValueError('unsupported_evaluation_bundle_version')
+
+
+def files_for_version(version):
+    document_limit(version)
+    return FILES|{'reference_inventory.json'} if version==V2_VERSION else FILES
+
+
+def matching_pair(matching,detail=None):
+    return details_api.validate_matching_version(matching,detail)
+
+
+def enforce_document_limit(document):
+    if not isinstance(document,dict):raise ValueError('evaluation_document_inventory_invalid')
+    manifest=document.get('manifest.json')
+    if not isinstance(manifest,dict):raise ValueError('evaluation_document_inventory_invalid')
+    version=manifest.get('version')
+    if len(canonical(document))>document_limit(version):raise ValueError('evaluation_document_limit')
+    return version
 
 
 def exact_fields(value,fields,reason):
@@ -43,11 +72,15 @@ def checked_time(value):
 
 
 def validate_freeze(frozen,registration):
-    exact_fields(frozen,FREEZE_FIELDS,'frozen_contract_invalid')
-    if (frozen['version']!=VERSION or frozen['matching']!=MATCHING_VERSION
-            or frozen['details_version']!=DETAILS_VERSION or frozen['custody']!=CUSTODY):
+    if not isinstance(frozen,dict):raise ValueError('frozen_contract_invalid')
+    version=frozen.get('version');document_limit(version)
+    fields=FREEZE_FIELDS|{'reference_inventory_sha256'} if version==V2_VERSION else FREEZE_FIELDS
+    exact_fields(frozen,fields,'frozen_contract_invalid')
+    matching_pair(frozen['matching'],frozen['details_version'])
+    if ((version==VERSION and (frozen['matching']!=MATCHING_VERSION or frozen['details_version']!=DETAILS_VERSION))
+            or frozen['custody']!=CUSTODY):
         raise ValueError('unsupported_evaluation_version_or_custody')
-    if any(not valid_digest(frozen[name]) for name in FREEZE_FIELDS if name.endswith('_sha256')):
+    if any(not valid_digest(frozen[name]) for name in fields if name.endswith('_sha256')):
         raise ValueError('frozen_digest_invalid')
     observed=checked_time(frozen['observed_frozen_at']);registered=checked_time(registration['registered_at'])
     opening=checked_time(registration['holdout_opened_at'])
@@ -66,20 +99,22 @@ def validate_references(annotations,references):
         if not valid_digest(value['sha256']):raise ValueError('reference_hash_invalid')
 
 
-def validate_bundle_binding(binding):
-    exact_fields(binding,BINDING_FIELDS,'evaluation_binding_contract_invalid')
-    if binding['version']!=VERSION or binding['reference_status']!=REFERENCE_STATUS:
+def validate_bundle_binding(binding,version=VERSION):
+    fields=BINDING_FIELDS|{'reference_inventory_sha256'} if version==V2_VERSION else BINDING_FIELDS
+    exact_fields(binding,fields,'evaluation_binding_contract_invalid')
+    status=ORIGINAL_STATUS if version==V2_VERSION else REFERENCE_STATUS
+    if binding['version']!=version or binding['reference_status']!=status:
         raise ValueError('evaluation_binding_version_or_reference_status_invalid')
-    if any(not valid_digest(binding[name]) for name in BINDING_FIELDS if name.endswith('_sha256')):
+    if any(not valid_digest(binding[name]) for name in fields if name.endswith('_sha256')):
         raise ValueError('evaluation_binding_digest_invalid')
     checked_time(binding['observed_opened_at'])
 
 
-def read(path):
+def read(path,*,limit=LEGACY_DOCUMENT_BYTES):
     path=Path(path)
-    if path.is_symlink() or not path.is_file() or path.stat().st_size>8*1024*1024:
+    if path.is_symlink() or not path.is_file() or path.stat().st_size>limit:
         raise ValueError('ordinary_bounded_json_required')
-    return strict_json(path.read_text())
+    return strict_json(path.read_text(encoding='utf-8'))
 
 
 def write(path,value):
@@ -106,7 +141,14 @@ def publish(destination,values):
         raise
 
 
-def freeze(artifact,split,registration,output,*,batch,sample_sha256,projection='dual'):
+def freeze(artifact,split,registration,output,*,batch,sample_sha256,projection='dual',
+           matching_version=MATCHING_VERSION,bundle_version=VERSION,reference_inventory=None):
+    document_limit(bundle_version);detail_version=matching_pair(matching_version)
+    if bundle_version==VERSION and matching_version!=MATCHING_VERSION:
+        raise ValueError('new_matching_requires_explicit_bundle_v2')
+    if bundle_version==V2_VERSION:
+        verify_inventory(reference_inventory)
+    elif reference_inventory is not None:raise ValueError('reference_originals_require_explicit_bundle_v2')
     check_schema('EvaluationRegistration',registration);validate_splits(split)
     if registration['split_sha256']!=digest(split):raise ValueError('split_not_registered')
     if instant(registration['registered_at'])>=instant(registration['holdout_opened_at']):
@@ -122,12 +164,16 @@ def freeze(artifact,split,registration,output,*,batch,sample_sha256,projection='
     # Artifact verification may be expensive. The frozen observation is taken
     # after those inputs are fixed, never from the beginning of the operation.
     observed=datetime.now(timezone.utc).isoformat()
-    frozen={'version':VERSION,'observed_frozen_at':observed,'registration_sha256':digest(registration),
+    frozen={'version':bundle_version,'observed_frozen_at':observed,'registration_sha256':digest(registration),
         'split_sha256':digest(split),'adapted_sha256':digest(adapted),'binding_sha256':digest(adapted['binding']),
-        'matching':MATCHING_VERSION,'details_version':DETAILS_VERSION,
+        'matching':matching_version,'details_version':detail_version,
         'custody':CUSTODY}
+    if bundle_version==V2_VERSION:frozen['reference_inventory_sha256']=digest(reference_inventory)
     validate_freeze(frozen,registration)
-    publish(output,{'registration.json':registration,'split.json':split,'adapted.json':adapted,'freeze.json':frozen})
+    payload={'registration.json':registration,'split.json':split,'adapted.json':adapted,'freeze.json':frozen}
+    if bundle_version==V2_VERSION:payload['reference_inventory.json']=reference_inventory
+    if bundle_version==V2_VERSION and len(canonical(payload))>document_limit(bundle_version):raise ValueError('evaluation_document_limit')
+    publish(output,payload)
     completed=instant(datetime.now(timezone.utc).isoformat())
     if completed<instant(observed) or completed>=instant(registration['holdout_opened_at']):
         shutil.rmtree(Path(output).absolute())
@@ -137,7 +183,12 @@ def freeze(artifact,split,registration,output,*,batch,sample_sha256,projection='
 
 def frozen_inputs(root,artifact):
     root=Path(root)
-    values={n:read(root/(n+'.json')) for n in ('registration','split','adapted','freeze')}
+    frozen=read(root/'freeze.json');limit=document_limit(frozen.get('version'))
+    values={n:read(root/(n+'.json'),limit=limit) for n in ('registration','split','adapted','freeze')}
+    if frozen['version']==V2_VERSION:
+        inventory=read(root/'reference_inventory.json',limit=limit);verify_inventory(inventory)
+        if digest(inventory)!=frozen.get('reference_inventory_sha256'):raise ValueError('frozen_reference_original_inventory_changed')
+        values['reference_inventory']=inventory
     f=values['freeze']
     registration=values['registration'];check_schema('EvaluationRegistration',registration)
     validate_splits(values['split']);validate_freeze(f,registration)
@@ -162,34 +213,47 @@ def evaluate_bundle(frozen,artifact,annotations,references,output):
     if instant(opened)<instant(values['registration']['holdout_opened_at']):raise ValueError('holdout_not_open')
     if instant(opened)<=instant(values['freeze']['observed_frozen_at']):raise ValueError('invalid_system_opening_order')
     validate_references(annotations,references)
-    result=evaluate_detailed(values['adapted']['predictions'],annotations,values['split'],values['registration'])
-    result['bundle_binding']={'version':VERSION,'freeze_sha256':digest(values['freeze']),
+    version=values['freeze']['version']
+    if version==V2_VERSION:verify_inventory(values['reference_inventory'],references)
+    result=evaluate_detailed(values['adapted']['predictions'],annotations,values['split'],values['registration'],matching_version=values['freeze']['matching'])
+    result['bundle_binding']={'version':version,'freeze_sha256':digest(values['freeze']),
         'artifact_binding_sha256':digest(values['adapted']['binding']),'annotations_sha256':digest(annotations),
         'references_sha256':digest(references),'observed_opened_at':opened,
-        'reference_status':REFERENCE_STATUS}
+        'reference_status':ORIGINAL_STATUS if version==V2_VERSION else REFERENCE_STATUS}
+    if version==V2_VERSION:result['bundle_binding']['reference_inventory_sha256']=digest(values['reference_inventory'])
     payload={n+'.json':v for n,v in values.items()}
     payload.update({'annotations.json':annotations,'references.json':references,'result.json':result})
-    manifest={'version':VERSION,'files':{n:digest(v) for n,v in payload.items()}}
-    publish(output,{**payload,'manifest.json':manifest})
+    manifest={'version':version,'files':{n:digest(v) for n,v in payload.items()}}
+    document={**payload,'manifest.json':manifest}
+    if version==V2_VERSION:enforce_document_limit(document)
+    publish(output,document)
     return result
 
 
 def verify_bundle(root,artifact):
     root=Path(root);manifest=read(root/'manifest.json')
     exact_fields(manifest,{'version','files'},'evaluation_manifest_contract_invalid')
-    exact_fields(manifest['files'],FILES,'evaluation_manifest_files_contract_invalid')
-    if manifest.get('version')!=VERSION or set(manifest.get('files',{}))!=FILES or {p.name for p in root.iterdir()}!=FILES|{'manifest.json'}:
+    version=manifest['version'];files=files_for_version(version);limit=document_limit(version)
+    exact_fields(manifest['files'],files,'evaluation_manifest_files_contract_invalid')
+    if {p.name for p in root.iterdir()}!=files|{'manifest.json'}:
         raise ValueError('evaluation_inventory_invalid')
     if any(not valid_digest(value) for value in manifest['files'].values()):raise ValueError('evaluation_manifest_digest_invalid')
-    values={n:read(root/n) for n in FILES}
+    values={n:read(root/n,limit=limit) for n in files}
+    # Historical directory bundles were bounded per file. Keep that reader
+    # contract; transport/database documents retain their separate 8 MiB cap.
+    if version==V2_VERSION:enforce_document_limit({**values,'manifest.json':manifest})
     for name,value in values.items():
         if digest(value)!=manifest['files'][name]:raise ValueError('evaluation_file_changed')
     frozen_inputs(root,artifact)
+    if values['freeze.json']['version']!=version:raise ValueError('evaluation_bundle_version_mismatch')
     validate_references(values['annotations.json'],values['references.json'])
     from .evaluation_details import evaluate_detailed
-    expected=evaluate_detailed(values['adapted.json']['predictions'],values['annotations.json'],values['split.json'],values['registration.json'])
+    if version==V2_VERSION:verify_inventory(values['reference_inventory.json'],values['references.json'])
+    expected=evaluate_detailed(values['adapted.json']['predictions'],values['annotations.json'],values['split.json'],values['registration.json'],matching_version=values['freeze.json']['matching'])
     result=values['result.json'];binding=result.get('bundle_binding',{})
-    validate_bundle_binding(binding)
+    validate_bundle_binding(binding,version)
+    if version==V2_VERSION and binding['reference_inventory_sha256']!=digest(values['reference_inventory.json']):
+        raise ValueError('evaluation_reference_inventory_binding_changed')
     if {k:v for k,v in result.items() if k!='bundle_binding'}!=expected:raise ValueError('evaluation_result_changed')
     for name,key in [('annotations','annotations_sha256'),('references','references_sha256'),('freeze','freeze_sha256')]:
         if binding.get(key)!=digest(values[name+'.json']):raise ValueError('evaluation_binding_changed')
@@ -201,15 +265,19 @@ def verify_bundle(root,artifact):
 
 def query_error(root,artifact,identity,*,reference=False):
     verify_bundle(root,artifact)
+    version=read(Path(root)/'manifest.json')['version'];limit=document_limit(version)
     if reference:
-        refs=read(Path(root)/'references.json')
+        refs=read(Path(root)/'references.json',limit=limit)
         if identity not in refs:raise ValueError('reference_not_found')
+        if version==V2_VERSION:
+            return query_original(read(Path(root)/'reference_inventory.json',limit=V2_DOCUMENT_BYTES),refs,identity)
         return {'annotation_id':identity,'reference':refs[identity], 'status':'independent_declared_reference_not_original_bytes_verified'}
-    return query_prediction(artifact,read(Path(root)/'adapted.json'),identity)
+    return query_prediction(artifact,read(Path(root)/'adapted.json',limit=limit),identity)
 
 
 def verify_document(document,artifact,*,identity=None,reference=False):
-    if not isinstance(document,dict) or set(document)!=FILES|{'manifest.json'}:
+    version=enforce_document_limit(document)
+    if set(document)!=files_for_version(version)|{'manifest.json'}:
         raise ValueError('evaluation_document_inventory_invalid')
     with tempfile.TemporaryDirectory(prefix='cpag-evaluation-review-') as work:
         root=Path(work)
@@ -225,6 +293,9 @@ def main():
     f=sub.add_parser('freeze')
     for key in ('artifact','split','registration','output','batch','sample-sha256'):f.add_argument('--'+key,required=True)
     f.add_argument('--projection',choices=('network','process','dual'),default='dual')
+    f.add_argument('--bundle-version',choices=(VERSION,V2_VERSION),default=VERSION)
+    f.add_argument('--matching-version',default=MATCHING_VERSION)
+    f.add_argument('--reference-root');f.add_argument('--reference-files')
     e=sub.add_parser('evaluate')
     for key in ('frozen','artifact','annotations','references','output'):e.add_argument('--'+key,required=True)
     v=sub.add_parser('verify');v.add_argument('--bundle',required=True);v.add_argument('--artifact',required=True)
@@ -233,11 +304,21 @@ def main():
     a=p.parse_args()
     try:
         if a.command=='verify-document':
-            data=sys.stdin.buffer.read(8*1024*1024+1)
-            if len(data)>8*1024*1024:raise ValueError('evaluation_document_limit')
+            data=sys.stdin.buffer.read(V2_DOCUMENT_BYTES+1)
+            if len(data)>V2_DOCUMENT_BYTES:raise ValueError('evaluation_document_limit')
             result=verify_document(strict_json(data.decode('utf-8')),a.artifact,identity=a.id,reference=a.reference)
-        elif a.command=='freeze':result=freeze(a.artifact,read(a.split),read(a.registration),a.output,batch=a.batch,sample_sha256=a.sample_sha256,projection=a.projection)
-        elif a.command=='evaluate':result=evaluate_bundle(a.frozen,a.artifact,read(a.annotations),read(a.references),a.output)
+        elif a.command=='freeze':
+            inventory=None
+            if a.bundle_version==V2_VERSION:
+                if not a.reference_root or not a.reference_files:raise ValueError('controlled_reference_inventory_required')
+                inventory=build_inventory(a.reference_root,read(a.reference_files))
+            elif a.reference_root or a.reference_files:raise ValueError('reference_originals_require_explicit_bundle_v2')
+            result=freeze(a.artifact,read(a.split,limit=document_limit(a.bundle_version)),read(a.registration),a.output,
+                batch=a.batch,sample_sha256=a.sample_sha256,projection=a.projection,
+                matching_version=a.matching_version,bundle_version=a.bundle_version,reference_inventory=inventory)
+        elif a.command=='evaluate':
+            limit=document_limit(read(Path(a.frozen)/'freeze.json')['version'])
+            result=evaluate_bundle(a.frozen,a.artifact,read(a.annotations,limit=limit),read(a.references,limit=limit),a.output)
         elif a.command=='verify':result=verify_bundle(a.bundle,a.artifact)
         else:result=query_error(a.bundle,a.artifact,a.id,reference=a.reference)
         print(json.dumps(result,sort_keys=True,allow_nan=False));return 0

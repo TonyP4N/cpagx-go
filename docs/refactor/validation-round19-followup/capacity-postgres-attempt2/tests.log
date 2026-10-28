@@ -1,0 +1,6 @@
+=== RUN   TestSiteCapacityPolicySerializesAllUnexitedAttempts
+    capacity_test.go:68: ERROR: new row for relation "m4_jobs" violates check constraint "m4_jobs_check" (SQLSTATE 23514)
+--- FAIL: TestSiteCapacityPolicySerializesAllUnexitedAttempts (0.11s)
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobs/integration	0.898s
+FAIL

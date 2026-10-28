@@ -14,6 +14,15 @@ DETAILS_VERSION = '1.0.0'
 MATCHING_VERSION = 'legacy-ordered-augmenting-path-v1'
 SUPPORTED_KINDS = ('network_operation', 'process_change', 'operation', 'change')
 EVENT_LIMIT = 500
+V2_MATCHING_VERSION = 'indexed-temporal-one-to-one-v2'
+V2_DETAILS_VERSION = '2.0.0'
+EVALUATION_VERSIONS = {MATCHING_VERSION: DETAILS_VERSION, V2_MATCHING_VERSION: V2_DETAILS_VERSION}
+
+
+def validate_matching_version(matching, details=None):
+    if not isinstance(matching, str) or matching not in EVALUATION_VERSIONS or (details is not None and EVALUATION_VERSIONS[matching] != details):
+        raise ValueError('unsupported_evaluation_matching_or_details_version')
+    return EVALUATION_VERSIONS[matching]
 
 
 def _interval(start, end):
@@ -73,8 +82,8 @@ def _metrics(tp, fp, fn, normal_fp, seconds, enabled):
             'normal_hours': seconds / 3600 if seconds else None}
 
 
-def evaluate_detailed(predictions, annotations, split, registration):
-    """Evaluate at most 500 events per side and explain the legacy calculation.
+def evaluate_detailed(predictions, annotations, split, registration, *, matching_version=MATCHING_VERSION):
+    """Default to the unchanged 500-event legacy calculation; V2 is explicit.
 
     The legacy return keys and values remain identical. ``details`` is a new,
     separately versioned sidecar. A maximum-cardinality tie is resolved using
@@ -82,6 +91,10 @@ def evaluate_detailed(predictions, annotations, split, registration):
     there is no claim of minimum distance or permutation-invariant assignment.
     The caller's frozen bundle must bind these ordered inputs and this policy.
     """
+    validate_matching_version(matching_version)
+    if matching_version == V2_MATCHING_VERSION:
+        from .evaluation_indexed import evaluate_indexed
+        return evaluate_indexed(predictions, annotations, split, registration)
     legacy = evaluate(predictions, annotations, split, registration)
     for dataset in (predictions, annotations):
         if any(event['kind'] not in SUPPORTED_KINDS for event in dataset['events']):

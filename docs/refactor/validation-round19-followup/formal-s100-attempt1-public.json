@@ -1,0 +1,336 @@
+{
+  "case": {
+    "cache_condition": "unverified_cold",
+    "case_manifest_sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+    "id": "S-dual_source-1",
+    "input_fingerprints": [
+      {
+        "bytes": 23424,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/network.pcap",
+        "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85"
+      },
+      {
+        "bytes": 3010,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/process.csv",
+        "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55"
+      },
+      {
+        "bytes": 2045,
+        "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/docs/refactor/validation-round19/capacity-S-raw-attempt2/offline-profile.json",
+        "sha256": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281"
+      }
+    ],
+    "input_logical_records": 100,
+    "mode": "dual_source",
+    "repetition": 1,
+    "scale": "S"
+  },
+  "database_dump_returncode": 0,
+  "dev_run": true,
+  "environment": {
+    "commit": "e1ca1a71d12e95178f1e9564d6c3c0bdb2fedc40",
+    "cpu_count": 10,
+    "dirty": true,
+    "docker": {
+      "architecture": "aarch64",
+      "cpus": 10,
+      "driver": "overlayfs",
+      "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "memory_bytes": 8217448448,
+      "os": "Docker Desktop",
+      "version": "29.1.3"
+    },
+    "docker_ready": true,
+    "free_bytes": 37449302016,
+    "harness_sha256": "0ab1c0c8967a809b892606d999dafd14400fcd9e729deceb01123cb3b75bcbdc",
+    "machine": "arm64",
+    "memory_bytes": 17179869184,
+    "os_id": null,
+    "os_version": null,
+    "reference_environment_qualified": false,
+    "reference_refusal_reasons": [
+      "host_not_linux",
+      "host_not_ubuntu_24_04",
+      "host_not_x86_64",
+      "host_not_8_vcpu",
+      "ssd_unverified",
+      "docker_not_x86_64",
+      "docker_resources_below_proposed_profile"
+    ],
+    "source_tree_sha256": "3424cefa6d0dafeffc3babca2c80e0db5058288b622c7ec0f467f19925aaa672",
+    "ssd_verified": false,
+    "system": "Darwin",
+    "tracked_diff_sha256": "36c1d4ad8349aecd02f5b01ec17c6f4c829e0e1a18b03a61fe7e09a0d32c0c2d"
+  },
+  "error": "formal_worker_terminal_failed",
+  "error_type": "RuntimeError",
+  "finished_at": "2026-10-28T03:15:06.074424+00:00",
+  "measurements": {
+    "phase_breakdown": {
+      "association_seconds": null,
+      "cpu_seconds": null,
+      "parse_seconds": null,
+      "reason": "not reached or unavailable; current runtime has no complete phase/CPU/RSS instrumentation",
+      "rss_peak_bytes": null,
+      "write_seconds": null
+    },
+    "submit_to_terminal_seconds": 206.45997754100244
+  },
+  "private_evidence_root": "/private/tmp/cpag-r19-formal-s100-20261028-attempt1",
+  "private_record_sha256": "06c96a894b1df0e0ccd61d3d011aae2a0fa3dd75e56ff4dc3838e942f54591da",
+  "reference_accepted": false,
+  "run_id": "15a2dc267bd9a46634095970a8129c53",
+  "schema_version": "r19-capacity-measurement-1",
+  "stages": [
+    {
+      "elapsed_seconds": 0.9048044579976704,
+      "finished_at": "2026-10-28T03:11:26.622848+00:00",
+      "name": "environment_probe",
+      "started_at": "2026-10-28T03:11:25.717198+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 3.208988346159458e-06,
+      "explicit_dev_override": true,
+      "finished_at": "2026-10-28T03:11:26.623804+00:00",
+      "name": "reference_environment_gate",
+      "reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "reference_environment_qualified": false,
+      "started_at": "2026-10-28T03:11:26.623386+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0018678749911487103,
+      "finished_at": "2026-10-28T03:11:26.626618+00:00",
+      "name": "raw_case_validation",
+      "started_at": "2026-10-28T03:11:26.624356+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0406662079913076,
+      "finished_at": "2026-10-28T03:11:26.668175+00:00",
+      "name": "worker_image_binding",
+      "started_at": "2026-10-28T03:11:26.627059+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 219.40316016599536,
+      "error": "formal_worker_terminal_failed",
+      "error_type": "RuntimeError",
+      "finished_at": "2026-10-28T03:15:06.073514+00:00",
+      "name": "formal_chain_case",
+      "started_at": "2026-10-28T03:11:26.668815+00:00",
+      "status": "failed"
+    },
+    {
+      "elapsed_seconds": 2.229964625003049,
+      "finished_at": "2026-10-28T03:11:28.993098+00:00",
+      "name": "build_formal_binaries",
+      "started_at": "2026-10-28T03:11:26.762431+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 2.4015340839978307,
+      "finished_at": "2026-10-28T03:11:31.395968+00:00",
+      "name": "database_start_and_migrations",
+      "started_at": "2026-10-28T03:11:28.994011+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.9052462080144323,
+      "finished_at": "2026-10-28T03:11:32.304047+00:00",
+      "name": "application_and_worker_start",
+      "started_at": "2026-10-28T03:11:31.396903+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.13927729200804606,
+      "finished_at": "2026-10-28T03:11:32.444615+00:00",
+      "name": "catalog_upload_preflight_config",
+      "started_at": "2026-10-28T03:11:32.304887+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 206.46481691699591,
+      "error": "formal_worker_terminal_failed",
+      "error_type": "RuntimeError",
+      "finished_at": "2026-10-28T03:14:58.915563+00:00",
+      "name": "submit_queue_container_to_terminal",
+      "started_at": "2026-10-28T03:11:32.446486+00:00",
+      "status": "failed"
+    },
+    {
+      "elapsed_seconds": 7.146320250001736,
+      "finished_at": "2026-10-28T03:15:06.069714+00:00",
+      "name": "retain_database_and_stop_disposable_services",
+      "started_at": "2026-10-28T03:14:58.919125+00:00",
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-10-28T03:11:25.716564+00:00",
+  "status": "failed",
+  "target": {
+    "active_attempts": 1,
+    "candidates": 100000,
+    "changes": 10000,
+    "configuration_bytes": 8388608,
+    "container_cpu_seconds": 6000,
+    "container_cpus": 4,
+    "container_memory_bytes": 8589934592,
+    "container_pids": 64,
+    "container_swap_memory_bytes": 8589934592,
+    "evidence_bytes": 8388608,
+    "evidence_items": 100,
+    "evidence_seconds": 10,
+    "frames": 100000,
+    "network_files": 4,
+    "network_per_file_bytes": 67108864,
+    "network_total_bytes": 134217728,
+    "operations": 10000,
+    "output_bytes": 1073741824,
+    "persistent_handoff_bytes": 4294967296,
+    "process_bytes": 8388608,
+    "process_columns": 16,
+    "process_records": 10000,
+    "temporary_disk_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "terminal": {
+    "attempt": 3,
+    "attempt_history": [
+      {
+        "attempt": 1,
+        "exited_at": "2026-10-28T11:12:19.180505+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:f783cc785e1d96573dd403e1",
+        "publication_state": "fenced"
+      },
+      {
+        "attempt": 2,
+        "exited_at": "2026-10-28T11:13:37.503754+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:f783cc785e1d96573dd403e1",
+        "publication_state": "fenced"
+      },
+      {
+        "attempt": 3,
+        "exited_at": "2026-10-28T11:14:40.357407+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:f783cc785e1d96573dd403e1",
+        "publication_state": "fenced"
+      }
+    ],
+    "config_version_id": "29a6a6fd2d92cc46081ca3459ac19185",
+    "created_at": "2026-10-28T11:11:32.692424+08:00",
+    "dataset_id": "942cc9998bb3a08417c9082935f3da0b",
+    "id": "15a2dc267bd9a46634095970a8129c53",
+    "last_error": "lease expired at attempt limit",
+    "lease_valid": false,
+    "mode": "dual_source",
+    "network_file_ids": null,
+    "preflight_id": "683d9ba3a2c33aea7d69e58ec8fac630",
+    "preflight_link_origin": "native_gate",
+    "replay_version": null,
+    "state": "failed"
+  },
+  "worker_attempts": [
+    {
+      "attempt": "attempt-1.worker",
+      "failure": {
+        "compute_returncode": null,
+        "error": "timed out",
+        "failure_category": "TimeoutError"
+      },
+      "failure_sha256": "fe7010737ba4e71528ece8bd2297e1f270c5a430a8dc0186dc5c357d7a07268e",
+      "image_id": "sha256:e6328ead3a9ca3201fe0ba06ba24fe85b3387bcc9ce32f09175c0ab5aa8e0a80",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "3915323e082eebba0ce25d68b3912d4581726fb92fdd67c02d197241f8b3762a",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T03:12:18.886012879Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T03:11:33.666739553Z",
+        "Status": "exited"
+      }
+    },
+    {
+      "attempt": "attempt-2.worker",
+      "failure": {
+        "compute_returncode": null,
+        "error": "timed out",
+        "failure_category": "TimeoutError"
+      },
+      "failure_sha256": "fe7010737ba4e71528ece8bd2297e1f270c5a430a8dc0186dc5c357d7a07268e",
+      "image_id": "sha256:e6328ead3a9ca3201fe0ba06ba24fe85b3387bcc9ce32f09175c0ab5aa8e0a80",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "5324492f1eb6024d4054fb1611d1a0481fdc0c2c619a3231b98ae10664b6cdfe",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T03:13:37.357697971Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T03:12:39.286600125Z",
+        "Status": "exited"
+      }
+    },
+    {
+      "attempt": "attempt-3.worker",
+      "failure": {
+        "compute_returncode": null,
+        "error": "timed out",
+        "failure_category": "TimeoutError"
+      },
+      "failure_sha256": "fe7010737ba4e71528ece8bd2297e1f270c5a430a8dc0186dc5c357d7a07268e",
+      "image_id": "sha256:e6328ead3a9ca3201fe0ba06ba24fe85b3387bcc9ce32f09175c0ab5aa8e0a80",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "6fd50d8504821ddc655d67c11a97ee321279ebee0e40cf29bdde63f98a317796",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T03:14:40.232019375Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T03:13:55.878709008Z",
+        "Status": "exited"
+      }
+    }
+  ]
+}

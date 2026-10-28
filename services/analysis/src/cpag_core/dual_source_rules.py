@@ -5,6 +5,7 @@ import re
 from fractions import Fraction
 from .contracts import validate
 from .pipeline import fingerprint
+from .capacity import resolve_capacity_profile
 
 MODE = 'bounded-real-capable-v1'
 REAL_LIMITATIONS = ['real_source_unvalidated', 'source_and_authorization_references_not_independently_verified',
@@ -33,6 +34,9 @@ def validity(item, interval):
 
 def validate_profile(config):
     validate('DualSourceProfile', config)
+    budget = resolve_capacity_profile(config)
+    if budget.version and 'replay' in config:
+        raise ValueError('capacity_replay_requires_versioned_history_integration')
     extended = config.get('analysis_mode') == MODE
     if 'replay' in config and not extended:
         raise ValueError('replay_requires_bounded_analysis_mode')

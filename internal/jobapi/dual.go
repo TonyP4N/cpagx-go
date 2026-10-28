@@ -21,6 +21,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"github.com/TonyP4N/cpagx-go/internal/contracts"
 	"github.com/TonyP4N/cpagx-go/internal/jobs"
 )
@@ -58,11 +59,11 @@ func (s *Server) VerifiedDualArtifacts(r *http.Request, id string) ([]struct {
 	SHA  string `json:"sha256"`
 	Size int64  `json:"size_bytes"`
 }, string, error) {
-	base, _, _, err := s.publishedDual(r, id)
+	base, p, _, err := s.publishedDual(r, id)
 	if err != nil {
 		return nil, "", err
 	}
-	value, err := s.readDualJSON(base, "manifest.json")
+	value, err := s.readDualJSON(base, "manifest.json", p)
 	if err != nil {
 		return nil, "", err
 	}
@@ -352,10 +353,22 @@ func intValue(v any) (int, bool) {
 	i, e := n.Int64()
 	return int(i), e == nil && int64(int(i)) == i
 }
-func (s *Server) readDualJSON(base, name string) (any, error) {
+func (s *Server) readDualJSON(base, name string, selected ...Payload) (any, error) {
 	path, err := s.file(base + name)
 	if err != nil {
 		return nil, err
+	}
+	resourceProfile := s.ResourceProfile
+	if len(selected) > 0 {
+		resourceProfile = selected[0].ResourceProfile
+	}
+	limit, err := capacity.ArtifactBytes(resourceProfile)
+	if err != nil {
+		return nil, err
+	}
+	info, err := os.Stat(path)
+	if err != nil || !info.Mode().IsRegular() || info.Size() > limit {
+		return nil, errors.New("dual JSON exceeds operator resource byte budget")
 	}
 	raw, err := os.ReadFile(path)
 	if err != nil {
@@ -446,12 +459,12 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	if len(parts) != 3 || parts[0] != "jobs" || core["run_id"] != parts[1] || parts[2] != fmt.Sprintf("attempt-%d", attempt) || attempt < 1 {
 		return errors.New("dual core attempt identity mismatch")
 	}
-	dualValue, err := s.readDualJSON(base, "dual/manifest.json")
+	dualValue, err := s.readDualJSON(base, "dual/manifest.json", p)
 	if err != nil {
 		return err
 	}
 	refs, _ := p.networkRefs()
-	profile, err := s.readDualJSON(base, "dual/sources/profile.json")
+	profile, err := s.readDualJSON(base, "dual/sources/profile.json", p)
 	if err != nil {
 		return err
 	}
@@ -495,15 +508,15 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 		if !ok || !shaPattern.MatchString(digest) || (expected != "" && digest != expected) {
 			return errors.New("dual source hash mismatch: " + name)
 		}
-		if _, err := s.check(Ref{base + "dual/" + name, digest}); err != nil {
+		if _, err := s.checkArtifact(p, Ref{base + "dual/" + name, digest}); err != nil {
 			return err
 		}
 	}
-	analysis, err := s.readDualJSON(base, "analysis.json")
+	analysis, err := s.readDualJSON(base, "analysis.json", p)
 	if err != nil {
 		return err
 	}
-	retained, err := s.readDualJSON(base, "dual/analysis.json")
+	retained, err := s.readDualJSON(base, "dual/analysis.json", p)
 	if err != nil {
 		return err
 	}
@@ -514,7 +527,19 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	if !ok || a["schema_version"] != "1.0.0" || a["synthetic"] != synthetic || a["analysis_version"] != version || a["config_fingerprint"] != p.Fingerprint || a["input_fingerprint"] != core["input_fingerprint"] {
 		return errors.New("invalid dual analysis identity")
 	}
-	profile, err = s.readDualJSON(base, "dual/sources/profile.json")
+	budget, err := readPayloadBudget(p, profileDoc)
+	if err != nil {
+		return err
+	}
+	if budget.Version != "" {
+		for key, limit := range map[string]int{"operations": budget.Operations, "changes": budget.Changes, "candidates": budget.Candidates} {
+			rows, yes := arr(a[key])
+			if !yes || len(rows) > limit {
+				return fmt.Errorf("analysis %s exceeds capacity budget", key)
+			}
+		}
+	}
+	profile, err = s.readDualJSON(base, "dual/sources/profile.json", p)
 	if err != nil {
 		return err
 	}
@@ -522,19 +547,19 @@ func (s *Server) validateDual(base string, p Payload, wrapper Manifest, coreRaw 
 	if err != nil || fp != p.Fingerprint {
 		return errors.New("dual profile fingerprint mismatch")
 	}
-	events, err := s.readDualJSON(base, "events.json")
+	events, err := s.readDualJSON(base, "events.json", p)
 	if err != nil {
 		return err
 	}
-	graph, err := s.readDualJSON(base, "graph.json")
+	graph, err := s.readDualJSON(base, "graph.json", p)
 	if err != nil {
 		return err
 	}
-	dataset, err := s.readDualJSON(base, "dataset.json")
+	dataset, err := s.readDualJSON(base, "dataset.json", p)
 	if err != nil {
 		return err
 	}
-	quality, err := s.readDualJSON(base, "quality.json")
+	quality, err := s.readDualJSON(base, "quality.json", p)
 	if err != nil {
 		return err
 	}
@@ -815,7 +840,15 @@ func (s *Server) validateDualReferences(base string, p Payload, analysis, graph 
 	records.FieldsPerRecord = -1
 	records.ReuseRecord = false
 	table, err := records.ReadAll()
-	if err != nil || len(table) < 2 || len(table) > 1002 {
+	budget, budgetErr := payloadLimits(p)
+	if budgetErr != nil {
+		return budgetErr
+	}
+	maxRows := 1002
+	if budget.Version != "" {
+		maxRows = budget.ProcessRecords + 1
+	}
+	if err != nil || len(table) < 2 || len(table) > maxRows || len(table[0]) > budget.ProcessColumns {
 		return errors.New("invalid dual process source")
 	}
 	headers := map[string]int{}
@@ -833,7 +866,7 @@ func (s *Server) validateDualReferences(base string, p Payload, analysis, graph 
 			return errors.New("invalid process record width")
 		}
 	}
-	profile, err := s.readDualJSON(base, "dual/sources/profile.json")
+	profile, err := s.readDualJSON(base, "dual/sources/profile.json", p)
 	if err != nil {
 		return err
 	}
@@ -959,7 +992,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if st.State != "succeeded" || !dualFamily(p.Kind) || st.ArtifactSHA256 == nil || st.ArtifactPath == nil {
 		return "", p, nil, errors.New("dual-source result unavailable")
 	}
-	if err := s.validPayload(p); err != nil {
+	if err := s.validHistoricalPayload(p); err != nil {
 		return "", p, nil, err
 	}
 	key, err := jobs.ArtifactKey(jobs.Claim{ID: id, Attempt: st.Attempt}, *st.ArtifactSHA256)
@@ -973,7 +1006,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if _, err = s.check(Ref{Path: base + "manifest.json", SHA: *st.ArtifactSHA256}); err != nil {
 		return "", p, nil, err
 	}
-	publication, err := s.readDualJSON(base, "manifest.json")
+	publication, err := s.readDualJSON(base, "manifest.json", p)
 	if err != nil {
 		return "", p, nil, err
 	}
@@ -1030,7 +1063,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			return "", p, nil, errors.New("duplicate dual artifact")
 		}
 		seen[entry.Path] = true
-		n, err := s.check(Ref{Path: base + entry.Path, SHA: entry.SHA})
+		n, err := s.checkArtifact(p, Ref{Path: base + entry.Path, SHA: entry.SHA})
 		if err != nil || n != entry.Size {
 			return "", p, nil, errors.New("published dual artifact changed: " + entry.Path)
 		}
@@ -1039,6 +1072,23 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 		if !seen[name] {
 			return "", p, nil, errors.New("missing dual published artifact")
 		}
+	}
+	// Only immutable, fully verified publications enter the single-entry cache.
+	// Database identity, every input/artifact hash and inventory are still checked
+	// on every call above/below; no file stat or cache hit substitutes for bytes.
+	cacheKey := base + *st.ArtifactSHA256 + p.ResourceProfile
+	cacheEnabled := p.Kind == "dual-source" && p.ResourceProfile != ""
+	if cacheEnabled {
+		if err := s.dualInventory(base, p); err != nil {
+			return "", p, nil, err
+		}
+		s.dualCacheMu.Lock()
+		if s.dualCacheKey == cacheKey && s.dualCacheAnalysis != nil {
+			analysis := s.dualCacheAnalysis
+			s.dualCacheMu.Unlock()
+			return base, p, analysis, nil
+		}
+		s.dualCacheMu.Unlock()
 	}
 	corePath, err := s.file(base + "run_manifest.json")
 	if err != nil {
@@ -1056,11 +1106,16 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if err != nil {
 		return "", p, nil, err
 	}
-	a, err := s.readDualJSON(base, "analysis.json")
+	a, err := s.readDualJSON(base, "analysis.json", p)
 	if err != nil {
 		return "", p, nil, err
 	}
 	analysis, _ := obj(a)
+	if cacheEnabled {
+		s.dualCacheMu.Lock()
+		s.dualCacheKey, s.dualCacheAnalysis = cacheKey, analysis
+		s.dualCacheMu.Unlock()
+	}
 	return base, p, analysis, nil
 }
 
@@ -1073,19 +1128,19 @@ func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind stri
 		return errors.New("offline result route cannot read replay task")
 	}
 	if kind == "dual-result" {
-		graph, err := s.readDualJSON(base, "graph.json")
+		graph, err := s.readDualJSON(base, "graph.json", p)
 		if err != nil {
 			return err
 		}
-		events, err := s.readDualJSON(base, "events.json")
+		events, err := s.readDualJSON(base, "events.json", p)
 		if err != nil {
 			return err
 		}
-		quality, err := s.readDualJSON(base, "quality.json")
+		quality, err := s.readDualJSON(base, "quality.json", p)
 		if err != nil {
 			return err
 		}
-		dataset, err := s.readDualJSON(base, "dataset.json")
+		dataset, err := s.readDualJSON(base, "dataset.json", p)
 		if err != nil {
 			return err
 		}
@@ -1167,7 +1222,7 @@ func (s *Server) serveDualEvidence(w http.ResponseWriter, r *http.Request, base 
 			return errors.New("unknown change")
 		}
 	}
-	profile, err := s.readDualJSON(base, "dual/sources/profile.json")
+	profile, err := s.readDualJSON(base, "dual/sources/profile.json", p)
 	if err != nil {
 		return err
 	}
@@ -1175,7 +1230,27 @@ func (s *Server) serveDualEvidence(w http.ResponseWriter, r *http.Request, base 
 	quality, _ := obj(analysis["quality"])
 	// All references were checked against the originals by publishedDual. Return
 	// the bounded original frame/CSV rows selected by the user.
-	originals, fields, err := s.dualEvidence(base, p, analysis, selected)
+	var pages []map[string]int
+	if p.ResourceProfile != "" || r.URL.Query().Has("ref_offset") || r.URL.Query().Has("ref_limit") {
+		offset, limit := 0, 100
+		if r.URL.Query().Has("ref_offset") {
+			offset, err = strconv.Atoi(r.URL.Query().Get("ref_offset"))
+			if err != nil {
+				return errors.New("invalid evidence offset")
+			}
+		}
+		if r.URL.Query().Has("ref_limit") {
+			limit, err = strconv.Atoi(r.URL.Query().Get("ref_limit"))
+			if err != nil {
+				return errors.New("invalid evidence limit")
+			}
+		}
+		if offset < 0 || limit < 1 || limit > 100 {
+			return errors.New("evidence page outside budget")
+		}
+		pages = []map[string]int{{"offset": offset, "limit": limit}}
+	}
+	originals, fields, err := s.dualEvidence(base, p, analysis, selected, pages...)
 	if err != nil {
 		return err
 	}
@@ -1183,12 +1258,23 @@ func (s *Server) serveDualEvidence(w http.ResponseWriter, r *http.Request, base 
 	if analysis["analysis_mode"] != nil {
 		response["source_provenance"] = analysis["source_provenance"]
 	}
+	if len(pages) > 0 {
+		page := pages[0]
+		response["evidence_page"] = map[string]any{"version": "source-reference-page-1", "offset": page["offset"], "limit": page["limit"], "total": page["total"], "returned": len(originals), "has_more": page["offset"]+len(originals) < page["total"], "order": "canonical_source_reference"}
+		raw, e := json.Marshal(response)
+		if e != nil {
+			return e
+		}
+		if len(raw) > 8<<20 {
+			return errors.New("evidence response exceeds 8MiB")
+		}
+	}
 	addDualCompatibility(response, analysis)
 	reply(w, 200, response)
 	return nil
 }
 
-func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[string]any) ([]any, []any, error) {
+func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[string]any, pages ...map[string]int) ([]any, []any, error) {
 	captures, err := s.dualCaptureFrames(base, p)
 	if err != nil {
 		return nil, nil, err
@@ -1252,6 +1338,19 @@ func (s *Server) dualEvidence(base string, p Payload, analysis, selection map[st
 		keys = append(keys, key)
 	}
 	sort.Strings(keys)
+	if len(pages) > 0 {
+		page := pages[0]
+		page["total"] = len(keys)
+		offset, limit := page["offset"], page["limit"]
+		if offset > len(keys) {
+			return nil, nil, errors.New("evidence offset outside selection")
+		}
+		end := offset + limit
+		if end > len(keys) {
+			end = len(keys)
+		}
+		keys = keys[offset:end]
+	}
 	originals := []any{}
 	selectedFrames := map[string]bool{}
 	for _, key := range keys {

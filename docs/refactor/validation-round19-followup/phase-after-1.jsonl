@@ -1,0 +1,28 @@
+{"pid": 29539, "profiling_overhead": "Python call/return hook; not production timing", "rss_definition": "process cumulative high-water bytes; nested phase durations overlap", "schema_version": "r19-development-phase-probe-1"}
+{"event": "enter", "phase": "complete_export", "rss_high_water_bytes": 27033600}
+{"event": "enter", "phase": "retained_export", "rss_high_water_bytes": 27033600}
+{"event": "enter", "phase": "offline_analysis", "rss_high_water_bytes": 27181056}
+{"event": "enter", "phase": "network_parse", "rss_high_water_bytes": 27279360}
+{"cpu_seconds": 0.896684, "event": "return", "phase": "network_parse", "rss_high_water_bytes": 30900224, "wall_seconds": 0.9010505829937756}
+{"event": "enter", "phase": "process_parse", "rss_high_water_bytes": 30916608}
+{"cpu_seconds": 0.003971000000000169, "event": "return", "phase": "process_parse", "rss_high_water_bytes": 30916608, "wall_seconds": 0.003975958010414615}
+{"event": "enter", "phase": "association_and_evidence", "rss_high_water_bytes": 30932992}
+{"cpu_seconds": 49.598099000000005, "event": "return", "phase": "association_and_evidence", "rss_high_water_bytes": 44859392, "wall_seconds": 49.813127542001894}
+{"cpu_seconds": 50.51084, "event": "return", "phase": "offline_analysis", "rss_high_water_bytes": 44859392, "wall_seconds": 50.730383541987976}
+{"cpu_seconds": 87.075126, "event": "return", "phase": "retained_export", "rss_high_water_bytes": 54771712, "wall_seconds": 87.64375666697742}
+{"event": "enter", "phase": "standard_projection", "rss_high_water_bytes": 54870016}
+{"cpu_seconds": 33.504902000000016, "event": "return", "phase": "standard_projection", "rss_high_water_bytes": 56016896, "wall_seconds": 33.86146841599839}
+{"event": "enter", "phase": "artifact_verification", "rss_high_water_bytes": 58621952}
+{"event": "enter", "phase": "offline_analysis", "rss_high_water_bytes": 58621952}
+{"event": "enter", "phase": "network_parse", "rss_high_water_bytes": 58621952}
+{"cpu_seconds": 0.8849219999999889, "event": "return", "phase": "network_parse", "rss_high_water_bytes": 58621952, "wall_seconds": 0.8936784160032403}
+{"event": "enter", "phase": "process_parse", "rss_high_water_bytes": 58621952}
+{"cpu_seconds": 0.004004000000037422, "event": "return", "phase": "process_parse", "rss_high_water_bytes": 58621952, "wall_seconds": 0.004182583012152463}
+{"event": "enter", "phase": "association_and_evidence", "rss_high_water_bytes": 58621952}
+{"cpu_seconds": 49.751788000000005, "event": "return", "phase": "association_and_evidence", "rss_high_water_bytes": 64389120, "wall_seconds": 51.093120250006905}
+{"cpu_seconds": 50.650931000000014, "event": "return", "phase": "offline_analysis", "rss_high_water_bytes": 64389120, "wall_seconds": 52.00210216600681}
+{"event": "enter", "phase": "standard_projection", "rss_high_water_bytes": 64389120}
+{"cpu_seconds": 54.80075300000004, "event": "return", "phase": "standard_projection", "rss_high_water_bytes": 64389120, "wall_seconds": 64.52106783399358}
+{"cpu_seconds": 265.217361, "event": "return", "phase": "artifact_verification", "rss_high_water_bytes": 64389120, "wall_seconds": 347.45037608398707}
+{"cpu_seconds": 443.123378, "event": "return", "phase": "complete_export", "rss_high_water_bytes": 64389120, "wall_seconds": 527.0575045000005}
+{"aggregates": {"artifact_verification": {"calls": 1, "cpu_seconds": 265.217361, "wall_seconds": 347.45037608398707}, "association_and_evidence": {"calls": 2, "cpu_seconds": 99.34988700000001, "wall_seconds": 100.9062477920088}, "complete_export": {"calls": 1, "cpu_seconds": 443.123378, "wall_seconds": 527.0575045000005}, "evidence_references": {"calls": 20768, "cpu_seconds": 24.276054000000443, "wall_seconds": 24.600688691512914}, "network_parse": {"calls": 2, "cpu_seconds": 1.781605999999989, "wall_seconds": 1.7947289989970159}, "offline_analysis": {"calls": 2, "cpu_seconds": 101.16177100000002, "wall_seconds": 102.73248570799478}, "process_parse": {"calls": 2, "cpu_seconds": 0.007975000000037591, "wall_seconds": 0.008158541022567078}, "retained_export": {"calls": 1, "cpu_seconds": 87.075126, "wall_seconds": 87.64375666697742}, "standard_projection": {"calls": 2, "cpu_seconds": 88.30565500000006, "wall_seconds": 98.38253624999197}}, "output_bytes": 398584971, "status": "succeeded"}

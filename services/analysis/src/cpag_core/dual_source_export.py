@@ -3,6 +3,7 @@
 The original dual-source result and all source bytes remain beneath ``dual/``.
 Every read verifies the retained run and rebuilds the standard projection.
 """
+from .measurement import phase
 import argparse
 import json
 import os
@@ -12,9 +13,9 @@ import shutil
 import uuid
 
 from . import __version__
-from .contracts import validate
+from .contracts import validate, validation_session
 from .dual_source import analyze, query, run_dual, strict_json, VERSION, LIMITATIONS, retained_networks, R17_VERSION, R17_LEGACY_VERSION
-from .pipeline import canonical, file_hash, fingerprint
+from .pipeline import canonical, file_hash, fingerprint, write_canonical, canonical_file_matches
 
 
 STANDARD = ('dataset.json', 'events.json', 'graph.json', 'quality.json', 'analysis.json')
@@ -24,6 +25,7 @@ FILES = frozenset((*STANDARD, 'run_manifest.json', *DUAL))
 DIRECTORIES = frozenset(('dual', 'dual/sources'))
 
 
+@validation_session()
 def event_graph(result, *, replay=False):
     """Shared standard observation projection; only the reference schema differs."""
     finite_events=[]
@@ -68,6 +70,7 @@ def event_graph(result, *, replay=False):
     return {'events.json':events, 'graph.json':graph}
 
 
+@phase('standard_projection')
 def projection(result, source_dir):
     """Make a deterministic graph of observations, transitions and candidate claims."""
     source_dir = Path(source_dir)
@@ -152,6 +155,7 @@ def _read_json(path):
         raise ValueError('invalid_or_missing_artifact: '+str(path)) from exc
 
 
+@phase('artifact_verification')
 def verify_task(output):
     """Check all bytes, original inputs and a fresh projection of source analysis."""
     output = Path(output)
@@ -185,12 +189,14 @@ def verify_task(output):
                      _analysis_version=dual_manifest['analysis_version'])
     if actual['synthetic'] is not manifest['synthetic']:raise ValueError('synthetic_manifest_mismatch')
     if dual_manifest['analysis_version'] != actual['analysis_version']:raise ValueError('dual_analysis_version_mismatch')
-    retained = _read_json(dual/'analysis.json')
-    if canonical(actual) != canonical(retained) or dual_manifest['config_fingerprint'] != fingerprint(config):
+    retained_matches = canonical_file_matches(dual/'analysis.json', actual)
+    if not retained_matches:
+        retained_matches = canonical(actual) == canonical(_read_json(dual/'analysis.json'))
+    if not retained_matches or dual_manifest['config_fingerprint'] != fingerprint(config):
         raise ValueError('dual_analysis_does_not_match_sources')
     expected = projection(actual, dual/'sources')
     for name,payload in expected.items():
-        if canonical(_read_json(output/name)) != canonical(payload):
+        if not canonical_file_matches(output/name,payload) and canonical(_read_json(output/name)) != canonical(payload):
             raise ValueError('standard_projection_mismatch: '+name)
     if manifest['input_fingerprint'] != actual['input_fingerprint'] or manifest['config_fingerprint'] != actual['config_fingerprint']:
         raise ValueError('run_manifest_fingerprint_mismatch')
@@ -223,6 +229,7 @@ def verify_task(output):
     return manifest
 
 
+@phase('complete_export')
 def export_task(network, process, profile, output, *, run_id=None, attempt_id=1):
     """Publish an immutable standard run with the complete original dual run."""
     if run_id is not None and (not isinstance(run_id,str) or not run_id or len(run_id)>128):
@@ -237,9 +244,13 @@ def export_task(network, process, profile, output, *, run_id=None, attempt_id=1)
         result = run_dual(network, process, profile, output/'dual')
         payloads = projection(result, output/'dual/sources')
         entries = []
+        from .capacity import resolve_capacity_profile
+        budget=resolve_capacity_profile(_read_json(output/'dual/sources/profile.json'))
+        used=sum(p.stat().st_size for p in (output/'dual').rglob('*') if p.is_file())
         for name,payload in payloads.items():
             path = output/name
-            path.write_bytes(canonical(payload)+b'\n')
+            write_canonical(path,payload,max_bytes=budget.output_bytes-used if budget.version else None)
+            used+=path.stat().st_size
         for name in sorted(artifact_files(output)-{'run_manifest.json'}) if 'analysis_mode' in result else (*STANDARD,*DUAL):
             path = output/name
             entries.append({'path':name, 'sha256':file_hash(path), 'size_bytes':path.stat().st_size})
