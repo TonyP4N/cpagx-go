@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import secrets
 import shutil
+import stat
 import struct
 import subprocess
 import sys
@@ -23,7 +24,8 @@ sys.path[:0]=[str(ROOT/'scripts/validation')]
 from round19_core_oracle import canonical
 from round19_core_guards import admit_fixture,check_counts
 
-VERSION='r19-core-fixed-quota-matrix-3'
+VERSION='r19-core-fixed-quota-matrix-4'
+SAMPLER_VERSION='matrix-live-file-sampler-2'
 FIXTURE_VERSION='r19-density-capacity-6'
 PHASE_STRATEGY='phase-resources-3'
 LIMITS={'cpus':4,'memory_bytes':8*1024**3,'tmp_bytes':4*1024**3,'complete_output_bytes':1024**3,'wall_seconds':1800,'query_seconds':10,'query_bytes':8*1024**2,'query_items':100}
@@ -52,6 +54,27 @@ def physical(root):
         if path.is_symlink():raise ValueError('measurement_output_symlink')
         if path.is_file():total+=path.stat().st_size
     return total
+
+
+def sample_physical(root):
+    """Non-atomic live size sample; only a vanished SQLite journal is tolerated.
+
+    This is not a terminal inventory or integrity check. A vanished known
+    temporary is explicitly reported as an incomplete sample, never as zero
+    measured bytes. Fixed inputs/artifacts and permission failures still raise.
+    """
+    root=Path(root);total=0;vanished=[]
+    for path in root.rglob('*'):
+        relative=path.relative_to(root).as_posix()
+        try:entry=path.lstat()
+        except FileNotFoundError:
+            if relative!='result/artifact/shared/shared.sqlite3-journal':raise
+            vanished.append(relative);continue
+        if stat.S_ISLNK(entry.st_mode):raise ValueError('measurement_output_symlink')
+        if stat.S_ISREG(entry.st_mode):total+=entry.st_size
+    return {'version':SAMPLER_VERSION,'file_bytes':total,
+        'sample_incomplete':bool(vanished),'vanished':sorted(vanished),
+        'scope':'non-atomic observed file sizes; terminal physical/inventory checks remain strict'}
 
 
 def file_inventory(root):
@@ -131,8 +154,9 @@ def run_container(root,phase,mode,image,input_dir,key,approval,deadline,record,*
                     output,_=process.communicate(input=wire if first else None,timeout=1);break
                 except subprocess.TimeoutExpired:
                     first=False
-                    now=time.monotonic();size=physical(root)
-                    stats.write(json.dumps({'elapsed_seconds':now-started,'attempt_file_bytes_sample':size})+'\n');stats.flush()
+                    now=time.monotonic();file_sample=sample_physical(root);size=file_sample['file_bytes']
+                    stats.write(json.dumps({'elapsed_seconds':now-started,'attempt_file_bytes_sample':size,
+                        'file_sample':file_sample})+'\n');stats.flush()
                     if size>LIMITS['complete_output_bytes']:raise ValueError('complete_output_physical_budget_exceeded')
                     if now>=deadline:raise TimeoutError('core_chain_1800_seconds')
                     try:
@@ -191,6 +215,7 @@ def run(output,fixture,profile,scale,mode,image,*,scratch_root=None):
         'scale':scale,'mode':mode,'run_id':'core-'+scale+'-'+mode+'-'+secrets.token_hex(4),'status':'running','limits':LIMITS,
         'runtime_source_sha256':runtime_sources(),'phases':[],'os_cache':'unverified',
         'fixture_version':FIXTURE_VERSION,'phase_measurement_strategy':PHASE_STRATEGY,
+        'live_sampling_strategy':SAMPLER_VERSION,
         'output_budget_enforcement':'native complete publisher budget and final/sampled complete attempt file checks; bind mount has no independent filesystem size quota',
         'source_and_capability_definition':'fresh complete source verification followed by private per-attempt HMAC; approval is not external independence proof'}
     if scratch_root:record['execution_storage']={'version':'core-local-scratch-1','scratch':str(root),'handoff':str(destination),

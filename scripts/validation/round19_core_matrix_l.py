@@ -12,7 +12,7 @@ import shutil
 import round19_core_matrix as baseline
 from round19_scale_fixture import density_budget_math
 
-VERSION='r19-core-l-expiry-coverage-4'
+VERSION='r19-core-l-expiry-coverage-5'
 
 
 def checked_counts(counts,scale,mode,record):
