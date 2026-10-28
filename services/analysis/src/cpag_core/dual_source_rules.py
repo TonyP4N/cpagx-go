@@ -34,11 +34,13 @@ def validity(item, interval):
 
 def validate_profile(config):
     spool=config.get('replay',{}).get('history_format')=='replay-history-checkpoint-delta-2'
-    validate('DualSpoolProfile' if spool else 'DualSourceProfile', config)
+    compact=config.get('storage_format')=='shared-observation-dag-6'
+    shared=config.get('storage_format') in ('shared-observation-dag-5','shared-observation-dag-6')
+    validate('DualCompactProfile' if compact else 'DualSharedProfile' if shared else 'DualSpoolProfile' if spool else 'DualSourceProfile', config)
     budget = resolve_capacity_profile(config)
-    if budget.version and 'replay' in config and not spool:
+    if budget.version and 'replay' in config and not (spool or shared):
         raise ValueError('capacity_replay_requires_versioned_history_integration')
-    if spool:
+    if spool or (shared and 'replay' in config):
         options=config['replay']
         for field,ceiling in (('max_snapshots',budget.snapshots),('max_revisions',budget.revisions),('max_output_bytes',budget.output_bytes),('max_buffer_records',budget.frames+budget.process_records+1 if budget.version else 11000)):
             if options[field]>ceiling:raise ValueError('history_budget_exceeds_capacity_profile:'+field)

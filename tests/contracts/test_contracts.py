@@ -7,7 +7,7 @@ from cpag_core.contracts import validate, ContractError, SCHEMAS
 class ContractTests(unittest.TestCase):
     def test_strict_schema_documents(self):
         paths=list(SCHEMAS.glob('*.schema.json'))
-        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest','SingleSourceRunManifest','DualSpoolProfile','ReplaySpoolProfile','ReplaySpoolRunManifest','ReplayHistorySpoolManifest','EvaluationCSVRecordLocator','EvaluationLocatedReference'})
+        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest','SingleSourceRunManifest','DualSpoolProfile','ReplaySpoolProfile','ReplaySpoolRunManifest','ReplayHistorySpoolManifest','EvaluationCSVRecordLocator','EvaluationLocatedReference','DualSharedProfile','ReplaySharedProfile','SharedStoreRunManifest','DualCompactProfile','ReplayCompactProfile','CompactStoreRunManifest'})
         for path in paths:
             schema=json.loads(path.read_text())
             self.assertFalse(schema['additionalProperties'])
@@ -17,10 +17,10 @@ class ContractTests(unittest.TestCase):
             elif path.name=='EvaluationLocatedReference.schema.json':
                 self.assertIn('locator',schema['required'])
                 self.assertNotIn('record',schema['properties'])
-            elif path.name not in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json','ReplaySourceRef.schema.json'):
+            elif path.name not in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json','ReplaySharedProfile.schema.json','ReplayCompactProfile.schema.json','ReplaySourceRef.schema.json'):
                 self.assertEqual(schema['properties']['schema_version']['const'],'1.0.0')
                 self.assertIn('synthetic',schema['required'])
-            elif path.name in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json'):
+            elif path.name in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json','ReplaySharedProfile.schema.json','ReplayCompactProfile.schema.json'):
                 self.assertEqual(schema['properties']['version']['const'],'dual-source-replay-1')
                 self.assertIn('arrival_time_basis',schema['required'])
             else:

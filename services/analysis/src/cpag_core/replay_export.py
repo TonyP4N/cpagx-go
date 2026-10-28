@@ -82,7 +82,7 @@ def dataset_manifest(config,rows,count):
     return dataset
 
 
-def execute(networks,process,profile,*,pace=False,history_sink=None):
+def execute(networks,process,profile,*,pace=False,history_sink=None,_core_class=None):
     """Consume only the explicitly arriving record; no complete-input parsing."""
     from .replay_core import ReplayCore
     config=deepcopy(profile);validate_profile(config)
@@ -94,8 +94,8 @@ def execute(networks,process,profile,*,pace=False,history_sink=None):
     if not isinstance(sequence,list) or not sequence or len(sequence)>budget.arrival_steps:raise ValueError('explicit_bounded_arrival_sequence_required')
     if 'finish_at' not in options:raise ValueError('explicit_finish_time_required')
     try:
-        engine=ReplayCore(config,history_sink=history_sink)
-        limits=parser_limits(config) if options.get('history_format')=='replay-history-checkpoint-delta-2' else None
+        engine=(_core_class or ReplayCore)(config,history_sink=history_sink)
+        limits=parser_limits(config) if options.get('history_format') in ('replay-history-checkpoint-delta-2','shared-observation-dag-6') else None
         extra={} if limits is None else {'packet_limits':limits['packet_limits'],'process_limits':limits['process_limits'],
             'stream_limits':limits['stream_limits'],'capacity_config':config,
             'max_records':budget.frames+budget.process_records+1 if budget.version else 11000}

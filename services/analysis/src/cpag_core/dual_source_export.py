@@ -26,8 +26,11 @@ DIRECTORIES = frozenset(('dual', 'dual/sources'))
 
 
 @validation_session()
-def event_graph(result, *, replay=False):
+@phase('standard_projection')
+def event_graph(result, *, replay=False, identity_strategy=None):
     """Shared standard observation projection; only the reference schema differs."""
+    if identity_strategy not in (None,'merkle-json-dag-1'):
+        raise ValueError('unsupported_graph_identity_strategy')
     finite_events=[]
     for finding in result.get('rule_findings',[]):
         interval=finding['interval']
@@ -59,7 +62,11 @@ def event_graph(result, *, replay=False):
              'input_fingerprint':result['input_fingerprint'], 'core_version':__version__,
              'statistics':{'nodes':len(nodes), 'edges':len(edges)},
              'truncation':{'truncated':False, 'reason':None}}
-    graph['graph_id'] = 'dual-graph-' + fingerprint({k:v for k,v in graph.items() if k!='graph_id'})
+    if identity_strategy is None:
+        graph['graph_id'] = 'dual-graph-' + fingerprint({k:v for k,v in graph.items() if k!='graph_id'})
+    else:
+        from .shared_artifact_store_compact import LogicalHasher
+        graph['graph_id'] = 'dual-graph-merkle-' + LogicalHasher().digest({k:v for k,v in graph.items() if k!='graph_id'})['digest']
     for item in result['network']:
         validate(('Replay' if replay else '')+'NetworkEvent', item['event'])
     for item in result['process']:

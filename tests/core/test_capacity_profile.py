@@ -28,6 +28,23 @@ class CapacityProfileTests(unittest.TestCase):
         new['replay']={}
         with self.assertRaises(ValueError): validate_profile(new)
 
+    def test_shared_storage_budget_is_explicit_and_preserves_physical_target(self):
+        from cpag_core.capacity import SHARED, SHARED_FORMAT, shared_storage_budget
+        cfg=profile(); cfg.update(capacity_profile=SHARED,storage_format=SHARED_FORMAT)
+        validate_profile(cfg)
+        budget=resolve_capacity_profile(cfg)
+        self.assertEqual((budget.candidates,budget.snapshots,budget.revisions),(500000,65000,90000))
+        self.assertEqual((budget.network_file_bytes,budget.network_total_bytes,budget.process_records,budget.output_bytes),
+                         (64*1024**2,128*1024**2,10000,1024**3))
+        storage=shared_storage_budget(cfg)
+        self.assertEqual((storage.physical_bytes,storage.query_bytes,storage.cache_bytes),(1024**3,8*1024**2,16*1024**2))
+        for field in ('capacity_profile','storage_format','analysis_mode'):
+            invalid=deepcopy(cfg);invalid.pop(field)
+            with self.assertRaises(ValueError):validate_profile(invalid)
+        for change in ({'capacity_profile':ENGINEERING},{'storage_format':'unknown'}, {'replay':{}}):
+            invalid=deepcopy(cfg);invalid.update(change)
+            with self.assertRaises(ValueError):validate_profile(invalid)
+
     def test_parser_options_are_explicit_and_bounded(self):
         cfg=profile(); old=parser_limits(cfg); cfg['capacity_profile']=ENGINEERING; new=parser_limits(cfg)
         self.assertEqual(old['stream_limits'].max_segments,2048)

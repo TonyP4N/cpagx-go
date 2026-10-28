@@ -11,6 +11,7 @@ from dataclasses import asdict
 import hashlib
 from datetime import datetime, timedelta, timezone
 import json
+import shutil
 from pathlib import Path
 import struct
 import sys
@@ -20,6 +21,12 @@ from round17_profile import profile
 BASE = datetime(2026, 1, 1, tzinfo=timezone.utc)
 LEGACY_VERSION = 'r19-raw-scale-fixture-1'
 CAPACITY_VERSION = 'r19-density-capacity-2'
+SHARED_VERSION = 'r19-density-capacity-3'
+COMPACT_VERSION = 'r19-density-capacity-4'
+COMPACT_PROFILE = 'engineering-core-capacity-3'
+COMPACT_FORMAT = 'shared-observation-dag-6'
+SHARED_PROFILE = 'engineering-capacity-2'
+SHARED_FORMAT = 'shared-observation-dag-5'
 PREFLIGHT_VERSION = 'r19-density-preflight-2'
 CAPACITY_PROFILE = 'engineering-capacity-1'
 HISTORY_FORMAT = 'replay-history-checkpoint-delta-2'
@@ -30,6 +37,14 @@ RAW_SHA256 = {
  'M': {'network.pcap':'dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77','process.csv':'f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c'},
  'L': {'network.pcap':'abac2b769dbe57b4cc9558dfc1a98dc5a910358d2bca4e3f129a0ddf90d8e381','process.csv':'02508de1fa3a2e76702edbb0dc70658ffb7b577263a87386ac553a26c69818f4'}}
 
+
+
+def _profile_version(version):
+    return COMPACT_PROFILE if version==COMPACT_VERSION else SHARED_PROFILE if version==SHARED_VERSION else CAPACITY_PROFILE
+
+
+def _storage_version(version):
+    return COMPACT_FORMAT if version==COMPACT_VERSION else SHARED_FORMAT if version==SHARED_VERSION else None
 
 
 def at(microseconds):
@@ -50,7 +65,7 @@ def frame(payload, seq, reverse=False):
 
 
 def generate(root, scale, *, version=LEGACY_VERSION):
-    if version not in (LEGACY_VERSION,CAPACITY_VERSION):raise ValueError('unsupported_density_fixture_version')
+    if version not in (LEGACY_VERSION,CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):raise ValueError('unsupported_density_fixture_version')
     if scale not in SCALES:raise ValueError('unsupported_density_scale')
     root = Path(root); root.mkdir(parents=True, mode=0o700, exist_ok=False)
     count = {'S': 100, 'M': 1000, 'L': 10000}[scale]
@@ -82,7 +97,8 @@ def generate(root, scale, *, version=LEGACY_VERSION):
     for clock in config['clocks'].values(): clock['valid_to'] = until
     for mapping in config['mappings']: mapping['valid_to'] = until
     config['source_provenance']['collection_range']['end'] = until
-    if version==CAPACITY_VERSION:config['capacity_profile']=CAPACITY_PROFILE
+    if version in (CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):config['capacity_profile']=_profile_version(version)
+    if version in (SHARED_VERSION,COMPACT_VERSION):config['storage_format']=_storage_version(version)
     offline = root / 'offline-profile.json'; offline.write_text(json.dumps(config, separators=(',', ':')) + '\n')
     arrivals.sort(key=lambda row: row['available_at'])
     last = max(10_000_000 + (count - 1) * 50_000 + 110_000, 9_000_000 + (count - 1) * 80_000 + 100_000)
@@ -96,7 +112,9 @@ def generate(root, scale, *, version=LEGACY_VERSION):
         'max_buffer_records': 11000, 'max_snapshots': 4096, 'max_revisions': 8192,
         'max_output_bytes': 16777216, 'speed': 1, 'realtime': False,
         'finish_at': at(finish), 'sequence': arrivals}
-    if version==CAPACITY_VERSION:config['replay'].update(_capacity_replay_limits(config))
+    if version in (CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):
+        if version in (SHARED_VERSION,COMPACT_VERSION):config['replay'].update(history_format=_storage_version(version),identity_strategy='merkle-json-dag-1',prefix_digest_strategy='incremental-prefix-digest-2')
+        config['replay'].update(_capacity_replay_limits(config))
     replay = root / 'replay-profile.json'; replay.write_text(json.dumps(config, separators=(',', ':')) + '\n')
     for mode, chosen in (('dual_source', offline), ('dual_source_replay', replay)):
         for repetition in (1, 2, 3):
@@ -110,17 +128,21 @@ def generate(root, scale, *, version=LEGACY_VERSION):
               'arrival_steps': len(arrivals), 'replay_profile_bytes': replay.stat().st_size,
               'bytes': {'network': network.stat().st_size, 'process': process.stat().st_size},
               'claim': 'generated density fixture only; current runtime may explicitly refuse limits; no byte-boundary or industrial coverage'}
-    if version==CAPACITY_VERSION:
-        report.update(schema_version=CAPACITY_VERSION,capacity_profile=CAPACITY_PROFILE,history_format=HISTORY_FORMAT,
+    if version in (CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):
+        selected=_profile_version(version)
+        report.update(schema_version=version,capacity_profile=selected,history_format=_storage_version(version) or HISTORY_FORMAT,
                       preflight='preflight.json',matrix='matrix.json',claim='raw density preserved; static admission checks only, not runtime or reference-environment acceptance')
-        preflight=build_preflight(root,scale)
+        preflight=build_preflight(root,scale,version=version)
         (root/'preflight.json').write_text(json.dumps(preflight,indent=2)+'\n')
-        matrix={'schema_version':'r19-density-matrix-2','fixture_version':CAPACITY_VERSION,'scale':scale,
-                'operator_resource_profile':CAPACITY_PROFILE,'preflight':'preflight.json',
+        matrix={'schema_version':'r19-density-matrix-2','fixture_version':version,'scale':scale,
+                'operator_resource_profile':None if version==COMPACT_VERSION else selected,'preflight':'preflight.json',
                 'preflight_sha256':_sha(root/'preflight.json'),'rows':[
                   {'case_manifest':f'{mode}-{rep}.json','mode':mode,'repetition':rep,
                    'status':preflight['modes'][mode]['status'],'profile_sha256':preflight['modes'][mode]['profile_sha256']}
                   for mode in ('dual_source','dual_source_replay') for rep in (1,2,3)]}
+        if version==COMPACT_VERSION:
+            report.update(execution_scope='core_only',integration_ready=False,storage_format=COMPACT_FORMAT)
+            matrix.update(schema_version='r19-density-core-matrix-1',execution_scope='core_only',integration_ready=False,core_limits={'cpus':4,'memory_bytes':8*1024**3,'temporary_bytes':4*1024**3,'output_bytes':1024**3,'wall_seconds':1800})
         (root/'matrix.json').write_text(json.dumps(matrix,indent=2)+'\n')
     (root / 'fixture.json').write_text(json.dumps(report, indent=2) + '\n')
     return report
@@ -144,7 +166,7 @@ def _runtime():
 
 def _capacity_replay_limits(config):
     budget,_,_=_runtime();budget=budget(config)
-    return {'history_format':HISTORY_FORMAT,'max_buffer_records':budget.frames+budget.process_records+1,
+    return {'history_format':config['storage_format'] if config.get('storage_format') in (SHARED_FORMAT,COMPACT_FORMAT) else HISTORY_FORMAT,'max_buffer_records':budget.frames+budget.process_records+1,
             'max_snapshots':budget.snapshots,'max_revisions':budget.revisions,'max_output_bytes':budget.output_bytes}
 
 
@@ -163,12 +185,13 @@ def _schedule(count):
     return rows,last+9_000_000
 
 
-def _expected_profiles(count):
+def _expected_profiles(count,version=CAPACITY_VERSION):
     config=profile();until=at(86_399_000_000)
     for clock in config['clocks'].values():clock['valid_to']=until
     for mapping in config['mappings']:mapping['valid_to']=until
     config['source_provenance']['collection_range']['end']=until
-    config['capacity_profile']=CAPACITY_PROFILE
+    config['capacity_profile']=_profile_version(version)
+    if version in (SHARED_VERSION,COMPACT_VERSION):config['storage_format']=_storage_version(version)
     offline=json.loads(json.dumps(config))
     sequence,finish=_schedule(count)
     config['replay']={'version':'dual-source-replay-1','simulation_start':at(8_000_000),
@@ -176,6 +199,7 @@ def _expected_profiles(count):
         'warmup_seconds':1,'allowed_lateness_seconds':2,'buffer_seconds':300,
         'max_buffer_records':11000,'max_snapshots':4096,'max_revisions':8192,
         'max_output_bytes':16777216,'speed':1,'realtime':False,'finish_at':at(finish),'sequence':sequence}
+    if version in (SHARED_VERSION,COMPACT_VERSION):config['replay'].update(history_format=_storage_version(version),identity_strategy='merkle-json-dag-1',prefix_digest_strategy='incremental-prefix-digest-2')
     config['replay'].update(_capacity_replay_limits(config))
     return {'dual_source':offline,'dual_source_replay':config}
 
@@ -223,7 +247,8 @@ def density_budget_math(scale):
             'snapshot_scope':'base publications plus at most one clock-before-arrival per consume; upper bound is a planning bound, not an observed count'}
 
 
-def build_preflight(root,scale):
+def build_preflight(root,scale,*,version=CAPACITY_VERSION):
+    if version not in (CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):raise ValueError("unsupported_density_fixture_version")
     root=Path(root);count=SCALES[scale]
     for name in ('network.pcap','process.csv','offline-profile.json','replay-profile.json'):
         path=root/name
@@ -231,7 +256,7 @@ def build_preflight(root,scale):
     resolve,fingerprint,validate=_runtime()
     raw={name:{'sha256':_sha(root/name),'size_bytes':(root/name).stat().st_size} for name in ('network.pcap','process.csv')}
     if {name:row['sha256'] for name,row in raw.items()}!=RAW_SHA256[scale]:raise ValueError('density_raw_specification_changed')
-    profiles=_expected_profiles(count);math=density_budget_math(scale);modes={}
+    profiles=_expected_profiles(count,version);math=density_budget_math(scale);modes={}
     for mode,name in (('dual_source','offline-profile.json'),('dual_source_replay','replay-profile.json')):
         config=json.loads((root/name).read_text())
         if config!=profiles[mode]:raise ValueError('density_profile_or_schedule_changed')
@@ -248,18 +273,27 @@ def build_preflight(root,scale):
             if required>limit:fail(code,required,limit)
         if math['candidate_count_lower_bound']>budget.candidates:fail('candidate_lower_bound_exceeds_budget',math['candidate_count_lower_bound'],budget.candidates)
         output=math['offline_flat_output_lower_bound_bytes' if mode=='dual_source' else 'replay_flat_output_lower_bound_bytes']
-        if output>budget.output_bytes:fail('flat_output_lower_bound_exceeds_budget',output,budget.output_bytes)
+        if version not in (SHARED_VERSION,COMPACT_VERSION) and output>budget.output_bytes:fail('flat_output_lower_bound_exceeds_budget',output,budget.output_bytes)
         if mode=='dual_source_replay':
             options=config['replay']
             if math['arrival_steps']>budget.arrival_steps:fail('arrival_budget',math['arrival_steps'],budget.arrival_steps)
             if math['snapshot_lower_bound']>options['max_snapshots']:fail('snapshot_lower_bound_exceeds_budget',math['snapshot_lower_bound'],options['max_snapshots'])
             elif math['snapshot_upper_bound']>options['max_snapshots']:fail('snapshot_coverage_not_proven',math['snapshot_upper_bound'],options['max_snapshots'],'conservative_planning_gap')
             if math['revision_upper_bound']>options['max_revisions']:fail('revision_coverage_not_proven',math['revision_upper_bound'],options['max_revisions'],'conservative_planning_gap')
-        modes[mode]={'status':'blocked_budget_design' if issues else 'admissible_for_formal_attempt',
+        extra={}
+        if version in (SHARED_VERSION,COMPACT_VERSION):
+            from cpag_core.capacity import shared_storage_budget
+            extra={'storage_budget':asdict(shared_storage_budget(config)),
+                   'output_bound_kind':'logical_flat_expansion_only_not_physical_storage',
+                   'physical_fit':'unverified_until_complete_formal_run',
+                   'storage_format':_storage_version(version)}
+        modes[mode]={'status':'blocked_budget_design' if issues else 'admissible_for_core_attempt' if version==COMPACT_VERSION else 'admissible_for_formal_attempt',
                      'profile':name,'profile_sha256':_sha(root/name),'config_fingerprint':fingerprint(config),
                      'capacity_profile':budget.version,'history_format':config.get('replay',{}).get('history_format'),
-                     'budget':asdict(budget),'output_lower_bound_bytes':output,'issues':issues}
-    return {'schema_version':PREFLIGHT_VERSION,'fixture_version':CAPACITY_VERSION,'scale':scale,
+                     'budget':asdict(budget),'output_lower_bound_bytes':output,'issues':issues,**extra}
+    if version==COMPACT_VERSION:
+        for value in modes.values():value.update(execution_scope='core_only',integration_ready=False,formal_integration='forbidden_for_core_only_fixture_version')
+    return {'schema_version':PREFLIGHT_VERSION,'fixture_version':version,'scale':scale,
             'generator_sha256':_sha(Path(__file__)),'raw_inputs':raw,'density_math':math,'modes':modes,
             'admission_scope':'necessary static budget checks only; admission is permission to attempt, not runtime/performance/reference/industrial acceptance'}
 
@@ -276,13 +310,14 @@ def read_preflight(case_manifest, *, require_new=False):
     if not path.exists():
         marker=case_manifest.parent/'fixture.json'
         declared=json.loads(marker.read_text()) if marker.is_file() else {}
-        if require_new or declared.get('schema_version')==CAPACITY_VERSION:raise ValueError('density_preflight_missing')
+        if require_new or declared.get('schema_version') in (CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION):raise ValueError('density_preflight_missing')
         return None
     if not path.is_file() or path.stat().st_nlink!=1:raise ValueError('ordinary_density_preflight_required')
     case=json.loads(case_manifest.read_text());stored=json.loads(path.read_text())
     if stored.get('schema_version')!=PREFLIGHT_VERSION or case.get('scale') not in SCALES:
         raise ValueError('unsupported_density_preflight')
-    expected=build_preflight(path.parent,case['scale'])
+    version=stored.get('fixture_version')
+    expected=build_preflight(path.parent,case['scale'],version=version)
     declared_generator=stored.get('generator_sha256')
     if not isinstance(declared_generator,str) or len(declared_generator)!=64 or any(c not in '0123456789abcdef' for c in declared_generator):raise ValueError('density_generator_digest_invalid')
     # This is a declared generation identity, not custody proof. Future source
@@ -293,16 +328,60 @@ def read_preflight(case_manifest, *, require_new=False):
     if mode not in expected['modes'] or case.get('profile')!=expected['modes'][mode]['profile'] or case.get('networks')!=['network.pcap'] or case.get('process')!='process.csv':
         raise ValueError('density_case_profile_mismatch')
     return {'path':str(path.resolve()),'sha256':_sha(path),'case_manifest_sha256':_sha(case_manifest),'generator_sha256':declared_generator,'schema_version':PREFLIGHT_VERSION,
-            'fixture_version':CAPACITY_VERSION,'scale':case['scale'],'mode':mode,'density_math':expected['density_math'],
+            'fixture_version':version,'scale':case['scale'],'mode':mode,'density_math':expected['density_math'],
             'admission_scope':expected['admission_scope'],**expected['modes'][mode]}
+
+
+def upgrade(source,destination,*,version=COMPACT_VERSION,scale=None):
+    """Verify an existing generated fixture, change only versioned transport fields.
+
+    Raw originals and the independently generated schedule/window must match
+    the fixed specification. No analysis output or label enters this operation.
+    """
+    if version!=COMPACT_VERSION:raise ValueError('explicit_core_upgrade_version_required')
+    source=Path(source)
+    marker=json.loads((source/'fixture.json').read_text())
+    selected=marker.get('scale')
+    if selected not in SCALES or (scale is not None and scale!=selected):raise ValueError('upgrade_scale_mismatch')
+    expected=_expected_profiles(SCALES[selected],COMPACT_VERSION)
+    def business(document):
+        value=json.loads(json.dumps(document))
+        value.pop('capacity_profile',None);value.pop('storage_format',None)
+        for key in ('history_format','identity_strategy','prefix_digest_strategy','max_buffer_records','max_snapshots','max_revisions','max_output_bytes'):
+            value.get('replay',{}).pop(key,None)
+        return value
+    for name in ('network.pcap','process.csv','offline-profile.json','replay-profile.json'):
+        path=source/name
+        if path.is_symlink() or not path.is_file() or path.stat().st_nlink!=1:raise ValueError('ordinary_density_source_required')
+    for name,digest in RAW_SHA256[selected].items():
+        if _sha(source/name)!=digest:raise ValueError('density_raw_specification_changed')
+    for mode,name in (('dual_source','offline-profile.json'),('dual_source_replay','replay-profile.json')):
+        if business(json.loads((source/name).read_text()))!=business(expected[mode]):raise ValueError('upgrade_cannot_change_business_configuration_or_schedule')
+    report=generate(destination,selected,version=COMPACT_VERSION);destination=Path(destination)
+    # Copy the verified original bytes themselves, with exclusive new destination
+    # already protected by generate's no-overwrite rule.
+    for name in RAW_SHA256[selected]:
+        shutil.copyfile(source/name,destination/name)
+        if _sha(destination/name)!=RAW_SHA256[selected][name]:raise ValueError('upgrade_raw_copy_changed')
+    report['upgrade']={'source_fixture_version':marker.get('schema_version'),
+        'source_files':{name:_sha(source/name) for name in ('network.pcap','process.csv','offline-profile.json','replay-profile.json')},
+        'semantic_change_scope':'versioned transport/storage/budget only; raw bytes/window/density/schedule unchanged'}
+    (destination/'fixture.json').write_text(json.dumps(report,indent=2)+'\n')
+    return report
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--scale', choices=('S', 'M', 'L'), required=True)
-    parser.add_argument('--version',choices=(LEGACY_VERSION,CAPACITY_VERSION),default=LEGACY_VERSION)
-    args = parser.parse_args(); print(json.dumps(generate(args.output, args.scale,version=args.version)))
+    parser.add_argument('--scale', choices=('S', 'M', 'L'))
+    parser.add_argument('--upgrade-from',type=Path)
+    parser.add_argument('--version',choices=(LEGACY_VERSION,CAPACITY_VERSION,SHARED_VERSION,COMPACT_VERSION),default=LEGACY_VERSION)
+    args=parser.parse_args()
+    if args.upgrade_from is not None:result=upgrade(args.upgrade_from,args.output,version=args.version,scale=args.scale)
+    else:
+        if args.scale is None:parser.error('--scale is required for generation')
+        result=generate(args.output,args.scale,version=args.version)
+    print(json.dumps(result))
 
 
 if __name__ == '__main__': main()

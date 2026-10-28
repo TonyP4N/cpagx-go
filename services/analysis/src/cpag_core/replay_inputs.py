@@ -16,7 +16,7 @@ from types import SimpleNamespace
 from .packet_pipeline import analyze_prepared_frames, checksum_evidence, StreamLimits
 from .parsers import parse_process, ProcessLimits
 from .parsers.packet_envelope import CaptureError, Limits, _transport
-from .pipeline import canonical, fingerprint
+from .pipeline import canonical, fingerprint, json_chunks
 
 
 def sha(data):
@@ -191,8 +191,20 @@ class ReplayInputs:
     CSV source ordinals include its header (1); first data record is 2. Repeating
     a seen ordinal is a cache lookup and never reads another original byte.
     """
+    def __new__(cls,*args,**kwargs):
+        config=kwargs.get('capacity_config')
+        if cls is ReplayInputs and isinstance(config,dict) and config.get('capacity_profile')=='engineering-core-capacity-3':
+            from .replay_inputs_compact import CompactReplayInputs
+            return object.__new__(CompactReplayInputs)
+        return object.__new__(cls)
+
     def __init__(self, networks, process, process_profile, *, synthetic, packet_limits=None,
-                 process_limits=None, stream_limits=None, max_records=11000, capacity_config=None):
+                 process_limits=None, stream_limits=None, max_records=11000, capacity_config=None,
+                 digest_strategy='canonical-prefix-1'):
+        if digest_strategy not in ('canonical-prefix-1','incremental-prefix-digest-2'):
+            raise ValueError('unsupported_arrival_digest_strategy')
+        self.digest_strategy=digest_strategy
+        self._prefix_hasher=hashlib.sha256(b'[');self._prefix_count=0
         if type(synthetic) is not bool:raise ValueError('explicit_synthetic_boolean_required')
         paths=list(networks) if isinstance(networks,(tuple,list)) else [networks]
         if not 1<=len(paths)<=4:raise ValueError('network_file_limit')
@@ -204,7 +216,9 @@ class ReplayInputs:
             from .capacity import resolve_capacity_profile,parser_limits
             from .dual_source_rules import validate_profile
             validate_profile(capacity_config)
-            if capacity_config.get('replay',{}).get('history_format')!='replay-history-checkpoint-delta-2':raise ValueError('capacity_replay_history_required')
+            history=capacity_config.get('replay',{}).get('history_format')
+            compact=capacity_config.get('capacity_profile')=='engineering-core-capacity-3' and capacity_config.get('storage_format')=='shared-observation-dag-6'
+            if history!=('shared-observation-dag-6' if compact else 'replay-history-checkpoint-delta-2'):raise ValueError('capacity_replay_history_required')
             capacity=resolve_capacity_profile(capacity_config);ceilings=parser_limits(capacity_config)
         else:ceilings={'packet_limits':Limits(),'process_limits':ProcessLimits(),'stream_limits':StreamLimits()}
         ceiling_records=capacity.frames+capacity.process_records+1 if capacity is not None and capacity.version else 11000
@@ -254,8 +268,15 @@ class ReplayInputs:
             self.envelope['frames'].append(unit['frame'])
         elif number>self.process_limits.max_records+1:raise ValueError('process_record_limit')
         self.seen[key]=unit;self.ordered.append(key)
-        self.digest=fingerprint([{'source_ref':self.seen[k]['source_ref'],
-            'header_sha256':self.seen[k].get('header_sha256')} for k in self.ordered])
+        if self.digest_strategy=='incremental-prefix-digest-2':
+            if self._prefix_count:self._prefix_hasher.update(b',')
+            for chunk in json_chunks({'source_ref':unit['source_ref'],'header_sha256':unit.get('header_sha256')},stable=True):
+                self._prefix_hasher.update(chunk)
+            self._prefix_count+=1
+            complete=self._prefix_hasher.copy();complete.update(b']');self.digest=complete.hexdigest()
+        else:
+            self.digest=fingerprint([{'source_ref':self.seen[k]['source_ref'],
+                'header_sha256':self.seen[k].get('header_sha256')} for k in self.ordered])
         return {'status':'accepted','source_ref':deepcopy(unit['source_ref']),'kind':unit['kind'],'available_at':step['available_at']}
 
     def frame(self, ref):
@@ -314,7 +335,8 @@ class ReplayInputs:
             ref=unit['source_ref']
             return allowed is None or unit['kind']=='header' or (ref['source_slot'],ref.get('frame_number') or ref.get('record_number'),ref['record_sha256']) in allowed
         selected=[self.seen[k] for k in self.ordered if included(self.seen[k])]
-        selected_fingerprint=fingerprint([{'source_ref':unit['source_ref'],'header_sha256':unit.get('header_sha256')} for unit in selected])
+        selected_fingerprint=(self.digest if allowed is None and self.digest_strategy=='incremental-prefix-digest-2' else
+            fingerprint([{'source_ref':unit['source_ref'],'header_sha256':unit.get('header_sha256')} for unit in selected]))
         prepared=SimpleNamespace(envelope={'frames':[unit['frame'] for unit in selected if unit['kind']=='network']},
             digest=selected_fingerprint,raw_frame=self.raw_frame,_verified=self._verified)
         capture=analyze_prepared_frames(prepared,synthetic=self.synthetic,final=final,stream_limits=self.stream_limits)

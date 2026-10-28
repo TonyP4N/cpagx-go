@@ -1,0 +1,329 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "CompactStoreRunManifest.schema.json",
+  "title": "CompactStoreRunManifest",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "run_id": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "attempt_id": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tool_versions": {
+      "type": "object",
+      "properties": {
+        "core": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "core",
+        "python"
+      ],
+      "additionalProperties": false
+    },
+    "mode": {
+      "enum": [
+        "offline",
+        "replay"
+      ]
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size_bytes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result_hashes": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "graph": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "events",
+        "graph"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "enum": [
+        "succeeded",
+        "succeeded_with_warnings"
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "semantic_config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "shared_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "storage_format": {
+      "const": "shared-observation-dag-6"
+    },
+    "result_hash_kind": {
+      "const": "merkle-json-dag-1"
+    },
+    "logical_artifacts": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 32,
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "digest": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "logical_bytes": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 549755813888
+          },
+          "kind": {
+            "enum": [
+              "dict",
+              "array_leaf",
+              "array_branch",
+              "scalar"
+            ]
+          },
+          "items": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 500000
+          }
+        },
+        "required": [
+          "name",
+          "digest",
+          "logical_bytes",
+          "kind",
+          "items"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "storage_budget": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "const": "shared-storage-budget-1"
+        },
+        "physical_bytes": {
+          "const": 1073741824
+        },
+        "max_nodes": {
+          "const": 8000000
+        },
+        "max_roots": {
+          "const": 160000
+        },
+        "max_node_bytes": {
+          "const": 8388608
+        },
+        "max_dict_items": {
+          "const": 4096
+        },
+        "cache_bytes": {
+          "const": 16777216
+        },
+        "query_bytes": {
+          "const": 8388608
+        },
+        "query_items": {
+          "const": 100
+        },
+        "max_logical_root_bytes": {
+          "const": 549755813888
+        }
+      },
+      "required": [
+        "version",
+        "physical_bytes",
+        "max_nodes",
+        "max_roots",
+        "max_node_bytes",
+        "max_dict_items",
+        "cache_bytes",
+        "query_bytes",
+        "query_items",
+        "max_logical_root_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "counts": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 100000
+        },
+        "process": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 160000
+        },
+        "operations": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "changes": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 10000
+        },
+        "candidates": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 500000
+        },
+        "snapshots": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65000
+        },
+        "revisions": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 90000
+        }
+      },
+      "required": [
+        "network",
+        "process",
+        "operations",
+        "changes",
+        "candidates",
+        "snapshots",
+        "revisions"
+      ],
+      "additionalProperties": false
+    },
+    "history_format": {
+      "const": "shared-observation-dag-6"
+    },
+    "identity_strategy": {
+      "const": "merkle-json-dag-1"
+    },
+    "replay_version": {
+      "const": "dual-source-replay-1"
+    },
+    "prefix_digest_strategy": {
+      "const": "incremental-prefix-digest-2"
+    },
+    "final_snapshot_number": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 64999
+    },
+    "final_snapshot_id": {
+      "type": "string",
+      "pattern": "^snapshot-[a-f0-9]{64}$"
+    },
+    "network_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 4
+    },
+    "graph_identity_strategy": {
+      "const": "merkle-json-dag-1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "run_id",
+    "attempt_id",
+    "input_fingerprint",
+    "config_fingerprint",
+    "tool_versions",
+    "mode",
+    "artifacts",
+    "result_hashes",
+    "limitations",
+    "status",
+    "warnings",
+    "storage_format",
+    "storage_budget",
+    "source_fingerprint",
+    "semantic_config_fingerprint",
+    "shared_manifest_sha256",
+    "result_hash_kind",
+    "logical_artifacts",
+    "counts",
+    "network_count",
+    "graph_identity_strategy"
+  ],
+  "additionalProperties": false
+}

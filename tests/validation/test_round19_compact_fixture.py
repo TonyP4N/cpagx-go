@@ -1,0 +1,66 @@
+"""Core-only DAG6 fixtures preserve raw density and refuse formal Go dispatch."""
+import hashlib
+import json
+from pathlib import Path
+import sys
+import tempfile
+import unittest
+from unittest.mock import patch
+
+ROOT=Path(__file__).resolve().parents[2]
+sys.path[:0]=[str(ROOT/'scripts/validation'),str(ROOT/'services/analysis/src')]
+import round19_scale_fixture as fixture
+import round19_capacity as formal
+
+
+class CompactFixtureControls(unittest.TestCase):
+    def test_each_scale_explicit_core_version_preserves_raw_and_boundaries(self):
+        with tempfile.TemporaryDirectory() as directory:
+            for scale,count in (('S',100),('M',1000),('L',10000)):
+                root=Path(directory)/scale;report=fixture.generate(root,scale,version=fixture.COMPACT_VERSION)
+                self.assertEqual(report['execution_scope'],'core_only');self.assertFalse(report['integration_ready'])
+                for name,digest in fixture.RAW_SHA256[scale].items():self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(),digest)
+                matrix=json.loads((root/'matrix.json').read_text());self.assertIsNone(matrix['operator_resource_profile']);self.assertEqual(matrix['schema_version'],'r19-density-core-matrix-1')
+                self.assertEqual(matrix['core_limits']['output_bytes'],1024**3)
+                for mode in ('dual_source','dual_source_replay'):
+                    preflight=fixture.read_preflight(root/(mode+'-1.json'))
+                    self.assertEqual(preflight['status'],'admissible_for_core_attempt');self.assertEqual(preflight['execution_scope'],'core_only')
+                    self.assertEqual(preflight['capacity_profile'],fixture.COMPACT_PROFILE);self.assertEqual(preflight['storage_format'],fixture.COMPACT_FORMAT)
+                    self.assertEqual(preflight['density_math']['operations'],count)
+                    cfg=json.loads((root/preflight['profile']).read_text());self.assertEqual(cfg['window_seconds'],5)
+                    if mode=='dual_source_replay':
+                        self.assertEqual(cfg['replay']['history_format'],fixture.COMPACT_FORMAT)
+                        self.assertEqual(len(cfg['replay']['sequence']),3*count+4)
+                        self.assertEqual(cfg['replay']['max_snapshots'],65000)
+                        self.assertEqual(cfg['replay']['allowed_lateness_seconds'],2)
+                        self.assertEqual(cfg['replay']['buffer_seconds'],300)
+
+    def test_upgrade_copies_existing_raw_bytes_and_preserves_business_config(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source=Path(directory)/'shared3';target=Path(directory)/'core4'
+            fixture.generate(source,'S',version=fixture.SHARED_VERSION)
+            before={p.name:p.read_bytes() for p in source.iterdir() if p.is_file()}
+            result=fixture.upgrade(source,target)
+            self.assertEqual(result['schema_version'],fixture.COMPACT_VERSION)
+            for name in fixture.RAW_SHA256['S']:self.assertEqual((source/name).read_bytes(),(target/name).read_bytes())
+            self.assertEqual({p.name:p.read_bytes() for p in source.iterdir() if p.is_file()},before)
+            self.assertEqual(result['upgrade']['source_fixture_version'],fixture.SHARED_VERSION)
+            with self.assertRaises(FileExistsError):fixture.upgrade(source,target)
+            cfg=json.loads((source/'offline-profile.json').read_text());cfg['window_seconds']=4
+            (source/'offline-profile.json').write_text(json.dumps(cfg))
+            with self.assertRaisesRegex(ValueError,'business_configuration'):fixture.upgrade(source,Path(directory)/'reject')
+            self.assertFalse((Path(directory)/'reject').exists())
+
+    def test_core_case_never_dispatches_formal_go_or_worker(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)/'core';fixture.generate(root,'S',version=fixture.COMPACT_VERSION)
+            environment={'reference_environment_qualified':False,'reference_refusal_reasons':['development_host']}
+            with patch.object(formal,'probe',return_value=environment),patch.object(formal,'formal_case') as launch,patch.object(formal.Recorder,'command') as command:
+                code,record=formal.execute(Path(directory)/'refused',dev_run=True,case_manifest=root/'dual_source-1.json',resource_profile=fixture.COMPACT_PROFILE)
+            self.assertEqual(code,1);launch.assert_not_called();command.assert_not_called()
+            self.assertIn('density_budget_design_refused',record['error'])
+            (root/'preflight.json').unlink()
+            with self.assertRaisesRegex(ValueError,'preflight_missing'):fixture.read_preflight(root/'dual_source-1.json')
+
+
+if __name__=='__main__':unittest.main()

@@ -87,6 +87,36 @@ class CapacityDensityFixtureTests(unittest.TestCase):
                         self.assertIn('snapshot_coverage_not_proven',[issue['code'] for issue in replay['issues']])
                     self.assertEqual(density_budget_math(scale)['changes'],count-1)
 
+    def test_shared_capacity_matrix_preserves_density_without_claiming_physical_fit(self):
+        from round19_scale_fixture import SHARED_VERSION, RAW_SHA256, read_preflight
+        import hashlib
+        with tempfile.TemporaryDirectory() as directory:
+            for scale,count in (('S',100),('M',1000),('L',10000)):
+                root=Path(directory)/scale;generate(root,scale,version=SHARED_VERSION)
+                for name,digest in RAW_SHA256[scale].items():
+                    self.assertEqual(hashlib.sha256((root/name).read_bytes()).hexdigest(),digest)
+                matrix=json.loads((root/'matrix.json').read_text())
+                self.assertEqual(matrix['operator_resource_profile'],'engineering-capacity-2')
+                self.assertEqual(len(matrix['rows']),6)
+                for mode in ('dual_source','dual_source_replay'):
+                    result=read_preflight(root/(mode+'-1.json'))
+                    self.assertEqual(result['status'],'admissible_for_formal_attempt')
+                    self.assertEqual(result['physical_fit'],'unverified_until_complete_formal_run')
+                    self.assertEqual(result['capacity_profile'],'engineering-capacity-2')
+                    self.assertEqual(result['storage_budget']['physical_bytes'],1024**3)
+                    self.assertEqual(result['density_math']['operations'],count)
+                    cfg=json.loads((root/result['profile']).read_text());validate_profile(cfg)
+                    self.assertEqual(cfg['storage_format'],'shared-observation-dag-5')
+                    self.assertEqual(cfg['window_seconds'],5)
+                    if mode=='dual_source_replay':
+                        self.assertEqual(len(cfg['replay']['sequence']),3*count+4)
+                        self.assertEqual(cfg['replay']['buffer_seconds'],300)
+                        self.assertEqual(cfg['replay']['max_snapshots'],65000)
+                # No fallback to the old admission mode after marker deletion.
+                (root/'preflight.json').unlink()
+                with self.assertRaisesRegex(ValueError,'preflight_missing'):
+                    read_preflight(root/'dual_source-1.json')
+
     def test_legacy_default_profiles_and_raw_remain_byte_identical(self):
         from round19_scale_fixture import read_preflight
         import hashlib

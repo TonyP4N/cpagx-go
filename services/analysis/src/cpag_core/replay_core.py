@@ -56,7 +56,7 @@ class ReplayCore:
     """consume/advance only use declared simulation time, never a wall clock."""
     def __init__(self, profile, *, history_sink=None):
         self.profile=deepcopy(profile)
-        self.parameters=deepcopy(profile['replay']);validate('ReplaySpoolProfile' if self.parameters.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayProfile',self.parameters)
+        self.parameters=deepcopy(profile['replay']);validate('ReplayCompactProfile' if getattr(self,'compact_history',False) else 'ReplaySpoolProfile' if self.parameters.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayProfile',self.parameters)
         self.analysis_profile=deepcopy(profile);self.analysis_profile.pop('replay')
         if not validate_profile(self.analysis_profile):raise ValueError('replay_requires_bounded_profile')
         self.identity_profile=semantic_profile(profile)
@@ -144,6 +144,10 @@ class ReplayCore:
         result['semantic_config_fingerprint']=self.config_fingerprint
         result['replay_version']=VERSION
         result['quality']['network_pending']=deepcopy(self.capture_pending)
+        groups=None
+        if getattr(self,'compact_history',False):
+            groups={}
+            for candidate in result['candidates']:groups.setdefault(candidate['operation_id'],[]).append(candidate)
         for operation in result['operations']:
             identity=operation['operation_id']
             self.first_operation_at.setdefault(identity,self.now)
@@ -154,7 +158,7 @@ class ReplayCore:
             hard_unknown=operation['mapping']['status']!='matched' or any(
                 reason.startswith(('request_','response_','mapping_','process_mapping_conflict','process_order_uncertain','duplicate_process_time','unsupported_network'))
                 for reason in operation['unknown_reasons'])
-            own_candidates=[candidate for candidate in result['candidates'] if candidate['operation_id']==identity]
+            own_candidates=groups.get(identity,[]) if groups is not None else [candidate for candidate in result['candidates'] if candidate['operation_id']==identity]
             if self.now_exact<self.start_exact+Fraction(str(self.parameters['warmup_seconds'])):status='warming_up'
             elif operation['response']['state'] not in ('success','error'):status='pending_response'
             elif operation['response']['state']=='error' or operation['counterevidence']:status='counterevidence_present'
@@ -176,16 +180,22 @@ class ReplayCore:
         pending={op['operation_id'] for op in result['operations'] if op['replay']['status'] in ('warming_up','pending_response')}
         if self.conflicts:pending.update(op['operation_id'] for op in result['operations'])
         result['candidates']=[c for c in result['candidates'] if c['operation_id'] not in pending]
+        if groups is not None:
+            groups={}
+            for candidate in result['candidates']:groups.setdefault(candidate['operation_id'],[]).append(candidate)
         for operation in result['operations']:
-            operation['candidates']=[c['candidate_id'] for c in result['candidates'] if c['operation_id']==operation['operation_id']]
+            operation['candidates']=[c['candidate_id'] for c in (groups.get(operation['operation_id'],[]) if groups is not None else result['candidates']) if c['operation_id']==operation['operation_id']]
         # Frozen operations and their claim evidence are immutable even if later
         # adapter observations would associate a further response or alternative.
-        for identity,frozen in self.closed.items():
-            result['operations']=[op for op in result['operations'] if op['operation_id']!=identity]+[deepcopy(frozen['operation'])]
-            result['candidates']=[c for c in result['candidates'] if c['operation_id']!=identity]+deepcopy(frozen['candidates'])
-            by_id={change['event_id']:change for change in result['changes']}
-            for change in frozen['changes']:by_id.setdefault(change['event_id'],deepcopy(change))
-            result['changes']=list(by_id.values())
+        if getattr(self,'compact_history',False):
+            self._merge_frozen(result)
+        else:
+            for identity,frozen in self.closed.items():
+                result['operations']=[op for op in result['operations'] if op['operation_id']!=identity]+[deepcopy(frozen['operation'])]
+                result['candidates']=[c for c in result['candidates'] if c['operation_id']!=identity]+deepcopy(frozen['candidates'])
+                by_id={change['event_id']:change for change in result['changes']}
+                for change in frozen['changes']:by_id.setdefault(change['event_id'],deepcopy(change))
+                result['changes']=list(by_id.values())
         for name,archive in (('network',self.frozen_network),('process',self.frozen_process)):
             existing={row['event']['event_id'] for row in result[name]}
             result[name]+=[deepcopy(row) for identity,row in archive.items() if identity not in existing]
