@@ -128,7 +128,8 @@ def run(client,job,artifact,output,*,scale,restart=None,deadline_seconds=1800):
         original=requests.request('reference-locator','GET',query,maximum=QUERY_BYTES)['evidence']
         selected=original['resolved_record'];fragment=selected['fragment'];raw=base64.b64decode(fragment['content_base64'],validate=True)
         full=(root/'reference/independent-reference.csv').read_bytes()
-        if raw!=full[fragment['byte_offset']:fragment['byte_offset']+fragment['size_bytes']] or selected['values']['id']!=expected_reference:
+        if (hashlib.sha256(raw).hexdigest()!=fragment['sha256'] or len(raw)!=fragment['size_bytes'] or
+            raw!=full[fragment['byte_offset']:fragment['byte_offset']+fragment['size_bytes']] or selected['values']['id']!=expected_reference):
             raise ValueError('independent_reference_fragment_mismatch')
         report.update(status='passed',evaluation_id=eid,expected_tp_fp_fn=[expected,0,0],actual_tp_fp_fn=list(actual),
                       adapted_sha256=digest(adapted),document_sha256=digest(document),reference_fragment_sha256=fragment['sha256'],
@@ -164,7 +165,12 @@ def verify_restored(client,job,original,output):
         if not evidence['evidence']['evidence']['verified_original_evidence']:raise ValueError('restored_raw_evidence_missing')
         refs=json.loads((original/'reference/references.json').read_text());identity=next(iter(refs))
         reference=requests.request('restored-reference','GET',route+'/evidence?'+urlencode({'event':identity,'reference':'true'}),maximum=QUERY_BYTES)['evidence']
-        if reference['resolved_record']['fragment']['sha256']!=previous['reference_fragment_sha256']:
+        fragment=reference['resolved_record']['fragment']
+        raw=base64.b64decode(fragment['content_base64'],validate=True)
+        full=(original/'reference/independent-reference.csv').read_bytes()
+        if (fragment['sha256']!=previous['reference_fragment_sha256'] or hashlib.sha256(raw).hexdigest()!=fragment['sha256']
+            or len(raw)!=fragment['size_bytes'] or raw!=full[fragment['byte_offset']:fragment['byte_offset']+fragment['size_bytes']]
+            or reference['resolved_record']['values']['id']!=identity):
             raise ValueError('restored_reference_fragment_changed')
         report.update(status='passed',adapted_sha256=previous['adapted_sha256'],document_sha256=previous['document_sha256'],reference_fragment_sha256=previous['reference_fragment_sha256'])
         return report

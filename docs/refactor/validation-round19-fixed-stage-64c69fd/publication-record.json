@@ -1,0 +1,44 @@
+{
+  "scope": "one stage offline S100 new formal Worker run, not final six-run gate; development environment only",
+  "runtime_commit": "64c69fd8e932a14114b9da25c3c837cfd628f272",
+  "image": "sha256:7a142df1aee0229257ca2792152ed21b9903eff6c61a7c2eeb77895ba00216e8",
+  "private_originals": "controlled outputs/cpag-r19-64c69fd-offline-run1; SQL/session files not published",
+  "redactions": "personal paths only",
+  "files": [
+    {
+      "path": "public-summary.json",
+      "original_sha256": "ad92b5254bebd2289ec79820e154de2315eae0a8bf1c778d087a68e196212f93",
+      "public_sha256": "a5dc9436a2f3631f6a1920e8c55522cbea04895a0c96708ebef07ee2a23c710d"
+    },
+    {
+      "path": "source-fingerprints.json",
+      "original_sha256": "2e625f693a78beafb5c31c4102be9553273a7dee9e69bfaa4746ca9b058019f8",
+      "public_sha256": "2e625f693a78beafb5c31c4102be9553273a7dee9e69bfaa4746ca9b058019f8"
+    },
+    {
+      "path": "density-evaluation/report.json",
+      "original_sha256": "47c364d73370c67c48e4422f390b3a3708dd3472c7fd74b49f6fa55daeac16bc",
+      "public_sha256": "47c364d73370c67c48e4422f390b3a3708dd3472c7fd74b49f6fa55daeac16bc"
+    },
+    {
+      "path": "density-evaluation/http/http-measurements.jsonl",
+      "original_sha256": "1c1eac14c5be454c133e0fe48b962e12cc1b9b351c4e0113151cbf80141022a9",
+      "public_sha256": "1c1eac14c5be454c133e0fe48b962e12cc1b9b351c4e0113151cbf80141022a9"
+    },
+    {
+      "path": "restored-density-evaluation/report.json",
+      "original_sha256": "294567284ea1dcfb9e81b55b8685b10e59f05cb51fab2a439d3fdeaaf413e1b2",
+      "public_sha256": "294567284ea1dcfb9e81b55b8685b10e59f05cb51fab2a439d3fdeaaf413e1b2"
+    },
+    {
+      "path": "restored-density-evaluation/http/http-measurements.jsonl",
+      "original_sha256": "accf08bf7dd1a97436b23e904dc8044deb92cae2937734d398a536ddda8618b9",
+      "public_sha256": "accf08bf7dd1a97436b23e904dc8044deb92cae2937734d398a536ddda8618b9"
+    },
+    {
+      "path": "independent-restored-fragment-postcheck.json",
+      "original_sha256": "1419eb0a003ec683c4efa1a6839422f4cf19e6bd93d57c4aa3fc9d200408fb5d",
+      "public_sha256": "1419eb0a003ec683c4efa1a6839422f4cf19e6bd93d57c4aa3fc9d200408fb5d"
+    }
+  ]
+}

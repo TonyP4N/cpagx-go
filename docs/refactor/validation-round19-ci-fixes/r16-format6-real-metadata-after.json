@@ -1,0 +1,8 @@
+{
+  "scope": "current acceptance gate against retained real format6 metadata only; no new browser/service run",
+  "format_version": 6,
+  "original_ready_documents": 6,
+  "restored_ready_documents": 6,
+  "result": "accepted",
+  "source_sha256": "764b233f6b2b331c5f807f44ca51a29bb26b038664f03056a1e1a5cd1ba92809"
+}

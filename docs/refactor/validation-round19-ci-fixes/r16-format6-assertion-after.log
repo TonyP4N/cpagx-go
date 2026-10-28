@@ -1,0 +1,10 @@
+test_current_empty_and_ready_preparation_catalogs_both_accept (test_round16_acceptance.CatalogFormat6AcceptanceTests.test_current_empty_and_ready_preparation_catalogs_both_accept) ... ok
+test_format6_requires_all_catalog_and_preparation_audits (test_round16_acceptance.CatalogFormat6AcceptanceTests.test_format6_requires_all_catalog_and_preparation_audits) ... ok
+test_old_or_unknown_versions_never_widen_current_acceptance (test_round16_acceptance.CatalogFormat6AcceptanceTests.test_old_or_unknown_versions_never_widen_current_acceptance) ... ok
+test_partial_rehashed_or_nonterminal_preparation_audits_refused (test_round16_acceptance.CatalogFormat6AcceptanceTests.test_partial_rehashed_or_nonterminal_preparation_audits_refused) ... ok
+test_restored_document_audit_must_match_original_ready_bytes (test_round16_acceptance.CatalogFormat6AcceptanceTests.test_restored_document_audit_must_match_original_ready_bytes) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.001s
+
+OK

@@ -7,7 +7,8 @@ import subprocess
 import sys
 import time
 
-import pytest
+import tempfile
+import unittest
 
 CODE = '''
 import sys,time
@@ -19,7 +20,7 @@ with patch.object(guard.runpy,'run_module',side_effect=lambda *a,**k:time.sleep(
 '''
 
 
-def test_independent_alarm_and_actual_resource_receipt(tmp_path):
+def check_independent_alarm_and_actual_resource_receipt(tmp_path):
     receipt=tmp_path/'guard.jsonl'
     env=dict(os.environ,CPAG_PREPARATION_METRICS=str(receipt))
     start=time.monotonic()
@@ -32,7 +33,7 @@ def test_independent_alarm_and_actual_resource_receipt(tmp_path):
     assert row['memory_limit_enforced']==sys.platform.startswith('linux')
 
 
-def test_inherited_execution_lock_lasts_until_actual_child_exit(tmp_path):
+def check_inherited_execution_lock_lasts_until_actual_child_exit(tmp_path, test):
     receipt=tmp_path/'guard.jsonl'
     lock=(tmp_path/'coordinator.lock').open('w')
     fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
@@ -45,8 +46,22 @@ def test_inherited_execution_lock_lasts_until_actual_child_exit(tmp_path):
             time.sleep(.01)
         assert receipt.exists()
         with (tmp_path/'coordinator.lock').open('r') as contender:
-            with pytest.raises(BlockingIOError):fcntl.flock(contender,fcntl.LOCK_EX|fcntl.LOCK_NB)
+            with test.assertRaises(BlockingIOError):fcntl.flock(contender,fcntl.LOCK_EX|fcntl.LOCK_NB)
             assert child.wait(timeout=10)==124
             fcntl.flock(contender,fcntl.LOCK_EX|fcntl.LOCK_NB)
     finally:
         if child.poll() is None:child.kill();child.wait()
+        child.communicate(timeout=2)
+
+
+class PreparationGuardTests(unittest.TestCase):
+    def test_independent_alarm_and_actual_resource_receipt(self):
+        with tempfile.TemporaryDirectory() as directory:
+            check_independent_alarm_and_actual_resource_receipt(Path(directory))
+
+    def test_inherited_execution_lock_lasts_until_actual_child_exit(self):
+        with tempfile.TemporaryDirectory() as directory:
+            check_inherited_execution_lock_lasts_until_actual_child_exit(Path(directory),self)
+
+
+if __name__ == '__main__':unittest.main()

@@ -1,0 +1,9 @@
+{
+  "version": "r19-formal-density-evaluation-1",
+  "status": "passed",
+  "job": "85af8a3f5473153b1dae6cb2bf26df08",
+  "scope": "empty-database/new-directory query; caller must supply independent restore audit",
+  "adapted_sha256": "7e581b2839ac2022c120ca771273ab6d05c05e6ba3dd2aee37542c7f36a7b611",
+  "document_sha256": "6dbc8fe5a0fef8ba295b9d0952718adfb828040faae0cad910d266575752363d",
+  "reference_fragment_sha256": "8aed7043dbc6a6fa29d900d2179532441077c064279670aca8426e1a6ef3b46f"
+}

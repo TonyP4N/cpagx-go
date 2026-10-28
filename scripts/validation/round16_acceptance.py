@@ -33,6 +33,47 @@ PG_IMAGE='mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fca
 WORKER_IMAGE='cpag-isolated:round5'
 
 
+def require_preparation_audit(audit,catalog,*,semantic_executed):
+    """Check the current format6's actual ready documents, including none."""
+    if not isinstance(audit,dict) or audit.get('valid') is not True:
+        raise RuntimeError('format6 preparation audit missing or failed')
+    rows=catalog.get('v3_evaluation_preparations')
+    if (not isinstance(rows,list) or any(not isinstance(row,dict) or row.get('state') not in ('ready','failed') for row in rows)
+            or not isinstance(catalog.get('v3_evaluation_preparation_attempts'),list)):
+        raise RuntimeError('format6 terminal preparation catalog missing')
+    ready={row['id']:row for row in rows if row['state']=='ready'}
+    documents=audit.get('documents')
+    if not isinstance(documents,list) or any(not isinstance(row,dict) for row in documents):
+        raise RuntimeError('format6 prepared document audit missing')
+    identities=[row.get('id') for row in documents]
+    if len(set(identities))!=len(identities) or set(identities)!=set(ready):
+        raise RuntimeError('format6 prepared document inventory mismatch')
+    total=0
+    for document in documents:
+        row=ready[document['id']];size=document.get('size_bytes')
+        if (type(size) is not int or size!=row.get('document_size') or size<=0
+                or document.get('document_sha256')!=row.get('document_sha256')
+                or document.get('source_projection_equal') is not True
+                or document.get('semantic_verification_executed') is not semantic_executed):
+            raise RuntimeError('format6 prepared document source/bytes mismatch')
+        total+=size
+    if type(audit.get('ready_bytes')) is not int or audit['ready_bytes']!=total or total>1024**3:
+        raise RuntimeError('format6 prepared document byte budget mismatch')
+
+
+def require_format6_catalog_snapshot(snapshot):
+    if not isinstance(snapshot,dict) or type(snapshot.get('format_version')) is not int or snapshot['format_version']!=6:
+        raise RuntimeError('current catalog acceptance requires backup format6')
+    catalog=snapshot.get('catalog')
+    if not isinstance(catalog,dict) or set(catalog)!=set(bundle.CATALOG_TABLES):
+        raise RuntimeError('format6 complete catalog required')
+    for key in ('catalog_audit','copied_catalog_audit'):
+        if not isinstance(snapshot.get(key),dict) or snapshot[key].get('valid') is not True:
+            raise RuntimeError('format6 catalog audit failed')
+    require_preparation_audit(snapshot.get('preparation_audit'),catalog,semantic_executed=True)
+    require_preparation_audit(snapshot.get('copied_preparation_audit'),catalog,semantic_executed=False)
+
+
 def port():
     with socket.socket() as sock:
         sock.bind(('127.0.0.1',0));return sock.getsockname()[1]
@@ -316,11 +357,11 @@ def drill(work,serve=False,skip_image_build=False,build_ui=False):
             raise RuntimeError('CLI cancellation did not match API state')
         stop(source_app);source_app=None
         snapshot=bundle.backup(container,'m4_validation',source_root,work/'bundle')
-        if snapshot['format_version']!=5 or not snapshot['catalog_audit']['valid']:
-            raise RuntimeError('catalog backup failed')
+        require_format6_catalog_snapshot(snapshot)
         restored_audit=bundle.restore(container,work/'bundle',restored_root)
         if not restored_audit['valid'] or not restored_audit.get('catalog_equal'):
             raise RuntimeError('fresh restore audit failed')
+        require_preparation_audit(restored_audit.get('preparation_audit'),snapshot['catalog'],semantic_executed=True)
         restore_config=make_config(pg_port,'m4_restore_validation',restored_root,restored_control,
             restored_public,restored_internal,worker_token,coordinator_token,
             admin_user,admin_password,static_root)

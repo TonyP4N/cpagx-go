@@ -1,0 +1,13 @@
+{
+  "scope": "independent exact existing R16 guard against successful real format6 backup metadata",
+  "source_file": "scripts/validation/round16_acceptance.py",
+  "source_sha256": "54421503302a75651d0f1ac739d52c7c749fee521467cc887d622fab65b8e600",
+  "line": 319,
+  "observed_format": 6,
+  "catalog_audit_valid": true,
+  "preparation_audit_valid": true,
+  "expected": "accept current declared format6 after checking its required audits",
+  "actual": "rejected",
+  "error": "catalog backup failed",
+  "product_backup_recomputed": false
+}

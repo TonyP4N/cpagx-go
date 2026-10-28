@@ -1,0 +1,204 @@
+{
+  "version": "r19-formal-density-evaluation-1",
+  "scope": "generated density, actual HTTP service; no reference-environment or industrial acceptance",
+  "scale": "S",
+  "job": "85af8a3f5473153b1dae6cb2bf26df08",
+  "status": "passed",
+  "os_cache": "unverified",
+  "preparation_samples": [
+    {
+      "elapsed_seconds": 0.01863316699746065,
+      "preparation": {
+        "attempt": 1,
+        "cost": {},
+        "document_size": 0,
+        "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+        "preparation_attempt": 0,
+        "projection": "dual",
+        "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+        "reason_code": "",
+        "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+        "source_attempt": 1,
+        "state": "queued",
+        "strategy_version": "evaluation-preparation-1"
+      }
+    },
+    {
+      "elapsed_seconds": 1.0252427920058835,
+      "preparation": {
+        "attempt": 1,
+        "cost": {},
+        "document_size": 0,
+        "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+        "reason_code": "",
+        "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+        "source_attempt": 1,
+        "state": "preparing",
+        "strategy_version": "evaluation-preparation-1"
+      }
+    },
+    {
+      "elapsed_seconds": 2.037625416996889,
+      "preparation": {
+        "attempt": 1,
+        "cost": {},
+        "document_size": 0,
+        "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+        "reason_code": "",
+        "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+        "source_attempt": 1,
+        "state": "preparing",
+        "strategy_version": "evaluation-preparation-1"
+      }
+    },
+    {
+      "elapsed_seconds": 3.2969597920018714,
+      "preparation": {
+        "attempt": 1,
+        "cost": {
+          "total_seconds": 2.792212375,
+          "storage_seconds": 0.04299374999999994,
+          "resource_version": "evaluation-preparation-resources-1",
+          "postcheck_seconds": 0.232261542,
+          "projection_seconds": 2.093171042,
+          "wall_limit_seconds": 1800,
+          "verification_seconds": 0.423673708,
+          "child_resource_records": [
+            {
+              "pid": 42446,
+              "nofile": 128,
+              "version": "evaluation-preparation-resources-1",
+              "file_bytes": 4294967296,
+              "cpu_seconds": 1800,
+              "memory_bytes": 2147483648,
+              "wall_seconds": 1800,
+              "memory_limit_enforced": false
+            }
+          ]
+        },
+        "document_sha256": "4d82c45cc7a05fe1766f68f80b61e107a39fb24a10f3136a2365d6d48a2eea53",
+        "document_size": 1039963,
+        "duration_seconds": 2.792212375,
+        "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+        "preparation_attempt": 1,
+        "projection": "dual",
+        "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+        "reason_code": "",
+        "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+        "source_attempt": 1,
+        "state": "ready",
+        "strategy_version": "evaluation-preparation-1"
+      }
+    }
+  ],
+  "prepare_submission": {
+    "preparation": {
+      "attempt": 1,
+      "cost": {},
+      "document_size": 0,
+      "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+      "preparation_attempt": 0,
+      "projection": "dual",
+      "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+      "reason_code": "",
+      "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+      "source_attempt": 1,
+      "state": "queued",
+      "strategy_version": "evaluation-preparation-1"
+    }
+  },
+  "ready_identity": {
+    "id": "d566c7c2b5eccc44734083ac4892b555e43e4972a72ae38f12c79410a7bfac75",
+    "document_sha256": "4d82c45cc7a05fe1766f68f80b61e107a39fb24a10f3136a2365d6d48a2eea53",
+    "document_size": 1039963,
+    "preparation_attempt": 1,
+    "source_attempt": 1,
+    "publication_sha256": "c531ebdb76ffdf55bfadeeb5a054ebaf11c5039c0ef36774749d09bdd370a65e",
+    "strategy_version": "evaluation-preparation-1"
+  },
+  "prepare_seconds": 3.2972845830081496,
+  "freeze_seconds": 0.6076407080108766,
+  "holdout_wait_seconds": 9.406962749984814,
+  "evaluate_seconds": 0.8835840839892626,
+  "evaluation_id": "fe155b62391dfdbb020da77c65435d34",
+  "expected_tp_fp_fn": [
+    199,
+    0,
+    0
+  ],
+  "actual_tp_fp_fn": [
+    199,
+    0,
+    0
+  ],
+  "adapted_sha256": "7e581b2839ac2022c120ca771273ab6d05c05e6ba3dd2aee37542c7f36a7b611",
+  "document_sha256": "6dbc8fe5a0fef8ba295b9d0952718adfb828040faae0cad910d266575752363d",
+  "reference_fragment_sha256": "8aed7043dbc6a6fa29d900d2179532441077c064279670aca8426e1a6ef3b46f",
+  "total_seconds": 26.02765020800871,
+  "binding": {
+    "adapter_version": "final-artifact-evaluation-1",
+    "analysis_version": "bounded-dual-source-2",
+    "artifact_sha256": {
+      "analysis.json": "13a1f2c8eb00fcff0c2cc37f70ede37ffc544aa4bbf056931562eb6db890de89",
+      "dataset.json": "ed22bb68830d990430c0573b6e3b57b24bfb007fe0fb146facf142c0a289ec8b",
+      "dual/analysis.json": "13a1f2c8eb00fcff0c2cc37f70ede37ffc544aa4bbf056931562eb6db890de89",
+      "dual/manifest.json": "b59aeb654b1276872af257618c34d1a94dde97ad5d066113f896ea3059504617",
+      "dual/sources/network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+      "dual/sources/process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+      "dual/sources/profile.json": "fcea1acd22d5f68a4295d176656758ed55ed7da594fda47d841e8298068dca90",
+      "events.json": "beeb6d664c6600b91a956c801c72ea6bba4db231271ef1b61d6bae10e4664a9a",
+      "graph.json": "25bc0e5b47dd5322a016c454264cc79e0cd37ceed350f78a46ccd5071d1932ab",
+      "quality.json": "619283961188192873ea42131b8e4f860ddfbe682c06da138ae59f58da87c584",
+      "run_manifest.json": "0bc04bf99e1cbb3a59b3895bf4bbe6ff30df53386bd2f8d36df9aa1139a6bce9"
+    },
+    "attempt_id": 1,
+    "batch": "round19",
+    "config_fingerprint": "8738929d5bc41bbfd584fc58fc17ef7467a72b561d556688387a65eb9c6b3b9c",
+    "config_version": "synthetic-map-v1",
+    "context_provenance": "caller_supplied_trusted_registration_context_not_custody_proof",
+    "final_snapshot": null,
+    "input_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+    "mode": "offline",
+    "policy": {
+      "network_asset": "canonical_json_destination_ip_port_captured_endpoint_only",
+      "network_kind": "network_operation",
+      "network_time": "configured_corrected_request_interval_upper_bound",
+      "process_asset": "canonical_json_asset_id_tag",
+      "process_kind": "process_change",
+      "process_time": "configured_transition_interval_upper_bound",
+      "relations": "unlabelled_hypothetical_candidates_no_path_accuracy",
+      "replay": "verified_terminal_snapshot_distinct_stable_ids_only",
+      "version": "final-observations-upper-bound-1"
+    },
+    "policy_sha256": "97c6aa3cac2c406a73cf468e2913f5176518e8999c87884258e32c614f8de8e2",
+    "predictions_sha256": "4e19de1eb6a99797db5d5f9f6910572f086ab3ba5e2b735ddfcc22b2684bd746",
+    "projection": "dual",
+    "replay_version": null,
+    "result_hashes": {
+      "events": "154d9a013f5317fc457e8199655cf3cfa3cb98dd24a283e8e364d56336655d2c",
+      "graph": "dad5164955d1850faac7914e500e160e5bb2d786e0c8141628851fff65ccae32"
+    },
+    "rule_version": "bounded-transition-v1",
+    "run_id": "85af8a3f5473153b1dae6cb2bf26df08",
+    "sample_sha256": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+    "semantic_config_fingerprint": "8738929d5bc41bbfd584fc58fc17ef7467a72b561d556688387a65eb9c6b3b9c",
+    "source_execution_version": null,
+    "source_mode": "dual",
+    "source_presence": {
+      "network": true,
+      "process": true
+    },
+    "synthetic": true,
+    "tool_versions": {
+      "core": "0.1.1",
+      "python": "3.12.16"
+    }
+  },
+  "application_cold_verified": true
+}
