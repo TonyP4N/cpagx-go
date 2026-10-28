@@ -29,6 +29,19 @@ class StreamingJSONTests(unittest.TestCase):
             path.write_bytes(path.read_bytes().replace(b'1',b'2',1))
             self.assertFalse(canonical_file_matches(path,value))
 
+    def test_output_budget_exact_and_one_byte_over(self):
+        value={'evidence':[{'source':'原件','record':i} for i in range(30)]}
+        expected=canonical(value)+b'\n'
+        with tempfile.TemporaryDirectory() as d:
+            path=Path(d)/'bounded.json'
+            write_canonical(path,value,max_bytes=len(expected))
+            self.assertEqual(path.read_bytes(),expected)
+            with self.assertRaisesRegex(ValueError,'artifact_output_limit'):
+                write_canonical(path,value,max_bytes=len(expected)-1)
+            # A failed writer may leave staging bytes, but cannot match or be
+            # published as the complete canonical artifact.
+            self.assertFalse(canonical_file_matches(path,value))
+
     def test_mutation_between_calls_not_cached(self):
         value={'a':1};one=fingerprint(value);value['a']=2
         self.assertNotEqual(one,fingerprint(value))

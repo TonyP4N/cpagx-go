@@ -38,6 +38,9 @@ func (s *Server) serveReplay(w http.ResponseWriter, r *http.Request, id, kind st
 	if p.Kind != "dual-source-replay" {
 		return errors.New("replay route requires replay task")
 	}
+	if p.HistoryFormat == ReplaySpoolFormat {
+		return s.serveSpoolReplay(w, r, base, p, kind)
+	}
 	rawPath, e := s.file(base + "run_manifest.json")
 	if e != nil {
 		return e

@@ -34,6 +34,7 @@ type Payload struct {
 	Profile         Ref    `json:"profile"`
 	Fingerprint     string `json:"config_fingerprint"`
 	ReplayVersion   string `json:"replay_version,omitempty"`
+	HistoryFormat   string `json:"history_format,omitempty"`
 	CapacityProfile string `json:"capacity_profile,omitempty"`
 	ResourceProfile string `json:"resource_profile,omitempty"`
 }
@@ -42,6 +43,7 @@ type Server struct {
 	Root, Secret                    string
 	CoordinatorSecret, ControlRoot  string
 	CapacityPolicy, ResourceProfile string
+	PythonBin, PythonPath           string
 	dualCacheMu                     sync.Mutex
 	dualCacheKey                    string
 	dualCacheAnalysis               map[string]any
@@ -251,7 +253,14 @@ func (s *Server) validatePayload(p Payload, historical bool) error {
 		}
 	}
 	if dualFamily(p.Kind) {
-		if err := contracts.Validate(dualSchemaDir(), "DualSourceProfile", raw); err != nil {
+		schemaName, format, selectErr := replayProfileSchema(document)
+		if selectErr != nil {
+			return selectErr
+		}
+		if format != p.HistoryFormat {
+			return errors.New("payload/profile replay history format mismatch")
+		}
+		if err := contracts.Validate(dualSchemaDir(), schemaName, raw); err != nil {
 			return err
 		}
 		doc, _ := config.(map[string]any)
@@ -265,7 +274,7 @@ func (s *Server) validatePayload(p Payload, historical bool) error {
 			if e := validateReplayProfile(config, p.ReplayVersion); e != nil {
 				return e
 			}
-		} else if p.ReplayVersion != "" {
+		} else if p.ReplayVersion != "" || p.HistoryFormat != "" {
 			return errors.New("replay version requires replay kind")
 		}
 		if err := validateDualProfile(config); err != nil {
@@ -625,6 +634,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type Manifest struct {
 	Fingerprint   string            `json:"config_fingerprint"`
 	ReplayVersion string            `json:"replay_version,omitempty"`
+	HistoryFormat string            `json:"history_format,omitempty"`
 	Inputs        map[string]string `json:"inputs"`
 	Networks      []string          `json:"networks,omitempty"`
 	Artifacts     []struct {
@@ -678,7 +688,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if d.Decode(new(any)) != io.EOF {
 		return errors.New("invalid manifest")
 	}
-	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || m.ReplayVersion != p.ReplayVersion || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
+	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || m.ReplayVersion != p.ReplayVersion || m.HistoryFormat != p.HistoryFormat || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
 		return errors.New("manifest input mismatch or artifact count")
 	}
 	seen := map[string]bool{}
@@ -688,7 +698,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		return err
 	}
 	for _, a := range m.Artifacts {
-		if seen[a.Path] || a.Path == "manifest.json" || !validArtifactPath(a.Path, p.Kind) {
+		if seen[a.Path] || a.Path == "manifest.json" || !validPayloadArtifactPath(p, a.Path) {
 			return errors.New("invalid artifact name")
 		}
 		seen[a.Path] = true
@@ -771,7 +781,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	}
 	coreSeen := map[string]bool{}
 	for _, a := range core.Artifacts {
-		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (dualFamily(p.Kind) && validArtifactPath(a.Path, p.Kind) && a.Path != "run_manifest.json")) {
+		if coreSeen[a.Path] || !(map[string]bool{"dataset.json": true, "events.json": true, "graph.json": true, "quality.json": true}[a.Path] || (p.Kind == "packet" && a.Path == "packet_observations.json") || (dualFamily(p.Kind) && validPayloadArtifactPath(p, a.Path) && a.Path != "run_manifest.json")) {
 			return errors.New("invalid core artifact set")
 		}
 		coreSeen[a.Path] = true
@@ -791,7 +801,12 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 		}
 	}
 	if p.Kind == "dual-source-replay" {
-		if _, err = s.validateReplay(base, p, m, coreRaw); err != nil {
+		if p.HistoryFormat == ReplaySpoolFormat {
+			_, err = s.validateSpoolReplay(r.Context(), base, p, m, coreRaw)
+		} else {
+			_, err = s.validateReplay(base, p, m, coreRaw)
+		}
+		if err != nil {
 			return err
 		}
 	}

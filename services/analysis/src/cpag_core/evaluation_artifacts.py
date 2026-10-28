@@ -122,7 +122,14 @@ def _verified(output):
     final = None
     if manifest['mode'] == 'replay':
         replay = strict_json(bound_bytes('replay.json').decode('utf-8'))
-        statistics, final = _history_statistics(bound_rows('snapshots.jsonl'))
+        if manifest.get('history_format') is not None:
+            from .replay_export import iter_verified_snapshots
+            # The versioned outer verifier checks source replay and storage;
+            # iterate reconstructed logical states without inventing JSONL files.
+            bound_bytes('history/manifest.json')
+            statistics, final = _history_statistics(iter_verified_snapshots(root))
+        else:
+            statistics, final = _history_statistics(bound_rows('snapshots.jsonl'))
         if (final is None or final['snapshot_id'] != replay['final_snapshot_id']
                 or statistics['snapshot_count'] != replay['snapshot_count']):
             raise ValueError('terminal_snapshot_binding_mismatch')
@@ -239,6 +246,9 @@ def adapt_artifact(output, *, batch, sample_sha256, projection='dual', expected_
         'final_snapshot': None if final is None else {key: final[key] for key in
             ('snapshot_id', 'snapshot_number', 'state_fingerprint', 'available_at', 'revision_number')},
         'predictions_sha256': fingerprint(predictions)}
+    if manifest.get('history_format') is not None:
+        binding['history_format']=manifest['history_format']
+        binding['history_manifest_sha256']=manifest['history_manifest_sha256']
     if expected_binding is not None and canonical(expected_binding) != canonical(binding):
         raise ValueError('frozen_artifact_binding_mismatch')
     limitations = list(LIMITATIONS)

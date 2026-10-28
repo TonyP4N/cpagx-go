@@ -1029,7 +1029,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			networks = append(networks, str(r))
 		}
 	}
-	if !ok || !publicationInputsMatch(p, inputMap, networks) || ((p.Kind == "dual-source-replay") && pub["replay_version"] != p.ReplayVersion) {
+	if !ok || !publicationInputsMatch(p, inputMap, networks) || ((p.Kind == "dual-source-replay") && (pub["replay_version"] != p.ReplayVersion || str(pub["history_format"]) != p.HistoryFormat)) {
 		return "", p, nil, errors.New("published dual input mismatch")
 	}
 	names := dualArtifactNamesFor(p)
@@ -1040,7 +1040,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if !ok || len(entries) != len(names) {
 		return "", p, nil, errors.New("published dual artifact count mismatch")
 	}
-	wrapper := Manifest{Fingerprint: p.Fingerprint, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
+	wrapper := Manifest{Fingerprint: p.Fingerprint, ReplayVersion: p.ReplayVersion, HistoryFormat: p.HistoryFormat, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
 	for _, value := range entries {
 		e, ok := obj(value)
 		if !ok {
@@ -1048,7 +1048,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 		}
 		name := str(e["path"])
 		size, ok := intValue(e["size"])
-		if !ok || size < 0 || !validArtifactPath(name, p.Kind) {
+		if !ok || size < 0 || !validPayloadArtifactPath(p, name) {
 			return "", p, nil, errors.New("invalid dual publication path")
 		}
 		wrapper.Artifacts = append(wrapper.Artifacts, struct {
@@ -1099,7 +1099,11 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 		return "", p, nil, err
 	}
 	if p.Kind == "dual-source-replay" {
-		_, err = s.validateReplay(base, p, wrapper, coreRaw)
+		if p.HistoryFormat == ReplaySpoolFormat {
+			_, err = s.validateSpoolReplay(r.Context(), base, p, wrapper, coreRaw)
+		} else {
+			_, err = s.validateReplay(base, p, wrapper, coreRaw)
+		}
 	} else {
 		err = s.validateDual(base, p, wrapper, coreRaw)
 	}

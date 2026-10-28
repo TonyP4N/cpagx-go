@@ -192,16 +192,26 @@ class ReplayInputs:
     a seen ordinal is a cache lookup and never reads another original byte.
     """
     def __init__(self, networks, process, process_profile, *, synthetic, packet_limits=None,
-                 process_limits=None, stream_limits=None, max_records=11000):
+                 process_limits=None, stream_limits=None, max_records=11000, capacity_config=None):
         if type(synthetic) is not bool:raise ValueError('explicit_synthetic_boolean_required')
         paths=list(networks) if isinstance(networks,(tuple,list)) else [networks]
         if not 1<=len(paths)<=4:raise ValueError('network_file_limit')
         self.synthetic=synthetic;self.profile=deepcopy(process_profile)
         self.packet_limits=packet_limits or Limits();self.process_limits=process_limits or ProcessLimits()
         self.stream_limits=stream_limits or StreamLimits();self.max_records=max_records
-        if type(max_records) is not int or not 1<=max_records<=11000:
+        capacity=None
+        if capacity_config is not None:
+            from .capacity import resolve_capacity_profile,parser_limits
+            from .dual_source_rules import validate_profile
+            validate_profile(capacity_config)
+            if capacity_config.get('replay',{}).get('history_format')!='replay-history-checkpoint-delta-2':raise ValueError('capacity_replay_history_required')
+            capacity=resolve_capacity_profile(capacity_config);ceilings=parser_limits(capacity_config)
+        else:ceilings={'packet_limits':Limits(),'process_limits':ProcessLimits(),'stream_limits':StreamLimits()}
+        ceiling_records=capacity.frames+capacity.process_records+1 if capacity is not None and capacity.version else 11000
+        self.network_total_limit=capacity.network_total_bytes if capacity is not None else self.packet_limits.max_bytes
+        if type(max_records) is not int or not 1<=max_records<=ceiling_records:
             raise ValueError('arrived_record_limit_configuration')
-        for selected, ceiling in ((self.packet_limits,Limits()),(self.process_limits,ProcessLimits()),(self.stream_limits,StreamLimits())):
+        for selected, ceiling in ((self.packet_limits,ceilings['packet_limits']),(self.process_limits,ceilings['process_limits']),(self.stream_limits,ceilings['stream_limits'])):
             if any(value>getattr(ceiling,key) for key,value in vars(selected).items()):
                 raise ValueError('replay_hard_limit_exceeded')
         self.sources={f'network-{i}':_Cursor(path,f'network-{i}','network',self) for i,path in enumerate(paths)}
@@ -212,7 +222,7 @@ class ReplayInputs:
     def _account(self, kind, count):
         if kind=='network':
             self.network_bytes+=count
-            if self.network_bytes>self.packet_limits.max_bytes:raise CaptureError('aggregate_byte_limit')
+            if self.network_bytes>self.network_total_limit:raise CaptureError('aggregate_byte_limit')
         else:
             self.process_bytes+=count
             if self.process_bytes>self.process_limits.max_bytes:raise ValueError('process_byte_limit')

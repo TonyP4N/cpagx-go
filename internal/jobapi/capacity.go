@@ -27,6 +27,9 @@ func (s *Server) payloadBudget(p Payload, config map[string]any) (capacity.Budge
 // limits. A new operator policy cannot silently enlarge or reinterpret them.
 // Submission and unfinished publication must continue using payloadBudget.
 func readPayloadBudget(p Payload, config map[string]any) (capacity.Budget, error) {
+	if p.HistoryFormat != "" && (p.Kind != "dual-source-replay" || p.HistoryFormat != ReplaySpoolFormat) {
+		return capacity.Budget{}, errors.New("history format requires explicit supported replay payload")
+	}
 	b, err := capacity.FromDocument(config)
 	if err != nil {
 		return b, err
@@ -35,7 +38,7 @@ func readPayloadBudget(p Payload, config map[string]any) (capacity.Budget, error
 		return b, errors.New("payload/profile capacity binding mismatch")
 	}
 	if b.Version != "" {
-		if p.Kind != "dual-source" {
+		if p.Kind != "dual-source" && !(p.Kind == "dual-source-replay" && p.HistoryFormat == ReplaySpoolFormat) {
 			return b, errors.New("capacity profile requires versioned replay integration")
 		}
 	}

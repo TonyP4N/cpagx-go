@@ -31,7 +31,12 @@ def network_names(count):
     return ['network.pcap']+['network-%03d.pcap'%i for i in range(1,count)]
 
 
-def artifact_files_for_inputs(count):
+def artifact_files_for_inputs(count, *, history_format=None):
+    if history_format is not None:
+        from .replay_history import VERSION as history_version
+        if history_format!=history_version:raise ValueError('unsupported_history_format')
+        from .replay_spool_export import files
+        return files(count)
     return frozenset((*STANDARD,'run_manifest.json','sources/profile.json','sources/process.csv',
                       *('sources/'+n for n in network_names(count))))
 
@@ -46,7 +51,8 @@ def read_json(path):
 def artifact_files(output):
     dataset=read_json(Path(output)/'dataset.json')
     count=sum(row.get('kind')=='network' for row in dataset['files'])
-    return artifact_files_for_inputs(count)
+    manifest=read_json(Path(output)/'run_manifest.json')
+    return artifact_files_for_inputs(count,history_format=manifest.get('history_format'))
 
 
 def _inputs(network,process,profile):
@@ -76,17 +82,27 @@ def dataset_manifest(config,rows,count):
     return dataset
 
 
-def execute(networks,process,profile,*,pace=False):
+def execute(networks,process,profile,*,pace=False,history_sink=None):
     """Consume only the explicitly arriving record; no complete-input parsing."""
     from .replay_core import ReplayCore
     config=deepcopy(profile);validate_profile(config)
     options=config.get('replay',{})
     if options.get('version')!=VERSION:raise ValueError('unsupported_replay_version')
     sequence=options.get('sequence')
-    if not isinstance(sequence,list) or not sequence or len(sequence)>22000:raise ValueError('explicit_bounded_arrival_sequence_required')
+    from .capacity import resolve_capacity_profile,parser_limits
+    budget=resolve_capacity_profile(config)
+    if not isinstance(sequence,list) or not sequence or len(sequence)>budget.arrival_steps:raise ValueError('explicit_bounded_arrival_sequence_required')
     if 'finish_at' not in options:raise ValueError('explicit_finish_time_required')
-    engine=ReplayCore(config)
-    inputs=ReplayInputs(networks,process,config['process'],synthetic=config['synthetic'])
+    try:
+        engine=ReplayCore(config,history_sink=history_sink)
+        limits=parser_limits(config) if options.get('history_format')=='replay-history-checkpoint-delta-2' else None
+        extra={} if limits is None else {'packet_limits':limits['packet_limits'],'process_limits':limits['process_limits'],
+            'stream_limits':limits['stream_limits'],'capacity_config':config,
+            'max_records':budget.frames+budget.process_records+1 if budget.version else 11000}
+        inputs=ReplayInputs(networks,process,config['process'],synthetic=config['synthetic'],**extra)
+    except Exception:
+        if history_sink is not None:history_sink.abort()
+        raise
     wall_start=time.monotonic();schedule_start=instant(options['simulation_start']);speed=options.get('speed',1)
     samples=[]
     def pacing(at):
@@ -121,27 +137,36 @@ def execute(networks,process,profile,*,pace=False):
         prefix=inputs.finish()
         engine.consume(prefix,available_at=at,arrival_seq=len(sequence)+1,status='input_exhausted')
         engine.finish(at)
-        snapshots=engine.snapshots()
-        for row in snapshots:
-            projected=event_graph(row['analysis'],replay=True)
-            row['graph']=projected['graph.json'];row['events']=projected['events.json']
+        snapshots=None if history_sink is not None else engine.snapshots()
+        if snapshots is not None:
+            for row in snapshots:
+                projected=event_graph(row['analysis'],replay=True)
+                row['graph']=projected['graph.json'];row['events']=projected['events.json']
         result=engine.final_result()
-        for revision in engine.history():validate('ReplayRevision',revision)
+        if history_sink is None:
+            for revision in engine.history():validate('ReplayRevision',revision)
         runtime={'schema_version':'1.0.0','clock':'monotonic_wall_seconds','speed':speed,
                  'paced':bool(pace and options.get('realtime',options.get('realtime_pacing',False))),
                  'elapsed_seconds':time.monotonic()-wall_start,'samples':samples,
                  'core_samples':engine.runtime_metrics()['samples'],
                  'limitations':['Engineering mechanism samples, not production throughput or R19 acceptance.']}
-        return {'analysis':result,'snapshots':snapshots,'revisions':engine.history(),
-                'metrics':engine.metrics(),'runtime_metrics':runtime,'inputs':inputs}
+        run={'analysis':result,'snapshots':snapshots,'revisions':None if history_sink is not None else engine.history(),
+             'metrics':engine.metrics(),'runtime_metrics':runtime,'inputs':inputs}
+        if history_sink is not None:
+            run['history_spool']=history_sink.seal()
+            run['history_status']='compact_storage_only; source_publication_verification_required'
+        return run
     except Exception:
-        inputs.close();raise
+        inputs.close()
+        if history_sink is not None:history_sink.abort()
+        raise
 
 
 def _jsonl(rows):return b''.join(canonical(row)+b'\n' for row in rows)
 
 
 def _semantic_payloads(run,config):
+    if run.get('history_spool') is not None:raise ValueError('spooled_history_requires_v2_publisher_not_legacy_serialization')
     result=run['analysis'];projected=event_graph(result,replay=True)
     metrics=run['metrics']
     arrivals=metrics.get('arrival_samples',metrics.get('arrivals',[]))
@@ -157,6 +182,11 @@ def _semantic_payloads(run,config):
 
 
 def export_task(network,process,profile,output,*,run_id=None,attempt_id=1,replay_version=VERSION):
+    profile_path=Path(profile)
+    if profile_path.is_symlink() or not profile_path.is_file() or profile_path.stat().st_size>8*1024**2:raise ValueError('invalid_profile_file')
+    if 'history_format' in read_json(profile_path).get('replay',{}):
+        from .replay_spool_export import export_task as spool_export
+        return spool_export(network,process,profile,output,run_id=run_id,attempt_id=attempt_id,replay_version=replay_version)
     networks,process,profile=_inputs(network,process,profile)
     config=read_json(profile);validate_profile(config)
     if replay_version!=VERSION or config.get('replay',{}).get('version')!=VERSION:raise ValueError('unsupported_replay_version')
@@ -208,7 +238,11 @@ def export_task(network,process,profile,output,*,run_id=None,attempt_id=1,replay
 def _verify(output,*,retain_run=False):
     output=Path(output)
     if output.is_symlink() or not output.is_dir():raise ValueError('invalid_replay_root')
-    manifest=read_json(output/'run_manifest.json');validate('ReplayRunManifest',manifest)
+    manifest=read_json(output/'run_manifest.json')
+    if 'history_format' in manifest:
+        from .replay_spool_export import verify
+        return verify(output,retain_run=retain_run)
+    validate('ReplayRunManifest',manifest)
     if (output/'run_manifest.json').read_bytes()!=canonical(manifest)+b'\n':raise ValueError('run_manifest_encoding_mismatch')
     expected=artifact_files(output);found=set();dirs=set()
     for base,children,files in os.walk(output,followlinks=False):
@@ -273,7 +307,27 @@ def _verify(output,*,retain_run=False):
 def verify_task(output):return _verify(output)
 
 
+def _close_run(run):
+    run['inputs'].close()
+    if run.get('history_reader') is not None:run['history_reader'].close()
+
+
+def iter_verified_snapshots(output):
+    _,run=_verify(output,retain_run=True)
+    try:
+        if run.get('history_reader') is not None:
+            for number in range(run['history_reader'].manifest['snapshot_count']):
+                yield run['history_reader'].snapshot(number,projection=True)
+        else:
+            yield from run['snapshots']
+    finally:_close_run(run)
+
+
+
 def _snapshot(run,revision):
+    if run.get('history_reader') is not None:
+        if isinstance(revision,str) and revision.isdigit():revision=int(revision)
+        return run['history_reader'].snapshot(revision,projection=True)
     if isinstance(revision,str) and revision.isdigit():revision=int(revision)
     if type(revision) is not int or revision<0:raise KeyError('invalid_revision')
     rows=[row for row in run['snapshots'] if row.get('snapshot_number')==revision]
@@ -284,14 +338,16 @@ def _snapshot(run,revision):
 def snapshot_task(output,revision):
     _,run=_verify(output,retain_run=True)
     try:return json.loads(canonical(_snapshot(run,revision)))
-    finally:run['inputs'].close()
+    finally:_close_run(run)
 
 
 def list_revisions(output,after=0,limit=100):
     if type(after) is not int or after<0 or type(limit) is not int or not 1<=limit<=8192:raise ValueError('invalid_history_page')
     _,run=_verify(output,retain_run=True)
-    try:return deepcopy(run['revisions'][after:after+limit])
-    finally:run['inputs'].close()
+    try:
+        if run.get('history_reader') is not None:return run['history_reader'].revisions(after,limit)
+        return deepcopy(run['revisions'][after:after+limit])
+    finally:_close_run(run)
 
 
 def query_task(output,revision,operation_id=None,change_id=None,trigger=False):
@@ -318,7 +374,7 @@ def query_task(output,revision,operation_id=None,change_id=None,trigger=False):
         return {'synthetic':analysis['synthetic'],'revision':int(revision),'selection':selected,
                 'available_at':snapshot['available_at'],'verified_original_evidence':resolved,'verified_network_fields':fields,
                 'config_fingerprint':analysis['config_fingerprint'],'limitations':analysis['limitations']}
-    finally:run['inputs'].close()
+    finally:_close_run(run)
 
 
 def main():

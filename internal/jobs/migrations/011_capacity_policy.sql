@@ -18,12 +18,16 @@ BEGIN
   IF chosen IS NULL THEN
    RAISE EXCEPTION 'site capacity: policy row missing' USING ERRCODE='55000';
   END IF;
-  IF chosen='engineering-capacity-1' AND (
-   EXISTS(SELECT 1 FROM m4_job_attempts WHERE exited_at IS NULL) OR
-   EXISTS(SELECT 1 FROM m4_jobs j WHERE j.attempt>0 AND NOT EXISTS(
-     SELECT 1 FROM m4_job_attempts a WHERE a.job_id=j.id AND a.attempt=j.attempt AND a.exited_at IS NOT NULL))
-  ) THEN
-   RAISE EXCEPTION 'site capacity: previous attempt has no verified exit' USING ERRCODE='55000';
+  -- Keep the disabled branch independent of the post-004 attempt table. SQL
+  -- plans every relation in a compound AND before evaluating its boolean left
+  -- side, so a disabled policy must use a distinct PL/pgSQL control-flow block
+  -- while historical migrations reconstruct that table transactionally.
+  IF chosen='engineering-capacity-1' THEN
+   IF EXISTS(SELECT 1 FROM m4_job_attempts WHERE exited_at IS NULL) OR
+      EXISTS(SELECT 1 FROM m4_jobs j WHERE j.attempt>0 AND NOT EXISTS(
+       SELECT 1 FROM m4_job_attempts a WHERE a.job_id=j.id AND a.attempt=j.attempt AND a.exited_at IS NOT NULL)) THEN
+    RAISE EXCEPTION 'site capacity: previous attempt has no verified exit' USING ERRCODE='55000';
+   END IF;
   END IF;
  END IF;
  RETURN NEW;

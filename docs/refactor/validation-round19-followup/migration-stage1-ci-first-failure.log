@@ -1,0 +1,151 @@
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	﻿2026-10-28T03:43:44.0648033Z ##[group]Run go test -race -count=1 -v ./...
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.0648448Z ^[[36;1mgo test -race -count=1 -v ./...^[[0m
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.0815875Z shell: /usr/bin/bash -e {0}
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.0816212Z env:
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.0816877Z   M4_TEST_DATABASE_URL: ***localhost:5432/m4_validation?sslmode=disable
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.0817325Z ##[endgroup]
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.1085974Z go: downloading github.com/jackc/pgx/v5 v5.7.6
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.2747442Z go: downloading github.com/jackc/puddle/v2 v2.2.2
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.2748520Z go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.2751701Z go: downloading github.com/jackc/pgpassfile v1.0.0
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:43:44.2921490Z go: downloading golang.org/x/sync v0.18.0
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7984966Z === RUN   TestSiteCapacityPolicySerializesAllUnexitedAttempts
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7986300Z --- PASS: TestSiteCapacityPolicySerializesAllUnexitedAttempts (0.20s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7987371Z === RUN   TestHistoricalContainerCancellation
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7989182Z     history_test.go:187: REPRO baseline cancelling-only ACK after cancellation: HTTP409
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7990497Z     history_test.go:253: PASS valid receipt database failure propagates instead of per-item continue
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7991914Z     history_test.go:346: PASS actual ELOOP receipt diagnosed locally; later good attempt exit recorded
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7992891Z --- PASS: TestHistoricalContainerCancellation (0.20s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7993849Z === RUN   TestMigrationPreservesPublishedHistory
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7994869Z     history_test.go:535: ERROR: relation "m4_job_attempts" does not exist (SQLSTATE 42P01)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7995760Z --- FAIL: TestMigrationPreservesPublishedHistory (0.02s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7996430Z === RUN   TestMigration007CanApplyTwice
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7996856Z --- PASS: TestMigration007CanApplyTwice (0.03s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7997202Z === RUN   TestMigration008CaptureBindings
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7997551Z --- PASS: TestMigration008CaptureBindings (0.04s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7997896Z === RUN   TestPostgresFaults
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7998179Z --- PASS: TestPostgresFaults (0.16s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7998478Z === RUN   TestIndependentRecovery
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7998777Z --- PASS: TestIndependentRecovery (0.31s)
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7999050Z FAIL
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7999361Z FAIL	github.com/TonyP4N/cpagx-go/internal/jobs/integration	0.970s
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.7999916Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/cpagx-v3	[no test files]
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.8000564Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.8001216Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-recovery	[no test files]
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.8001651Z FAIL
+m4-postgres-prototype	Isolated repository fault tests (not production executor)	2026-10-28T03:44:07.8579338Z ##[error]Process completed with exit code 1.
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	﻿2026-10-28T03:43:35.3751057Z ##[group]Run scripts/m4/validate-worker.sh
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3751443Z ^[[36;1mscripts/m4/validate-worker.sh^[[0m
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3917781Z shell: /usr/bin/bash -e {0}
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3918007Z env:
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3918197Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3918459Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3918698Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3918913Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3919131Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3919346Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:35.3919543Z ##[endgroup]
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:37.6096885Z  Image mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulling 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2648485Z  2d35ebdb57d9 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2649443Z  11e80b5eea53 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2649709Z  a5bd5a0b8636 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2649972Z  aabce23918dc Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2650176Z  5b6f078adbb9 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2650341Z  10c02ef94427 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2650598Z  3cecdd37f6f2 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2650841Z  ac28590ba464 Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2651108Z  82e3b18698cd Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.2651374Z  1d12e864e19a Pulling fs layer 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.4515602Z  5b6f078adbb9 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.4516086Z  10c02ef94427 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.4517516Z  82e3b18698cd Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.4520916Z  11e80b5eea53 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.4523679Z  3cecdd37f6f2 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.5521710Z  aabce23918dc Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.5522645Z  a5bd5a0b8636 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.5525948Z  0077bac36ee7 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.6527726Z  9a2b4c80ac9f Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.6528163Z  2d35ebdb57d9 Downloading 3.146MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.7518208Z  1d12e864e19a Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.7521003Z  2d35ebdb57d9 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.7526481Z  ac28590ba464 Downloading 13.63MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.7706545Z  2d35ebdb57d9 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.8520151Z  ac28590ba464 Downloading 53.48MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.8532446Z  10c02ef94427 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.8539948Z  82e3b18698cd Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.8610904Z  1d12e864e19a Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:38.9519338Z  ac28590ba464 Downloading 87.03MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.0517572Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.1523645Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.2521313Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.3518477Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.4522467Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.5519085Z  ac28590ba464 Downloading 105.9MB
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.6534466Z  ac28590ba464 Download complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.6577499Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.7571492Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.8570769Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:39.9562546Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.0567040Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.1576918Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.2567409Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.3570170Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.4570324Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.5581107Z  ac28590ba464 Extracting 1B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6435907Z  5b6f078adbb9 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6446229Z  11e80b5eea53 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6457183Z  3cecdd37f6f2 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6462474Z  aabce23918dc Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6469943Z  a5bd5a0b8636 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6476432Z  ac28590ba464 Pull complete 0B
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6481597Z  Image mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulled 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.6902440Z  Network cpag-m4-worker-validation_default Creating 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.7134713Z  Network cpag-m4-worker-validation_default Created 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.7138785Z  Volume cpag-m4-worker-validation_validation_data Creating 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.7148002Z  Volume cpag-m4-worker-validation_validation_data Created 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:40.7214131Z  Container cpag-m4-worker-validation-postgres-1 Creating 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:49.3629237Z  Container cpag-m4-worker-validation-postgres-1 Created 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:49.3702080Z  Container cpag-m4-worker-validation-postgres-1 Starting 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:49.5296462Z  Container cpag-m4-worker-validation-postgres-1 Started 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:49.5296971Z  Container cpag-m4-worker-validation-postgres-1 Waiting 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.0308268Z  Container cpag-m4-worker-validation-postgres-1 Healthy 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.0433101Z go: downloading github.com/jackc/pgx/v5 v5.7.6
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.0595134Z go: downloading golang.org/x/crypto v0.45.0
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.3543951Z go: downloading github.com/jackc/puddle/v2 v2.2.2
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.3544427Z go: downloading github.com/jackc/pgpassfile v1.0.0
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.3553413Z go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.3869716Z go: downloading golang.org/x/text v0.31.0
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:43:52.4065944Z go: downloading golang.org/x/sync v0.18.0
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7263035Z === RUN   TestSiteCapacityPolicySerializesAllUnexitedAttempts
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7263718Z --- PASS: TestSiteCapacityPolicySerializesAllUnexitedAttempts (0.20s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7264174Z === RUN   TestHistoricalContainerCancellation
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7266815Z     history_test.go:187: REPRO baseline cancelling-only ACK after cancellation: HTTP409
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7267568Z     history_test.go:253: PASS valid receipt database failure propagates instead of per-item continue
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7268268Z     history_test.go:346: PASS actual ELOOP receipt diagnosed locally; later good attempt exit recorded
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7268741Z --- PASS: TestHistoricalContainerCancellation (0.17s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7269080Z === RUN   TestMigrationPreservesPublishedHistory
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7269577Z     history_test.go:535: ERROR: relation "m4_job_attempts" does not exist (SQLSTATE 42P01)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7270018Z --- FAIL: TestMigrationPreservesPublishedHistory (0.02s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7270338Z === RUN   TestMigration007CanApplyTwice
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7270623Z --- PASS: TestMigration007CanApplyTwice (0.02s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7270909Z === RUN   TestMigration008CaptureBindings
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7271204Z --- PASS: TestMigration008CaptureBindings (0.04s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7271490Z === RUN   TestPostgresFaults
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7271729Z --- PASS: TestPostgresFaults (0.15s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7271989Z === RUN   TestIndependentRecovery
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7272251Z --- PASS: TestIndependentRecovery (0.40s)
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7272491Z FAIL
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7272765Z FAIL	github.com/TonyP4N/cpagx-go/internal/jobs/integration	1.019s
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7273379Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/cpagx-v3	[no test files]
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7273904Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7274439Z ?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-recovery	[no test files]
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.7274883Z FAIL
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.8127716Z  Container cpag-m4-worker-validation-postgres-1 Stopping 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.9634301Z  Container cpag-m4-worker-validation-postgres-1 Stopped 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.9634828Z  Container cpag-m4-worker-validation-postgres-1 Removing 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.9722797Z  Container cpag-m4-worker-validation-postgres-1 Removed 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.9729437Z  Network cpag-m4-worker-validation_default Removing 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:08.9732054Z  Volume cpag-m4-worker-validation_validation_data Removing 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:09.0417928Z  Network cpag-m4-worker-validation_default Removed 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:09.1634872Z  Volume cpag-m4-worker-validation_validation_data Removed 
+m4-worker-integration	Isolated Worker, PostgreSQL and real-process fault matrix	2026-10-28T03:44:09.1692205Z ##[error]Process completed with exit code 1.

@@ -186,6 +186,14 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		replay, _ := doc["replay"].(map[string]any)
 		version, _ := replay["version"].(string)
 		payload.ReplayVersion = version
+		if value, exists := replay["history_format"]; exists {
+			format, ok := value.(string)
+			if !ok || format == "" {
+				fail(w, 422, "invalid_config", "invalid replay history format")
+				return
+			}
+			payload.HistoryFormat = format
+		}
 	}
 	for i, n := range networks {
 		var path string

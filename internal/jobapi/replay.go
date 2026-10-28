@@ -3,10 +3,25 @@ package jobapi
 import (
 	"errors"
 	"fmt"
+	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"time"
 )
 
 const ReplayVersion = "dual-source-replay-1"
+const ReplaySpoolFormat = "replay-history-checkpoint-delta-2"
+
+func replayProfileSchema(doc map[string]any) (string, string, error) {
+	replay, _ := obj(doc["replay"])
+	value, exists := replay["history_format"]
+	if !exists {
+		return "DualSourceProfile", "", nil
+	}
+	format, ok := value.(string)
+	if !ok || format != ReplaySpoolFormat {
+		return "", "", errors.New("unsupported explicit replay history format")
+	}
+	return "DualSpoolProfile", format, nil
+}
 
 func dualFamily(kind string) bool { return kind == "dual-source" || kind == "dual-source-replay" }
 func validateReplayProfile(value any, version string) error {
@@ -18,12 +33,36 @@ func validateReplayProfile(value any, version string) error {
 	if !ok || version != ReplayVersion || replay["version"] != version || doc["analysis_mode"] != "bounded-real-capable-v1" {
 		return errors.New("explicit supported replay version and bounded profile required")
 	}
-	if e := replaySchema("ReplayProfile", replay); e != nil {
+	_, format, formatErr := replayProfileSchema(doc)
+	if formatErr != nil {
+		return formatErr
+	}
+	schemaName := "ReplayProfile"
+	if format == ReplaySpoolFormat {
+		schemaName = "ReplaySpoolProfile"
+	}
+	if e := replaySchema(schemaName, replay); e != nil {
 		return e
 	}
 	sequence, ok := arr(replay["sequence"])
-	if !ok || len(sequence) == 0 || len(sequence) > 22000 {
+	budget, e := capacity.FromDocument(doc)
+	if e != nil {
+		return e
+	}
+	if !ok || len(sequence) == 0 || len(sequence) > budget.ArrivalSteps {
 		return errors.New("explicit bounded replay arrival sequence required")
+	}
+	if format == ReplaySpoolFormat {
+		bufferMax := 11000
+		if budget.Version != "" {
+			bufferMax = budget.ArrivalSteps
+		}
+		for key, maximum := range map[string]int{"max_buffer_records": bufferMax, "max_snapshots": budget.Snapshots, "max_revisions": budget.Revisions, "max_output_bytes": int(budget.OutputBytes)} {
+			n, valid := intValue(replay[key])
+			if !valid || n < 1 || n > maximum {
+				return fmt.Errorf("replay %s exceeds frozen capacity budget", key)
+			}
+		}
 	}
 	at, e := time.Parse(time.RFC3339Nano, str(replay["simulation_start"]))
 	if e != nil {
@@ -94,11 +133,26 @@ func validateReplaySourceSlots(value any, count int) error {
 }
 func replayArtifactNamesFor(p Payload) []string {
 	names := []string{"dataset.json", "events.json", "graph.json", "quality.json", "analysis.json", "run_manifest.json", "replay.json", "snapshots.jsonl", "revisions.jsonl", "arrivals.jsonl", "metrics.json", "runtime_metrics.json", "sources/process.csv", "sources/profile.json"}
+	if p.HistoryFormat == ReplaySpoolFormat {
+		names = []string{"dataset.json", "events.json", "graph.json", "quality.json", "analysis.json", "run_manifest.json", "replay.json", "history/manifest.json", "history/history.sqlite3", "arrivals.jsonl", "metrics.json", "runtime_metrics.json", "sources/process.csv", "sources/profile.json"}
+	}
 	refs, _ := p.networkRefs()
 	for i := range refs {
 		names = append(names, networkSourceName(i))
 	}
 	return names
+}
+
+func validPayloadArtifactPath(p Payload, path string) bool {
+	if p.Kind == "dual-source-replay" && p.HistoryFormat == ReplaySpoolFormat {
+		for _, name := range replayArtifactNamesFor(p) {
+			if name == path {
+				return true
+			}
+		}
+		return false
+	}
+	return validArtifactPath(path, p.Kind)
 }
 func validReplayArtifactPath(path string) bool {
 	p := Payload{Kind: "dual-source-replay"}

@@ -15,7 +15,7 @@ from .dual_source_rules import clock_time, validate_profile, outward
 from .pipeline import canonical, fingerprint
 
 VERSION='dual-source-replay-1'
-TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing'}
+TRANSPORT_FIELDS={'sequence','finish_at','speed','realtime','realtime_pacing','history_format'}
 
 
 def instant(value):
@@ -54,13 +54,20 @@ class _EmptyFrames:
 
 class ReplayCore:
     """consume/advance only use declared simulation time, never a wall clock."""
-    def __init__(self, profile):
+    def __init__(self, profile, *, history_sink=None):
         self.profile=deepcopy(profile)
-        self.parameters=deepcopy(profile['replay']);validate('ReplayProfile',self.parameters)
+        self.parameters=deepcopy(profile['replay']);validate('ReplaySpoolProfile' if self.parameters.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayProfile',self.parameters)
         self.analysis_profile=deepcopy(profile);self.analysis_profile.pop('replay')
         if not validate_profile(self.analysis_profile):raise ValueError('replay_requires_bounded_profile')
         self.identity_profile=semantic_profile(profile)
         self.config_fingerprint=fingerprint(self.identity_profile)
+        if self.parameters.get('history_format')=='replay-history-checkpoint-delta-2' and history_sink is None:raise ValueError('spool_history_sink_required')
+        self._history_sink=history_sink
+        if history_sink is not None:
+            from .replay_history import HistorySink
+            if not isinstance(history_sink, HistorySink):raise ValueError('explicit_v2_history_sink_required')
+            history_sink.bind(self.config_fingerprint, VERSION)
+        self._snapshot_count=0;self._history_count=0
         self.now=instant(self.parameters['simulation_start']);self.start=self.now
         self.now_exact=exact_instant(self.parameters['simulation_start']);self.start_exact=self.now_exact
         self.arrival_seq=0;self.phase='running';self.closed={};self.first_operation_at={};self.first_operation_exact={}
@@ -79,7 +86,7 @@ class ReplayCore:
     def _failure(self, reason, evidence_refs=None):
         self.phase='incomplete'
         raise ReplayIncomplete(reason,{'status':'incomplete','reason':reason,'arrival_seq':self.arrival_seq,
-            'available_at':utc(self.now),'snapshots':len(self._snapshots),'revisions':len(self._history),
+            'available_at':utc(self.now),'snapshots':self._snapshot_count,'revisions':self._history_count,
             'arrived_records':len(self.seen),'last_state_fingerprint':self._last_state_fingerprint,
             'evidence_refs':deepcopy((evidence_refs or [])[:4])})
 
@@ -378,11 +385,11 @@ class ReplayCore:
 
     def _publish(self, status, trigger, initial=False):
         if len(self.admitted)>self.parameters['max_buffer_records']:self._failure('buffer_record_limit')
-        if len(self._snapshots)>=self.parameters['max_snapshots']:self._failure('snapshot_limit')
+        if self._snapshot_count>=self.parameters['max_snapshots']:self._failure('snapshot_limit')
         state_fingerprint=fingerprint(self._analysis)
         changed=state_fingerprint!=self._last_state_fingerprint and not initial
         revision_number=self._revision_number+(1 if changed else 0)
-        snapshot={'schema_version':'1.0.0','synthetic':self.analysis_profile['synthetic'],'replay_version':VERSION,'snapshot_number':len(self._snapshots),
+        snapshot={'schema_version':'1.0.0','synthetic':self.analysis_profile['synthetic'],'replay_version':VERSION,'snapshot_number':self._snapshot_count,
             'available_at':utc(self.now),'arrival_seq':self.arrival_seq,'status':status,'revision_number':revision_number,
             'config_version':self.analysis_profile['config_version'],'config_fingerprint':self.config_fingerprint,
             'semantic_config_fingerprint':self.config_fingerprint,'state_fingerprint':state_fingerprint,
@@ -390,7 +397,7 @@ class ReplayCore:
         snapshot['snapshot_id']='snapshot-'+fingerprint(snapshot)
         revision=None
         if changed:
-            if len(self._history)>=self.parameters['max_revisions']:self._failure('revision_limit')
+            if self._history_count>=self.parameters['max_revisions']:self._failure('revision_limit')
             revision={'schema_version':'1.0.0','synthetic':self.analysis_profile['synthetic'],'replay_version':VERSION,'revision_number':revision_number,
                 'old_snapshot_id':self._latest['snapshot_id'] if self._latest else None,'new_snapshot_id':snapshot['snapshot_id'],
                 'old_snapshot_number':self._latest['snapshot_number'] if self._latest else None,'new_snapshot_number':snapshot['snapshot_number'],
@@ -400,16 +407,26 @@ class ReplayCore:
                 'rule_version':self.analysis_profile['rule_version'],'reason':status,
                 'evidence_refs':references([trigger['evidence_refs'],self._analysis])}
             revision['revision_id']='revision-'+fingerprint(revision);validate('ReplayRevision',revision)
-        added=len(canonical(snapshot))+1+(len(canonical(revision))+1 if revision else 0)
+        compact=self._history_sink is not None and self.parameters.get('history_format')=='replay-history-checkpoint-delta-2'
+        added=0 if compact else len(canonical(snapshot))+1+(len(canonical(revision))+1 if revision else 0)
         if self._output_bytes+added>self.parameters['max_output_bytes']:self._failure('output_byte_limit')
         self._output_bytes+=added;self._revision_number=revision_number
-        if revision:self._history.append(revision)
-        self._snapshots.append(snapshot);self._latest=snapshot;self._last_state_fingerprint=state_fingerprint
+        if self._history_sink is None:
+            if revision:self._history.append(revision)
+            self._snapshots.append(snapshot)
+        else:
+            self._history_sink.append(snapshot,revision)
+        self._snapshot_count+=1;self._history_count+=revision is not None
+        self._latest=snapshot;self._last_state_fingerprint=state_fingerprint
         return deepcopy(snapshot)
 
     def snapshot(self):return deepcopy(self._latest)
-    def snapshots(self):return deepcopy(self._snapshots)
-    def history(self):return deepcopy(self._history)
+    def snapshots(self):
+        if self._history_sink is not None:raise ValueError('spooled_history_requires_indexed_reader')
+        return deepcopy(self._snapshots)
+    def history(self):
+        if self._history_sink is not None:raise ValueError('spooled_history_requires_indexed_reader')
+        return deepcopy(self._history)
     def final_result(self):return deepcopy(self._analysis)
     def runtime_metrics(self):return {'unit':'seconds','samples':deepcopy(self._runtime),'excluded_from_semantic_hashes':True}
     def metrics(self):

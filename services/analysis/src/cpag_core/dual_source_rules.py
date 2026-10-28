@@ -33,10 +33,16 @@ def validity(item, interval):
 
 
 def validate_profile(config):
-    validate('DualSourceProfile', config)
+    spool=config.get('replay',{}).get('history_format')=='replay-history-checkpoint-delta-2'
+    validate('DualSpoolProfile' if spool else 'DualSourceProfile', config)
     budget = resolve_capacity_profile(config)
-    if budget.version and 'replay' in config:
+    if budget.version and 'replay' in config and not spool:
         raise ValueError('capacity_replay_requires_versioned_history_integration')
+    if spool:
+        options=config['replay']
+        for field,ceiling in (('max_snapshots',budget.snapshots),('max_revisions',budget.revisions),('max_output_bytes',budget.output_bytes),('max_buffer_records',budget.frames+budget.process_records+1 if budget.version else 11000)):
+            if options[field]>ceiling:raise ValueError('history_budget_exceeds_capacity_profile:'+field)
+        if len(options.get('sequence',[]))>budget.arrival_steps:raise ValueError('arrival_step_limit')
     extended = config.get('analysis_mode') == MODE
     if 'replay' in config and not extended:
         raise ValueError('replay_requires_bounded_analysis_mode')

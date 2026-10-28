@@ -179,12 +179,12 @@ class DockerExecutor:
         publication=json.loads((output/'manifest.json').read_text())
         payload=status['payload']
         if publication['config_fingerprint']!=payload['config_fingerprint'] or any(publication.get(k)!=v for k,v in publication_inputs(payload).items()) or publication.get('networks')!=publication_inputs(payload).get('networks'):raise ValueError('handoff identity differs')
-        if payload.get('kind')=='dual-source-replay' and publication.get('replay_version')!=payload.get('replay_version'):raise ValueError('replay handoff version differs')
+        if payload.get('kind')=='dual-source-replay' and (publication.get('replay_version')!=payload.get('replay_version') or publication.get('history_format')!=payload.get('history_format')):raise ValueError('replay handoff version differs')
         dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
             from importlib import import_module
             export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
-            FILES=export.artifact_files_for_inputs(len(network_refs(payload))) if payload.get('kind')=='dual-source-replay' else export.artifact_files(output)
+            FILES=export.artifact_files_for_inputs(len(network_refs(payload)),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else export.artifact_files(output)
             verify_task=export.verify_task
             if {entry['path'] for entry in publication['artifacts']}!=FILES or len(publication['artifacts'])!=len(FILES):raise ValueError('dual-source handoff inventory differs')
             manifest=verify_task(output)
@@ -380,7 +380,8 @@ class DockerExecutor:
             from importlib import import_module
             export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
             DIRECTORIES=export.DIRECTORIES
-            FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None])) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
+            if payload.get('kind')=='dual-source-replay' and payload.get('history_format')=='replay-history-checkpoint-delta-2':DIRECTORIES=frozenset({'sources','history'})
+            FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None]),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
         with archive_file, tarfile.open(fileobj=archive_file,mode='r:') as archive:
             total=0
             seen=set()
@@ -405,7 +406,9 @@ class DockerExecutor:
                 self.checkpoint('during_copy')
         manifest=json.loads((target/'run_manifest.json').read_text())
         from cpag_core.contracts import validate
-        validate('ReplayRunManifest' if payload.get('kind')=='dual-source-replay' else 'RunManifest',manifest)
+        manifest_schema='ReplaySpoolRunManifest' if payload.get('kind')=='dual-source-replay' and payload.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayRunManifest' if payload.get('kind')=='dual-source-replay' else 'RunManifest'
+        validate(manifest_schema,manifest)
+        if payload.get('kind')=='dual-source-replay' and (manifest.get('history_format')!=payload.get('history_format') or manifest.get('replay_version')!=payload.get('replay_version')):raise ValueError('replay output version binding mismatch')
         if manifest['config_fingerprint']!=payload['config_fingerprint']: raise ValueError('configuration mismatch')
         if dual_source and (manifest['run_id']!=run_id or manifest['attempt_id']!=attempt_id):raise ValueError('dual-source run/attempt identity mismatch')
         expected=set(FILES)-{'run_manifest.json'} if dual_source else {'dataset.json','events.json','graph.json','quality.json'}
@@ -466,6 +469,10 @@ class DockerExecutor:
                 os.chmod(staged,0o444)
                 if name.startswith('network'):network_arguments+=['--network','/inputs/'+staged.name]
                 if name=='profile':profile_path=staged
+            if kind=='dual-source-replay' and payload.get('history_format') is not None:
+                if payload['history_format']!='replay-history-checkpoint-delta-2':raise ValueError('unsupported replay history format')
+                replay_profile=json.loads(profile_path.read_text()).get('replay',{})
+                if replay_profile.get('version')!=payload.get('replay_version') or replay_profile.get('history_format')!=payload.get('history_format'):raise ValueError('replay payload/profile version binding mismatch')
             sync_dir(inputs);os.chmod(inputs,0o555)
             module='cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
             command=self.command or ['python','-m',module]

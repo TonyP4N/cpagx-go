@@ -185,6 +185,8 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	}
 	internal.(*jobapi.Server).CapacityPolicy = c.CapacityPolicy
 	internal.(*jobapi.Server).ResourceProfile = c.ResourceProfile
+	internal.(*jobapi.Server).PythonBin = c.PythonBin
+	internal.(*jobapi.Server).PythonPath = c.PythonPath
 	s := &Server{DB: db, Root: root, Internal: internal, cfg: c, repo: jobs.Repository{DB: db}}
 	if e = s.bootstrap(context.Background()); e != nil {
 		return nil, e

@@ -18,7 +18,7 @@ func normalizedJSON(value any) any {
 func replaySemanticProfile(profile map[string]any) map[string]any {
 	copy, _ := obj(normalizedJSON(profile))
 	replay, _ := obj(copy["replay"])
-	for _, key := range []string{"sequence", "finish_at", "speed", "realtime", "realtime_pacing"} {
+	for _, key := range []string{"sequence", "finish_at", "speed", "realtime", "realtime_pacing", "history_format"} {
 		delete(replay, key)
 	}
 	return copy

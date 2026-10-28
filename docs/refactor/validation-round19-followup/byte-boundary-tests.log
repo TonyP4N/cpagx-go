@@ -1,0 +1,6 @@
+test_exact_boundaries_and_plus_one_never_publish_partial (test_round19_byte_boundary.ByteBoundaryTests.test_exact_boundaries_and_plus_one_never_publish_partial) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.417s
+
+OK

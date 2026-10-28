@@ -24,8 +24,10 @@ import (
 const evaluationProjectionLimit = 8 << 20
 
 func evaluationResourceProjectionLimit(resource, operator string) (int, error) {
-	if resource != operator {
-		return 0, errors.New("evaluation resource profile differs from operator policy")
+	// This is a historical read. Resolve both supported names, but preserve the
+	// frozen run's budget when the operator later changes its submission policy.
+	if _, err := capacity.ArtifactBytes(operator); err != nil {
+		return 0, err
 	}
 	switch resource {
 	case "":
@@ -83,7 +85,7 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 	}
 	projectionLimit, err := evaluationResourceProjectionLimit(payload.ResourceProfile, s.cfg.ResourceProfile)
 	if err != nil {
-		fail(w, 409, "evaluation_input_unavailable", "published resource policy differs")
+		fail(w, 409, "evaluation_input_unavailable", "published resource policy unsupported")
 		return
 	}
 	var batch string

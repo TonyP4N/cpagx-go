@@ -7,14 +7,14 @@ from cpag_core.contracts import validate, ContractError, SCHEMAS
 class ContractTests(unittest.TestCase):
     def test_strict_schema_documents(self):
         paths=list(SCHEMAS.glob('*.schema.json'))
-        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest','SingleSourceRunManifest'})
+        self.assertEqual({p.stem.removesuffix('.schema') for p in paths}, {'DualSourceProfile','Asset','Claim','DatasetManifest','DerivedEvent','EvaluationRecord','GraphArtifact','NetworkEvent','ProcessObservation','RunManifest','PacketObservationArtifact','EvaluationSplit','EvaluationPredictions','EvaluationAnnotations','EvaluationRegistration','ReplayProfile','ReplaySourceRef','ReplayClaim','ReplayDerivedEvent','ReplayGraphArtifact','ReplayNetworkEvent','ReplayProcessObservation','ReplayRevision','ReplayRunManifest','SingleSourceRunManifest','DualSpoolProfile','ReplaySpoolProfile','ReplaySpoolRunManifest','ReplayHistorySpoolManifest'})
         for path in paths:
             schema=json.loads(path.read_text())
             self.assertFalse(schema['additionalProperties'])
-            if path.name not in ('ReplayProfile.schema.json','ReplaySourceRef.schema.json'):
+            if path.name not in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json','ReplaySourceRef.schema.json'):
                 self.assertEqual(schema['properties']['schema_version']['const'],'1.0.0')
                 self.assertIn('synthetic',schema['required'])
-            elif path.name=='ReplayProfile.schema.json':
+            elif path.name in ('ReplayProfile.schema.json','ReplaySpoolProfile.schema.json'):
                 self.assertEqual(schema['properties']['version']['const'],'dual-source-replay-1')
                 self.assertIn('arrival_time_basis',schema['required'])
             else:

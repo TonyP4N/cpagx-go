@@ -51,7 +51,11 @@ def network_refs(payload):
 def publication_inputs(payload):
     result={'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')}}
     if payload.get('networks'):result['networks']=[r['sha256'] for r in network_refs(payload)]
-    if payload.get('kind')=='dual-source-replay':result['replay_version']=payload['replay_version']
+    if payload.get('kind')=='dual-source-replay':
+        result['replay_version']=payload['replay_version']
+        if payload.get('history_format') is not None:
+            if payload['history_format']!='replay-history-checkpoint-delta-2':raise ValueError('unsupported replay history format')
+            result['history_format']=payload['history_format']
     return result
 
 def source_flag(profile,kind):

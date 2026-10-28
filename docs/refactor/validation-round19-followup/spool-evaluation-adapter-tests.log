@@ -1,0 +1,6 @@
+test_terminal_predictions_and_history_stats_equal_legacy_after_storage_change (test_spool_evaluation_artifacts.SpoolEvaluationArtifactTests.test_terminal_predictions_and_history_stats_equal_legacy_after_storage_change) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 5.749s
+
+OK

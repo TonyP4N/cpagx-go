@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: CPAG v3 local research API
   version: 0.4.0
-  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay is currently refused pending history integration. Capacity certification and unexecuted scales remain incomplete.
+  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay requires explicit nested history_format replay-history-checkpoint-delta-2, frozen in the payload and publication; old JSONL history retains its old limits. Capacity certification and unexecuted scales remain incomplete.
 servers:
   - url: http://127.0.0.1:8095
 paths:
@@ -125,7 +125,7 @@ paths:
       responses: { '200': { description: Immutable config versions } }
     post:
       security: [{ cookieAuth: [] }]
-      description: The immutable dual document may declare capacity_profile engineering-capacity-1 with analysis_mode bounded-real-capable-v1. The operator must explicitly enable the matching capacity_policy. Limits are at most four captures, 64MiB each and 128MiB aggregate, CSV 8MiB / 10000 logical records / 16 columns, and profile document 8MiB. Without the declaration historical analysis limits remain 16MiB aggregate / CSV 2MiB / 1000 records / profile 64KiB. The new profile with replay is refused until versioned replay history is integrated; these budgets are not measured acceptance claims. resource_profile and capacity_policy are operator configuration fields, not fields users can raise in uploaded documents or run requests.
+      description: The immutable dual document may declare capacity_profile engineering-capacity-1 with analysis_mode bounded-real-capable-v1. The operator must explicitly enable the matching capacity_policy. Limits are at most four captures, 64MiB each and 128MiB aggregate, CSV 8MiB / 10000 logical records / 16 columns, and profile document 8MiB. Without the declaration historical analysis limits remain 16MiB aggregate / CSV 2MiB / 1000 records / profile 64KiB. Replay with expanded capacity requires replay.history_format replay-history-checkpoint-delta-2 and separate DualSpoolProfile/ReplaySpoolProfile contracts; omitted capacity_profile keeps old budgets even with new storage. These budgets are not measured acceptance claims. resource_profile and capacity_policy are operator configuration fields, not fields users can raise in uploaded documents or run requests.
       requestBody:
         required: true
         content:
@@ -179,7 +179,7 @@ paths:
             schema:
               type: object
               required: [dataset_id, config_version_id, preflight_id, mode]
-              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { enum: [dual_source, dual_source_replay], description: Replay requires an immutable dual profile with explicit replay version and bounded arrival sequence } }
+              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { enum: [dual_source, dual_source_replay], description: Replay requires an immutable dual profile with explicit replay version and bounded arrival sequence; optional replay.history_format selects checkpoint-delta storage and is separately bound to the payload/publication } }
       responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis, source_provenance_mismatch, source_count, unsupported_format or invalid_inputs; no job inserted } }
   /api/v3/runs/{run_id}:
     parameters: [{ $ref: '#/components/parameters/runId' }]
@@ -237,36 +237,36 @@ paths:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      parameters: [{ in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Replay snapshot_number; default is verified final graph }]
+      parameters: [{ in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Replay snapshot_number; default is verified final graph }]
       responses: { '200': { description: Verified graph }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/evidence:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
       parameters:
-        - { in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Required for replay; immutable snapshot_number beginning at zero }
+        - { in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Required for replay; immutable snapshot_number beginning at zero }
         - { in: query, name: trigger, required: false, schema: { type: string, const: 'true' }, description: Replay only; third mutually exclusive selector for the selected snapshot trigger evidence, including discarded or too_late records; no arbitrary raw references }
         - { in: query, name: operation, required: false, schema: { type: string } }
         - { in: query, name: change, required: false, schema: { type: string } }
-        - { in: query, name: ref_offset, required: false, schema: { type: integer, minimum: 0, default: 0 }, description: Explicit operator resource profile only; offset into the complete selected original-evidence reference list }
-        - { in: query, name: ref_limit, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 100 }, description: Explicit operator resource profile only; at most 100 original references per response, with an independent 8MiB response byte guard; oversized evidence fails rather than truncating. Legacy responses retain their previous shape when pagination is not requested. }
+        - { in: query, name: ref_offset, required: false, schema: { type: integer, minimum: 0, default: 0 }, description: Explicit operator resource profile or new spool history; offset into the complete selected original-evidence reference list }
+        - { in: query, name: ref_limit, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 100 }, description: Explicit operator resource profile or new spool history; at most 100 original references per response, with an independent 8MiB response byte guard; oversized evidence fails rather than truncating. Legacy responses retain their previous shape when pagination is not requested. }
       responses: { '200': { description: Verified bounded original evidence; exactly one operation/change/trigger selector required; trigger accepts exactly true }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/revisions:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
       parameters:
-        - { in: query, name: after, schema: { type: integer, minimum: 0, maximum: 8192, default: 0 } }
+        - { in: query, name: after, schema: { type: integer, minimum: 0, maximum: 90000, default: 0 } }
         - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 8192, default: 100 } }
-      responses: { '200': { description: Verified terminal replay revisions with old/new snapshot numbers and total; no unverified live output }, '404': { $ref: '#/components/responses/Error' }, '409': { description: Running, unpublished, missing or changed replay history } }
+      responses: { '200': { description: Verified terminal replay revisions with old/new snapshot numbers and total; no unverified live output. Old JSONL uses after at most 8192 and limit at most 8192; explicit spool uses frozen-budget after at most 90000 and limit at most 100 }, '404': { $ref: '#/components/responses/Error' }, '409': { description: Running, unpublished, missing or changed replay history } }
   /api/v3/runs/{run_id}/snapshots:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      parameters: [{ in: query, name: revision, required: true, schema: { type: integer, minimum: 0, maximum: 4095 }, description: Immutable snapshot_number }]
+      parameters: [{ in: query, name: revision, required: true, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Immutable snapshot_number; old and unexpanded budgets remain at most 4095, explicit engineering spool permits at most 44999 }]
       responses: { '200': { description: Verified snapshot containing analysis, graph, events, available_at, trigger and immutable IDs }, '409': { $ref: '#/components/responses/Error' } }
   /api/v3/runs/{run_id}/snapshots/{snapshot_number}:
-    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: snapshot_number, required: true, schema: { type: integer, minimum: 0, maximum: 4095 } }]
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: snapshot_number, required: true, schema: { type: integer, minimum: 0, maximum: 44999 } }]
     get:
       security: [{ cookieAuth: [] }]
       responses: { '200': { description: Same verified immutable replay snapshot as snapshots query }, '409': { $ref: '#/components/responses/Error' } }
@@ -293,6 +293,11 @@ components:
       properties:
         capacity_profile: { const: engineering-capacity-1 }
         analysis_mode: { const: bounded-real-capable-v1 }
+        replay:
+          type: object
+          description: Optional explicit storage declaration within the full ReplaySpoolProfile. Logical replay_version remains dual-source-replay-1; absent history_format keeps the JSONL-v1 inventory and limits.
+          properties:
+            history_format: { const: replay-history-checkpoint-delta-2 }
     OperatorBudgetSelection:
       type: object
       description: Operator settings fragment from the private server configuration; not a public API request. Omitted settings preserve old defaults. The persisted site policy cannot be disabled through HTTP or by omission on restart. New profiles and hardware capacity still require independent full-chain verification.

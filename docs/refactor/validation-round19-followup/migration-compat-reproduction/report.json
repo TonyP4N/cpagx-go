@@ -1,0 +1,10 @@
+{
+  "container": "cpag-capacity-proof-704c4bca",
+  "status": "failed",
+  "tests": "TestSiteCapacityPolicySerializesAllUnexitedAttempts|TestMigrationPreservesPublishedHistory",
+  "scope": "disposable PostgreSQL migration and concurrency only",
+  "reference_capacity_accepted": false,
+  "returncode": 1,
+  "database_dump_returncode": 0,
+  "cleanup_returncode": 0
+}

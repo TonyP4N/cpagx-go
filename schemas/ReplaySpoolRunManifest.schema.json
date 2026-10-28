@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ReplaySpoolRunManifest.schema.json",
+  "title": "ReplaySpoolRunManifest",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "attempt_id": {
+      "type": "integer"
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tool_versions": {
+      "type": "object",
+      "properties": {
+        "core": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "core",
+        "python"
+      ],
+      "additionalProperties": false
+    },
+    "mode": {
+      "const": "replay"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size_bytes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result_hashes": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "graph": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "events",
+        "graph"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "enum": [
+        "succeeded",
+        "succeeded_with_warnings"
+      ]
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "replay_version": {
+      "const": "dual-source-replay-1"
+    },
+    "analysis_version": {
+      "const": "bounded-dual-source-2"
+    },
+    "semantic_config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "history_format": {
+      "const": "replay-history-checkpoint-delta-2"
+    },
+    "history_manifest_sha256": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "capacity_profile": {
+      "const": "engineering-capacity-1"
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "run_id",
+    "attempt_id",
+    "input_fingerprint",
+    "config_fingerprint",
+    "tool_versions",
+    "mode",
+    "artifacts",
+    "result_hashes",
+    "limitations",
+    "status",
+    "warnings",
+    "replay_version",
+    "analysis_version",
+    "semantic_config_fingerprint",
+    "history_format",
+    "history_manifest_sha256"
+  ],
+  "additionalProperties": false
+}

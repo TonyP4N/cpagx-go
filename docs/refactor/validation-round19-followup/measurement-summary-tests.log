@@ -1,0 +1,7 @@
+test_business_state_and_image_differences_cannot_be_normalized_away (test_round19_measurement_summary.SummaryTests.test_business_state_and_image_differences_cannot_be_normalized_away) ... ok
+test_three_equal_and_failed_attempt_is_never_hidden (test_round19_measurement_summary.SummaryTests.test_three_equal_and_failed_attempt_is_never_hidden) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.019s
+
+OK

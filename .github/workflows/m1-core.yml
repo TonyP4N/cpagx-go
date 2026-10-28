@@ -429,8 +429,15 @@ jobs:
         run: bash scripts/validation/round18_acceptance.sh "$RUNNER_TEMP/round18"
       - name: R19 independent final artifact evaluation and PostgreSQL restore
         run: python scripts/validation/round19_evaluation_acceptance.py --output "$RUNNER_TEMP/round19-evaluation"
+      - name: R19 explicit disk replay history and empty database restore
+        # The R18 step already built this checkout's complete Worker source.
+        # Local small-case full-chain observation was about 287 seconds; keep
+        # the existing 30 minute job budget pending measured CI evidence.
+        run: python scripts/validation/round19_replay_spool_acceptance.py --image cpag-isolated:r18-acceptance --output "$RUNNER_TEMP/round19-spool"
       - name: Replay cancellation, failure, interrupted Worker and new attempt
         run: python scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"
+      - name: Explicit disk history cancellation, interrupted Worker and stale attempt
+        run: python scripts/validation/round18_lifecycle.py --history-format replay-history-checkpoint-delta-2 --skip-image-build --image cpag-isolated:r18-acceptance --output "$RUNNER_TEMP/round19-spool-lifecycle"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -442,5 +449,7 @@ jobs:
             ${{ runner.temp }}/round18/browser
             ${{ runner.temp }}/round18-pacing
             ${{ runner.temp }}/round19-evaluation/public
+            ${{ runner.temp }}/round19-spool/public
+            ${{ runner.temp }}/round19-spool-lifecycle/public
             ${{ runner.temp }}/round18-lifecycle/public
             ${{ runner.temp }}/round18-lifecycle/*.log

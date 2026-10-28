@@ -101,8 +101,19 @@ def replay_export_api():
     return replay_export
 
 
-def replay_files(payload):
-    return replay_export_api().artifact_files_for_inputs(len(dual_networks(payload)))
+def replay_files(payload, profile=None):
+    options=(profile or {}).get('replay',{})
+    history_format=options.get('history_format')
+    if history_format is None and ('history_format' in options or 'history_format' in payload):
+        raise ValueError('explicit replay history format cannot be null')
+    if payload.get('history_format')!=history_format:
+        raise ValueError('replay history format profile/payload mismatch')
+    if history_format is None:
+        return replay_export_api().artifact_files_for_inputs(len(dual_networks(payload)))
+    from cpag_core.replay_history import VERSION as HISTORY_FORMAT
+    if history_format!=HISTORY_FORMAT:
+        raise ValueError('unsupported replay history format')
+    return replay_export_api().artifact_files_for_inputs(len(dual_networks(payload)),history_format=history_format)
 
 
 def audit_dual(row, root, verify):
@@ -114,6 +125,7 @@ def audit_dual(row, root, verify):
         raise ValueError('dual profile config fingerprint mismatch')
     if replay and (payload.get('replay_version')!='dual-source-replay-1' or profile.get('replay',{}).get('version')!=payload.get('replay_version')):
         raise ValueError('replay profile/payload version mismatch')
+    expected_dual=replay_files(payload,profile) if replay else dual_files(payload)
     if row['state']!='succeeded':
         return
     attempt=row.get('attempt')
@@ -135,7 +147,8 @@ def audit_dual(row, root, verify):
     networks=dual_networks(payload)
     if wrapper.get('networks') != ([ref['sha256'] for ref in networks] if 'networks' in payload else None):
         raise ValueError('dual wrapper capture order/hash mismatch')
-    expected_dual=replay_files(payload) if replay else dual_files(payload)
+    if replay and wrapper.get('history_format')!=payload.get('history_format'):
+        raise ValueError('replay wrapper history format mismatch')
     entries=wrapper['artifacts']
     if (not isinstance(entries,list) or len(entries)!=len(expected_dual)
             or {entry['path'] for entry in entries}!=expected_dual):
@@ -146,8 +159,8 @@ def audit_dual(row, root, verify):
     expected_files=expected_dual|{'manifest.json',row['artifact_sha256']+'.json'}
     if set(inventory(output))!=expected_files:
         raise ValueError('unexpected dual publication file inventory')
-    # The core verifier requires its exact eleven-file export tree. The
-    # task publication adds two wrappers, so verify an isolated byte copy.
+    # The core verifier requires the exact version-specific export inventory.
+    # Publication adds two wrappers, so verify an isolated byte copy.
     with tempfile.TemporaryDirectory(prefix='cpag-dual-audit-') as temporary:
         export=Path(temporary)/'export'
         export.mkdir()
@@ -158,6 +171,8 @@ def audit_dual(row, root, verify):
         core=(replay_export_api().verify_task if replay else verify_dual_task)(export)
     if replay and (core.get('mode')!='replay' or core.get('replay_version')!=payload['replay_version'] or wrapper.get('replay_version')!=payload['replay_version']):
         raise ValueError('replay published mode/version mismatch')
+    if replay and core.get('history_format')!=payload.get('history_format'):
+        raise ValueError('replay core history format mismatch')
     if core['run_id']!=row['id'] or core['attempt_id']!=attempt:
         raise ValueError('dual core run/attempt identity mismatch')
     refs=[(ref, 'network.pcap' if i==0 else f'network-{i:03d}.pcap') for i,ref in enumerate(networks)]

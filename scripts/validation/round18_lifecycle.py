@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-"""R18-only real Go/PG/isolated Worker lifecycle checks on generated inputs.
+"""Real Go/PG/isolated Worker lifecycle checks on generated inputs.
+
+R18 JSONL remains the default; disk history requires an explicit format option.
 
 Fault injection stops an actual replay after arrival 3 (request admitted, response
 not arrived), rather than treating an old offline fault test as replay coverage.
@@ -24,7 +26,8 @@ from round16_supplement import intake
 from round18_profile import fixture
 import bundle
 from cpag_core.pipeline import canonical,fingerprint
-from cpag_core.replay_export import verify_task
+from cpag_core.replay_export import verify_task,iter_verified_snapshots
+from cpag_core.replay_history import VERSION as HISTORY_FORMAT
 from cpag_worker.isolated import DockerExecutor
 from cpag_worker.worker import API,APIError,digest
 
@@ -81,7 +84,8 @@ def wait_for(check,*,seconds=45,description='condition'):
     raise RuntimeError('timed out waiting for '+description)
 
 
-def main(work,*,skip_image_build=False,image='cpag-isolated:r18-lifecycle'):
+def main(work,*,skip_image_build=False,image='cpag-isolated:r18-lifecycle',history_format=None):
+    if history_format not in (None,HISTORY_FORMAT):raise ValueError('unsupported_explicit_history_format')
     work=work.resolve();work.mkdir(parents=True,mode=0o700,exist_ok=False);public=work/'public';public.mkdir()
     shared=work/'source';shared.mkdir();control=work/'control';control.mkdir()
     env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(r.REPO/'services/worker'),str(r.REPO/'services/analysis/src')]),
@@ -91,6 +95,8 @@ def main(work,*,skip_image_build=False,image='cpag-isolated:r18-lifecycle'):
     app=child=None;created=False;tracked=[]
     report={'scope':'generated R18 software lifecycle checks only; no industrial validation','checks':{},'jobs':{},'status':'running',
             'fault_window':'after arrival 3 while actual replay is pending response','source_commit':os.environ.get('GITHUB_SHA',os.environ.get('CPAG_VALIDATION_SOURCE_COMMIT','uncommitted worktree'))}
+    if history_format is not None:
+        report.update(history_format=history_format,scope='generated explicit spool software lifecycle checks only; no scale or industrial validation')
     def save(): (public/'lifecycle.json').write_text(json.dumps(report,indent=2)+'\n')
     try:
         sources=source_manifest()
@@ -122,6 +128,9 @@ def main(work,*,skip_image_build=False,image='cpag-isolated:r18-lifecycle'):
         def state(job):return internal_state(api,job)
         def prepare(label,*,invalid=False):
             networks,process,profile_path,profile=fixture(work/('input-'+label))
+            if history_format is not None:
+                profile['replay']['history_format']=history_format
+                profile_path.write_text(json.dumps(profile,indent=2)+'\n')
             if invalid:networks[0].write_bytes(b'not-a-valid-pcap-container')
             provenance=profile['source_provenance']
             dataset=client.expect('POST','/api/v3/datasets',{'name':'R18 lifecycle '+label,'source_kind':'synthetic',
@@ -139,6 +148,7 @@ def main(work,*,skip_image_build=False,image='cpag-isolated:r18-lifecycle'):
             if not item or item['id']!=job:raise AssertionError('wrong task claimed')
             item.update(executor='isolated-v2',location=location)
             if item['payload'].get('kind')!='dual-source-replay' or item['payload'].get('replay_version')!='dual-source-replay-1':raise AssertionError('claim replay identity differs')
+            if item['payload'].get('history_format')!=history_format:raise AssertionError('claim history format differs')
             tracked.append(item);return item
         def execution(item):
             path=control/'jobs'/item['id']/f"attempt-{item['attempt']}.worker"/'execution.json'
@@ -223,7 +233,12 @@ worker.attempt(claim)
         succeeded=state(lost)
         if result!='succeeded' or succeeded['state']!='succeeded' or succeeded['attempt']!=2:raise AssertionError('replay retry did not publish exactly one successful attempt')
         output=shared/retry['output_dir'];manifest=verify_task(output)
-        snapshots=[json.loads(line) for line in (output/'snapshots.jsonl').read_text().splitlines()]
+        if manifest.get('history_format')!=history_format:raise AssertionError('published history format differs')
+        if history_format is None:
+            snapshots=[json.loads(line) for line in (output/'snapshots.jsonl').read_text().splitlines()]
+        else:
+            snapshots=list(iter_verified_snapshots(output))
+            if (output/'snapshots.jsonl').exists() or (output/'revisions.jsonl').exists():raise AssertionError('spool publication borrowed legacy history files')
         if snapshots[0]['snapshot_number']!=0 or snapshots[0]['arrival_seq']!=0 or manifest['attempt_id']!=2:raise AssertionError('retry did not start replay from initial snapshot')
         if (shared/lost_claim['output_dir']).exists():raise AssertionError('interrupted attempt published partial history')
         client.expect('GET',f'/api/v3/runs/{lost}/result')
@@ -255,5 +270,6 @@ worker.attempt(claim)
         if created:subprocess.run(['docker','rm','-f',database],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True,type=Path);parser.add_argument('--skip-image-build',action='store_true');parser.add_argument('--image',default='cpag-isolated:r18-lifecycle');args=parser.parse_args()
-    main(args.output,skip_image_build=args.skip_image_build,image=args.image)
+    parser=argparse.ArgumentParser(description=__doc__);parser.add_argument('--output',required=True,type=Path);parser.add_argument('--skip-image-build',action='store_true');parser.add_argument('--image',default='cpag-isolated:r18-lifecycle')
+    parser.add_argument('--history-format',choices=(HISTORY_FORMAT,));args=parser.parse_args()
+    main(args.output,skip_image_build=args.skip_image_build,image=args.image,history_format=args.history_format)

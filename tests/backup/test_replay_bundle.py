@@ -15,17 +15,21 @@ from cpag_core.replay_export import export_task,artifact_files_for_inputs,query_
 from cpag_core.pipeline import canonical,fingerprint
 
 class ReplayBundleTests(unittest.TestCase):
-    def make(self,root):
+    def make(self,root,history_format=None,*,run_id='replay'):
         n,p,c,config=fixture(root/'inputs')
+        if history_format is not None:
+            config['replay']['history_format']=history_format;c.write_text(json.dumps(config))
         ref=lambda path:{'path':path.relative_to(root).as_posix(),'sha256':bundle.sha(path)}
         payload={'kind':'dual-source-replay','replay_version':'dual-source-replay-1','network':ref(n[0]),'networks':[ref(x) for x in n],
                  'process':ref(p),'profile':ref(c),'config_fingerprint':fingerprint(config)}
-        out=root/'jobs/replay/attempt-1';export_task(n,p,c,out,run_id='replay',attempt_id=1)
+        if history_format is not None:payload['history_format']=history_format
+        out=root/'jobs'/run_id/'attempt-1';export_task(n,p,c,out,run_id=run_id,attempt_id=1)
         wrapper={'inputs':{k:payload[k]['sha256'] for k in ('network','process','profile')},
                  'networks':[r['sha256'] for r in payload['networks']],'config_fingerprint':payload['config_fingerprint'],
-                 'replay_version':'dual-source-replay-1','artifacts':[{'path':name,'sha256':bundle.sha(out/name),'size':(out/name).stat().st_size} for name in sorted(artifact_files_for_inputs(2))]}
+                 'replay_version':'dual-source-replay-1','artifacts':[{'path':name,'sha256':bundle.sha(out/name),'size':(out/name).stat().st_size} for name in sorted(artifact_files_for_inputs(2,history_format=history_format))]}
+        if history_format is not None:wrapper['history_format']=history_format
         publication=out/'manifest.json';publication.write_bytes(canonical(wrapper)+b'\n');digest=bundle.sha(publication);(out/(digest+'.json')).write_bytes(publication.read_bytes())
-        return {'id':'replay','state':'succeeded','attempt':1,'payload':payload,'artifact_path':(out/(digest+'.json')).relative_to(root).as_posix(),'artifact_sha256':digest},out
+        return {'id':run_id,'state':'succeeded','attempt':1,'payload':payload,'artifact_path':(out/(digest+'.json')).relative_to(root).as_posix(),'artifact_sha256':digest},out
 
     def test_replay_terminal_copy_preserves_history_and_evidence(self):
         with tempfile.TemporaryDirectory() as tmp:
