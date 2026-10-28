@@ -1,0 +1,7 @@
+# github.com/TonyP4N/cpagx-go/internal/contracts
+open <home>/Library/Caches/go-build/ef/efa155ceb3dce3988f9a8d83cf012c77cdda93ed1a7540d15ad3475c2c8587a2-d: operation not permitted
+FAIL	github.com/TonyP4N/cpagx-go/internal/contracts [setup failed]
+# github.com/TonyP4N/cpagx-go/internal/catalog
+open <home>/Library/Caches/go-build/ed/ed8baac5be8fe221254ce5cf14c0d74526a454c82fff323a11b59d071f8e5201-a: operation not permitted
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog [setup failed]
+FAIL

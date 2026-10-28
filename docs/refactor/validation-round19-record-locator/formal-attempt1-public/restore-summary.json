@@ -1,0 +1,10 @@
+{
+  "valid": true,
+  "phase": "completed",
+  "metadata_equal": true,
+  "file_inventory_equal": true,
+  "attempt_history_equal": true,
+  "catalog_equal": true,
+  "sessions_revoked": 4,
+  "session_restore_policy": "revoke_all_sessions_before_restored_service_start"
+}

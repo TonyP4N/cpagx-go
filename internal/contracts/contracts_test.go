@@ -13,7 +13,7 @@ func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
 	expected := map[string]bool{}
-	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest", "SingleSourceRunManifest", "DualSpoolProfile", "ReplaySpoolProfile", "ReplaySpoolRunManifest", "ReplayHistorySpoolManifest"} {
+	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest", "SingleSourceRunManifest", "DualSpoolProfile", "ReplaySpoolProfile", "ReplaySpoolRunManifest", "ReplayHistorySpoolManifest", "EvaluationCSVRecordLocator", "EvaluationLocatedReference"} {
 		expected[name+".schema.json"] = true
 	}
 	if err != nil || len(entries) != len(expected) {
@@ -261,6 +261,30 @@ func TestSingleSourceManifestContract(t *testing.T) {
 		bad, _ := json.Marshal(changed)
 		if Validate("../../schemas", "SingleSourceRunManifest", bad) == nil {
 			t.Fatalf("invalid %s accepted", name)
+		}
+	}
+}
+
+func TestEvaluationCSVLogicalLocatorContract(t *testing.T) {
+	valid := `{"source_ref":"independent-table","sha256":"` + strings.Repeat("a", 64) + `","locator":{"version":"csv-logical-record-1","file_sha256":"` + strings.Repeat("a", 64) + `","record_number":1,"columns":["event_id","time"]}}`
+	if err := Validate("../../schemas", "EvaluationLocatedReference", []byte(valid)); err != nil {
+		t.Fatal(err)
+	}
+	mutations := []string{
+		strings.Replace(valid, `"record_number":1`, `"record_number":0`, 1),
+		strings.Replace(valid, `"record_number":1`, `"record_number":1.5`, 1),
+		strings.Replace(valid, `"record_number":1`, `"record_number":true`, 1),
+		strings.Replace(valid, `"record_number":1`, `"record_number":1000001`, 1),
+		strings.Replace(valid, `["event_id","time"]`, `[]`, 1),
+		strings.Replace(valid, `["event_id","time"]`, `["event_id","event_id"]`, 1),
+		strings.Replace(valid, `csv-logical-record-1`, `unknown`, 1),
+		strings.Replace(valid, `"locator":{`, `"locator":{"unregistered":true,`, 1),
+		strings.Replace(valid, `"source_ref":"independent-table"`, `"record":"row:1","source_ref":"independent-table"`, 1),
+		strings.Replace(valid, `["event_id","time"]`, `["`+strings.Repeat("x", 4097)+`"]`, 1),
+	}
+	for i, raw := range mutations {
+		if Validate("../../schemas", "EvaluationLocatedReference", []byte(raw)) == nil {
+			t.Fatalf("invalid locator %d accepted", i)
 		}
 	}
 }

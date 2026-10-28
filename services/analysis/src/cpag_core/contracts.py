@@ -64,6 +64,8 @@ def _validate_impl(schema, value, path):
               'number':lambda x:isinstance(x,(int,float)) and not isinstance(x,bool) and math.isfinite(x)}
     if types and not any(checks[t](value) for t in types):
         raise ContractError(f'{path}: expected {types}')
+    if isinstance(value,str) and 'maxLength' in schema and len(value)>schema['maxLength']:
+        raise ContractError(f'{path}: above maximum string length')
     if isinstance(value,dict):
         props = schema.get('properties', {})
         for key in schema.get('required', []):
@@ -77,6 +79,12 @@ def _validate_impl(schema, value, path):
             elif isinstance(schema.get('additionalProperties'),dict):
                 _validate(schema['additionalProperties'],item,path+'.'+key)
     elif isinstance(value,list):
+        if 'minItems' in schema and len(value)<schema['minItems']:
+            raise ContractError(f'{path}: below minimum array length')
+        if 'maxItems' in schema and len(value)>schema['maxItems']:
+            raise ContractError(f'{path}: above maximum array length')
+        if schema.get('uniqueItems') and len({json.dumps(item,sort_keys=True,ensure_ascii=False,separators=(',',':')) for item in value})!=len(value):
+            raise ContractError(f'{path}: duplicate array item')
         for i,item in enumerate(value):
             _validate(schema.get('items',{}),item,f'{path}[{i}]')
     elif isinstance(value,str) and schema.get('format') == 'date-time':

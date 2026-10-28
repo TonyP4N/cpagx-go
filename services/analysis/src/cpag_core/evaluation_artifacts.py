@@ -22,6 +22,7 @@ import math
 from pathlib import Path
 import re
 
+from .evaluation_context import checked_manifest, request_cache, service_publication, prepared_projection, retained_analysis, terminal_replay_evidence
 from .contracts import validate
 from .dual_source import strict_json, utc
 from .evaluation import instant
@@ -74,6 +75,9 @@ def _interval(value):
 def _verified(output):
     """Verify first, then read and bind retained bytes, including replay history."""
     root = Path(output)
+    cache = request_cache(root)
+    if cache is not None and 'verified' in cache:
+        return cache['verified']
     initial = _read(root / 'run_manifest.json')
     if initial.get('mode') == 'replay':
         from .replay_export import verify_task
@@ -83,7 +87,9 @@ def _verified(output):
         from .single_source_export import verify_task
     else:
         raise ValueError('unsupported_artifact_mode')
-    manifest = verify_task(root)
+    manifest = checked_manifest(root)
+    if manifest is None:
+        manifest = verify_task(root)
     raw = (root / 'run_manifest.json').read_bytes()
     if raw != canonical(manifest) + b'\n':
         raise ValueError('artifact_changed_after_verification')
@@ -139,7 +145,10 @@ def _verified(output):
             raise ValueError('terminal_replay_required')
     if (root / 'run_manifest.json').read_bytes() != raw:
         raise ValueError('artifact_changed_after_verification')
-    return manifest, analysis, profile, statistics, final, hashes
+    result = (manifest, analysis, profile, statistics, final, hashes)
+    if cache is not None:
+        cache['verified'] = result
+    return result
 
 
 def _history_statistics(snapshots):
@@ -175,6 +184,19 @@ def adapt_artifact(output, *, batch, sample_sha256, projection='dual', expected_
         raise ValueError('explicit_registered_batch_required')
     if not isinstance(sample_sha256, str) or re.fullmatch('[a-f0-9]{64}', sample_sha256) is None:
         raise ValueError('explicit_registered_sample_sha256_required')
+    prepared = prepared_projection(output)
+    if prepared is not None:
+        binding = prepared['binding']
+        if (binding.get('adapter_version') != VERSION or binding.get('policy') != POLICY
+                or binding.get('policy_sha256') != fingerprint(POLICY)
+                or binding.get('batch') != batch or binding.get('sample_sha256') != sample_sha256
+                or binding.get('projection') != projection
+                or binding.get('predictions_sha256') != fingerprint(prepared['predictions'])):
+            raise ValueError('prepared_projection_context_mismatch')
+        validate('EvaluationPredictions', prepared['predictions'])
+        if expected_binding is not None and canonical(expected_binding) != canonical(binding):
+            raise ValueError('frozen_artifact_binding_mismatch')
+        return prepared
     manifest, analysis, profile, statistics, final, hashes = _verified(output)
     if manifest['mode'] == 'single_source' and projection != manifest['source_mode']:
         raise ValueError('single_source_projection_must_match_executed_source_mode')
@@ -275,14 +297,24 @@ def query_prediction(output, adapted, prediction_id):
     args = ({'operation_id': selector['operation_id']} if 'operation_id' in selector
             else {'change_id': selector['change_id']})
     if binding['mode'] == 'replay':
-        from .replay_export import query_task
-        evidence = query_task(output, binding['final_snapshot']['snapshot_number'], **args)
+        if prepared_projection(output) is not None:
+            evidence = terminal_replay_evidence(output, actual, **args)
+        else:
+            from .replay_export import query_task
+            evidence = query_task(output, binding['final_snapshot']['snapshot_number'], **args)
     elif binding['mode'] == 'single_source':
         from .single_source_export import query_task
         evidence = query_task(output, **args)
     else:
-        from .dual_source_export import query_task
-        evidence = query_task(output, **args)
+        cache = request_cache(output)
+        if cache is None:
+            from .dual_source_export import query_task
+            evidence = query_task(output, **args)
+        else:
+            from .dual_source import resolve_verified_selection
+            analysis = retained_analysis(output)
+            root = Path(output) / 'dual'
+            evidence = resolve_verified_selection(root, analysis, _read(root / 'manifest.json'), **args)
     return {'prediction_id': prediction_id, 'binding': deepcopy(binding), 'evidence': evidence}
 
 
@@ -292,10 +324,12 @@ def main():
     parser.add_argument('--batch', required=True)
     parser.add_argument('--sample-sha256', required=True)
     parser.add_argument('--projection', choices=('network', 'process', 'dual'), default='dual')
+    parser.add_argument('--service-publication-sha256', help=argparse.SUPPRESS)
     args = parser.parse_args()
     try:
-        result = adapt_artifact(args.artifact, batch=args.batch, sample_sha256=args.sample_sha256,
-                                projection=args.projection)
+        with service_publication(args.artifact, args.service_publication_sha256):
+            result = adapt_artifact(args.artifact, batch=args.batch, sample_sha256=args.sample_sha256,
+                                    projection=args.projection)
     except (OSError, ValueError, KeyError, TypeError) as error:
         parser.exit(2, str(error) + '\n')
     print(json.dumps(result, sort_keys=True, allow_nan=False))

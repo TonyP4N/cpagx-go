@@ -489,6 +489,19 @@ def query(output, operation_id=None, change_id=None):
     result=actual
     if manifest['config_fingerprint']!=fingerprint(config):
         raise ValueError('analysis_does_not_match_sources')
+    return resolve_verified_selection(output,result,manifest,operation_id,change_id)
+
+
+def resolve_verified_selection(output,result,manifest,operation_id=None,change_id=None):
+    """Resolve a selection after the caller has verified the retained publication.
+
+    This helper does not establish publication trust; query() and the internal
+    service evaluation context own that boundary. Raw evidence is checked here.
+    """
+    output=Path(output)
+    network_sources=retained_networks(output,manifest)
+    config=strict_json((output/'sources/profile.json').read_text())
+    retained_version=manifest.get('analysis_version')
     if operation_id is not None:
         matches=result['operations'][:1] if operation_id=='first' else [o for o in result['operations'] if o['operation_id']==operation_id]
         if len(matches)!=1:raise ValueError('unknown_operation')

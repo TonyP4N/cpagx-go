@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "EvaluationLocatedReference.schema.json",
+  "title": "Independent reference with an explicit supported locator",
+  "type": "object",
+  "properties": {
+    "source_ref": {"type": "string", "pattern": ".*\\S.*", "maxLength": 65536},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "locator": {"$ref": "EvaluationCSVRecordLocator.schema.json"}
+  },
+  "required": ["source_ref", "sha256", "locator"],
+  "additionalProperties": false
+}

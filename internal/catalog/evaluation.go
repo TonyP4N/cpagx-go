@@ -23,6 +23,9 @@ import (
 
 const evaluationProjectionLimit = 8 << 20
 
+// Only assigned after current publication and byte verification; never read from HTTP.
+type evaluationPublicationContextKey struct{}
+
 func evaluationResourceProjectionLimit(resource, operator string) (int, error) {
 	// This is a historical read. Resolve both supported names, but preserve the
 	// frozen run's budget when the operator later changes its submission policy.
@@ -124,7 +127,7 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 		fail(w, 409, "evaluation_input_unavailable", "published identity unavailable or changed")
 		return
 	}
-	raw, err := s.runEvaluationProjection(ctx, filepath.Join(s.Root, base), batch, core.Input, projection, projectionLimit)
+	raw, err := s.runEvaluationProjection(context.WithValue(ctx, evaluationPublicationContextKey{}, coreSHA), filepath.Join(s.Root, base), batch, core.Input, projection, projectionLimit)
 	if err != nil {
 		fail(w, 409, "evaluation_projection_failed", "bounded evaluation projection unavailable")
 		return
@@ -184,7 +187,14 @@ func (s *Server) runEvaluationProjection(ctx context.Context, artifact, batch, s
 	if limit != evaluationProjectionLimit && limit != evaluationV2DocumentLimit {
 		return nil, errors.New("unsupported evaluation projection budget")
 	}
-	cmd := exec.CommandContext(ctx, s.cfg.PythonBin, "-m", "cpag_core.evaluation_artifacts", "--artifact", artifact, "--batch", batch, "--sample-sha256", sample, "--projection", projection)
+	args := []string{"-m", "cpag_core.evaluation_artifacts", "--artifact", artifact, "--batch", batch, "--sample-sha256", sample, "--projection", projection}
+	if digest, ok := ctx.Value(evaluationPublicationContextKey{}).(string); ok {
+		if !shaRE.MatchString(digest) {
+			return nil, errors.New("invalid service publication digest")
+		}
+		args = append(args, "--service-publication-sha256", digest)
+	}
+	cmd := exec.CommandContext(ctx, s.cfg.PythonBin, args...)
 	cmd.Env = os.Environ()
 	if s.cfg.PythonPath != "" {
 		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)

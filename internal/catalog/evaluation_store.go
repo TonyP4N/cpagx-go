@@ -51,7 +51,7 @@ func evaluationDocumentLimit(raw []byte) (int, error) {
 	limit := evaluationProjectionLimit
 	switch manifest.Version {
 	case "evaluation-bundle-1":
-	case "evaluation-bundle-2":
+	case "evaluation-bundle-2", "evaluation-bundle-3":
 		limit = evaluationV2DocumentLimit
 	default:
 		return 0, errors.New("unsupported evaluation version")
@@ -253,7 +253,16 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 	if err = s.DB.QueryRowContext(r.Context(), "SELECT batch FROM v3_datasets WHERE id=$1", dataset).Scan(&batch); err != nil || strings.TrimSpace(batch) == "" {
 		return output, errors.New("dataset batch unavailable")
 	}
-	args := []string{"-m", "cpag_core.evaluation_bundle", "verify-document", "--artifact", filepath.Join(s.Root, base)}
+	var publicationSHA string
+	for _, item := range before {
+		if item.Path == "run_manifest.json" && shaRE.MatchString(item.SHA) {
+			publicationSHA = item.SHA
+		}
+	}
+	if publicationSHA == "" {
+		return output, errors.New("verified publication manifest absent")
+	}
+	args := []string{"-m", "cpag_core.evaluation_bundle", "verify-document", "--artifact", filepath.Join(s.Root, base), "--service-publication-sha256", publicationSHA}
 	if event != "" {
 		args = append(args, "--id="+event)
 		if reference {

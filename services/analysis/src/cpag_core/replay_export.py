@@ -355,26 +355,32 @@ def query_task(output,revision,operation_id=None,change_id=None,trigger=False):
     _,run=_verify(output,retain_run=True)
     try:
         snapshot=_snapshot(run,revision);analysis=snapshot['analysis']
-        if trigger:
-            selected={'trigger':snapshot['trigger']}
-        elif operation_id is not None:
-            matches=analysis['operations'][:1] if operation_id=='first' else [r for r in analysis['operations'] if r['operation_id']==operation_id]
-            if len(matches)!=1:raise KeyError('unknown_operation')
-            selected={'operation':matches[0],'candidates':[r for r in analysis['candidates'] if r['operation_id']==matches[0]['operation_id']]}
-        else:
-            matches=analysis['changes'][:1] if change_id=='first' else [r for r in analysis['changes'] if r['event_id']==change_id]
-            if len(matches)!=1:raise KeyError('unknown_change')
-            selected={'change':matches[0]}
-        refs=references(selected);inputs=run['inputs']
-        resolved=[{'source_ref':r,'original':inputs.resolve(r)} for r in refs]
-        selected_frames={(r['source_slot'],r['frame_number']) for r in refs if r['frame_number'] is not None};fields=[]
-        for row in analysis['network']:
-            if any((r['source_slot'],r['frame_number']) in selected_frames for r in row['observation']['source_refs']):
-                fields.append({'event_id':row['event']['event_id'],'fields':{name:[inputs.resolve(piece['source_ref'],piece) for piece in field['slices']] for name,field in row['observation']['fields'].items()}})
-        return {'synthetic':analysis['synthetic'],'revision':int(revision),'selection':selected,
-                'available_at':snapshot['available_at'],'verified_original_evidence':resolved,'verified_network_fields':fields,
-                'config_fingerprint':analysis['config_fingerprint'],'limitations':analysis['limitations']}
+        return resolve_verified_selection(run['inputs'],snapshot,revision,operation_id,change_id,trigger)
     finally:_close_run(run)
+
+
+def resolve_verified_selection(inputs,snapshot,revision,operation_id=None,change_id=None,trigger=False):
+    """Resolve raw evidence after a caller has verified a snapshot publication."""
+    analysis=snapshot['analysis']
+    if trigger:
+        selected={'trigger':snapshot['trigger']}
+    elif operation_id is not None:
+        matches=analysis['operations'][:1] if operation_id=='first' else [r for r in analysis['operations'] if r['operation_id']==operation_id]
+        if len(matches)!=1:raise KeyError('unknown_operation')
+        selected={'operation':matches[0],'candidates':[r for r in analysis['candidates'] if r['operation_id']==matches[0]['operation_id']]}
+    else:
+        matches=analysis['changes'][:1] if change_id=='first' else [r for r in analysis['changes'] if r['event_id']==change_id]
+        if len(matches)!=1:raise KeyError('unknown_change')
+        selected={'change':matches[0]}
+    refs=references(selected)
+    resolved=[{'source_ref':r,'original':inputs.resolve(r)} for r in refs]
+    selected_frames={(r['source_slot'],r['frame_number']) for r in refs if r['frame_number'] is not None};fields=[]
+    for row in analysis['network']:
+        if any((r['source_slot'],r['frame_number']) in selected_frames for r in row['observation']['source_refs']):
+            fields.append({'event_id':row['event']['event_id'],'fields':{name:[inputs.resolve(piece['source_ref'],piece) for piece in field['slices']] for name,field in row['observation']['fields'].items()}})
+    return {'synthetic':analysis['synthetic'],'revision':int(revision),'selection':selected,
+            'available_at':snapshot['available_at'],'verified_original_evidence':resolved,'verified_network_fields':fields,
+            'config_fingerprint':analysis['config_fingerprint'],'limitations':analysis['limitations']}
 
 
 def main():

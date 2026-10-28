@@ -13,6 +13,7 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"unicode/utf8"
 )
 
 // Validate rejects missing/unknown fields, invalid types, and unsupported versions.
@@ -122,6 +123,25 @@ func check(dir string, s map[string]any, v any, path string) error {
 			}
 		}
 	case []any:
+		if minimum, ok := s["minItems"].(float64); ok && float64(len(value)) < minimum {
+			return fail("below minimum array length")
+		}
+		if maximum, ok := s["maxItems"].(float64); ok && float64(len(value)) > maximum {
+			return fail("above maximum array length")
+		}
+		if unique, _ := s["uniqueItems"].(bool); unique {
+			seen := map[string]bool{}
+			for _, item := range value {
+				encoded, err := json.Marshal(item)
+				if err != nil {
+					return err
+				}
+				if seen[string(encoded)] {
+					return fail("duplicate array item")
+				}
+				seen[string(encoded)] = true
+			}
+		}
 		sub, _ := s["items"].(map[string]any)
 		for i, item := range value {
 			if err := check(dir, sub, item, fmt.Sprintf("%s[%d]", path, i)); err != nil {
@@ -129,6 +149,9 @@ func check(dir string, s map[string]any, v any, path string) error {
 			}
 		}
 	case string:
+		if maximum, ok := s["maxLength"].(float64); ok && float64(utf8.RuneCountInString(value)) > maximum {
+			return fail("above maximum string length")
+		}
 		if s["format"] == "date-time" {
 			if _, err := time.Parse(time.RFC3339Nano, value); err != nil {
 				return fail("invalid date-time")

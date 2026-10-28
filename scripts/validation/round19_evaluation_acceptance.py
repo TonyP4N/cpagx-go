@@ -9,6 +9,8 @@ from datetime import datetime,timedelta,timezone
 import json
 import base64
 import copy
+import csv
+import io
 import hashlib
 import os
 import secrets
@@ -22,13 +24,15 @@ import round18_acceptance as r18
 from cpag_core import evaluation_bundle as eb
 from cpag_core.evaluation import digest
 from cpag_core.pipeline import canonical
-from cpag_core.reference_inventory import build_inventory,STATUS as ORIGINAL_STATUS
+from cpag_core.reference_inventory import build_inventory,STATUS as ORIGINAL_STATUS,LOCATOR_VERSION,LOCATED_STATUS
 from cpag_core.evaluation_details import V2_MATCHING_VERSION
 
 EXPECTED=[('manual-operation','network_operation','["192.0.2.2",44818]','2026-01-01T00:00:10Z'),
           ('manual-transition','process_change','["synthetic-pump","pump_state"]','2026-01-01T00:00:12Z')]
 
-def run(work):
+def run(work, *, bundle_version=eb.V2_VERSION):
+    if bundle_version not in (eb.V2_VERSION, eb.V3_VERSION):raise ValueError("unsupported_acceptance_bundle_version")
+    located=bundle_version==eb.V3_VERSION
     original=r18.check_run;records={};checks=[];offline={};offline_checked=set();role_checks=[]
     def checked(client,job,root,attempt,config,case):
         result=original(client,job,root,attempt,config,case) if case!='offline' else {}
@@ -47,11 +51,17 @@ def run(work):
                  'input_fingerprint':b['input_fingerprint'],'config_fingerprint':b['config_fingerprint'],'split_sha256':digest(split),'tolerance_seconds':0,'thresholds':{}}
             frozen=work/('frozen-'+job);out=work/('evaluation-'+job)
             originals=work/'controlled-reference-originals'/job;originals.mkdir(parents=True)
-            raw_original=canonical(EXPECTED)+b'\n';original_sha=hashlib.sha256(raw_original).hexdigest()
-            (originals/'handwritten-expected.json').write_bytes(raw_original)
-            inventory=build_inventory(originals,{'handwritten-expected.json':original_sha})
+            if located:
+                csv_buffer=io.StringIO(newline='');writer=csv.writer(csv_buffer,lineterminator='\r\n')
+                writer.writerow(['event_id','kind','asset','time','notes'])
+                for index,row in enumerate(EXPECTED):writer.writerow([*row,'reviewed "manually"\r\nindependent fixture' if index==0 else 'last logical record'])
+                raw_original=csv_buffer.getvalue().encode('utf-8');original_name='handwritten-expected.csv'
+            else:raw_original=canonical(EXPECTED)+b'\n';original_name='handwritten-expected.json'
+            original_sha=hashlib.sha256(raw_original).hexdigest()
+            (originals/original_name).write_bytes(raw_original)
+            inventory=build_inventory(originals,{original_name:original_sha})
             eb.freeze(artifact,split,reg,frozen,batch=batch,sample_sha256=sample,
-                matching_version=V2_MATCHING_VERSION,bundle_version=eb.V2_VERSION,reference_inventory=inventory)
+                matching_version=V2_MATCHING_VERSION,bundle_version=bundle_version,reference_inventory=inventory)
             labels={'schema_version':'1.0.0','synthetic':True,'origin':'independent','source_ref':'round19 handwritten expected table','review_ref':'repository test author','annotation_version':'1',
                     'events':[{'id':i,'kind':kind,'asset':asset,'time':at,'batch':batch,'sample_sha256':sample} for i,kind,asset,at in EXPECTED],'disputed_intervals':[]}
             # Mutate only independent labels before evaluating the second fresh run.
@@ -59,7 +69,8 @@ def run(work):
             changed=case=='normal' and sum(v['mode']=='replay' for v in records.values())==1
             if changed:labels['events'][1]['time']='2026-01-01T00:00:14Z'
             (work/'independent-labels.json').write_text(json.dumps(labels))
-            refs={e['id']:{'source_ref':'scripts/validation/round19_evaluation_acceptance.py EXPECTED','record':e['id'],'sha256':original_sha} for e in labels['events']}
+            refs={e['id']:{'source_ref':'scripts/validation/round19_evaluation_acceptance.py EXPECTED','sha256':original_sha,
+                **({'locator':{'version':LOCATOR_VERSION,'file_sha256':original_sha,'record_number':index+1,'columns':['event_id','kind','asset','time']}} if located else {'record':e['id']})} for index,e in enumerate(labels['events'])}
             time.sleep(max(0,(opening-datetime.now(timezone.utc)).total_seconds())+.01)
             measured=eb.evaluate_bundle(frozen,artifact,labels,refs,out)
             expected=(1,1,1) if changed else (2,0,0)
@@ -71,10 +82,28 @@ def run(work):
                 else:
                     item=next(iter(files.values()));item['content_base64']='A'+item['content_base64'][1:]
                 client.expect('POST',f'/api/v3/runs/{job}/evaluations',invalid,code=409)
+            if located:
+                # Rehash the independent-reference binding so rejection exercises
+                # logical record validation, not merely a stale document checksum.
+                for mutation in ('out_of_range','missing_column','unknown_version','wrong_file_hash'):
+                    invalid=copy.deepcopy(document);locator=invalid['references.json']['manual-operation']['locator']
+                    if mutation=='out_of_range':locator['record_number']=999999
+                    elif mutation=='missing_column':locator['columns']=['column_does_not_exist']
+                    elif mutation=='unknown_version':locator['version']='csv-logical-record-unknown'
+                    else:locator['file_sha256']='0'*64
+                    invalid['result.json']['bundle_binding']['references_sha256']=digest(invalid['references.json'])
+                    for name in invalid['manifest.json']['files']:invalid['manifest.json']['files'][name]=digest(invalid[name])
+                    client.expect('POST',f'/api/v3/runs/{job}/evaluations',invalid,code=409)
             imported=client.expect('POST',f'/api/v3/runs/{job}/evaluations',document,code=201)
             shutil.rmtree(originals) # No external inventory source is needed after exact JSON storage.
-            records[job]={'id':imported['evaluation']['id'],'document':document,'expected':expected,'label_changed':changed,'mode':'offline' if case=='offline' else 'replay','reference_sha256':original_sha}
+            records[job]={'id':imported['evaluation']['id'],'document':document,'expected':expected,'label_changed':changed,'mode':'offline' if case=='offline' else 'replay','reference_sha256':original_sha,'reference_raw_base64':base64.b64encode(raw_original).decode('ascii')}
         entry=records[job]
+        if located and 'restored' in str(root):
+            invalid=copy.deepcopy(entry['document'])
+            invalid['references.json']['manual-operation']['locator']['record_number']=999999
+            invalid['result.json']['bundle_binding']['references_sha256']=digest(invalid['references.json'])
+            for name in invalid['manifest.json']['files']:invalid['manifest.json']['files'][name]=digest(invalid[name])
+            client.expect('POST',f'/api/v3/runs/{job}/evaluations',invalid,code=409)
         response=client.expect('GET',f"/api/v3/runs/{job}/evaluations/{entry['id']}")
         assert response['evaluation']['document_sha256']==digest(entry['document'])
         pid=projection['predictions']['events'][0]['id']
@@ -82,10 +111,22 @@ def run(work):
         evidence=client.expect('GET',f"/api/v3/runs/{job}/evaluations/{entry['id']}/evidence?"+urlencode({'event':pid}))
         reference_path=f"/api/v3/runs/{job}/evaluations/{entry['id']}/evidence?"+urlencode({'event':'manual-operation','reference':'true'})
         reference_result=client.expect('GET',reference_path)['evidence']
-        assert reference_result['status']==ORIGINAL_STATUS
+        assert reference_result['status']==(LOCATED_STATUS if located else ORIGINAL_STATUS)
         assert hashlib.sha256(base64.b64decode(reference_result['original']['content_base64'],validate=True)).hexdigest()==entry['reference_sha256']
-        assert reference_result['record_locator_status']=='declared_record_not_independently_resolved'
-        checks.append({'job':job,'attempt':attempt,'stage':'restored' if 'restored' in str(root) else 'original','expected_tp_fp_fn':entry['expected'],'label_changed':entry['label_changed'],'mode':entry['mode'],'evaluation_id':entry['id'],'evidence_available':bool(evidence),'bundle_version':eb.V2_VERSION,'reference_original_sha256':entry['reference_sha256'],'reference_original_status':reference_result['status'],'reference_external_path_removed':True,'invalid_reference_imports':{'missing':409,'tampered':409}})
+        if located:
+            assert reference_result['record_locator_status']=='csv_logical_record_resolved'
+            resolved=reference_result['resolved_record'];fragment=resolved['fragment']
+            original_bytes=base64.b64decode(entry['reference_raw_base64'],validate=True)
+            selected=base64.b64decode(fragment['content_base64'],validate=True)
+            assert selected==original_bytes[fragment['byte_offset']:fragment['byte_offset']+fragment['size_bytes']]
+            assert hashlib.sha256(selected).hexdigest()==fragment['sha256']
+            assert resolved['record_number']==1 and resolved['logical_data_record_count']==2
+            assert resolved['values']['event_id']=='manual-operation'
+            assert fragment['physical_line_start']==2 and fragment['physical_line_end']==3
+            assert b'\r\n' in selected and b'""manually""' in selected
+            assert reference_result['annotation_semantics_status']=='not_independently_validated'
+        else:assert reference_result['record_locator_status']=='declared_record_not_independently_resolved'
+        checks.append({'job':job,'attempt':attempt,'stage':'restored' if 'restored' in str(root) else 'original','expected_tp_fp_fn':entry['expected'],'label_changed':entry['label_changed'],'mode':entry['mode'],'evaluation_id':entry['id'],'evidence_available':bool(evidence),'bundle_version':bundle_version,'reference_original_sha256':entry['reference_sha256'],'reference_original_status':reference_result['status'],'reference_external_path_removed':True,'invalid_reference_imports':{'missing':409,'tampered':409,**({'out_of_range':409,'missing_column':409,'unknown_version':409,'wrong_file_hash':409} if located else {})},'record_locator_status':reference_result['record_locator_status'],'record_fragment_sha256':reference_result.get('resolved_record',{}).get('fragment',{}).get('sha256')})
         if case=='normal' and not role_checks:
             meta=client.expect('GET',f'/api/v3/runs/{job}')['run']
             username='r19-viewer';password=secrets.token_urlsafe(24)
@@ -114,4 +155,4 @@ def run(work):
         r18.check_run=original
 
 if __name__=='__main__':
-    p=argparse.ArgumentParser();p.add_argument('--output',required=True);a=p.parse_args();run(Path(a.output).resolve())
+    p=argparse.ArgumentParser();p.add_argument('--output',required=True);p.add_argument('--bundle-version',choices=[eb.V2_VERSION,eb.V3_VERSION],default=eb.V2_VERSION);a=p.parse_args();run(Path(a.output).resolve(),bundle_version=a.bundle_version)
