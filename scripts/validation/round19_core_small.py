@@ -117,19 +117,32 @@ def _refresh_untrusted_outer(root):
 def negative_cases(root,output,mode):
     from cpag_core import shared_export as core
     checks=[]
-    for mutation in ('missing_source','same_size_source','bad_integer_reference',*(['missing_history_index'] if mode=='replay' else [])):
+    for mutation in ('missing_source','same_size_source','bad_integer_reference','manifest_source_flag',
+            *(['missing_history_index','manifest_final_number','manifest_final_id'] if mode=='replay' else [])):
         target=root/('negative-'+mutation);shutil.copytree(output,target)
         if mutation=='missing_source':(target/'sources/process.csv').unlink()
         elif mutation=='same_size_source':
             path=target/'sources/process.csv';raw=path.read_bytes();path.write_bytes(raw[:-1]+bytes([raw[-1]^1]))
+        elif mutation.startswith('manifest_'):
+            path=target/'run_manifest.json';value=read(path)
+            if mutation=='manifest_source_flag':value['synthetic']=not value['synthetic']
+            elif mutation=='manifest_final_number':value['final_snapshot_number']=0
+            else:value['final_snapshot_id']='snapshot-'+'f'*64
+            write(path,value)
         else:
             connection=sqlite3.connect(target/'shared/shared.sqlite3')
             if mutation=='bad_integer_reference':connection.execute("UPDATE nodes SET payload=? WHERE id=(SELECT id FROM nodes WHERE kind='array_leaf' AND items>0 LIMIT 1)",(b'R\x01\x00',))
             else:connection.execute("DELETE FROM roots WHERE name='history/snapshots'")
             connection.commit();connection.close();_refresh_untrusted_outer(target)
-        try:core.verify_task(target,deadline=time.monotonic()+30)
-        except (ValueError,KeyError,OSError,sqlite3.Error) as error:checks.append({'mutation':mutation,'status':'correctly_refused','reason':str(error)})
-        else:raise AssertionError('corruption_was_accepted:'+mutation)
+        def open_checked():
+            with core.open_reader(target,deadline=time.monotonic()+30):pass
+        methods={'verify_task':lambda:core.verify_task(target,deadline=time.monotonic()+30),
+            'issue_approval':lambda:core.issue_approval(target,__import__('os').urandom(32),deadline=time.monotonic()+30),
+            'open_reader':open_checked}
+        for method,check in methods.items():
+            try:check()
+            except (ValueError,KeyError,OSError,sqlite3.Error) as error:checks.append({'mutation':mutation,'entrypoint':method,'status':'correctly_refused','reason':str(error)})
+            else:raise AssertionError('corruption_was_accepted:'+mutation+':'+method)
     return checks
 
 

@@ -29,7 +29,7 @@ from .pipeline import canonical,file_hash,fingerprint
 from .replay_history import _ordinary,_digest
 from .shared_artifact_store_compact import FORMAT,SharedArtifactWriter,SharedArtifactReader,_APPROVED_READ
 
-APPROVAL_VERSION='core-read-approval-1'
+APPROVAL_VERSION='core-read-approval-2'
 QUERY_BYTES=8*1024**2
 STANDARD=('analysis.json','dual/analysis.json','events.json','graph.json','quality.json','dataset.json')
 INDEX_ROOTS=('indices/operations','indices/changes','indices/candidates_by_operation','indices/network_by_frame','indices/rule_findings')
@@ -207,6 +207,7 @@ def _bound(output,deadline=None):
     config=read_json(root/'sources/profile.json');validate_profile(config)
     if config.get('storage_format')!=FORMAT or manifest['storage_format']!=FORMAT or manifest['storage_budget']!=asdict(shared_storage_budget(config)) or manifest['config_fingerprint']!=fingerprint(config):raise ValueError('shared_profile_manifest_mismatch')
     if (manifest['mode']=='replay')!=('replay' in config):raise ValueError('shared_mode_profile_mismatch')
+    if manifest['synthetic'] is not config['synthetic']:raise ValueError('shared_source_classification_mismatch')
     replay_fields={'history_format','identity_strategy','prefix_digest_strategy','replay_version','final_snapshot_number','final_snapshot_id'}
     if manifest['mode']=='offline' and set(manifest)&replay_fields:raise ValueError('offline_manifest_has_history')
     if manifest['mode']=='replay' and not replay_fields<=set(manifest):raise ValueError('replay_manifest_missing_history')
@@ -227,9 +228,16 @@ def open_reader(output,*,deadline=None,approval=None,authority_key=None):
     reader=SharedArtifactReader(root/'shared',expected_manifest_sha256=manifest['shared_manifest_sha256'],expected_context=context,deadline=deadline,_approval_token=token)
     try:
         declared=manifest['logical_artifacts']
+        if reader.manifest['root_count']!=len(declared):raise ValueError('shared_unregistered_logical_root')
         if len({item['name'] for item in declared})!=len(declared):raise ValueError('shared_duplicate_logical_artifact')
         for descriptor in declared:
             if reader.descriptor(descriptor['name'])!=descriptor:raise ValueError('shared_logical_root_binding_mismatch')
+        if manifest['mode']=='replay':
+            last=manifest['counts']['snapshots']-1
+            if last<0 or manifest['final_snapshot_number']!=last:
+                raise ValueError('shared_terminal_snapshot_number_mismatch')
+            if reader.get('history/snapshots',path=[last,'snapshot_id'])!=manifest['final_snapshot_id']:
+                raise ValueError('shared_terminal_snapshot_id_mismatch')
         reader.run_manifest=manifest
         yield reader
     finally:reader.close()
@@ -251,8 +259,8 @@ def verify_task(output,*,deadline=None):
             if set(expected)!=set(actual):raise ValueError('shared_rebuilt_logical_inventory_mismatch')
             for name,descriptor in expected.items():
                 if name!='runtime_metrics.json' and descriptor!=actual[name]:raise ValueError('shared_business_root_does_not_match_sources:'+name)
-            for key in ('counts','input_fingerprint','source_fingerprint','config_fingerprint','semantic_config_fingerprint','result_hashes','warnings','limitations','status'):
-                if manifest[key]!=rebuilt[key]:raise ValueError('shared_rebuilt_manifest_mismatch:'+key)
+            for key in ('synthetic','final_snapshot_number','final_snapshot_id','counts','input_fingerprint','source_fingerprint','config_fingerprint','semantic_config_fingerprint','result_hashes','warnings','limitations','status'):
+                if manifest.get(key)!=rebuilt.get(key):raise ValueError('shared_rebuilt_manifest_mismatch:'+key)
     return manifest
 
 

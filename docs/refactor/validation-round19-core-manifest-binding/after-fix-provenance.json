@@ -1,0 +1,6 @@
+{
+  "original": "FYP/outputs/cpag-r19-core-validator-fixed-tests.log",
+  "original_sha256": "61ab318583cebe99572b2afc79e2a1e6885ba2bb6e7392393a58fa77f66f07d9",
+  "public_sha256": "61ab318583cebe99572b2afc79e2a1e6885ba2bb6e7392393a58fa77f66f07d9",
+  "result": "78 core tests passed; includes metadata binding, complete root inventory and old permit rejection"
+}

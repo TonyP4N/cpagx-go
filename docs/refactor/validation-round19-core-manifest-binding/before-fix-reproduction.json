@@ -1,0 +1,73 @@
+{
+  "scope": "fresh independent synthetic core fixtures only; no original matrix/artifact directory mutated",
+  "git_head": "39b8b3610431c574bb5c0631eb000174e7f0274b",
+  "runtime_sha256_before": "a27023bccfd43f3a23a0434e1beb0307840fd1171e6bb4b29f854c2cdf10c69d",
+  "cases": [
+    {
+      "mode": "offline",
+      "field": "synthetic",
+      "original": true,
+      "mutated": false,
+      "artifact_path": "outputs/cpag-r19-manifest-binding-reproduction-20261028T145336Z/0/artifact",
+      "physical_and_logical_entries_unchanged": true,
+      "all_listed_bytes_unchanged": true,
+      "full_source_verify_accepted": true,
+      "returned_field": false,
+      "read_approval_issued": true,
+      "approved_metadata_field": false,
+      "actual_analysis_synthetic": true
+    },
+    {
+      "mode": "replay",
+      "field": "synthetic",
+      "original": true,
+      "mutated": false,
+      "artifact_path": "outputs/cpag-r19-manifest-binding-reproduction-20261028T145336Z/1/artifact",
+      "physical_and_logical_entries_unchanged": true,
+      "all_listed_bytes_unchanged": true,
+      "full_source_verify_accepted": true,
+      "returned_field": false,
+      "read_approval_issued": true,
+      "approved_metadata_field": false,
+      "actual_analysis_synthetic": true,
+      "actual_final_snapshot_number": 15,
+      "actual_final_snapshot_id": "snapshot-716226230096e83015b1d63b221112ba74341186c129d65a08edb1da243a2c2d"
+    },
+    {
+      "mode": "replay",
+      "field": "final_snapshot_number",
+      "original": 15,
+      "mutated": 0,
+      "artifact_path": "outputs/cpag-r19-manifest-binding-reproduction-20261028T145336Z/2/artifact",
+      "physical_and_logical_entries_unchanged": true,
+      "all_listed_bytes_unchanged": true,
+      "full_source_verify_accepted": true,
+      "returned_field": 0,
+      "read_approval_issued": true,
+      "approved_metadata_field": 0,
+      "actual_analysis_synthetic": true,
+      "actual_final_snapshot_number": 15,
+      "actual_final_snapshot_id": "snapshot-716226230096e83015b1d63b221112ba74341186c129d65a08edb1da243a2c2d"
+    },
+    {
+      "mode": "replay",
+      "field": "final_snapshot_id",
+      "original": "snapshot-716226230096e83015b1d63b221112ba74341186c129d65a08edb1da243a2c2d",
+      "mutated": "snapshot-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "artifact_path": "outputs/cpag-r19-manifest-binding-reproduction-20261028T145336Z/3/artifact",
+      "physical_and_logical_entries_unchanged": true,
+      "all_listed_bytes_unchanged": true,
+      "full_source_verify_accepted": true,
+      "returned_field": "snapshot-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "read_approval_issued": true,
+      "approved_metadata_field": "snapshot-ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+      "actual_analysis_synthetic": true,
+      "actual_final_snapshot_number": 15,
+      "actual_final_snapshot_id": "snapshot-716226230096e83015b1d63b221112ba74341186c129d65a08edb1da243a2c2d"
+    }
+  ],
+  "runtime_sha256_after": "a27023bccfd43f3a23a0434e1beb0307840fd1171e6bb4b29f854c2cdf10c69d",
+  "fixed_runtime_during_reproduction": true,
+  "private_summary_sha256": "3e16d08f86637036040b3b0dbbaec0c6813ec676a397c3033dcf6ff4c480a110",
+  "public_note": "Artifact paths are relative to FYP; complete original summary and all fixture artifacts retained privately."
+}
