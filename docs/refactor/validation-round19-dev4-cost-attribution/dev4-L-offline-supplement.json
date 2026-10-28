@@ -90,7 +90,7 @@
     "mode": "dual_source",
     "output_bound_kind": "logical_flat_expansion_only_not_physical_storage",
     "output_lower_bound_bytes": 17959075000,
-    "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-core-cached-generator-L6-attempt1/preflight.json",
+    "path": "$WORKSPACE/outputs/cpag-r19-core-cached-generator-L6-attempt1/preflight.json",
     "physical_fit": "unverified_until_complete_formal_run",
     "profile": "offline-profile.json",
     "profile_sha256": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",

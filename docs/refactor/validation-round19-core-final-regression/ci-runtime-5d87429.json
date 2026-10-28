@@ -1,0 +1,93 @@
+{
+  "conclusion": "success",
+  "headSha": "5d87429b75ced66b5ad63f45b74d6f77ab2cf0be",
+  "jobs": [
+    {
+      "name": "m4-postgres-prototype",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "linux-isolation",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "synthetic-scaling",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "service-regression",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "isolated-executor",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "core",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "dual-source-analysis",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "celery-live-compatibility",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "m4-worker-integration",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "frontend",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "backup-restore",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "engineering-acceptance",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "go",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "dual-source-celery",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "replay-persistent",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "unified-catalog",
+      "status": "completed",
+      "conclusion": "success"
+    },
+    {
+      "name": "dual-source-persistent",
+      "status": "completed",
+      "conclusion": "success"
+    }
+  ],
+  "status": "completed",
+  "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40734696353"
+}

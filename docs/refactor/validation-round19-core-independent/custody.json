@@ -1,0 +1,234 @@
+{
+  "version": "r19-core-public-derived-evidence-1",
+  "scope": "redacted derived JSON only; original controlled bytes retained; no raw database/packet/CSV/authority capability published",
+  "transform": "replace workspace and user-home prefixes plus controlled scratch paths; preserve other values and types",
+  "files": [
+    {
+      "file": "dev1-S-offline.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-S-offline-attempt1/report.json",
+      "controlled_original_sha256": "e25e93022b809505f94e1268a1ad870c22d03fca767c71f8475341dfc321c837",
+      "public_derived_sha256": "e25e93022b809505f94e1268a1ad870c22d03fca767c71f8475341dfc321c837"
+    },
+    {
+      "file": "dev1-S-replay-timeout.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-S-replay-attempt1/report.json",
+      "controlled_original_sha256": "f46bc9c1e9680230f0602045fd50b7cf91abba33c2faa1bb38877a9ad4358def",
+      "public_derived_sha256": "f46bc9c1e9680230f0602045fd50b7cf91abba33c2faa1bb38877a9ad4358def"
+    },
+    {
+      "file": "dev2-S-offline-bind-refusal.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev2-S-offline-attempt1/report.json",
+      "controlled_original_sha256": "90209074b5103fabe065d5cc1b718c2f817d8bfb49e23f564d1a155cb116ef59",
+      "public_derived_sha256": "730e16f2f968893ce912bb66fcb18e23a8998511f998542779c7e937144070b6"
+    },
+    {
+      "file": "dev2-S-offline-tag-preparation-refusal.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev2-S-offline-attempt2/report.json",
+      "controlled_original_sha256": "3bb654be65c93dfd15e2f8636eafe9b336357d5ee19b690302dfe03dd750e740",
+      "public_derived_sha256": "abb697e8856b4dc449b853d8e89d48e8b10ab6c8685631fe46f988945c0587ec"
+    },
+    {
+      "file": "dev2-S-offline-scratch.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev2-S-offline-attempt3/report.json",
+      "controlled_original_sha256": "c2456f0e6ea29b5b3daf934c046b0fad6e34ec0de36efaf9e5cd58bcdd201496",
+      "public_derived_sha256": "7f8fb9fd652d131415dbd7b6c9e67059082a215dc83efbd052118c32675faf48"
+    },
+    {
+      "file": "dev2-S-replay-controlled-interruption.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev2-S-replay-attempt1/report.json",
+      "controlled_original_sha256": "fc8a3627cd691abe86396713cc176a7d47d68eb3c3e8a80d38fb1b9abf07d315",
+      "public_derived_sha256": "93f59ad361d45d6a2657058466aa7a4640d1caa846aa92f9af627671f8b0b290"
+    },
+    {
+      "file": "dev3-S-offline-manual-id-preparation-error.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev3-S-offline-attempt1/report.json",
+      "controlled_original_sha256": "22103f6d5faed4fc492ffb78dc2ec77c08e14022210b755863fbf887a7dfc06d",
+      "public_derived_sha256": "70b8f8d93744fa3dedf4a763c64b2918413da82a09ecdae546ef7b7e89ef3c63"
+    },
+    {
+      "file": "dev3-S-offline.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev3-S-offline-attempt2/report.json",
+      "controlled_original_sha256": "da1b548992530469faceac103d4d62b5222c5572f14cce1017e7d4431a667893",
+      "public_derived_sha256": "31af9bef57fa528bc1005d641c7142118d26bcb35a49513eba5ecee3e92d68ac"
+    },
+    {
+      "file": "dev3-image-binding.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev3-freeze/image-runtime-commit-binding.json",
+      "controlled_original_sha256": "c33dcd0587db8cbc80e05787bac9cd9866c25788c828c7f0e5c5f195cfb016f5",
+      "public_derived_sha256": "5745242550e2599b64c0973dae3971ae3e428d9dbcb683ccfbfb56ffc226c9be"
+    },
+    {
+      "file": "dev2-bind-signature-diagnostic.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev2-evidence-signature-diagnostic-attempt1/summary.json",
+      "controlled_original_sha256": "30bd046ba98f77444bba674fb1e495ee1828fbbf9ad7a4d63efe5ad5531fcbf1",
+      "public_derived_sha256": "28cb28c15c87e7a68879f5e1518ef7d0526bf342fde021300a36b4c04f6818c8"
+    },
+    {
+      "file": "dev1-replay-export-phases.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev1-export-phase-disposition.json",
+      "controlled_original_sha256": "ecef0fa852b2b60f0c1d251750867281f641fcc9efb732bc70f5c176ddb08206",
+      "public_derived_sha256": "68daf8ff7916aa78ca8920e0b0997c38d670923a7d3cec76103eb053ab281968"
+    },
+    {
+      "file": "dev2-S-offline-phases.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev2-S-offline-attempt3-phase-aggregates.json",
+      "controlled_original_sha256": "02213df0ec73d7c8c3df62ac6680ee5db37f5b8da703b91caf156aa559c5bb6b",
+      "public_derived_sha256": "306d3fe1d497bb7f6ee2e85670c5baff86104f62d495b7db713236aa5a104fb9"
+    },
+    {
+      "file": "dev3-S-offline-phases.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev3-S-offline-attempt2-phase-aggregates.json",
+      "controlled_original_sha256": "362597c0457addcf08dad04558cdc1ba4972225e2cc18f15532e010003b082c6",
+      "public_derived_sha256": "362597c0457addcf08dad04558cdc1ba4972225e2cc18f15532e010003b082c6"
+    },
+    {
+      "file": "dev3-independent-small.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-small-dev3-frozen-attempt1/report.json",
+      "controlled_original_sha256": "fd11bc2311479781e93ac442a3e0ed5978b0a8fdd8338863e2b83d76d096da70",
+      "public_derived_sha256": "90af247ff439d87db2704d36ab05b7479451ab5b95623f09e8f7019cb0c152f6"
+    },
+    {
+      "file": "dev2-S-replay-controller-interruption.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev2-S-replay-attempt1/controller-interruption.json",
+      "controlled_original_sha256": "66ecbc3dea46cfbeff0a22da2d2344b1d10ece6c97299c1807c55e8039e5bd85",
+      "public_derived_sha256": "66ecbc3dea46cfbeff0a22da2d2344b1d10ece6c97299c1807c55e8039e5bd85"
+    },
+    {
+      "file": "dev3-manifest-binding-before.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev3-manifest-binding-negative-before/results.json",
+      "controlled_original_sha256": "cc4bb2527c1cffbe30d4ce84de3ddce6b1b7ff3cab6152feb9e1ad9d95dbc169",
+      "public_derived_sha256": "28dc85c58fb35df4368c692d733aa5c9d395d304178fdc15ef93d6ae7b0a1163"
+    },
+    {
+      "file": "manifest-binding-fixed-independent.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-small-bound-fix-attempt1/report.json",
+      "controlled_original_sha256": "29c351b13acad0781bca75d68ce1d5dca59a629f1cccdbc0bdc202d0eff3503d",
+      "public_derived_sha256": "a067ea6e64ff927aeb7dbed15c2fbf5070a53d4f10319d0562c93fe83fa83108"
+    },
+    {
+      "file": "dev3-S-replay-timeout.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev3-S-replay-attempt1/report.json",
+      "controlled_original_sha256": "731546fe2b0bd78e178b04c7fc6b4fd9cda7a4839aa814fdb346e8d3e284ed44",
+      "public_derived_sha256": "d0e17a8c6a4470b8815278e03e8f12961b15effd4220abaaea36a782963d428a"
+    },
+    {
+      "file": "dev3-S-replay-final-phases.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev3-S-replay-attempt1-final-summary.json",
+      "controlled_original_sha256": "722cb90dfc561e9d73ebd19ec78cc6bed4611e70ef3237b804c791b740f93a1a",
+      "public_derived_sha256": "87b9e38b89b5c45c796f7b34fa66b4860723b4e01d65782ad2becdd1d1892d08"
+    },
+    {
+      "file": "final-freeze-independent-small.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-final-small-attempt1/report.json",
+      "controlled_original_sha256": "5c4d7e7b734b8b647fb12a09ac515a6ed9be205df25258aab99579c6b031964d",
+      "public_derived_sha256": "ef042be564091401a163bf713dd84654d2855b4e319945a7990fc7eb38e412ea"
+    },
+    {
+      "file": "dev4-development-environment.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev4-freeze/development-environment.json",
+      "controlled_original_sha256": "1139cee138dad055283cdbd35ca922c1fca47faf6fa4f8e30aa2dcb2f2b8e866",
+      "public_derived_sha256": "d9de3c96d0230d1aaa0f2118409506276429d50b2086c4a2d4d7ec3361a61ac3"
+    },
+    {
+      "file": "dev4-L-replay-instrumentation-failure.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev4-L-replay-attempt1/report.json",
+      "controlled_original_sha256": "d7e626861d2a0336587717436e6fac4b09d1541dde8fd07626f01f8aa074dc28",
+      "public_derived_sha256": "70bc4bf3981c8e508121ad34212b86a47a9462877a1bdeccb3472a3eb37b625e"
+    },
+    {
+      "file": "live-sampler-race-before.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-live-sampler-race-before.json",
+      "controlled_original_sha256": "dfe67938d9d4d04dd202524efb62cae7d8b5d81cf47659b07b938511b30998a4",
+      "public_derived_sha256": "fb7461f61d281fe71af23c88ee7cfd673f0e0eed2c18dd454b62efa21e265b95"
+    },
+    {
+      "file": "live-sampler-tests-before.log",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-live-sampler-tests-before.log",
+      "controlled_original_sha256": "45fc1daf3d8b1483fa317458ee7102216c98325a43e30b771dabf57bcaf4f9b7",
+      "public_derived_sha256": "2335675934e27ef98debe7a0cc31a61c6a3d2538e1f593b0fc7ff7073e0099f8"
+    },
+    {
+      "file": "live-sampler-tests-after.log",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-live-sampler-tests-after.log",
+      "controlled_original_sha256": "95a0fd9a635344bf1bb9235c2ce32b25d04013b58d9cfac060926a16ccbdca43",
+      "public_derived_sha256": "95a0fd9a635344bf1bb9235c2ce32b25d04013b58d9cfac060926a16ccbdca43"
+    },
+    {
+      "file": "live-sampler-controller-regression.log",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-live-sampler-controller-regression.log",
+      "controlled_original_sha256": "4b4f46481415a16bc790e9b1d5125b3b0558b640a1bb24cccbbc6a5200f44d44",
+      "public_derived_sha256": "4b4f46481415a16bc790e9b1d5125b3b0558b640a1bb24cccbbc6a5200f44d44"
+    },
+    {
+      "file": "dev4-L-replay-attempt2-frozen-view.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev4-freeze/l-replay-attempt2-source-view-manifest.json",
+      "controlled_original_sha256": "8a07d9d09f57a94481015bc5da49a6e4361de7bebabcb0355a2c12a30fcc4b71",
+      "public_derived_sha256": "d6c6ba2049987e3dfdfa6662d81bbc2019b8def2378b23d7232830955ab6d247"
+    },
+    {
+      "file": "dev4-L-replay-attempt2-prelaunch.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev4-freeze/l-replay-attempt2-source-view-prelaunch.json",
+      "controlled_original_sha256": "d4405fff2908938b6d52259bd4c9b61e5f522c214ce97447dec30203ed415137",
+      "public_derived_sha256": "759d4645fc6672e704e7c890e5a7ff30759df83eec9d439a2c39ad6b9b3c5852"
+    },
+    {
+      "file": "dev4-final-matrix-v2.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev4-final-matrix-v2.json",
+      "controlled_original_sha256": "bb67035d39fd36e65e3c6ccbc403326022ddd37e834414b144ba5740c546b97c",
+      "public_derived_sha256": "bb67035d39fd36e65e3c6ccbc403326022ddd37e834414b144ba5740c546b97c"
+    },
+    {
+      "file": "dev4-final-resources.md",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dev4-final-resources.md",
+      "controlled_original_sha256": "e6cdbba8b9aa422268a4d95757c243fc6db2edc059803a1e7c63792e8958a250",
+      "public_derived_sha256": "e6cdbba8b9aa422268a4d95757c243fc6db2edc059803a1e7c63792e8958a250"
+    },
+    {
+      "file": "dev4-L-replay-attempt2-final.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev4-L-replay-attempt2/report.json",
+      "controlled_original_sha256": "f149b467d2254b4d60dcd8a0e811d84f3ffe8ba29aa741f037e95bb1b4ecaa9f",
+      "public_derived_sha256": "4b06d33d63a4f93906c02173dd7d6496c98ae6406add3a7d713da692fb1f38d8"
+    },
+    {
+      "file": "dev4-L-replay-attempt2-driver.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-matrix-dev4-L-replay-attempt2-driver-result.json",
+      "controlled_original_sha256": "d397ab5a65f8dfde371b694413c856d184d7ad452a90f8c424bd59ad089729c2",
+      "public_derived_sha256": "5a657c3ce731c1161df028803c0690229659e08c8a220fce678fca4b726f3da8"
+    },
+    {
+      "file": "dev4-L-replay-attempt2-postterminal.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev4-freeze/l-replay-attempt2-source-view-postterminal.json",
+      "controlled_original_sha256": "4cb319c888936a44c80482706e24bcd6bbcf3f1391121d06a9c494e5846ab2fc",
+      "public_derived_sha256": "cde5e5f90294da377b43c515e1f08d0c6b107469805008148fa301748dcf4cfa"
+    },
+    {
+      "file": "dev4-original56-outer-extent-audit.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-original56-outer-extent-final-audit.json",
+      "controlled_original_sha256": "c5832d2254a1225fd21bf1c89c93fd6656ad2acbe8b0286249a9e1a70a4e0a63",
+      "public_derived_sha256": "2ca711c41bf391e97184982b39eabcfc26a3f76c890d827ef565d1b5cde08050"
+    },
+    {
+      "file": "dev4-image-binding.json",
+      "controlled_original_relative_to_outputs": "cpag-r19-core-dag6-dev4-freeze/image-runtime-commit-binding.json",
+      "controlled_original_sha256": "076bad61bbbd11f562a318e88fe48138ddf106b215cc974372efa6fa9bdb06ab",
+      "public_derived_sha256": "f0f49a5479ee4810096709022e664bf4aac9ef5243c33a7a3677e95ab5bbd83c"
+    }
+  ],
+  "preserved_public_only_snapshots": [
+    {
+      "file": "dev4-matrix-progress-1.json",
+      "sha256": "458d4c066f02edb7c83cded03982e46bbcb7edebdc709bcb74dc012e661a5c38",
+      "provenance": "earlier summary generated directly as public snapshot; separate pre-redaction original was not located; retained unchanged, not final run evidence"
+    },
+    {
+      "file": "dev4-matrix-progress-2.json",
+      "sha256": "b22eec41b05779d7dc599ec6ea35a36e8a4dfc75c2560ad5c51aba59c95d5de5",
+      "provenance": "earlier summary generated directly as public snapshot; separate pre-redaction original was not located; retained unchanged, not final run evidence"
+    },
+    {
+      "file": "dev4-matrix-progress-3-v2.json",
+      "sha256": "eb3172960f8687d4d984b0b30c950ec7a77c8539955e101c6d08b4c25d88073b",
+      "provenance": "earlier summary generated directly as public snapshot; separate pre-redaction original was not located; retained unchanged, not final run evidence"
+    }
+  ]
+}

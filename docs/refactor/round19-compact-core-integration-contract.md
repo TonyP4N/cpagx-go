@@ -4,7 +4,7 @@
 
 ## 版本和完整业务对象
 
-配置显式绑定 `engineering-core-capacity-3` / `shared-observation-dag-6`。回放另绑定 `identity_strategy=merkle-json-dag-1` 和 `prefix_digest_strategy=incremental-prefix-digest-2`。原capacity1、DAG3—5和JSON/历史v2保留原版本路径。生成器新选项为 `r19-density-capacity-4`，只允许核心实验，不能交给尚未适配的正式测量/Worker入口。
+配置显式绑定 `engineering-core-capacity-3` / `shared-observation-dag-6`。回放另绑定 `identity_strategy=merkle-json-dag-1` 和 `prefix_digest_strategy=incremental-prefix-digest-2`。原capacity1、DAG3—5和JSON/历史v2保留原版本路径。本轮固定生成器选项为 `r19-density-capacity-6`（旧4/5仍按自身版本兼容），只允许核心实验，不能交给尚未适配的正式测量/Worker入口。
 
 最终analysis、标准events/graph、quality、dataset、metrics、全部快照和修订均为数据库中有名称的完整逻辑根。物理文件为run_manifest.json、shared/manifest.json、shared/shared.sqlite3及sources全部原件/版本配置。不再输出重复平铺analysis.json/graph.json。逻辑对象仍完整保留原字段及顺序，数组分块并引用不可变节点；物理整数引用必须经摘要、类型、完整逻辑字节范围和子节点核验，不能将缺节点当空列表。
 
@@ -12,9 +12,9 @@
 
 ## 核心读写和信任边界
 
-`cpag_core.shared_export.export_task` 产生未获来源复核许可的产物；`verify_task` 检查物理清单和所有节点，再由保留原件、配置完整重建，逐逻辑根比对。实际耗时和临时重建库计入总成本。runtime_metrics的实际墙钟样本仅绑定物理字节，不要求重建时墙钟相同。
+`cpag_core.shared_export.export_task` 产生未获来源复核许可的产物；`verify_task` 检查物理清单和所有节点，再由保留原件、配置完整重建，逐逻辑根比对。实际耗时、内存审计索引及所选旧核验策略的临时重建库均计入总成本。runtime_metrics的实际墙钟样本仅绑定物理字节，不要求重建时墙钟相同。
 
-`shared_cli` 提供export、verify、metadata、page、selection/evidence、snapshot和revisions动作。大逻辑根不能无界展开：单次读取8MiB/100项，超过明确报错，需使用path/offset/limit分页。完整逻辑extent是溢出防护，不代表可解码为一个巨大JSON。全量导出/HTTP下载尚需后续服务端流式适配。
+`shared_cli` 提供export、verify、metadata、page、selection/evidence、snapshot和revisions动作。大逻辑根不能无界展开：单次读取8MiB/100项，超过明确报错，需使用path/offset/limit分页。完整逻辑extent是溢出防护，不代表可解码为一个巨大JSON。 Python reader.get支持有界对象/标量路径；当前CLI page仅支持数组，snapshot/graph动作仍是整对象且受8MiB限制。CLI尚无通用get/path动作，不能声称所有大对象都能经CLI逐字段查询；通用服务路径读取仍为后续软件项。全量导出/HTTP下载尚需后续服务端流式适配。
 
 本地受信任协调器在完整来源核验成功后，可用仅驻内存的32字节密钥签发 `core-read-approval-2`。新读取进程经继承FD接收密钥/许可；每次重新检查全部物理与原件字节、上下文及许可，随后只解码需要的页。密钥不进入CLI参数、产物或公开日志。这是核心实验的有限读取授权，不是用户角色授权，也不替代Go服务认证、attempt有效性与任务终态检查。无许可路径仍完整来源核验；不能拿调用者提交的SHA作为许可。
 
@@ -46,3 +46,7 @@ DAG6完整来源核验默认 `dag6-full-source-merkle-sink-1`，保留 `source-s
 来源核验的精确摘要审计索引上限2GiB，包含在原8GiB进程/容器预算内，另有原16MiB值缓存；不是增配内存。报告该索引自身owned/peak计数，同时以进程RSS和容器采样度量完整开销，不能用索引计数替代总内存。
 
 正式Go/Worker/备份后续接入还须修改：容量profile与任务payload版本协商、完整文件库存（SQLite+manifest+原件）、分块/路径查询而非全JSON展开、读许可的服务身份和attempt有效期、权限检查、停止写入后的成套快照与恢复后来源核验。当前本地密钥/许可不提供这些服务保证。本轮不修改这些默认入口，也不能将新产物直接交给旧JSON发布器宣称支持。
+
+评估适配同样尚未集成DAG6：不能继续按物理analysis.json/graph.json路径读取；须从已核验的逻辑根分页取得规定统计口径，绑定run/attempt/配置/输入/规则与历史版本，保持标注隔离。长回放应区分最终live+frozen状态与全程ever-observed，不能因缓冲淘汰漏计网络/工艺观察，也不能重复计数多个历史版本。实际格式接入、服务限额、权限、成套恢复及性能证据仍是软件待办，不属于缺真实材料。
+
+底层`open_reader`仅作当前物理字节/节点与可选许可的检查，本身不触发来源重算；直接使用前须完成verify/issue_approval。CLI、metadata_task和query_task提供相应包装。不能把单独打开reader视为来源已验证。manifest.tool_versions是生产者声明，实际运行环境身份须查本轮镜像/源码收据，不能由该字符串自证。

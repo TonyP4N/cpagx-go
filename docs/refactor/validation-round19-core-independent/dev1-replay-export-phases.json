@@ -1,0 +1,104 @@
+{
+  "caution": "Nested phase durations overlap and must not be summed; source verification/query still separately required within original 1800s.",
+  "semantic_disposition": "dev1 default history lacks standard graph/events; cannot pass complete replay semantic acceptance regardless of timing",
+  "source_phase_log_sha256": "601fb62dc2a7b4ebfc956934078bd113be5f367b69c352ee9355299a173a4250",
+  "status": "export_only_not_whole_chain_acceptance",
+  "summary": {
+    "all_observed_calls": 4585,
+    "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; abrupt exits lack this summary",
+    "kind": "terminal_measurement_summary",
+    "phases": {
+      "association_and_evidence": {
+        "calls": 587,
+        "cpu_seconds": 555.461473000001,
+        "failed": 0,
+        "returned": 587,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 555.8018216849979
+      },
+      "compact_node_verification": {
+        "calls": 1,
+        "cpu_seconds": 37.98919900000011,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 38.47375055900011
+      },
+      "compact_store_write": {
+        "calls": 1558,
+        "cpu_seconds": 481.267232,
+        "failed": 0,
+        "returned": 1558,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 620.6084800370002
+      },
+      "complete_export": {
+        "calls": 1,
+        "cpu_seconds": 1178.7121140000002,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 1319.137379183
+      },
+      "history_generation": {
+        "calls": 310,
+        "cpu_seconds": 510.9571269999999,
+        "failed": 0,
+        "returned": 310,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 644.7518025460013
+      },
+      "network_parse": {
+        "calls": 202,
+        "cpu_seconds": 1.6950949999996865,
+        "failed": 0,
+        "returned": 202,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 1.7096768779990157
+      },
+      "process_parse": {
+        "calls": 101,
+        "cpu_seconds": 0.009673999999639249,
+        "failed": 0,
+        "returned": 101,
+        "rss_high_water_bytes": 77393920,
+        "wall_seconds": 0.010238790000300924
+      },
+      "replay_input_snapshot": {
+        "calls": 608,
+        "cpu_seconds": 9.793175999998162,
+        "failed": 0,
+        "returned": 608,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 9.847064168000713
+      },
+      "replay_network_prefix": {
+        "calls": 608,
+        "cpu_seconds": 2.9953679999999343,
+        "failed": 0,
+        "returned": 608,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 3.019666746999974
+      },
+      "replay_process_prefix": {
+        "calls": 608,
+        "cpu_seconds": 0.16203599999893864,
+        "failed": 0,
+        "returned": 608,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 0.1674842020004803
+      },
+      "standard_projection": {
+        "calls": 1,
+        "cpu_seconds": 6.99051400000009,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 98885632,
+        "wall_seconds": 6.994337502999997
+      }
+    },
+    "raw_rows_not_retained": 4329,
+    "raw_rows_retained": 256,
+    "version": "phase-resources-2"
+  }
+}

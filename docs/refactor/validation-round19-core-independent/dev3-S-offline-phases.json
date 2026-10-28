@@ -1,0 +1,168 @@
+{
+  "export": {
+    "all_observed_calls": 17,
+    "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+    "kind": "terminal_measurement_summary",
+    "last_progress_error_type": null,
+    "phases": {
+      "association_and_evidence": {
+        "calls": 1,
+        "cpu_seconds": 3.6692879999999994,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 44244992,
+        "wall_seconds": 3.6708274610000444
+      },
+      "compact_node_verification": {
+        "calls": 1,
+        "cpu_seconds": 2.959192,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 53719040,
+        "wall_seconds": 2.9968008350000446
+      },
+      "compact_store_write": {
+        "calls": 10,
+        "cpu_seconds": 6.989351999999998,
+        "failed": 0,
+        "returned": 10,
+        "rss_high_water_bytes": 53149696,
+        "wall_seconds": 7.334409708999829
+      },
+      "complete_export": {
+        "calls": 1,
+        "cpu_seconds": 15.333991,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 53719040,
+        "wall_seconds": 15.745651715000008
+      },
+      "network_parse": {
+        "calls": 1,
+        "cpu_seconds": 0.10255700000000001,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 25825280,
+        "wall_seconds": 0.10311633300000267
+      },
+      "offline_analysis": {
+        "calls": 1,
+        "cpu_seconds": 3.7775439999999993,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 44244992,
+        "wall_seconds": 3.7813977519999753
+      },
+      "process_parse": {
+        "calls": 1,
+        "cpu_seconds": 0.0008520000000000194,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 25825280,
+        "wall_seconds": 0.0008583329999964917
+      },
+      "standard_projection": {
+        "calls": 1,
+        "cpu_seconds": 1.5541950000000007,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 47026176,
+        "wall_seconds": 1.5548997090000967
+      }
+    },
+    "progress_file": "progress.json",
+    "progress_last_snapshot_calls": 17,
+    "progress_write_failures": 0,
+    "progress_writes": 6,
+    "raw_rows_not_retained": 0,
+    "raw_rows_retained": 17,
+    "version": "phase-resources-3"
+  },
+  "verify": {
+    "all_observed_calls": 18,
+    "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+    "kind": "terminal_measurement_summary",
+    "last_progress_error_type": null,
+    "phases": {
+      "artifact_verification": {
+        "calls": 1,
+        "cpu_seconds": 14.884344,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 55177216,
+        "wall_seconds": 14.939536715000031
+      },
+      "association_and_evidence": {
+        "calls": 1,
+        "cpu_seconds": 3.6775729999999998,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 47673344,
+        "wall_seconds": 3.6784224600000925
+      },
+      "compact_node_verification": {
+        "calls": 1,
+        "cpu_seconds": 2.9106829999999997,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 27865088,
+        "wall_seconds": 2.947395418000042
+      },
+      "compact_store_write": {
+        "calls": 10,
+        "cpu_seconds": 6.585319999999999,
+        "failed": 0,
+        "returned": 10,
+        "rss_high_water_bytes": 55177216,
+        "wall_seconds": 6.590942586999745
+      },
+      "complete_export": {
+        "calls": 1,
+        "cpu_seconds": 11.9461,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 55177216,
+        "wall_seconds": 11.957648130999928
+      },
+      "network_parse": {
+        "calls": 1,
+        "cpu_seconds": 0.10662999999999989,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 29368320,
+        "wall_seconds": 0.10691129199994975
+      },
+      "offline_analysis": {
+        "calls": 1,
+        "cpu_seconds": 3.7889929999999996,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 47673344,
+        "wall_seconds": 3.790886252000064
+      },
+      "process_parse": {
+        "calls": 1,
+        "cpu_seconds": 0.0008270000000001332,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 29368320,
+        "wall_seconds": 0.0008330419999538208
+      },
+      "standard_projection": {
+        "calls": 1,
+        "cpu_seconds": 1.540533,
+        "failed": 0,
+        "returned": 1,
+        "rss_high_water_bytes": 50569216,
+        "wall_seconds": 1.541311250999911
+      }
+    },
+    "progress_file": "progress.json",
+    "progress_last_snapshot_calls": 18,
+    "progress_write_failures": 0,
+    "progress_writes": 5,
+    "raw_rows_not_retained": 0,
+    "raw_rows_retained": 18,
+    "version": "phase-resources-3"
+  }
+}

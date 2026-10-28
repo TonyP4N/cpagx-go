@@ -60,3 +60,11 @@ dev2为 `sha256:9084aaa0b4bc4dfbd7f241ba472422846fce275a70fb1ff162f2832d1c734446
 本机暂存第一次尝试在core启动前遇到短暂tag库存拒绝，目录和错误原样保留；随后只读检查确认相同immutable ID仍存在、context为desktop-linux，改用已核实SHA，不重建镜像。第二个本机暂存新attempt完成S离线整链56.066秒：export23.250秒、完整sourceverify21.292秒、原位置query4.264秒、交接后query4.282秒；165/165原件引用完整分页，最终所有普通文件（含最终report）逐件清单与受控副本一致。受控完整目录8,096,459字节。此为单次开发核心测量，不能替代剩余五格或正式环境复验。
 
 dev2离线导出native完整阶段为21.475秒，其中判断3.937秒、store写入11.429秒、标准投影2.885秒、节点核验3.020秒。dev1对应判断3.998秒、store8.074秒、投影1.605秒，观察到store/投影回归，不能报告整体提速。dev2回放在父代理要求先核查该回归时受控中断，完整partial及 `controller-interruption.json` 保留；不将行政中断当性能失败。后续优化若改变runtime，须再次固定新镜像，所有版本结果均保留，不拼接不同镜像的六格为一次完成。
+
+## 2026-10-29 原56六格终态补充
+
+上述dev1/dev2段落为当时历史记录。最终83件core/schema绑定签名 `56e106b2a44d88a0c67280d5d9e6a1e13aa79a75` 和同一immutable镜像，固定生成器6原件及原配额，已逐格实际运行。S离线36.739秒、M离线551.103秒通过完整输出、独立来源核验、全部选中引用分页及交接后查询。S回放在独立来源核验阶段到时限；M回放、L离线、L回放均未完成导出。四格不通过，六格不整体通过。
+
+L回放首次因验收器采样SQLite临时journal删除竞态在857.260秒中断，独立复现、失败及完整partial保留，不计核心性能失败。限定修复只允许live sampler对这一确切临时路径记录vanished/incomplete，终态库存、原件/固定产物、权限仍严格；5项针对测试及29项相关回归通过。第二次仅用签名2fbcf00修复harness，原56核心不变，controller1801.935秒、driver1802.110秒，以原生 `shared_store_deadline_exceeded` 明确失败，没有再重试。L完整原件admit/ever-observed覆盖审计未到达，不能宣布大规模覆盖通过。
+
+完整公开衍生事实、原件/衍生SHA与逐phase资源表见 `validation-round19-core-independent/dev4-final-matrix-v2.json`、`dev4-final-resources.md`、`custody.json`。缺测指标为null；最终目录包括交接库存，whole-driver独立核时限。parent另行执行的原56函数插桩诊断及后来契约修复的S链路/旧M兼容核验不拼入本矩阵。此轮仍不构成正式服务、Worker、参考环境、工业数据或R19关闭。

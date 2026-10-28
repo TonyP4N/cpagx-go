@@ -1,0 +1,10 @@
+test_even_journal_disappearance_is_strict_at_terminal_inventory (test_round19_live_sampler.LiveSamplerTests.test_even_journal_disappearance_is_strict_at_terminal_inventory) ... ok
+test_fixed_artifact_disappearance_is_never_ignored (test_round19_live_sampler.LiveSamplerTests.test_fixed_artifact_disappearance_is_never_ignored) ... ok
+test_fixed_source_disappearance_is_never_ignored (test_round19_live_sampler.LiveSamplerTests.test_fixed_source_disappearance_is_never_ignored) ... ok
+test_permission_error_and_final_inventory_disappearance_still_fail (test_round19_live_sampler.LiveSamplerTests.test_permission_error_and_final_inventory_disappearance_still_fail) ... ok
+test_vanished_journal_is_recorded_without_zero_filling_the_sample (test_round19_live_sampler.LiveSamplerTests.test_vanished_journal_is_recorded_without_zero_filling_the_sample) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.010s
+
+OK

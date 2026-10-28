@@ -1,0 +1,42 @@
+{
+  "commit": "7cc85eed856c453c505e986c6a9c81f60b624e97",
+  "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40729461909",
+  "attempt": 1,
+  "conclusion": "failure",
+  "failures": [
+    {
+      "job": "dual-source-celery",
+      "conclusion": "failure"
+    },
+    {
+      "job": "dual-source-persistent",
+      "conclusion": "failure"
+    },
+    {
+      "job": "unified-catalog",
+      "conclusion": "failure"
+    },
+    {
+      "job": "replay-persistent",
+      "conclusion": "failure"
+    }
+  ],
+  "confirmed_causes": {
+    "dual-source-celery": "mirror.gcr.io image layer GET 429 Too Many Requests before tasks",
+    "dual-source-persistent": "mirror.gcr.io PostgreSQL manifest HEAD 429 Too Many Requests before tests"
+  },
+  "unresolved_startup_jobs": [
+    "unified-catalog",
+    "replay-persistent"
+  ],
+  "replay_artifact_download": "503 Egress is over account limit; signed download URL excluded",
+  "raw_sha256": {
+    "status.json": "84b7ebfb4a1df7298b92b8d8ae611ebeb07643dec605e15ca2e26b48b456bb28",
+    "failed.log": "a56e2c470422889b88e5c842bdc99860b4c0e971b65cfa9443f9e03df50e0b0d",
+    "celery/dual-source-startup.log": "f9cf93746824d3f096af7115a69deb79c1d08b1de292a97afc72cf8657f63667",
+    "celery/dual-source-celery/api.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "celery/dual-source-celery/worker.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "celery/dual-source-celery/results.json": "6ed00dd2eb754604310b20d1ce3704241718f87c90bd0c1b7d14592c113e79de"
+  },
+  "scope": "same commit rerun requested; first failure retained, no test weakening"
+}
