@@ -15,3 +15,13 @@
 本轮备份单元初次出现的两项失败均保留：历史 format4 测试起初从“当前表集合减一个字段”伪造旧集合，新增表后该构造并非真实历史格式，现用冻结的历史表集合；之后扩展三版本恢复测试时，测试局部 `copy` 函数遮蔽模块名导致 NameError，已改名。`backup-format6-full-identity-unit.log` 最终 66 项通过，7.513 秒。上述均为单元测试，不等于真实准备服务与空库恢复完成。
 
 正式小例脚本为 `scripts/validation/round19_preparation_acceptance.py`。通过显式服务 POST 请求准备 dual，等真实 ready 后才沿用 v3 独立标注与原件保存/查询。停服务后对可丢弃测试库作可恢复的 queued/preparing 和同大小 bytea 篡改负例，验证拒绝并恢复原记录；不会通过 SQL 创造 ready。完整备份恢复后必须直接读到原 ready id/sha/size/attempt，禁止重新 POST 伪装恢复成功；再次执行 v3 原片段查询和准备权限检查。脚本轮询的 90 秒只是后台测试等待上限，不提高服务的 10 秒 HTTP 请求预算。
+
+## 本次完成结果
+
+`format6-formal-attempt2` exit 0 / passed。7 个 replay 加 1 个 offline 真实 Worker 任务；6 份由真实服务显式准备的 ready 文档，原环境/恢复后合计 12 次准备读取、12 次 v3 原始 CSV 片段查询。ready 缺 bytea 被数据库约束拒绝；queued/preparing 均拒终态备份；同大小 bytea 损坏被原字节 SHA 拒绝。受控测试变更在完整备份前还原，不用 SQL 创造 ready。
+
+完整 format6 dump 经空库/新目录恢复，6 份数据库原始 bytea 均再次与独立来源 adapt 相等。copy 阶段没有重复 adapt。恢复不再 POST，直接验证原 ready id、摘要、大小、源 attempt 和准备 attempt；准备 ACL 原环境未授权 404、授权 200、viewer 写 403，恢复授权读 200/写 403。原件缺失/同大小篡改、重哈希错误定位与恢复后的定位拒绝沿用 v3 正式链路。
+
+公开证据：`validation-round19-record-locator/format6-formal-attempt2-public/`。源码清单 aggregate `393a22528418273570e9ab3a7e7071bc80a33602da25dd8e8fb9fd51efa37b75` 在启动前逐件通过；实际 host `cpagx-v3` SHA 为 `4504aeb6a81ded6622e3f6fa82d5dab7c73dd43930c7e40c9526a690ee7eb019`。Python 现有源码在运行中未变；准备 Go 文件后续仅诊断增量发生在实际二进制编译后，不把这些后续改动归入本二进制。旧 Worker `5979b0d9...` 只承担分析，不宣称新版完整镜像；基线 dirty 状态不是固定运行身份。
+
+首次 format6 前置镜像读取异常导致 freeze 记录未写，外层命令仍启动测试；已主动 SIGINT 清理，保留失败且排除通过计数。四个含本机路径的公开副本已脱敏；受控原件逐字节保留于仓库外输出，`public-redaction-sha256.json` 记录原/公开摘要，未删改原失败。没有数据库原件或凭据加入公开材料。上述小例不是大型容量备份/恢复性能、参考环境或工业数据结论。

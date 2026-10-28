@@ -1,6 +1,6 @@
 # Public evidence scope
 
-Copied unchanged `results.json` and `round19-evaluation.json` from the first successful formal invocation. They contain synthetic task identifiers only. `restore-summary.json` is an explicit field projection of the private restore audit; `identity.json` hashes the actual host binaries.
+Copied `results.json` and `round19-evaluation.json` (local paths are redacted where recorded in `../public-redaction-sha256.json`) from the first successful formal invocation. They contain synthetic task identifiers only. `restore-summary.json` is an explicit field projection of the private restore audit; `identity.json` hashes the actual host binaries.
 
 The `invalid_reference_imports` map is the negative import set exercised when each independent evaluation document was first created in the original environment. Restored rows retain that per-document map; the restored loop additionally submitted a newly rehashed out-of-range locator and asserted 409. It did not resubmit every missing/corrupt inventory mutation after restore. Positive queries checked the same original bytes and exact CSV record fragment in both environments. Unit tests separately reject a restored saved document whose original content field is removed.
 
