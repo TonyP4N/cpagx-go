@@ -1,0 +1,21 @@
+test_unchanged_cpu_counters_do_not_create_negative_rounding (test_measurement_v3.PhaseV3Tests.test_unchanged_cpu_counters_do_not_create_negative_rounding) ... ERROR
+
+======================================================================
+ERROR: test_unchanged_cpu_counters_do_not_create_negative_rounding (test_measurement_v3.PhaseV3Tests.test_unchanged_cpu_counters_do_not_create_negative_rounding)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$FYP/cpagx-go/tests/core/test_measurement_v3.py", line 74, in test_unchanged_cpu_counters_do_not_create_negative_rounding
+    self.assertEqual(ended(),'ended')
+                     ^^^^^^^
+  File "$FYP/cpagx-go/services/analysis/src/cpag_core/measurement.py", line 36, in measured
+    record(target,name,status,time.perf_counter()-start,
+  File "$FYP/cpagx-go/services/analysis/src/cpag_core/measurement_v3.py", line 139, in record
+    _validate(phase,status,wall_seconds,cpu_seconds,rss_bytes)
+  File "$FYP/cpagx-go/services/analysis/src/cpag_core/measurement_v3.py", line 47, in _validate
+    raise ValueError('invalid_phase_measurement')
+ValueError: invalid_phase_measurement
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (errors=1)

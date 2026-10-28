@@ -109,6 +109,13 @@ class _FlatValueMemo:
     key is complete canonical bytes, preserving -0.0, scalar types and fields.
     """
     def _encode(self,value,depth,active):
+        # Prefer the existing synchronous-root identity memo. Re-serializing an
+        # already visited immutable value would regress dense evidence reuse.
+        if type(value) in (dict,list,tuple) and depth<=self.limits['max_depth'] and id(value) not in active:
+            scoped=self._memo.get(id(value))
+            if scoped is not None and scoped[0] is value:
+                self._memo.move_to_end(id(value));base._deadline(self.deadline)
+                return scoped[1]
         flat=(type(value) is dict and depth+bool(value)<=self.limits['max_depth']
               and all(type(k) is str and type(v) in (str,int,float,bool,type(None)) for k,v in value.items()))
         if not flat:return super()._encode(value,depth,active)
@@ -118,6 +125,9 @@ class _FlatValueMemo:
         found=self._flat_values.get(key)
         if found is not None:
             self._flat_values.move_to_end(key)
+            self._memo[id(value)]=(value,found[0])
+            self._memo.move_to_end(id(value))
+            if len(self._memo)>self.limits['cache_entries']:self._memo.popitem(last=False)
             base._deadline(self.deadline)
             return found[0]
         node=super()._encode(value,depth,active)

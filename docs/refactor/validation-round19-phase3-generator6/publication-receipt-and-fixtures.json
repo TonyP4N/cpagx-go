@@ -1,0 +1,101 @@
+{
+  "files": [
+    {
+      "original_sha256": "f6181e16dd0f32f8911abb1586ef3610c6767b0c07dc3db794746913ce4f90bd",
+      "path": "phase3-first-tests.log",
+      "public_sha256": "3a56bf23e26bfa77e43b1ed15c4682292624a619f940a846eba71956fd2ddb00",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "original_sha256": "b150f14efc26afaca26efbabca5aea34c78166c53807c918faeea7eec437b30c",
+      "path": "phase3-cpu-rounding-before.log",
+      "public_sha256": "c24658d8f2edd89d70513970a6f38cf89bf41bb817fdd8684e100a0696350377",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "original_sha256": "fb48b30e96bc10de584461e69f3046a807d70ecd662957915e5e2944c3e3ed76",
+      "path": "phase3-final-tests.log",
+      "public_sha256": "fb48b30e96bc10de584461e69f3046a807d70ecd662957915e5e2944c3e3ed76",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "original_sha256": "b6bf32f780d3a290cc9327a70f65758445f8910ef88a6e6076e4d6ec30ba8cda",
+      "path": "generator6-focused.log",
+      "public_sha256": "b6bf32f780d3a290cc9327a70f65758445f8910ef88a6e6076e4d6ec30ba8cda",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "original_sha256": "d9b5d725801e8f6c43553ded260c6a863be06235a7cdf7980c47076671d6b94e",
+      "path": "generator6-all.log",
+      "public_sha256": "d9b5d725801e8f6c43553ded260c6a863be06235a7cdf7980c47076671d6b94e",
+      "redactions": "personal filesystem prefixes only"
+    }
+  ],
+  "fixtures": {
+    "L": {
+      "directory": "controlled outputs/cpag-r19-core-cached-generator-L6-attempt1",
+      "files": {
+        "fixture.json": "35d98234a9b47b3b3859607b3034754d27a893a815cec0ef12941e1bbd5983e9",
+        "matrix.json": "bef2959caf275f44d1302bcb9597954f7ccb10e1019ff82365719cf7a49f5266",
+        "network.pcap": "abac2b769dbe57b4cc9558dfc1a98dc5a910358d2bca4e3f129a0ddf90d8e381",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "2c7ceb2b9eb8a0ac44717adac5b99b63d99c8ae041a7ef574f6b4c53112fd9ff",
+        "process.csv": "02508de1fa3a2e76702edbb0dc70658ffb7b577263a87386ac553a26c69818f4",
+        "replay-profile.json": "e9acc0095646b1acef1621d8904a582f295cfa7056a4e96e796a253152adf1ef"
+      },
+      "selectors": {
+        "history_format": "shared-observation-dag-6",
+        "judgement_strategy": "prepared-prefix-cache-1",
+        "standard_projection": "standard-graph-events-1"
+      },
+      "status": "admissible_for_core_attempt"
+    },
+    "M": {
+      "directory": "controlled outputs/cpag-r19-core-cached-generator-M6-attempt1",
+      "files": {
+        "fixture.json": "dcc21cc8e2f093be1a553e6944706d7d08ed0e3226156fbb7f604ff6617f9ff1",
+        "matrix.json": "31909099f0c68e2d0583af31eae3dceb1788eb2c3d4451863866506bbd26c65c",
+        "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "2003f9e6fd9c01c6ad26afd83d7c8a534cd6c173291a776291daff76f83b2a49",
+        "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+        "replay-profile.json": "70e8fe7cada426247ffe9206b205dc6a833880a9a57abd975574f694d7e4d1af"
+      },
+      "selectors": {
+        "history_format": "shared-observation-dag-6",
+        "judgement_strategy": "prepared-prefix-cache-1",
+        "standard_projection": "standard-graph-events-1"
+      },
+      "status": "admissible_for_core_attempt"
+    },
+    "S": {
+      "directory": "controlled outputs/cpag-r19-core-cached-generator-S6-attempt1",
+      "files": {
+        "fixture.json": "ecb7deea6e9e3c6954c3162e9d967a775499ba78253823a060ef1bdf469b2b1f",
+        "matrix.json": "932e715db5f7ed2195affdecc2c57712086899834d89373e6be283c0fa6fd5b8",
+        "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "775ac3e3a547f79185a7767d018a3c0c384d5b47230f5a82fec9d5fa2260aa1f",
+        "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+        "replay-profile.json": "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52"
+      },
+      "selectors": {
+        "history_format": "shared-observation-dag-6",
+        "judgement_strategy": "prepared-prefix-cache-1",
+        "standard_projection": "standard-graph-events-1"
+      },
+      "status": "admissible_for_core_attempt"
+    }
+  },
+  "new_formal_runs_executed_by_this_task": false,
+  "raw_evidence": "controlled outputs/cpag-r19-phase3-generator6-evidence-20261028",
+  "sources": {
+    "scripts/validation/round19_scale_fixture.py": "8e86313507c40d519ef88018b390c65db8947e1a46b49f53f3dbe2d47314281e",
+    "services/analysis/src/cpag_core/measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+    "services/analysis/src/cpag_core/measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+    "tests/core/test_measurement_v3.py": "db1a2d07570588078463cdace04cda22b324eeb90bb89333db25e88cba4b89d2",
+    "tests/validation/test_round19_compact_fixture.py": "00d2efd3f49fc65de3b5ed841a0801db27eddea99c388ef5f4afad207693e179"
+  },
+  "version": "r19-phase3-generator6-receipt-1",
+  "version2_module_changed": false
+}
