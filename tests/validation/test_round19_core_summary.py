@@ -6,10 +6,19 @@ import unittest
 
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'scripts/validation'))
-from round19_core_summary import phase_summary,tmp_samples,redact,summarize
+from round19_core_summary import phase_summary,tmp_samples,redact,summarize,acceptance_verdict
 
 
 class CorePublicSummaryTests(unittest.TestCase):
+    def test_final_resource_acceptance_does_not_promote_early_controller_pass(self):
+        limits={'complete_output_bytes':1024**3,'wall_seconds':1800}
+        self.assertEqual(acceptance_verdict('passed',limits,1024**3,1800)['status'],'passed')
+        for size,seconds in ((1024**3+1,1),(1,1800.001)):
+            value=acceptance_verdict('passed',limits,size,seconds)
+            self.assertEqual(value['status'],'failed');self.assertEqual(value['controller_status_preserved'],'passed')
+        self.assertEqual(acceptance_verdict('passed',limits,None,None)['status'],'not_verified')
+        self.assertEqual(acceptance_verdict('failed',limits,1,1)['status'],'failed')
+
     def test_failed_standalone_packet_preserves_observed_native_metrics_and_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             native={'status':'failed','wall_seconds':10,'cpu_seconds':9,'process_rss_high_water_bytes':123,

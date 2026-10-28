@@ -44,6 +44,18 @@ def tmp_samples(path):
         'scope':'observed samples, not a kernel filesystem high-water mark'}
 
 
+def acceptance_verdict(controller_status,limits,final_bytes,driver_seconds):
+    checks={'final_directory_including_handoff_inventory_within_limit':None if final_bytes is None else final_bytes<=limits['complete_output_bytes'],
+        'whole_driver_within_wall_limit':None if driver_seconds is None else driver_seconds<=limits['wall_seconds']}
+    reasons=[name for name,value in checks.items() if value is False]
+    if controller_status=='failed' or reasons:status='failed'
+    elif controller_status!='passed':status=controller_status
+    elif any(value is None for value in checks.values()):status='not_verified'
+    else:status='passed'
+    return {'status':status,'controller_status_preserved':controller_status,'checks':checks,'failure_reasons':reasons,
+        'scope':'derived final-resource acceptance; original report is never rewritten'}
+
+
 def phase_summary(root,phase):
     path=Path(root)/(phase['phase']+'-result.json')
     native=phase.get('result') or {};native_source='embedded_report' if native else None
@@ -96,6 +108,7 @@ def attempt_summary(root):
     # custody record; avoid duplicating it inside every public table row.
     if data['handoff']:data['handoff']={k:v for k,v in data['handoff'].items() if k!='initial_inventory'}
     if (root/'controller-interruption.json').is_file():data['controller_interruption']=json.loads((root/'controller-interruption.json').read_text())
+    data['external_acceptance']=acceptance_verdict(record['status'],record['limits'],data['final_controlled_attempt_bytes'],data['whole_driver_seconds'])
     return data
 
 
@@ -119,8 +132,8 @@ def summarize(binding,attempts,failures=(),*,workspace):
         if (row.get('image') or {}).get('immutable_id')!=binding['image_id']:raise ValueError('matrix_mixed_image_identity')
         key=(row['scale'],row['mode'])
         if key not in cells or cells[key]['measurements'] is not None:raise ValueError('matrix_duplicate_or_unknown_cell')
-        cells[key].update(status=row['status'],measurements=row)
-    result={'version':'core-matrix-public-summary-1','collected_at':datetime.now(timezone.utc).isoformat(),
+        cells[key].update(status=row['external_acceptance']['status'],measurements=row)
+    result={'version':'core-matrix-public-summary-2','collected_at':datetime.now(timezone.utc).isoformat(),
         'scope':'local development core matrix; no service/Worker/reference-environment/industrial acceptance',
         'image_id':binding['image_id'],'runtime_commit':binding['runtime_commit'],'runtime_file_count':binding['runtime_file_count'],
         'all_runtime_files_match_signed_commit':binding.get('all_equal'),
