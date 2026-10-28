@@ -1,0 +1,8 @@
+{
+  "revision": "52711e3497d0d23e4b926941b58b9ffefab9528d",
+  "runtime_files_matched": 125,
+  "harness_files_matched": 4,
+  "all_sources_match": true,
+  "source_fingerprint": "7f35a6532c76cc4baf5bf9cfcd91714128c1160891eeb1714f6d330909be6aad",
+  "measurement_identity": "exact pre-build runtime content and immutable image, later matched to committed revision; initial dirty HEAD alone is not measurement identity"
+}

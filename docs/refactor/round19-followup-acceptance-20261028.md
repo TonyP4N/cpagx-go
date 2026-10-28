@@ -4,7 +4,7 @@ R19 **未结项**，不进入 R20。RC1、默认入口及用户部署不变。�
 
 ## 1. S100 同提交、同镜像、同资源三次正式通过
 
-固定代码 `3e7340ea0e923820b21881dcb33740e0f2d0ec20` 的独立归档用于构建 API、Worker 与计算镜像；不使用正在修改的工作区。镜像标签 `cpag-isolated:r19-fixed-3e7340e` 的实际不可变 ID、输入 SHA、源码指纹及资源配置见[三次完整汇总](validation-round19-followup/fixed-s100-three-summary.json)。
+固定代码 `3e7340ea0e923820b21881dcb33740e0f2d0ec20` 的独立归档用于构建 API、Worker 与计算镜像；不使用正在修改的工作区。镜像标签 `cpag-isolated:r19-fixed-3e7340e`，不可变 ID `sha256:a29a211cd586ca4c5cef1da4b3d28c91c43d2e947b016f8d9d2e6d2018acd1f0`；输入 SHA、源码指纹及资源配置见[三次完整汇总](validation-round19-followup/fixed-s100-three-summary.json)。
 
 同一原 S100（100 请求+100 响应+100 CSV 行），资源 `r19-dev-s100-1`，三个独立数据库/任务/容器，各成功一次，不以自动重试掩盖失败。
 
@@ -18,7 +18,7 @@ R19 **未结项**，不进入 R20。RC1、默认入口及用户部署不变。�
 
 原三次 OOM、资源单独提高对照、首次完成请求超时三 attempt 失败、全部测量均保留，参见[测量与失败说明](round19-followup-measurements-20261028.md)。本次只证明固定 S100 软件链路；不扩大为 M1000/L10000、回放 S100 或目标主机吞吐通过。
 
-计算阶段原始样本在每个 `fixed-s100-runN.json` 的 `worker_attempts.compute_phases`，包括网络/CSV解析、关联及证据组织、导出、标准投影、重新验证、完整计算；CPU、RSS、墙钟及 Docker 内存/块IO全部样本在汇总中。RSS 是进程累计高水位，阶段时间嵌套不可求和；Docker 内存包含 tmpfs，不等于 RSS。没有清理 OS 缓存，缓存条件为 `unverified_cold`。
+计算阶段原始样本在每个 `fixed-s100-runN.json` 的 `worker_attempts.compute_phases`，包括网络/CSV解析、关联及证据组织、导出、标准投影、重新验证、完整计算；CPU、RSS、墙钟及 Docker 内存/块IO全部样本在汇总中。RSS 是进程累计高水位，阶段时间嵌套不可求和；Docker 内存包含 tmpfs，不等于 RSS。没有清理 OS 缓存，缓存条件为 `unverified_cold`。证据查询发生在结果 API 已验证并填充应用缓存之后；每页耗时是该热路径，不证明冷启动首次证据查询10秒达标，冷/热查询对照仍待测。
 
 原测量 harness 的 `phase_breakdown` 仍是先前不可用占位，不修改历史原记录；上述新增原始 `compute_phases` 和 `compute_measurements` 才是本次实际测得值。汇总脚本第一次错误要求**容器**退出码为0，已保留 `fixed-s100-summary-first-classification.json`。实际计算子进程均0；计算结束后 PID1 为保留 tmpfs 等待交接，宿主按既有流程 kill 并取独立退出证明，因此容器137且 `OOMKilled=false`。修复汇总判据同时要求计算0、任务成功、无OOM、已退出且已移除的独立回执，新增回归不允许把OOM或失败混入成功。
 
@@ -34,7 +34,7 @@ R19 **未结项**，不进入 R20。RC1、默认入口及用户部署不变。�
 
 新增显式 `replay-history-checkpoint-delta-2`：磁盘历史、共享不可变行、128步检查点/差量和有界索引；逻辑判断仍复用原到达前缀，不先读未来。Go、CLI、Worker、评估适配和备份按格式精确绑定，旧 JSONL 仍可读且默认不变。完整源重执行、所有输入/产物/历史哈希和 run/attempt 校验保留；本轮**没有**宣称消除前缀重算或证明最大规模10秒查询。
 
-新格式正式小例、状态修订与空库恢复见[回放备份说明](round19-spool-backup-integration.md)。首次小例是在最终总预算修复前；修复后的最终镜像重跑和生命周期结果必须另记，不能混用前次证据。
+新格式正式小例、状态修订与空库恢复见[回放备份说明](round19-spool-backup-integration.md)。首次小例是在最终总预算修复前，保留为preliminary。修复后 `spool-final-1` 镜像（`sha256:5979b0d9e5ad655c2340cfc1aa33148dd83085b153459eb91e34c788f644ab25`）七任务及空库恢复重新通过；八项正式生命周期检查亦通过：排队取消、实际arrival3运行取消与退出确认、无效输入有限失败、Worker被杀及真实租约失效、attempt2从头重放、旧attempt发布409、重复完成唯一发布，以及迁移幂等。构建前125件运行时文件及4件验收脚本逐件匹配52711e3提交；镜像内63件源码/schema/入口与清单一致，具体绑定见该专页原始清单；不能混用前次证据。
 
 评估显式v2扩大为每侧22000事件，独立一对一、重复预测、争议和零分母语义通过；旧500事件v1默认不变。独立参考原件库存按哈希受控读取，缺失/篡改/权限拒绝和空库恢复查询见[原件验收](round19-reference-inventory-followup.md)。字节库存校验不冒称参考标注真实可信，也不冒称 CSV 任意定位字段均已独立验证。
 
@@ -42,7 +42,7 @@ R19 **未结项**，不进入 R20。RC1、默认入口及用户部署不变。�
 
 预登记 `e1ca1a7`；第一阶段 `3e7340ea0e923820b21881dcb33740e0f2d0ec20`。该阶段 CI [40628284336](https://github.com/TonyP4N/cpagx-go/actions/runs/40628284336) **失败**：旧迁移验收临时重放历史表时，011触发器在 disabled 条件下仍规划不存在的执行历史表。保留 CI 和原 fixture 本地失败；修复为先分支判断 enabled 再查询执行历史。未删除或跳过旧验收，同一旧迁移与12并发测试修后通过。最终提交 CI 另行核对，不用旧绿灯替代。
 
-阶段二源码、测试、最终新格式验收及CI绑定在本页后续增量中登记。既有 R16 历史预检补传/服务端门禁/恢复，R17 时间质量/旧版本，R18 前缀/迟到/取消/重跑由最终CI及受影响新格式回归继续验证。
+第二阶段签名提交 `52711e3497d0d23e4b926941b58b9ffefab9528d` 已推送。其CI发现Go共享schema显式清单遗漏四件新schema；本地原样复现并补充注册，保留未知schema拒绝检查，修后通过。该问题仅测试注册清单，不改运行时、镜像或历史语义。最终新格式本地验收通过；最终签名提交的完整CI仍须独立核对。当前代码的全部Go包回归、50项replay、7项contracts、12项inputs、75项evaluation、56项backup、31项isolated及24项validation检查通过，测试数量本身不替代上述业务退出证据。既有 R16 历史预检补传/服务端门禁/恢复，R17 时间质量/旧版本，R18 前缀/迟到/取消/重跑由最终CI及受影响新格式回归继续验证。
 
 ## 5. 仍未完成，三类状态
 
@@ -61,6 +61,8 @@ docker build -f deployments/isolated-executor/Dockerfile -t cpag-isolated:r19-me
 python scripts/validation/round19_capacity.py --dev-run --resource-profile r19-dev-s100-1 --image cpag-isolated:r19-measured --case-manifest docs/refactor/validation-round19/capacity-S-raw-attempt2/dual_source-1.json --output /tmp/r19-s100-new-1
 # 使用不同的新输出目录独立运行三次；保留全部退出，不覆盖或挑选最快值。
 python scripts/validation/round19_measurement_summary.py --output /tmp/r19-summary.json /tmp/r19-s100-new-1 /tmp/r19-s100-new-2 /tmp/r19-s100-new-3
+python scripts/validation/round19_replay_spool_acceptance.py --image cpag-isolated:r19-measured --output /tmp/r19-spool-new
+python scripts/validation/round18_lifecycle.py --skip-image-build --image cpag-isolated:r19-measured --history-format replay-history-checkpoint-delta-2 --output /tmp/r19-spool-life-new
 python scripts/validation/round19_byte_fixture.py --output /tmp/r19-byte-input-new
 python scripts/validation/round19_capacity.py --dev-run --resource-profile r19-dev-s100-1 --image cpag-isolated:r19-measured --case-manifest /tmp/r19-byte-input-new/case.json --output /tmp/r19-byte-new
 ```

@@ -18,11 +18,12 @@ test_reference_check_rejects_missing_and_individual_mismatches (test_round19_cap
 test_reference_refusal_has_failure_record_and_does_not_start_worker (test_round19_capacity.CapacityGateTests.test_reference_refusal_has_failure_record_and_does_not_start_worker) ... ok
 test_remote_or_small_docker_is_not_reference_capable (test_round19_capacity.CapacityGateTests.test_remote_or_small_docker_is_not_reference_capable) ... ok
 test_business_state_and_image_differences_cannot_be_normalized_away (test_round19_measurement_summary.SummaryTests.test_business_state_and_image_differences_cannot_be_normalized_away) ... ok
+test_missing_or_tampered_retained_file_prevents_completion (test_round19_measurement_summary.SummaryTests.test_missing_or_tampered_retained_file_prevents_completion) ... ok
 test_three_equal_and_failed_attempt_is_never_hidden (test_round19_measurement_summary.SummaryTests.test_three_equal_and_failed_attempt_is_never_hidden) ... ok
 test_all_scales_preserve_raw_request_response_and_csv_density (test_round19_scale_fixture.ScaleFixtureTests.test_all_scales_preserve_raw_request_response_and_csv_density) ... ok
 test_existing_fixture_is_never_overwritten (test_round19_scale_fixture.ScaleFixtureTests.test_existing_fixture_is_never_overwritten) ... ok
 
 ----------------------------------------------------------------------
-Ran 23 tests in 2.922s
+Ran 24 tests in 2.656s
 
 OK

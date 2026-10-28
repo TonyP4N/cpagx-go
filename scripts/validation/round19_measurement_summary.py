@@ -15,6 +15,8 @@ ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'services/analysis/src'))
 from cpag_core.pipeline import fingerprint, file_hash
 
+SEMANTIC_FILES={'dual/analysis.json','events.json','graph.json','quality.json'}
+
 
 def summarize(roots):
     rows=[]
@@ -37,13 +39,17 @@ def summarize(roots):
         terminal=record.get('terminal',{})
         if terminal.get('state')=='succeeded':
             output=root/'source/jobs'/record['run_id']/('attempt-'+str(terminal['attempt']))
-            for name in ('dual/analysis.json','events.json','graph.json','quality.json'):
+            for name in sorted(SEMANTIC_FILES):
                 target=output/name
                 if target.is_file():
                     # Keep every business field, evidence reference, list order,
                     # time-quality and inference state. No business projection.
                     row['semantic_hashes'][name]=fingerprint(json.loads(target.read_text()))
             row['output_files']=record.get('output',{}).get('files',[])
+            row['retained_file_hashes_match']=bool(row['output_files']) and all(
+                (output/item['path']).is_file() and not (output/item['path']).is_symlink() and
+                (output/item['path']).stat().st_size==item['bytes'] and
+                file_hash(output/item['path'])==item['sha256'] for item in row['output_files'])
         for sample in sorted(root.glob('stats-*.stdout')):
             for line in sample.read_text().splitlines():
                 try:value=json.loads(line)
@@ -55,7 +61,7 @@ def summarize(roots):
                  tuple(a.get('image_id') for a in r['worker_attempts']),
                  tuple((i['sha256'],i['bytes']) for i in r['input_fingerprints'])) for r in rows]
     passed=all(r['status']=='development_case_measured_incomplete_gate' and not r['failures'] and
-               r['semantic_hashes'] and len(r['worker_attempts'])==1 and
+               set(r['semantic_hashes'])==SEMANTIC_FILES and r.get('retained_file_hashes_match') is True and len(r['worker_attempts'])==1 and
                r['terminal'].get('state')=='succeeded' and
                r['worker_attempts'][0]['state'].get('Status')=='exited' and
                r['worker_attempts'][0]['state'].get('OOMKilled') is False and
@@ -70,7 +76,8 @@ def summarize(roots):
             'phase_seconds':'nested wall/CPU durations overlap and must not be added',
             'docker_memory':'includes tmpfs/cgroup pages; not process RSS',
             'container_exit':'host kills the waiting PID1 after transfer; 137 with OOMKilled=false is not compute failure; compute returncode and separate exit receipt are required',
-            'cache_condition':'unverified_cold; no OS cache clearing claimed'},
+            'cache_condition':'unverified_cold; no OS cache clearing claimed',
+            'evidence_query_cache':'after the result API verified and populated the application cache; not a cold-query benchmark'},
         'three_independent_runs':len(rows)==3 and len({r['run_id'] for r in rows})==3,
         'fixed_inputs_code_image_resources':bool(rows) and all(x==identities[0] for x in identities),
         'all_runs_complete':bool(rows) and passed,

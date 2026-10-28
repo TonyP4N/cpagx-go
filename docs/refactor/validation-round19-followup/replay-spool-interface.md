@@ -38,3 +38,15 @@ SQLite 仅包含 objects、snapshots、revisions 三张受控表和自动主键�
 初始 storage 原型7项通过，实际旧 replay 回归含原型43项通过；正式分支加入后48项 replay、7项 contracts 通过，保留原始日志。初次字段对照因旧 RAM 中 tuple 与正式 JSON array 的类型差异失败，日志保留；改为旧产物实际 canonical JSON 后逐字段完全一致，没有删字段。
 
 已实跑正常/过期/迟到、前缀未来修改不变、全部小例 snapshot/revision 与旧版等价、CLI 真原件查询、目录恢复和篡改拒绝。Go、Worker、完整备份恢复由对应分工实跑并单独登记，不能由本文件替代。S/M/L 密集回放、大容量全链、参考 Ubuntu 环境和真实工业材料未由这些小例证明。每步原判断及完整 state SHA 的 CPU 成本仍在，磁盘历史优化不等于全流程性能通过。
+
+## 最终预算修复与当前证据
+
+最终源码指纹见 `replay-spool-final-source-sha256.json`，aggregate SHA256 为 `466fc21cf2c4d7d79e4eb825a0bbbc4d135d3fe5ca5ab4faec30556ce9daaa85`。此前 v2 尚未发布；旧 wip 产物的 history limits 数值与最终修复不同，必须保留此前实跑原件并标为 preliminary，不替代最终镜像重跑。
+
+历史数据库预算现在先从声明总输出上限扣除真实保留 sources 字节，再预留两个64KiB控制文件（history manifest 与外层 run manifest）。最终 JSON/JSONL 文件逐件、逐块按剩余总预算写入；极小声明预算在构造索引前明确拒绝。历史索引自身的 SQLite journal 工作预算仍单列，未暗改持久预算。SQLite 写入失败统一保留 `history_sqlite_write_failed:SQLITE_FULL` 等明确名称，未完成正式目录删除。无任何语义验证跳过开关。
+
+原件分页参数为 `--ref-offset`、`--ref-limit`（默认0/100，最多100）。完整 selection 的全部引用先核对目标前缀可见性，随后只对页内引用解析真实原件和页内帧字段；selection 业务内容不删。返回 `evidence_page` 版本 `source-reference-page-1`，包含 total/returned/has_more 和 canonical_source_reference 顺序。整体8MiB约束继续生效，不能以分页掩盖巨大 selection 的输出超限。
+
+最终只读回归：50项 replay、7项 contracts、12项 replay_inputs 成功；最终完整记录以 `*-final.log` 为准。source budget 补充用例覆盖小声明早拒绝、控制元数据预留、总字节与 SQLite_FULL 清理。完整 evaluation/backup 最终日志另列。
+
+`replay-spool-small-measurement-final.json` 为固定小例本机开发样本：16个快照，历史文件从514,402字节变为217,871字节；新格式含验证导出约0.517秒，旧格式约0.288秒，因此不能宣称小例导出提速。新格式独立验证与原件查询均约0.38秒，进程生命周期 RSS 高水位约44MiB，含两种格式，不是独占内存。此前 probe JSON 保留，均不能替代正式 Worker 或 S/M/L 密集回放测量。

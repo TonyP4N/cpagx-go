@@ -5,6 +5,7 @@
     "cache_condition": "unverified_cold; no OS cache clearing claimed",
     "container_exit": "host kills the waiting PID1 after transfer; 137 with OOMKilled=false is not compute failure; compute returncode and separate exit receipt are required",
     "docker_memory": "includes tmpfs/cgroup pages; not process RSS",
+    "evidence_query_cache": "after the result API verified and populated the application cache; not a cold-query benchmark",
     "phase_rss": "cumulative process high-water, not phase allocation",
     "phase_seconds": "nested wall/CPU durations overlap and must not be added"
   },
@@ -325,6 +326,7 @@
       "public_summary_sha256": "53bab45f2348edb32501a6ef5618d5f423eb83b345067d007cfb3a3164cb484f",
       "record_sha256": "1a8cc5af8a465c0144f9aec754e58948f2053c5b36c62b3df8dd6bd3a1727afd",
       "resource_profile": "r19-dev-s100-1",
+      "retained_file_hashes_match": true,
       "run_id": "ab5812b2ca4c36dabc1b36cbd035b0d0",
       "semantic_hashes": {
         "dual/analysis.json": "fa0ff75123a03295e7e72cfca5ca36f7829a8882a95fae5237530b1229197d9e",
@@ -857,6 +859,7 @@
       "public_summary_sha256": "11d8812633e648d4321dd924045209a94a357fd9ef7f40d8f8e9381cd4eb1956",
       "record_sha256": "d5a84254030456faa68c49f3ef14dc0da73d7a637c92ca31a232f89f26d8a1fc",
       "resource_profile": "r19-dev-s100-1",
+      "retained_file_hashes_match": true,
       "run_id": "44804c90da9be64656624af113afe96d",
       "semantic_hashes": {
         "dual/analysis.json": "fa0ff75123a03295e7e72cfca5ca36f7829a8882a95fae5237530b1229197d9e",
@@ -1362,6 +1365,7 @@
       "public_summary_sha256": "c24eeb01f26acb09cb85ad9c97cff48025ed9f1c3005d2be7561f040d9e8d246",
       "record_sha256": "b619fd671cc15c6c41da46b2c2d2ffb428a57dc43279b614e90ebcff6aaba59c",
       "resource_profile": "r19-dev-s100-1",
+      "retained_file_hashes_match": true,
       "run_id": "8029a2a14a2f9efdfe699c9df6f708fd",
       "semantic_hashes": {
         "dual/analysis.json": "fa0ff75123a03295e7e72cfca5ca36f7829a8882a95fae5237530b1229197d9e",

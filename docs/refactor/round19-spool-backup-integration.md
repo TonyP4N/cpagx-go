@@ -65,3 +65,52 @@ YAML 解析及无继承 PYTHONPATH 的 CLI 启动检查通过；最终精确提�
 另修复历史评估投影读取：服务资源策略升级后，旧运行仍按其冻结的 8MiB 预算读取，
 不会借当前策略放大旧输出。新运行提交/未完成发布的 operator 绑定保持在相应写入边界；
 历史读路径只接受受支持的版本。[专用检查](validation-round19-followup/evaluation-historical-resource-tests.log)。
+
+## 总输出预算修复后的最终复验
+
+初步七任务结果独立保留，不能替代修复后的运行。修复稳定后重新构建
+`cpag-isolated:spool-final-1`，镜像 ID：
+`sha256:5979b0d9e5ad655c2340cfc1aa33148dd83085b153459eb91e34c788f644ab25`。
+
+构建前 **125 件 runtime 源文件**与构建后、所有最终验证结束后的哈希相同；
+镜像内 **63 件源码/Schema/entry**逐件匹配构建前清单。
+这些 runtime 文件及四件 harness/CI 文件后来与提交
+`52711e3497d0d23e4b926941b58b9ffefab9528d` 逐件核对，全相同。
+原始 Go 构建身份、初始 dirty 标记和逐件清单原样保留；**初始 dirty HEAD 本身不是固定测量身份**，
+本次身份是实际源码哈希和不可变镜像，再通过内容匹配绑定到上述提交。
+
+[最终汇总](validation-round19-followup/spool-formal-final/summary.json)、
+[构建前清单](validation-round19-followup/spool-formal-final/before-build-source.json)、
+[镜像源码对照](validation-round19-followup/spool-formal-final/image-source-binding.json)、
+[527 内容匹配](validation-round19-followup/spool-formal-final/revision-runtime-match.json)。
+
+同一最终镜像先后串行完成：
+
+|最终场景|实际结果|
+|---|---|
+|七个真实隔离 Worker 任务|PASS；含三次正常一致、响应时钟过期、允许迟到及实际1x/10x|
+|空库/新目录完整恢复|PASS；十四条原始/恢复后完整历史、图谱、原件、触发证据检查一致|
+|排队取消|cancelled，attempt0，无发布|
+|arrival3 实际 pending 前缀后取消|取得容器退出/移除、pid0证据，无半历史发布|
+|无效输入有限重试|三次失败，无可信半产物|
+|Worker 被杀与真实租约失效|恢复确认旧容器退出|
+|新 attempt 从头回放|attempt2 从 snapshot0/arrival0 开始，完整验真成功|
+|旧 attempt complete 与成功重复 complete|旧请求409；成功重复请求仍同SHA且仅一个发布锚点|
+
+[七任务结果](validation-round19-followup/spool-formal-final/results.json)、
+[十四条历史检查](validation-round19-followup/spool-formal-final/spool-results.json)、
+[生命周期八项门禁](validation-round19-followup/spool-lifecycle-final/lifecycle.json)。
+测前独立预期见 [生命周期场景](round19-spool-lifecycle-scenarios.md)。
+最终七任务与生命周期的首次执行均通过；没有删改失败记录或调大十秒查询预算。
+
+按目录创建至公开结果写入观察，本机完整七任务约 **291.5 秒**，生命周期约 **29.4 秒**，
+仅作为本地流程观察值。最终源码上的 **75 项 evaluation**、**56 项 backup** 测试通过，
+另有 replay/contracts/inputs 回归由对应记录逐项列证。
+[评估记录](validation-round19-followup/evaluation-spool-final-regressions.log)、
+[备份记录](validation-round19-followup/backup-spool-final-regressions.log)。
+
+最终两组仅复制公开结果、源码清单及日志：十二件文件对二十三个不同私有值精确扫描无命中；
+数据库转储、控制配置、claim token 和 session 不上传。
+CI 保留旧 v1 lifecycle，并新增独立显式新格式 lifecycle step；复用已有 checkout 镜像，
+不重复构建。新增本机完整流程合计约5.35分钟，仍保留现有30分钟 job预算，
+最终精确提交的完整 CI 成功仍是关闭门禁。本结果不证明目标大规模回放或参考硬件性能通过。

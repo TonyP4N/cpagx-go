@@ -13,7 +13,7 @@ func TestSharedSchemas(t *testing.T) {
 	dir := "../../schemas"
 	entries, err := filepath.Glob(filepath.Join(dir, "*.schema.json"))
 	expected := map[string]bool{}
-	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest", "SingleSourceRunManifest"} {
+	for _, name := range []string{"Asset", "Claim", "DatasetManifest", "DerivedEvent", "DualSourceProfile", "EvaluationAnnotations", "EvaluationPredictions", "EvaluationRecord", "EvaluationRegistration", "EvaluationSplit", "GraphArtifact", "NetworkEvent", "PacketObservationArtifact", "ProcessObservation", "RunManifest", "ReplaySourceRef", "ReplayClaim", "ReplayProcessObservation", "ReplayGraphArtifact", "ReplayProfile", "ReplayDerivedEvent", "ReplayNetworkEvent", "ReplayRevision", "ReplayRunManifest", "SingleSourceRunManifest", "DualSpoolProfile", "ReplaySpoolProfile", "ReplaySpoolRunManifest", "ReplayHistorySpoolManifest"} {
 		expected[name+".schema.json"] = true
 	}
 	if err != nil || len(entries) != len(expected) {

@@ -1,0 +1,19 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  trigger "v3_capture_binding_validate" for relation "v3_run_bindings" does not exist, skipping
+NOTICE:  trigger "v3_capture_source_protect" for relation "v3_dataset_files" does not exist, skipping
+NOTICE:  trigger "m4_capacity_claim" for relation "m4_jobs" does not exist, skipping
+NOTICE:  column "replay_version" of relation "v3_run_bindings" already exists, skipping
+{
+  "status": "passed",
+  "public_report": "/private/tmp/cpag-r19-spool-lifecycle-final-20261028-run1/public/lifecycle.json",
+  "checks": {
+    "migration009_applied_twice": true,
+    "queued_cancel_no_publication": true,
+    "running_cancel_after_replay_prefix_exit_confirmed": true,
+    "invalid_input_failed_no_trusted_partial_history": true,
+    "worker_kill_actual_lease_expiry": true,
+    "retry_from_initial_snapshot": true,
+    "old_attempt_complete_refused": true,
+    "idempotent_complete_one_publication": true
+  }
+}

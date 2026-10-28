@@ -1,0 +1,33 @@
+go: downloading github.com/neo4j/neo4j-go-driver/v5 v5.15.0
+go: downloading github.com/go-redis/redis/v8 v8.11.5
+go: downloading github.com/streadway/amqp v1.0.0
+go: downloading github.com/urfave/cli/v2 v2.27.7
+go: downloading github.com/gin-contrib/cors v1.7.6
+go: downloading github.com/gin-gonic/gin v1.10.1
+go: downloading github.com/gin-contrib/sse v1.1.0
+go: downloading github.com/go-playground/validator/v10 v10.26.0
+go: downloading golang.org/x/net v0.47.0
+go: downloading github.com/pelletier/go-toml/v2 v2.2.4
+go: downloading github.com/ugorji/go/codec v1.3.0
+go: downloading google.golang.org/protobuf v1.36.6
+go: downloading gopkg.in/yaml.v3 v3.0.1
+go: downloading golang.org/x/sys v0.38.0
+go: downloading github.com/cespare/xxhash/v2 v2.1.2
+go: downloading github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f
+go: downloading github.com/cpuguy83/go-md2man/v2 v2.0.7
+go: downloading github.com/xrash/smetrics v0.0.0-20240521201337-686a1a2994c1
+go: downloading github.com/gabriel-vasile/mimetype v1.4.9
+go: downloading github.com/leodido/go-urn v1.4.0
+go: downloading github.com/go-playground/universal-translator v0.18.1
+go: downloading github.com/russross/blackfriday/v2 v2.1.0
+go: downloading github.com/go-playground/locales v0.14.1
+ok  	github.com/TonyP4N/cpagx-go/api	0.401s
+ok  	github.com/TonyP4N/cpagx-go/cmd/cpagctl	0.348s
+?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+ok  	github.com/TonyP4N/cpagx-go/internal/capacity	0.302s
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	12.210s
+?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+ok  	github.com/TonyP4N/cpagx-go/internal/contracts	(cached)
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	5.701s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.313s
+?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]

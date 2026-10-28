@@ -5,7 +5,8 @@ import tempfile
 import unittest
 ROOT=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(ROOT/'scripts/validation'))
-from round19_measurement_summary import summarize
+from round19_measurement_summary import summarize, SEMANTIC_FILES
+from cpag_core.pipeline import file_hash
 
 class SummaryTests(unittest.TestCase):
     def case(self,root,number,*,failed=False,image='fixed',state='unknown'):
@@ -21,7 +22,12 @@ class SummaryTests(unittest.TestCase):
         (receipt/'exit.json').write_text(json.dumps({'exited':True,'removed':True,'pid':0,'running':False,'scope':'container'}))
         if not failed:
             output=path/'source/jobs'/job/'attempt-1';output.mkdir(parents=True)
-            (output/'events.json').write_text(json.dumps({'run_id':job,'state':state,'evidence':[1,2]}))
+            files=[]
+            for name in sorted(SEMANTIC_FILES):
+                target=output/name;target.parent.mkdir(parents=True,exist_ok=True)
+                target.write_text(json.dumps({'run_id':job,'state':state,'evidence':[1,2]}))
+                files.append({'path':name,'bytes':target.stat().st_size,'sha256':file_hash(target)})
+            record['output']={'files':files};(path/'record.json').write_text(json.dumps(record))
         return path
     def test_three_equal_and_failed_attempt_is_never_hidden(self):
         with tempfile.TemporaryDirectory() as d:
@@ -33,6 +39,15 @@ class SummaryTests(unittest.TestCase):
             failed=self.case(root,3,failed=True);value=summarize(paths+[failed])
             self.assertFalse(value['all_runs_complete']);self.assertFalse(value['three_independent_runs'])
             self.assertEqual(value['samples'][-1]['failures'],[{'error':'OOM'}])
+    def test_missing_or_tampered_retained_file_prevents_completion(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);paths=[self.case(root,i) for i in range(3)]
+            target=paths[1]/'source/jobs/run-1/attempt-1/graph.json'
+            target.write_text(target.read_text().replace('unknown','changed'))
+            self.assertFalse(summarize(paths)['all_runs_complete'])
+            target.unlink()
+            self.assertFalse(summarize(paths)['all_runs_complete'])
+
     def test_business_state_and_image_differences_cannot_be_normalized_away(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);paths=[self.case(root,0),self.case(root,1,state='supported_candidate'),self.case(root,2,image='different')]
