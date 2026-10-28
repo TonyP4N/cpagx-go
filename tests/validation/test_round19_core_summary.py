@@ -10,6 +10,17 @@ from round19_core_summary import phase_summary,tmp_samples,redact,summarize
 
 
 class CorePublicSummaryTests(unittest.TestCase):
+    def test_failed_standalone_packet_preserves_observed_native_metrics_and_failure(self):
+        with tempfile.TemporaryDirectory() as directory:
+            native={'status':'failed','wall_seconds':10,'cpu_seconds':9,'process_rss_high_water_bytes':123,
+                'cgroup':{'peak_memory_bytes':222,'cpu_stat':{'usage_usec':111}}}
+            (Path(directory)/'verify-result.json').write_text(json.dumps(native))
+            value=phase_summary(directory,{'phase':'verify','status':'failed','whole_phase_seconds':11})
+            self.assertEqual(value['status'],'failed');self.assertEqual(value['native_status'],'failed')
+            self.assertEqual(value['native_result_source'],'standalone_packet');self.assertTrue(value['native_result_sha256'])
+            self.assertEqual(value['native_process_cpu_seconds'],9);self.assertEqual(value['process_rss_high_water_bytes'],123)
+            self.assertEqual(value['kernel_cgroup_peak_memory_bytes'],222)
+
     def test_unfinished_native_measurements_are_null_not_zero(self):
         with tempfile.TemporaryDirectory() as directory:
             value=phase_summary(directory,{'phase':'verify','status':'failed','whole_phase_seconds':3})

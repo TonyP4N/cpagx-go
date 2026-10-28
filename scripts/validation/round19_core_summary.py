@@ -45,8 +45,13 @@ def tmp_samples(path):
 
 
 def phase_summary(root,phase):
-    native=phase.get('result') or {};cgroup=native.get('cgroup') or {}
+    path=Path(root)/(phase['phase']+'-result.json')
+    native=phase.get('result') or {};native_source='embedded_report' if native else None
+    if not native and path.is_file():native=json.loads(path.read_text());native_source='standalone_packet'
+    cgroup=native.get('cgroup') or {}
     result={'phase':phase['phase'],'status':phase['status'],
+        'native_status':native.get('status'),'native_result_source':native_source,
+        'native_result_sha256':sha(path) if path.is_file() else None,
         'controller_whole_phase_seconds':phase.get('whole_phase_seconds'),
         'native_module_wall_seconds':native.get('wall_seconds'),'native_process_cpu_seconds':native.get('cpu_seconds'),
         'process_rss_high_water_bytes':native.get('process_rss_high_water_bytes'),
