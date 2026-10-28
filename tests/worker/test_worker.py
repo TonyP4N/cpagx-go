@@ -189,6 +189,17 @@ class WorkerTests(unittest.TestCase):
                 deadline=time.monotonic()+5
                 while alive(pid) and time.monotonic()<deadline: time.sleep(.05)
                 self.assertFalse(alive(pid))
+                # Reaping the calculation child precedes the guardian's atomic
+                # exit receipt. Do not remove its directory while it is writing.
+                receipt=pidfile.with_name('exit.json')
+                deadline=time.monotonic()+5
+                while not receipt.exists() and time.monotonic()<deadline:time.sleep(.02)
+                self.assertTrue(receipt.exists(),'guardian did not persist exit proof')
+                proof=json.loads(receipt.read_text())
+                self.assertEqual(proof['child_pid'],pid)
+                self.assertTrue(proof['group_exited'])
+                self.assertEqual(proof['reason'],'parent_disconnected')
+                self.assertEqual(proof['attempt'],claim['attempt'])
             finally:
                 if worker.poll() is None: worker.kill();worker.wait()
 
