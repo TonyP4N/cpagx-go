@@ -1,0 +1,15 @@
+{
+  "scope": "public copies only; complete original failure records retained in controlled workspace outputs; only absolute workstation prefix redacted",
+  "files": [
+    {
+      "file": "legacy-M.stderr.log",
+      "original_sha256": "547bc2f5ac568f090498990eaf023f67c5f9e71994d85b444afd88194fe44007",
+      "public_sha256": "2d0a025b5e2e591076acc855b18770774dcd6a9c7186be0e0092ed64f3385189"
+    },
+    {
+      "file": "generated-index.json",
+      "original_sha256": "567203a2bcc634706c5a8d1ed3c67828dee454ac86634fece2acf276cba391d9",
+      "public_sha256": "2a8d1695800f34dbd4033d02bf735092f9f957d5c81962f3c2a4841f29ba7255"
+    }
+  ]
+}

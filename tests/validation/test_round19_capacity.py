@@ -74,6 +74,25 @@ class CapacityGateTests(unittest.TestCase):
             self.assertIn('operation_limit', record['error'])
             self.assertTrue(any(row['name'] == 'formal_chain_case' and row['status'] == 'failed' for row in record['stages']))
 
+    def test_density_budget_conflict_refuses_before_image_or_worker(self):
+        environment={'reference_environment_qualified':False,'reference_refusal_reasons':['host_not_linux']}
+        case={'density_preflight':{'status':'blocked_budget_design','issues':[{'code':'flat_output_lower_bound_exceeds_budget'}]}}
+        with tempfile.TemporaryDirectory() as directory, patch.object(capacity,'probe',return_value=environment), patch.object(capacity,'read_case',return_value=case), patch.object(capacity.Recorder,'command') as command, patch.object(capacity,'formal_case') as formal:
+            code,record=capacity.execute(Path(directory)/'attempt',dev_run=True,case_manifest=Path('case.json'))
+            self.assertEqual(code,1)
+            self.assertIn('density_budget_design_refused:flat_output_lower_bound_exceeds_budget',record['error'])
+            self.assertEqual(record['density_preflight'],case['density_preflight'])
+            command.assert_not_called();formal.assert_not_called()
+
+    def test_density_resource_selection_must_be_explicit_and_consistent(self):
+        environment={'reference_environment_qualified':False,'reference_refusal_reasons':['host_not_linux']}
+        case={'density_preflight':{'status':'admissible_for_formal_attempt','capacity_profile':'engineering-capacity-1','issues':[]}}
+        for resource in (None,'r19-dev-s100-1'):
+            with tempfile.TemporaryDirectory() as directory, patch.object(capacity,'probe',return_value=environment), patch.object(capacity,'read_case',return_value=case), patch.object(capacity.Recorder,'command') as command, patch.object(capacity,'formal_case') as formal:
+                code,record=capacity.execute(Path(directory)/'attempt',dev_run=True,case_manifest=Path('case.json'),resource_profile=resource)
+                self.assertEqual(code,1);self.assertEqual(record['error'],'density_operator_resource_profile_mismatch')
+                command.assert_not_called();formal.assert_not_called()
+
     def test_probe_exception_and_failed_command_keep_raw_failure(self):
         with tempfile.TemporaryDirectory() as directory:
             recorder = capacity.Recorder(Path(directory) / 'command')

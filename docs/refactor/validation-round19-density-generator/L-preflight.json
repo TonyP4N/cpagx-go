@@ -1,0 +1,132 @@
+{
+  "schema_version": "r19-density-preflight-2",
+  "fixture_version": "r19-density-capacity-2",
+  "scale": "L",
+  "generator_sha256": "d8aa2a97b6c93a369a51729305fc2e49222388bdbbde226835d672faf0dc8027",
+  "raw_inputs": {
+    "network.pcap": {
+      "sha256": "abac2b769dbe57b4cc9558dfc1a98dc5a910358d2bca4e3f129a0ddf90d8e381",
+      "size_bytes": 2340024
+    },
+    "process.csv": {
+      "sha256": "02508de1fa3a2e76702edbb0dc70658ffb7b577263a87386ac553a26c69818f4",
+      "size_bytes": 300010
+    }
+  },
+  "density_math": {
+    "operations": 10000,
+    "request_frames": 10000,
+    "response_frames": 10000,
+    "process_records": 10000,
+    "changes": 9999,
+    "candidate_count_lower_bound": 317500,
+    "candidate_count_upper_bound": 318125,
+    "candidate_counter_product_sum": 10080000,
+    "min_expected_per_operation": 31,
+    "min_unexpected_per_operation": 31,
+    "source_ref_min_bytes": 177,
+    "candidate_id_payload_bytes": 74,
+    "offline_flat_output_lower_bound_bytes": 17959075000,
+    "replay_flat_output_lower_bound_bytes": 10775445000,
+    "arrival_steps": 30004,
+    "snapshot_lower_bound": 30008,
+    "snapshot_upper_bound": 60012,
+    "revision_upper_bound": 60011,
+    "output_storage_assumption": "current complete flat final analysis copies and graph claims; a new shared storage version requires a new registered preflight proof",
+    "proof_scope": "complete retained fixed-density observations; excludes parser execution, history bytes and most other mandatory fields; not a measured runtime output",
+    "snapshot_scope": "base publications plus at most one clock-before-arrival per consume; upper bound is a planning bound, not an observed count"
+  },
+  "modes": {
+    "dual_source": {
+      "status": "blocked_budget_design",
+      "profile": "offline-profile.json",
+      "profile_sha256": "fff5f2ee703925262748eff552f493f3744cbfd86e0c9fdda4db4dadf4a87b8a",
+      "config_fingerprint": "8738929d5bc41bbfd584fc58fc17ef7467a72b561d556688387a65eb9c6b3b9c",
+      "capacity_profile": "engineering-capacity-1",
+      "history_format": null,
+      "budget": {
+        "version": "engineering-capacity-1",
+        "network_files": 4,
+        "network_file_bytes": 67108864,
+        "network_total_bytes": 134217728,
+        "frames": 100000,
+        "frame_bytes": 262144,
+        "process_bytes": 8388608,
+        "process_records": 10000,
+        "process_columns": 16,
+        "profile_bytes": 8388608,
+        "operations": 10000,
+        "changes": 10000,
+        "candidates": 100000,
+        "output_bytes": 1073741824,
+        "arrival_steps": 40000,
+        "snapshots": 45000,
+        "revisions": 90000
+      },
+      "output_lower_bound_bytes": 17959075000,
+      "issues": [
+        {
+          "code": "candidate_lower_bound_exceeds_budget",
+          "required": 317500,
+          "limit": 100000,
+          "kind": "known_conflict"
+        },
+        {
+          "code": "flat_output_lower_bound_exceeds_budget",
+          "required": 17959075000,
+          "limit": 1073741824,
+          "kind": "known_conflict"
+        }
+      ]
+    },
+    "dual_source_replay": {
+      "status": "blocked_budget_design",
+      "profile": "replay-profile.json",
+      "profile_sha256": "13181987f38ead5b8c1f59db232aed96daffe90d99be45deba013b146700192e",
+      "config_fingerprint": "1b614ff95d03ca186cfff7ed4a9985503a79e18aa4bdc04af3d7120dbba97648",
+      "capacity_profile": "engineering-capacity-1",
+      "history_format": "replay-history-checkpoint-delta-2",
+      "budget": {
+        "version": "engineering-capacity-1",
+        "network_files": 4,
+        "network_file_bytes": 67108864,
+        "network_total_bytes": 134217728,
+        "frames": 100000,
+        "frame_bytes": 262144,
+        "process_bytes": 8388608,
+        "process_records": 10000,
+        "process_columns": 16,
+        "profile_bytes": 8388608,
+        "operations": 10000,
+        "changes": 10000,
+        "candidates": 100000,
+        "output_bytes": 1073741824,
+        "arrival_steps": 40000,
+        "snapshots": 45000,
+        "revisions": 90000
+      },
+      "output_lower_bound_bytes": 10775445000,
+      "issues": [
+        {
+          "code": "candidate_lower_bound_exceeds_budget",
+          "required": 317500,
+          "limit": 100000,
+          "kind": "known_conflict"
+        },
+        {
+          "code": "flat_output_lower_bound_exceeds_budget",
+          "required": 10775445000,
+          "limit": 1073741824,
+          "kind": "known_conflict"
+        },
+        {
+          "code": "snapshot_coverage_not_proven",
+          "required": 60012,
+          "limit": 45000,
+          "kind": "conservative_planning_gap"
+        }
+      ]
+    }
+  },
+  "admission_scope": "necessary static budget checks only; admission is permission to attempt, not runtime/performance/reference/industrial acceptance"
+}

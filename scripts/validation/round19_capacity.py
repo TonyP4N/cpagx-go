@@ -223,6 +223,10 @@ def read_case(path):
     case['input_logical_records'] = records
     case['input_fingerprints'] = [{'path': str(p), 'bytes': Path(p).stat().st_size, 'sha256': sha(p)} for p in [*case['networks'], case['process'], case['profile']]]
     case['case_manifest_sha256'] = sha(path)
+    from round19_scale_fixture import read_preflight
+    density = read_preflight(path)
+    if density is not None:
+        case['density_preflight'] = density
     return case
 
 
@@ -405,6 +409,13 @@ def execute(output, *, dev_run=False, probe_only=False, case_manifest=None, imag
             if case_manifest is None: raise ValueError('case_manifest_required')
             with recorder.stage('raw_case_validation'):
                 case = read_case(case_manifest); recorder.record['case'] = case
+                density = case.get('density_preflight')
+                if density is not None:
+                    recorder.record['density_preflight'] = density
+                    if density['status'] != 'admissible_for_formal_attempt':
+                        raise ValueError('density_budget_design_refused:' + ','.join(item['code'] for item in density['issues']))
+                    if resource_profile != density['capacity_profile']:
+                        raise ValueError('density_operator_resource_profile_mismatch')
             with recorder.stage('worker_image_binding'):
                 recorder.command('worker-image', ['docker', 'image', 'inspect', '--format', '{{json .Id}} {{json .RepoDigests}}', image], check=True)
                 recorder.record['worker_image'] = image

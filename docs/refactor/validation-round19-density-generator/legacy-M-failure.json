@@ -1,0 +1,21 @@
+{
+  "observed_at": "2026-10-28T06:34:31.254532+00:00",
+  "source_commit": "aa16a4db525e55d0c435fc16bad5bb5edbab94b6",
+  "fixture_generator_sha256": "85c45022ae785891d631a88c190bdc17aeb5eabd3c36a7eb2b59fd9b45141216",
+  "mode": "offline",
+  "fixture_version": "r19-raw-scale-fixture-1",
+  "scale": "M",
+  "operations": 1000,
+  "capacity_profile": null,
+  "returncode": 1,
+  "wall_seconds": 2.989395250013331,
+  "expected_failure": "ValueError: operation_limit",
+  "observed_operation_limit": true,
+  "input_sha256": {
+    "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+    "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+    "offline-profile.json": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281",
+    "replay-profile.json": "9e6bdc2aec84b433cd7b02509b2dab947a6b71560c0bc50d9b1e9b709a01693a"
+  },
+  "scope": "synthetic local reproducible legacy-budget refusal; not formal capacity measurement"
+}
