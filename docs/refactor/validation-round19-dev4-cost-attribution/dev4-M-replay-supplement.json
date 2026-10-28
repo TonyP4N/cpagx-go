@@ -1,0 +1,694 @@
+{
+  "version": "r19-dev4-M-replay-cost-supplement-1",
+  "created_at": "2026-10-28T16:53:44.973074+00:00",
+  "scope": "partial read-only analysis of one completed failed development core attempt; no runtime execution, database opening, source mutation or acceptance claim",
+  "source_directory": "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1",
+  "temporary_copy_directory": "/private/tmp/cpag-r19-core-matrix-dev4-M-replay-attempt1-20261028",
+  "status": "failed",
+  "scale": "M",
+  "mode": "replay",
+  "run_id": "core-M-replay-fdf1e456",
+  "fixture_version": "r19-density-capacity-6",
+  "phase_measurement_strategy": "phase-resources-3",
+  "image": {
+    "immutable_id": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+    "requested_tag": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c"
+  },
+  "frozen_harness_sha256": {
+    "round19_core_cell.py": "cd57dcb2297763668eef6064872f22eb5c17eefce611d0599fdf92eff6cb1864",
+    "round19_core_guards.py": "cdcb7fc652dd791aaf985c95c83903b57cd8ad021f510dccdfe21f8ad9e75dbb",
+    "round19_core_matrix.py": "eaaf06e3dbe5d447bf849bc593506a15f06702a3dabb723ef5364306f04c96a4",
+    "round19_core_oracle.py": "cd7430bea60d2a57cf788c6c8ec3f7d8762ec0ff630f20d6612e797f6a88ee3a"
+  },
+  "runtime_source_sha256": {
+    "schemas/Asset.schema.json": "1fcd14211a5ecb186746308d3ea5d7d0dc94d03d6b4460bb312b32b0eef4d5e6",
+    "schemas/Claim.schema.json": "99bf0d73463e4f2129be8ac0927b157b1b7f2f3da993528a6185e928d74e7271",
+    "schemas/CompactStoreRunManifest.schema.json": "8d97b2e8d77d5041d3d23fadaea9ed4b69b677f31885428bb2f69a2b030dd6cf",
+    "schemas/DatasetManifest.schema.json": "e0a3b5f96ecc2c533313149646c44c5604e18e8635fd1c994e580f81b13f6ce4",
+    "schemas/DerivedEvent.schema.json": "37cc762e26d56002230c6907741869739e08da63ece5d147b002936bc3399e29",
+    "schemas/DualCompactProfile.schema.json": "d0a822f4d502321748e6967976ed7395bdf69f51b425ac1c6e56a7603c183689",
+    "schemas/DualSharedProfile.schema.json": "657ead64d0594b2caeb9d463ca3b0d709af9dcf42395ddd6d99f0cd860894be3",
+    "schemas/DualSourceProfile.schema.json": "2062b71e3aad4e9fc722658b2991aaeafa896dd0ccc6a594312a9a6cfa4ae236",
+    "schemas/DualSpoolProfile.schema.json": "dd28544f14ba437378bf967f8513c4bc656db42e8d61c15bcc1bc7f07ae61710",
+    "schemas/EvaluationAnnotations.schema.json": "3c291f790d478959ee94206ef8056d1fd0a6f0c69f56d73b1dc542aa1f3435ad",
+    "schemas/EvaluationCSVRecordLocator.schema.json": "3336c3b5a48e3ca803574e0d7c09810730a16099e37ca4d614bf1175ea1192e7",
+    "schemas/EvaluationLocatedReference.schema.json": "fc60768eca060af754df5cdd0bfd62a4f701b20728d4eda3e7dea3016f6b0cd1",
+    "schemas/EvaluationPredictions.schema.json": "967387278d68f3f6e8640604394febe281abfa35261e150c698bfc2750467374",
+    "schemas/EvaluationRecord.schema.json": "339be51a1a9553650beb768df758bda91e4ef63d603c71c5b08d358f3d931ba9",
+    "schemas/EvaluationRegistration.schema.json": "96d94e9c6d03375c5cb106b55dd64d7cdb8d3c7a03fd04889a9477a8eaea00c7",
+    "schemas/EvaluationSplit.schema.json": "b38cb4f46a81362e1471a37e133d4922298609c450966d26b75775ec17a6dffe",
+    "schemas/GraphArtifact.schema.json": "6640c4226b22cfd7c9c1680a0abab60736fdd7489048cefeaa0eb15bd4c386a7",
+    "schemas/NetworkEvent.schema.json": "55033cddafdec97e4d12a52c70878c1bae3d2abefc47fa6a08f601ab407e22cd",
+    "schemas/PacketObservationArtifact.schema.json": "3756039ca20b83b5160782278dd72ac852fa04fbff98f9ddd5456da7dc002187",
+    "schemas/ProcessObservation.schema.json": "b6b92cdfff80418261f6c39e3a85eb63652811f51b9750933bc902e47d88b040",
+    "schemas/ReplayClaim.schema.json": "d53e9a0d57d9f53813d3dbe7cae829b929355c13efd1adb80ea65322e774db5b",
+    "schemas/ReplayCompactProfile.schema.json": "ccee4d35151e597275b67054b498df7eb5916b1b1a7c0b050d08b77397394c4c",
+    "schemas/ReplayDerivedEvent.schema.json": "4ba784a3d345ce4ffc7f8e17c3276a68b066ddbde0ccaa81466f78fe74dbb9c3",
+    "schemas/ReplayGraphArtifact.schema.json": "2189cc635ff2f0b7648901e800d5a351c16eff37b1c5656fbba9bcfffc342205",
+    "schemas/ReplayHistorySpoolManifest.schema.json": "2f4ca72bf3abd9e5c55fc7a24abd9fab3aaeb8743451a08c5a935dbd31007a51",
+    "schemas/ReplayNetworkEvent.schema.json": "9823c5369eee8f406113aeee464b8ec97677deccf25b96964f06d1a467dac191",
+    "schemas/ReplayProcessObservation.schema.json": "b7157588bfde39b9ba3657fc7fe211d62a8a6c945e55e1ad87c263b79b087b7a",
+    "schemas/ReplayProfile.schema.json": "a48d20f49348e90b6e27c1b656a9628d719322c6188ed57957690f129e843a30",
+    "schemas/ReplayRevision.schema.json": "4abbf1854b2df1e5c3d26c57db6acf60bb532154191b8625c02d73796e3e326d",
+    "schemas/ReplayRunManifest.schema.json": "2317b4607e0105fdd2e27e875fac88f60be2b6713e4fe72085657be074972ba2",
+    "schemas/ReplaySharedProfile.schema.json": "fae69e51fe97ccbcee531752fa4045d5e253096963a2c19aec0044ba1c7132db",
+    "schemas/ReplaySourceRef.schema.json": "04e13070c95898ac4760b5c3032f76a146efcdea108d6735baa87db306b08009",
+    "schemas/ReplaySpoolProfile.schema.json": "07328cdf2627a19f0a016414ba3dd248ac96cbeb3dfcfafa6ac6dffcae9e58c8",
+    "schemas/ReplaySpoolRunManifest.schema.json": "af28298552c22db3cfdd441f79df03ce26c13f8ff34091bdafe2d70dc12a3136",
+    "schemas/RunManifest.schema.json": "05ce3fac8c6809dd2841eb066c8c05f705fe08d3c64bc76ff489052a656f908c",
+    "schemas/SharedStoreRunManifest.schema.json": "72307ac23485deab0de8543ffd02c76f750b658608148dfa91e826018e335aac",
+    "schemas/SingleSourceRunManifest.schema.json": "93afaaaaa9a9e5f7047638adec21ea45d395fad8ae9d0a2fcf8af8e0dc1bb484",
+    "scripts/validation/round19_core_cell.py": "cd57dcb2297763668eef6064872f22eb5c17eefce611d0599fdf92eff6cb1864",
+    "scripts/validation/round19_core_guards.py": "cdcb7fc652dd791aaf985c95c83903b57cd8ad021f510dccdfe21f8ad9e75dbb",
+    "scripts/validation/round19_core_matrix.py": "eaaf06e3dbe5d447bf849bc593506a15f06702a3dabb723ef5364306f04c96a4",
+    "scripts/validation/round19_core_oracle.py": "cd7430bea60d2a57cf788c6c8ec3f7d8762ec0ff630f20d6612e797f6a88ee3a",
+    "scripts/validation/round19_scale_fixture.py": "8e86313507c40d519ef88018b390c65db8947e1a46b49f53f3dbe2d47314281e",
+    "services/analysis/src/cpag_core/__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+    "services/analysis/src/cpag_core/__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+    "services/analysis/src/cpag_core/capacity.py": "8ef91e883e645735b6e5ef7dfccbe1fca0af36b794dedb6deb3ffc80c06f0571",
+    "services/analysis/src/cpag_core/compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+    "services/analysis/src/cpag_core/compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+    "services/analysis/src/cpag_core/contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+    "services/analysis/src/cpag_core/dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "services/analysis/src/cpag_core/dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+    "services/analysis/src/cpag_core/dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+    "services/analysis/src/cpag_core/evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+    "services/analysis/src/cpag_core/evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+    "services/analysis/src/cpag_core/evaluation_artifacts.py": "49e22bd3f595d718073d6949976479de98268cf3d95d445adce73eb93e5f8539",
+    "services/analysis/src/cpag_core/evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+    "services/analysis/src/cpag_core/evaluation_context.py": "6929b62c8a118739fa5d5befd6da30a78622a30ce5f30efc2de6a03d0580a78a",
+    "services/analysis/src/cpag_core/evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "services/analysis/src/cpag_core/evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "services/analysis/src/cpag_core/evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+    "services/analysis/src/cpag_core/evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+    "services/analysis/src/cpag_core/evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+    "services/analysis/src/cpag_core/intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+    "services/analysis/src/cpag_core/measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+    "services/analysis/src/cpag_core/measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+    "services/analysis/src/cpag_core/measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+    "services/analysis/src/cpag_core/packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+    "services/analysis/src/cpag_core/packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+    "services/analysis/src/cpag_core/parsers/__init__.py": "83e31dfa6f7c1611a1ef2b575be174cf7c284082f8e3b93880f2b6fa6264c638",
+    "services/analysis/src/cpag_core/parsers/packet_envelope.py": "f00edc2537e674a50171ce0ee912b1eafacc9a832019bc0bc285bb1371c9469b",
+    "services/analysis/src/cpag_core/parsers/packet_protocol.py": "319215e3e1f0cd223e82f1db1de0bd8b7c42e1e25013689641c8d363e7f3d2b2",
+    "services/analysis/src/cpag_core/pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "services/analysis/src/cpag_core/reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+    "services/analysis/src/cpag_core/replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+    "services/analysis/src/cpag_core/replay_core.py": "91c07886404f059854a1081697bb26e3880afe66c20b47996a1937f95bbfce2b",
+    "services/analysis/src/cpag_core/replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+    "services/analysis/src/cpag_core/replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+    "services/analysis/src/cpag_core/replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+    "services/analysis/src/cpag_core/replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+    "services/analysis/src/cpag_core/replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+    "services/analysis/src/cpag_core/replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+    "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "cb9037f0c750319b32f7c286afe2aa23ad3356a2dfd81e44e9a040b9a6ad99b6",
+    "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "625365c969e9631368ece22ebfea28918e29fa1c15ca9b3e252873e93c0576f2",
+    "services/analysis/src/cpag_core/shared_cli.py": "92c6a9d8159504002ac248b0886a7fb84f0b8441a701d7ae33375e048525c620",
+    "services/analysis/src/cpag_core/shared_export.py": "41b3c2794ca6b3d6d27c5225addda9b1c8bf836b2556305bdaf8d341a58bdb17",
+    "services/analysis/src/cpag_core/shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+    "services/analysis/src/cpag_core/single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+    "services/analysis/src/cpag_core/source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29"
+  },
+  "actual_image_runtime_sha256": {
+    "__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+    "__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+    "capacity.py": "8ef91e883e645735b6e5ef7dfccbe1fca0af36b794dedb6deb3ffc80c06f0571",
+    "compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+    "compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+    "contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+    "dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+    "evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+    "evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+    "evaluation_artifacts.py": "49e22bd3f595d718073d6949976479de98268cf3d95d445adce73eb93e5f8539",
+    "evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+    "evaluation_context.py": "6929b62c8a118739fa5d5befd6da30a78622a30ce5f30efc2de6a03d0580a78a",
+    "evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+    "evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+    "evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+    "intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+    "measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+    "measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+    "measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+    "packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+    "packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+    "replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+    "replay_core.py": "91c07886404f059854a1081697bb26e3880afe66c20b47996a1937f95bbfce2b",
+    "replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+    "replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+    "replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+    "replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+    "replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+    "replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "shared_artifact_store_compact.py": "cb9037f0c750319b32f7c286afe2aa23ad3356a2dfd81e44e9a040b9a6ad99b6",
+    "shared_artifact_store_compressed.py": "625365c969e9631368ece22ebfea28918e29fa1c15ca9b3e252873e93c0576f2",
+    "shared_cli.py": "92c6a9d8159504002ac248b0886a7fb84f0b8441a701d7ae33375e048525c620",
+    "shared_export.py": "41b3c2794ca6b3d6d27c5225addda9b1c8bf836b2556305bdaf8d341a58bdb17",
+    "shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+    "single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+    "source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29"
+  },
+  "fixed_inputs": {
+    "network.pcap": {
+      "sha256": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+      "size_bytes": 234024
+    },
+    "process.csv": {
+      "sha256": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+      "size_bytes": 30010
+    },
+    "profile.json": {
+      "sha256": "70e8fe7cada426247ffe9206b205dc6a833880a9a57abd975574f694d7e4d1af",
+      "size_bytes": 280974
+    }
+  },
+  "limits": {
+    "complete_output_bytes": 1073741824,
+    "cpus": 4,
+    "memory_bytes": 8589934592,
+    "query_bytes": 8388608,
+    "query_items": 100,
+    "query_seconds": 10,
+    "tmp_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "preflight": {
+    "admission_scope": "necessary static budget checks only; admission is permission to attempt, not runtime/performance/reference/industrial acceptance",
+    "budget": {
+      "arrival_steps": 40000,
+      "candidates": 500000,
+      "changes": 10000,
+      "frame_bytes": 262144,
+      "frames": 100000,
+      "network_file_bytes": 67108864,
+      "network_files": 4,
+      "network_total_bytes": 134217728,
+      "operations": 10000,
+      "output_bytes": 1073741824,
+      "process_bytes": 8388608,
+      "process_columns": 16,
+      "process_records": 10000,
+      "profile_bytes": 8388608,
+      "revisions": 90000,
+      "snapshots": 65000,
+      "version": "engineering-core-capacity-3"
+    },
+    "capacity_profile": "engineering-core-capacity-3",
+    "case_manifest_sha256": "5fe45001492a270f0dd1eac232fe289fa4d504e1eef0da17daabca66aeb1ecbc",
+    "config_fingerprint": "907cb5da4d2ee1abb643d441d6f8715bcaf7096949043d0eb7552ee151ddd235",
+    "density_math": {
+      "arrival_steps": 3004,
+      "candidate_count_lower_bound": 31751,
+      "candidate_count_upper_bound": 31813,
+      "candidate_counter_product_sum": 1008000,
+      "candidate_id_payload_bytes": 74,
+      "changes": 999,
+      "min_expected_per_operation": 31,
+      "min_unexpected_per_operation": 31,
+      "offline_flat_output_lower_bound_bytes": 1795907870,
+      "operations": 1000,
+      "output_storage_assumption": "current complete flat final analysis copies and graph claims; a new shared storage version requires a new registered preflight proof",
+      "process_records": 1000,
+      "proof_scope": "complete retained fixed-density observations; excludes parser execution, history bytes and most other mandatory fields; not a measured runtime output",
+      "replay_flat_output_lower_bound_bytes": 1077544722,
+      "request_frames": 1000,
+      "response_frames": 1000,
+      "revision_upper_bound": 6011,
+      "snapshot_lower_bound": 3008,
+      "snapshot_scope": "base publications plus at most one clock-before-arrival per consume; upper bound is a planning bound, not an observed count",
+      "snapshot_upper_bound": 6012,
+      "source_ref_min_bytes": 177
+    },
+    "execution_scope": "core_only",
+    "fixture_version": "r19-density-capacity-6",
+    "formal_integration": "forbidden_for_core_only_fixture_version",
+    "generator_sha256": "8e86313507c40d519ef88018b390c65db8947e1a46b49f53f3dbe2d47314281e",
+    "history_format": "shared-observation-dag-6",
+    "integration_ready": false,
+    "issues": [],
+    "judgement_strategy": "prepared-prefix-cache-1",
+    "logical_extent_guard": {
+      "max_logical_root_bytes": 4503599627370496,
+      "meaning": "authenticated shared logical extent arithmetic only; does not allocate memory or physical storage",
+      "physical_output_bytes": 1073741824,
+      "query_bytes": 8388608,
+      "query_items": 100,
+      "version": "shared-storage-budget-2",
+      "whole_root_materialization_authorized": false
+    },
+    "mode": "dual_source_replay",
+    "output_bound_kind": "logical_flat_expansion_only_not_physical_storage",
+    "output_lower_bound_bytes": 1077544722,
+    "path": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-core-cached-generator-M6-attempt1/preflight.json",
+    "physical_fit": "unverified_until_complete_formal_run",
+    "profile": "replay-profile.json",
+    "profile_sha256": "70e8fe7cada426247ffe9206b205dc6a833880a9a57abd975574f694d7e4d1af",
+    "scale": "M",
+    "schema_version": "r19-density-preflight-2",
+    "sha256": "2003f9e6fd9c01c6ad26afd83d7c8a534cd6c173291a776291daff76f83b2a49",
+    "standard_projection": "standard-graph-events-1",
+    "status": "admissible_for_core_attempt",
+    "storage_budget": {
+      "cache_bytes": 16777216,
+      "max_dict_items": 4096,
+      "max_logical_root_bytes": 4503599627370496,
+      "max_node_bytes": 8388608,
+      "max_nodes": 8000000,
+      "max_roots": 160000,
+      "physical_bytes": 1073741824,
+      "query_bytes": 8388608,
+      "query_items": 100,
+      "version": "shared-storage-budget-2"
+    },
+    "storage_budget_version": "shared-storage-budget-2",
+    "storage_format": "shared-observation-dag-6"
+  },
+  "clocks": {
+    "controller_whole_chain_seconds": 1800.945448625018,
+    "export_controller_seconds": 1800.5784951249952,
+    "export_native_seconds": 1799.9299072790004,
+    "export_process_cpu_seconds": 1555.3531460000002,
+    "native_clock_definition": "wall begins before harness dependencies and argument parsing; cold includes core import, source hashes and private IPC reads; interpreter pre-code startup excluded, whole container phase separately recorded",
+    "verify_controller_seconds": null,
+    "verify_native_seconds": null,
+    "verify_cpu_seconds": null,
+    "cold_query_seconds": null,
+    "repeat_query_seconds": null,
+    "missing_phase_reason": "not reached after export deadline failure; no verify-result.json or query-result.json",
+    "controller_definition": "whole container phase includes controller lifecycle/collection; difference from native is not independently attributed to I/O"
+  },
+  "memory_cpu": {
+    "process_rss_high_water_bytes": 91971584,
+    "rss_definition": "process cumulative high-water; not phase allocation or cgroup memory",
+    "cgroup": {
+      "available": true,
+      "cpu_stat": {
+        "burst_usec": 0,
+        "nice_usec": 0,
+        "nr_bursts": 0,
+        "nr_periods": 18000,
+        "nr_throttled": 0,
+        "system_usec": 124509787,
+        "throttled_usec": 0,
+        "usage_usec": 1606877116,
+        "user_usec": 1482367328
+      },
+      "current_memory_bytes": 59445248,
+      "hierarchy": "v2",
+      "memory_limit_bytes": 8589934592,
+      "peak_memory_bytes": 194269184,
+      "scope": "container cgroup since creation through final report; includes sampler execs; excludes final protocol serialization/exit"
+    },
+    "cgroup_cpu_usage_seconds": 1606.877116,
+    "container_state": {
+      "Dead": false,
+      "Error": "",
+      "ExitCode": 1,
+      "FinishedAt": "2026-10-28T16:47:44.321391845Z",
+      "OOMKilled": false,
+      "Paused": false,
+      "Pid": 0,
+      "Restarting": false,
+      "Running": false,
+      "StartedAt": "2026-10-28T16:17:44.297203678Z",
+      "Status": "exited"
+    },
+    "interpretation": "RSS cumulative process high-water and cgroup charged peak have distinct scopes; cgroup CPU includes sampler execs; no inference that all CPU was saturated"
+  },
+  "terminal_phase_measurement": {
+    "all_observed_calls": 8921,
+    "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+    "kind": "terminal_measurement_summary",
+    "last_progress_error_type": null,
+    "phases": {
+      "association_and_evidence": {
+        "calls": 372,
+        "cpu_seconds": 495.51455799999974,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 495.78289789599967
+      },
+      "compact_store_write": {
+        "calls": 4834,
+        "cpu_seconds": 798.809359,
+        "failed": 1,
+        "returned": 4833,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1042.8871159879855
+      },
+      "complete_export": {
+        "calls": 1,
+        "cpu_seconds": 1555.03963,
+        "failed": 1,
+        "returned": 0,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1799.6319392369996
+      },
+      "history_generation": {
+        "calls": 372,
+        "cpu_seconds": 970.6284649999999,
+        "failed": 1,
+        "returned": 371,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1214.8521436349988
+      },
+      "network_parse": {
+        "calls": 273,
+        "cpu_seconds": 3.4246889999996233,
+        "failed": 0,
+        "returned": 273,
+        "rss_high_water_bytes": 91910144,
+        "wall_seconds": 3.446357340999839
+      },
+      "process_parse": {
+        "calls": 99,
+        "cpu_seconds": 0.006279999999845923,
+        "failed": 0,
+        "returned": 99,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 0.006608123997466464
+      },
+      "replay_input_snapshot": {
+        "calls": 742,
+        "cpu_seconds": 16.0214149999996,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 16.072198659987862
+      },
+      "replay_network_prefix": {
+        "calls": 742,
+        "cpu_seconds": 5.689060999999679,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 5.718534504007948
+      },
+      "replay_process_prefix": {
+        "calls": 742,
+        "cpu_seconds": 0.17941400000087349,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 0.18360632100484509
+      },
+      "standard_projection": {
+        "calls": 372,
+        "cpu_seconds": 236.71852000000047,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 300.4373972950084
+      },
+      "stored_graph_composition_1": {
+        "calls": 372,
+        "cpu_seconds": 255.13884899999923,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 324.44395506599676
+      }
+    },
+    "progress_file": "progress.json",
+    "progress_last_snapshot_calls": 8921,
+    "progress_write_failures": 0,
+    "progress_writes": 362,
+    "raw_rows_not_retained": 8665,
+    "raw_rows_retained": 256,
+    "version": "phase-resources-3"
+  },
+  "last_progress": {
+    "all_observed_calls": 8921,
+    "completed_calls_only": true,
+    "compute_success": null,
+    "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+    "elapsed_monotonic_seconds": 1799.6554474460004,
+    "kind": "progress_measurement_summary",
+    "last_progress_error_type": null,
+    "measurement_state": "in_progress",
+    "metrics_file": "phases.jsonl",
+    "phases": {
+      "association_and_evidence": {
+        "calls": 372,
+        "cpu_seconds": 495.51455799999974,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 495.78289789599967
+      },
+      "compact_store_write": {
+        "calls": 4834,
+        "cpu_seconds": 798.809359,
+        "failed": 1,
+        "returned": 4833,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1042.8871159879855
+      },
+      "complete_export": {
+        "calls": 1,
+        "cpu_seconds": 1555.03963,
+        "failed": 1,
+        "returned": 0,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1799.6319392369996
+      },
+      "history_generation": {
+        "calls": 372,
+        "cpu_seconds": 970.6284649999999,
+        "failed": 1,
+        "returned": 371,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 1214.8521436349988
+      },
+      "network_parse": {
+        "calls": 273,
+        "cpu_seconds": 3.4246889999996233,
+        "failed": 0,
+        "returned": 273,
+        "rss_high_water_bytes": 91910144,
+        "wall_seconds": 3.446357340999839
+      },
+      "process_parse": {
+        "calls": 99,
+        "cpu_seconds": 0.006279999999845923,
+        "failed": 0,
+        "returned": 99,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 0.006608123997466464
+      },
+      "replay_input_snapshot": {
+        "calls": 742,
+        "cpu_seconds": 16.0214149999996,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 16.072198659987862
+      },
+      "replay_network_prefix": {
+        "calls": 742,
+        "cpu_seconds": 5.689060999999679,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 5.718534504007948
+      },
+      "replay_process_prefix": {
+        "calls": 742,
+        "cpu_seconds": 0.17941400000087349,
+        "failed": 0,
+        "returned": 742,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 0.18360632100484509
+      },
+      "standard_projection": {
+        "calls": 372,
+        "cpu_seconds": 236.71852000000047,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 300.4373972950084
+      },
+      "stored_graph_composition_1": {
+        "calls": 372,
+        "cpu_seconds": 255.13884899999923,
+        "failed": 0,
+        "returned": 372,
+        "rss_high_water_bytes": 91971584,
+        "wall_seconds": 324.44395506599676
+      }
+    },
+    "progress_interval_seconds": 5.0,
+    "progress_write_failures": 0,
+    "raw_rows_not_retained": 8665,
+    "raw_rows_retained": 256,
+    "terminal": false,
+    "version": "phase-resources-3"
+  },
+  "progress_interpretation": {
+    "container_terminal": "exited, ExitCode=1, Running=false",
+    "progress_state": "in_progress/nonterminal persisted progress is the latest completed-call checkpoint, not live-process proof",
+    "history_returned_calls": 371,
+    "completed_snapshot_count": null,
+    "completed_arrival_steps": null,
+    "completion_fraction": null,
+    "counts_reason": "decorated calls/returns are not published snapshot or arrival counts; final sealed metadata absent"
+  },
+  "failure": {
+    "controller_error_type": "RuntimeError",
+    "controller_reason": "export:ValueError:shared_store_deadline_exceeded",
+    "native_error_type": "ValueError",
+    "native_reason": "shared_store_deadline_exceeded",
+    "failed_marker": {
+      "error_type": "ValueError",
+      "reason": "shared_store_deadline_exceeded",
+      "status": "failed",
+      "trusted_result": false,
+      "version": "compact-failed-attempt-1"
+    },
+    "stack_location": "compact_replay._publish: revision_ref=writer.intern(revision) -> typed scalar _put -> shared_store_deadline_exceeded",
+    "finalization_failures": [
+      "complete_chain_time_or_output_budget_including_handoff"
+    ],
+    "interpretation": "observed deadline failure during revision storage; generic time_or_output finalization label does not establish output overflow; no SQLITE_FULL or OOM recorded"
+  },
+  "retained_bytes": {
+    "partial_artifact_files": {
+      "result/artifact/FAILED.json": 148,
+      "result/artifact/shared/shared.sqlite3": 84094976,
+      "result/artifact/sources/process.csv": 30010,
+      "result/artifact/sources/network.pcap": 234024,
+      "result/artifact/sources/profile.json": 280974
+    },
+    "partial_artifact_bytes": 84640132,
+    "complete_published_artifact_bytes": null,
+    "complete_attempt_file_bytes": 85697629,
+    "handoff_copy_file_bytes": 85697629,
+    "combined_retained_file_bytes": 171395258,
+    "failed_attempt_preservation": {
+      "seconds": 0.16258591698715463,
+      "status": "complete_bytes_verified"
+    },
+    "missing_files": [
+      "result/artifact/run_manifest.json",
+      "result/artifact/shared/manifest.json",
+      "verify-result.json",
+      "query-result.json"
+    ],
+    "interpretation": "failed unsealed bytes, not complete artifact capacity; attempt totals include harness/measurements, and combined total includes an extra retained copy"
+  },
+  "attribution_limits": [
+    "nested accumulated phase spans overlap and must not be added or interpreted as exclusive percentages",
+    "association_and_evidence is a combined stage; independent evidence-only timing is unmeasured",
+    "standard_projection includes stored-graph identity callback/write work, so changed dev3/dev4 timing scopes cannot establish algorithm slowdown",
+    "M replay did not reach complete node verification, full-source Merkle rebuild or queries; all corresponding final cost/count fields remain null",
+    "full-source Merkle verification avoids a second SQLite but still recomputes all business decisions and logical roots; it was not exercised in this failed attempt",
+    "preflight flat-size lower bounds are mathematical, not measured physical outputs; no L extrapolation",
+    "reported cgroup nr_throttled=0 and OOMKilled=false do not prove memory/CPU behavior outside the observed container or complete-chain acceptance",
+    "OS cache state unverified; no formal service, backup, reference-machine or real industrial-data validation claim"
+  ],
+  "unmeasured": {
+    "evidence_organization_only_seconds": null,
+    "rule_judgment_only_seconds": null,
+    "complete_node_verification_seconds": null,
+    "full_source_rebuild_seconds": null,
+    "final_snapshot_number": null,
+    "final_operation_count": null,
+    "final_candidate_count": null,
+    "final_artifact_roots": null
+  },
+  "source_files": {
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/report.json": {
+      "sha256": "95e4695f87ab4ff210a2f6faef74a81cc80f29d7f071b79ea0e6114bd783a9e3",
+      "size_bytes": 19346
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/export-result.json": {
+      "sha256": "5b01c67d09601f5d35327e7458f15845d4ac3a17b741cb077e5670659b0c114d",
+      "size_bytes": 5394
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/export-stderr.log": {
+      "sha256": "d38225f3726363c3bc45efe16d732ea234d4305d28534ab9f5becb5c0553f17d",
+      "size_bytes": 3933
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/measurements/export/phases.jsonl": {
+      "sha256": "b26ca87ed6e9e9211a21df8de23431158db98da27a875ef725d79cd15d91ba4a",
+      "size_bytes": 54339
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/measurements/export/progress.json": {
+      "sha256": "986c2c746f0e26148d087bea35d9bf36991fe2548a2741a8bed96529b7251553",
+      "size_bytes": 2358
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/result/artifact/FAILED.json": {
+      "sha256": "ea1aa69298f4609303735caeab182a04bc3f8fdc799ccf1f7dab3bbcf0356e8e",
+      "size_bytes": 148
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/result/artifact/sources/profile.json": {
+      "sha256": "70e8fe7cada426247ffe9206b205dc6a833880a9a57abd975574f694d7e4d1af",
+      "size_bytes": 280974
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/result/artifact/sources/network.pcap": {
+      "sha256": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+      "size_bytes": 234024
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-replay-attempt1/result/artifact/sources/process.csv": {
+      "sha256": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+      "size_bytes": 30010
+    }
+  },
+  "copy_consistency": {
+    "report.json": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "95e4695f87ab4ff210a2f6faef74a81cc80f29d7f071b79ea0e6114bd783a9e3"
+    },
+    "export-result.json": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "5b01c67d09601f5d35327e7458f15845d4ac3a17b741cb077e5670659b0c114d"
+    },
+    "export-stderr.log": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "d38225f3726363c3bc45efe16d732ea234d4305d28534ab9f5becb5c0553f17d"
+    },
+    "measurements/export/phases.jsonl": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "b26ca87ed6e9e9211a21df8de23431158db98da27a875ef725d79cd15d91ba4a"
+    },
+    "measurements/export/progress.json": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "986c2c746f0e26148d087bea35d9bf36991fe2548a2741a8bed96529b7251553"
+    },
+    "result/artifact/FAILED.json": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "ea1aa69298f4609303735caeab182a04bc3f8fdc799ccf1f7dab3bbcf0356e8e"
+    },
+    "result/artifact/sources/profile.json": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "70e8fe7cada426247ffe9206b205dc6a833880a9a57abd975574f694d7e4d1af"
+    },
+    "result/artifact/sources/network.pcap": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77"
+    },
+    "result/artifact/sources/process.csv": {
+      "same_sha256": true,
+      "temporary_copy_sha256": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c"
+    }
+  },
+  "prior_report_sha256": {
+    "docs/refactor/round19-dev4-cost-attribution-20261029.md": "10129a736b554515594af84c3adcf9b1caef9f5bb2b1a08d5bb93c3b1f85c98b",
+    "docs/refactor/validation-round19-dev4-cost-attribution/cost-attribution.json": "a20525922db95d01e42fa0e2fa6140f46ee2b8166ccbe5004bb072dcadc9ba71"
+  },
+  "read_only_review": {
+    "core_computation_started": false,
+    "source_database_opened": false,
+    "original_records_modified": false,
+    "prior_report_rewritten": false,
+    "all_listed_source_sha256_rechecked_unchanged": true
+  }
+}
