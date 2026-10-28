@@ -30,6 +30,8 @@ from .replay_history import _ordinary,_digest
 from .shared_artifact_store_compact import FORMAT,SharedArtifactWriter,SharedArtifactReader,_APPROVED_READ
 
 APPROVAL_VERSION='core-read-approval-2'
+VERIFICATION_STRATEGY='dag6-full-source-merkle-sink-1'
+REEXPORT_STRATEGY='source-sqlite-reexport-1'
 QUERY_BYTES=8*1024**2
 STANDARD=('analysis.json','dual/analysis.json','events.json','graph.json','quality.json','dataset.json')
 INDEX_ROOTS=('indices/operations','indices/changes','indices/candidates_by_operation','indices/network_by_frame','indices/rule_findings')
@@ -113,6 +115,43 @@ def _indices(writer,analysis):
     writer.add('indices/network_by_frame',sorted([[key,sorted(set(value))] for key,value in grouped.items()]))
 
 
+def _build_business_roots(writer,retained,process,config,rows,mode,deadline=None):
+    """Same complete computation for the publisher and independent source sink."""
+    run=None
+    try:
+        if mode=='offline':
+            analysis=analyze(retained if len(retained)>1 else retained[0],process,config)
+            history={}
+        else:
+            from .compact_replay import execute_compact
+            run=execute_compact(retained,process,config,writer,deadline=deadline)
+            analysis=run['analysis'];history=run['history']
+        from .compact_projection import store_standard_projection
+        writer.add('analysis.json',analysis);writer.alias('dual/analysis.json','analysis.json')
+        store_standard_projection(analysis,writer,replay=mode=='replay',graph_name='graph.json',events_name='events.json')
+        writer.add('quality.json',analysis['quality']);writer.add('dataset.json',_dataset(config,rows,len(retained),analysis))
+        _indices(writer,analysis)
+        if run is not None:
+            writer.add('metrics.json',run['metrics']);writer.add('runtime_metrics.json',run['runtime_metrics'])
+            writer.add('arrivals.json',run['metrics'].get('arrival_samples',run['metrics'].get('arrivals',[])))
+            writer.add('replay.json',history)
+        counts={key:len(analysis[key]) for key in ('network','process','operations','changes','candidates')}
+        counts.update(snapshots=history.get('snapshot_count',0),revisions=history.get('revision_count',0))
+        logical_names=[*STANDARD,*INDEX_ROOTS]+(['metrics.json','runtime_metrics.json','arrivals.json','replay.json','history/snapshots','history/revisions'] if mode=='replay' else [])
+        logical=[writer.descriptor(name) for name in logical_names]
+        result_hashes={key:writer.descriptor(key+'.json')['digest'] for key in ('events','graph')}
+        warnings=_warnings(analysis)
+        summary={'input_fingerprint':analysis['input_fingerprint'],
+            'semantic_config_fingerprint':analysis['config_fingerprint'],
+            'logical_artifacts':logical,'counts':counts,'result_hashes':result_hashes,
+            'warnings':warnings,'limitations':analysis['limitations'],
+            'status':'succeeded_with_warnings' if warnings else 'succeeded'}
+        if mode=='replay':summary.update(final_snapshot_number=counts['snapshots']-1,final_snapshot_id=history['last_snapshot_id'])
+        return summary
+    finally:
+        if run is not None and run.get('inputs') is not None:run['inputs'].close()
+
+
 @phase('complete_export')
 def export_task(network,process,profile,output,*,run_id=None,attempt_id=1,mode='offline',deadline=None,_rebuild=False):
     """Publish every final observation/claim in an explicit compact core format."""
@@ -139,39 +178,17 @@ def export_task(network,process,profile,output,*,run_id=None,attempt_id=1,mode='
         context={'run_id':run_id,'attempt_id':attempt_id,'input_fingerprint':source_fingerprint,'config_fingerprint':fingerprint(config)}
         writer=SharedArtifactWriter(output/'shared',context=context,version=FORMAT,**writer_options(config,remaining,deadline))
         retained=[output/'sources'/name for name in names]
-        if mode=='offline':
-            analysis=analyze(retained if len(retained)>1 else retained[0],output/'sources/process.csv',config)
-            history={}
-        else:
-            from .compact_replay import execute_compact
-            run=execute_compact(retained,output/'sources/process.csv',config,writer,deadline=deadline)
-            analysis=run['analysis'];history=run['history']
-        projected=event_graph(analysis,replay=mode=='replay',identity_strategy='merkle-json-dag-1')
-        writer.add('analysis.json',analysis);writer.alias('dual/analysis.json','analysis.json')
-        for name,value in projected.items():writer.add(name,value)
-        writer.add('quality.json',analysis['quality']);writer.add('dataset.json',_dataset(config,rows,len(networks),analysis))
-        _indices(writer,analysis)
-        if run is not None:
-            writer.add('metrics.json',run['metrics']);writer.add('runtime_metrics.json',run['runtime_metrics'])
-            writer.add('arrivals.json',run['metrics'].get('arrival_samples',run['metrics'].get('arrivals',[])))
-            writer.add('replay.json',history)
-        counts={key:len(analysis[key]) for key in ('network','process','operations','changes','candidates')}
-        counts.update(snapshots=history.get('snapshot_count',0),revisions=history.get('revision_count',0))
-        logical_names=[*STANDARD,*INDEX_ROOTS]+(['metrics.json','runtime_metrics.json','arrivals.json','replay.json','history/snapshots','history/revisions'] if mode=='replay' else [])
-        logical=[writer.descriptor(name) for name in logical_names]
-        result_hashes={key:writer.descriptor(key+'.json')['digest'] for key in ('events','graph')}
+        business=_build_business_roots(writer,retained,output/'sources/process.csv',config,rows,mode,deadline)
         sealed=writer.seal()
-        warnings=_warnings(analysis)
         manifest={'schema_version':'1.0.0','synthetic':config['synthetic'],'run_id':run_id,'attempt_id':attempt_id,'mode':mode,
-            'input_fingerprint':analysis['input_fingerprint'],'source_fingerprint':source_fingerprint,'config_fingerprint':fingerprint(config),
-            'semantic_config_fingerprint':analysis['config_fingerprint'],'tool_versions':{'core':__version__,'python':platform.python_version()},
+            'input_fingerprint':business['input_fingerprint'],'source_fingerprint':source_fingerprint,'config_fingerprint':fingerprint(config),
+            'semantic_config_fingerprint':business['semantic_config_fingerprint'],'tool_versions':{'core':__version__,'python':platform.python_version()},
             'storage_format':FORMAT,'storage_budget':asdict(budget),'network_count':len(networks),'shared_manifest_sha256':sealed['manifest_sha256'],
-            'result_hashes':result_hashes,'result_hash_kind':'merkle-json-dag-1','graph_identity_strategy':'merkle-json-dag-1',
-            'logical_artifacts':logical,'counts':counts,'warnings':warnings,'limitations':analysis['limitations'],
-            'status':'succeeded_with_warnings' if warnings else 'succeeded','artifacts':[]}
+            'result_hashes':business['result_hashes'],'result_hash_kind':'merkle-json-dag-1','graph_identity_strategy':'merkle-json-dag-1',
+            'artifacts':[],**business}
         if mode=='replay':
             manifest.update(history_format=FORMAT,identity_strategy='merkle-json-dag-1',prefix_digest_strategy='incremental-prefix-digest-2',
-                replay_version='dual-source-replay-1',final_snapshot_number=counts['snapshots']-1,final_snapshot_id=history['last_snapshot_id'])
+                replay_version='dual-source-replay-1')
         for name in sorted(artifact_files_for_inputs(len(networks),mode=mode)-{'run_manifest.json'}):
             path=output/name;manifest['artifacts'].append({'path':name,'sha256':file_hash(path),'size_bytes':path.stat().st_size})
         validate('CompactStoreRunManifest',manifest)
@@ -243,30 +260,62 @@ def open_reader(output,*,deadline=None,approval=None,authority_key=None):
     finally:reader.close()
 
 
+@phase('source_merkle_rebuild_1')
+def _rebuild_source_roots(root,manifest,config,context,deadline,verification_report=None):
+    from .source_merkle_sink import TypedMerkleSourceSink
+    budget=shared_storage_budget(config)
+    remaining=budget.physical_bytes-sum(path.stat().st_size for path in (root/'sources').iterdir())-65536
+    if remaining<256*1024:raise ValueError('shared_source_and_metadata_reserve_limit')
+    writer=TypedMerkleSourceSink(context=context,**writer_options(config,remaining,deadline))
+    try:
+        result=_build_business_roots(writer,[root/'sources'/name for name in network_names(manifest['network_count'])],
+            root/'sources/process.csv',config,_source_rows(root,manifest['network_count']),manifest['mode'],deadline)
+        result.update(synthetic=config['synthetic'],source_fingerprint=fingerprint(_source_rows(root,manifest['network_count'])),config_fingerprint=fingerprint(config))
+        if verification_report is not None:verification_report.update(writer.report())
+        return result
+    finally:writer.close()
+
+
+def _compare_source_roots(manifest,rebuilt):
+    expected={row['name']:row for row in manifest['logical_artifacts']}
+    actual={row['name']:row for row in rebuilt['logical_artifacts']}
+    if set(expected)!=set(actual):raise ValueError('shared_rebuilt_logical_inventory_mismatch')
+    for name,descriptor in expected.items():
+        # Actual wall-clock samples are physically authenticated, not simulated.
+        if name!='runtime_metrics.json' and descriptor!=actual[name]:raise ValueError('shared_business_root_does_not_match_sources:'+name)
+    for key in ('synthetic','final_snapshot_number','final_snapshot_id','counts','input_fingerprint','source_fingerprint','config_fingerprint','semantic_config_fingerprint','result_hashes','warnings','limitations','status'):
+        if manifest.get(key)!=rebuilt.get(key):raise ValueError('shared_rebuilt_manifest_mismatch:'+key)
+
+
 @phase('artifact_verification')
-def verify_task(output,*,deadline=None):
-    """Full retained-source rebuild and all business-root Merkle comparison."""
-    root,manifest,config,_=_bound(output,deadline)
-    with open_reader(root,deadline=deadline) as original:
-        expected={row['name']:row for row in manifest['logical_artifacts']}
-        # Replay wall-clock observations are retained and physically authenticated
-        # but are not deterministic claims reconstructed from source timestamps.
-        with tempfile.TemporaryDirectory(prefix='cpag-compact-verify-') as temporary:
-            destination=Path(temporary)/'replica'
-            rebuilt=export_task([root/'sources'/name for name in network_names(manifest['network_count'])],root/'sources/process.csv',root/'sources/profile.json',destination,
-                run_id=manifest['run_id'],attempt_id=manifest['attempt_id'],mode=manifest['mode'],deadline=deadline,_rebuild=True)
-            actual={row['name']:row for row in rebuilt['logical_artifacts']}
-            if set(expected)!=set(actual):raise ValueError('shared_rebuilt_logical_inventory_mismatch')
-            for name,descriptor in expected.items():
-                if name!='runtime_metrics.json' and descriptor!=actual[name]:raise ValueError('shared_business_root_does_not_match_sources:'+name)
-            for key in ('synthetic','final_snapshot_number','final_snapshot_id','counts','input_fingerprint','source_fingerprint','config_fingerprint','semantic_config_fingerprint','result_hashes','warnings','limitations','status'):
-                if manifest.get(key)!=rebuilt.get(key):raise ValueError('shared_rebuilt_manifest_mismatch:'+key)
+def verify_task(output,*,deadline=None,verification_strategy=VERIFICATION_STRATEGY,verification_report=None):
+    """All physical nodes plus independent complete retained-source computation.
+
+    The explicit source sink computes every logical field/history state but does
+    not serialize a second database. Re-export remains a comparison strategy.
+    """
+    if verification_report is not None and type(verification_report) is not dict:raise ValueError('invalid_verification_report')
+    if verification_report is not None:verification_report.update(verification_strategy=verification_strategy,status='in_progress')
+    if verification_strategy not in (VERIFICATION_STRATEGY,REEXPORT_STRATEGY):raise ValueError('unsupported_source_verification_strategy')
+    root,manifest,config,context=_bound(output,deadline)
+    with open_reader(root,deadline=deadline):
+        if verification_strategy==VERIFICATION_STRATEGY:
+            _compare_source_roots(manifest,_rebuild_source_roots(root,manifest,config,context,deadline,verification_report))
+        else:
+            with tempfile.TemporaryDirectory(prefix='cpag-compact-verify-') as temporary:
+                rebuilt=export_task([root/'sources'/name for name in network_names(manifest['network_count'])],root/'sources/process.csv',root/'sources/profile.json',Path(temporary)/'replica',
+                    run_id=manifest['run_id'],attempt_id=manifest['attempt_id'],mode=manifest['mode'],deadline=deadline,_rebuild=True)
+                _compare_source_roots(manifest,rebuilt)
+    # Do not approve a source or artifact changed during the source computation.
+    _,after,_,_=_bound(output,deadline)
+    if canonical(after)!=canonical(manifest):raise ValueError('shared_manifest_changed_during_verification')
+    if verification_report is not None:verification_report['status']='passed'
     return manifest
 
 
-def issue_approval(output,key,*,deadline=None,lifetime_seconds=3600):
+def issue_approval(output,key,*,deadline=None,lifetime_seconds=3600,verification_strategy=VERIFICATION_STRATEGY,verification_report=None):
     if not isinstance(key,bytes) or len(key)!=32 or type(lifetime_seconds) is not int or not 1<=lifetime_seconds<=3600:raise ValueError('core_approval_key_or_lifetime_invalid')
-    manifest=verify_task(output,deadline=deadline)
+    manifest=verify_task(output,deadline=deadline,verification_strategy=verification_strategy,verification_report=verification_report)
     issued=int(time.time())
     payload={'version':APPROVAL_VERSION,'storage_format':FORMAT,'run_id':manifest['run_id'],'attempt_id':manifest['attempt_id'],
         'manifest_sha256':hashlib.sha256(canonical(manifest)+b'\n').hexdigest(),'inventory_sha256':fingerprint(manifest['artifacts']),

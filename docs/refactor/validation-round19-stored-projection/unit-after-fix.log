@@ -1,0 +1,9 @@
+test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) ... ok
+test_callback_is_explicit_and_receives_every_complete_graph_field (test_compact_projection.CompactProjectionTests.test_callback_is_explicit_and_receives_every_complete_graph_field) ... ok
+test_mutated_nested_values_are_recomputed_and_previous_values_remain (test_compact_projection.CompactProjectionTests.test_mutated_nested_values_are_recomputed_and_previous_values_remain) ... ok
+test_sink_and_schema_failures_do_not_return_or_seal_partial_projection (test_compact_projection.CompactProjectionTests.test_sink_and_schema_failures_do_not_return_or_seal_partial_projection) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.336s
+
+OK

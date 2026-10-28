@@ -27,10 +27,12 @@ DIRECTORIES = frozenset(('dual', 'dual/sources'))
 
 @validation_session()
 @phase('standard_projection')
-def event_graph(result, *, replay=False, identity_strategy=None):
+def event_graph(result, *, replay=False, identity_strategy=None, graph_identity_callback=None):
     """Shared standard observation projection; only the reference schema differs."""
     if identity_strategy not in (None,'merkle-json-dag-1'):
         raise ValueError('unsupported_graph_identity_strategy')
+    if graph_identity_callback is not None and (identity_strategy!='merkle-json-dag-1' or not callable(graph_identity_callback)):
+        raise ValueError('invalid_graph_identity_callback')
     finite_events=[]
     for finding in result.get('rule_findings',[]):
         interval=finding['interval']
@@ -65,8 +67,17 @@ def event_graph(result, *, replay=False, identity_strategy=None):
     if identity_strategy is None:
         graph['graph_id'] = 'dual-graph-' + fingerprint({k:v for k,v in graph.items() if k!='graph_id'})
     else:
-        from .shared_artifact_store_compact import LogicalHasher
-        graph['graph_id'] = 'dual-graph-merkle-' + LogicalHasher().digest({k:v for k,v in graph.items() if k!='graph_id'})['digest']
+        complete_graph={k:v for k,v in graph.items() if k!='graph_id'}
+        if graph_identity_callback is None:
+            from .shared_artifact_store_compact import LogicalHasher
+            digest=LogicalHasher().digest(complete_graph)['digest']
+        else:
+            # Internal producer/source-sink hook. The callback receives the
+            # complete value, never a previous root or a partial graph answer.
+            digest=graph_identity_callback(complete_graph)
+            if type(digest) is not str or len(digest)!=64 or any(c not in '0123456789abcdef' for c in digest):
+                raise ValueError('invalid_graph_identity_digest')
+        graph['graph_id'] = 'dual-graph-merkle-' + digest
     for item in result['network']:
         validate(('Replay' if replay else '')+'NetworkEvent', item['event'])
     for item in result['process']:

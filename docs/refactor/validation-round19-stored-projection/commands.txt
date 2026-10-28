@@ -1,0 +1,13 @@
+Run from repository root using .venv/bin/python. These are small component probes; no Docker/Worker/services.
+
+Before (pre-change bytes retained):
+.venv/bin/python BEFORE_ATTEMPT/probe.py BEFORE_ATTEMPT > BEFORE_ATTEMPT/stdout.log 2> BEFORE_ATTEMPT/stderr.log
+
+After:
+.venv/bin/python AFTER_ATTEMPT/probe.py AFTER_ATTEMPT > AFTER_ATTEMPT/stdout.log 2> AFTER_ATTEMPT/stderr.log
+
+.venv/bin/python -m unittest discover -s tests/core -p test_compact_projection.py -v
+.venv/bin/python -m unittest discover -s tests/replay -p "test_compact*.py" -v
+.venv/bin/python -m unittest discover -s tests/core -p test_shared_export.py -v
+
+Do not rerun into any retained attempt directory. Copy a probe to a new private directory and pass that directory; preserve the output and exit code. Public raw SHA receipts are before path redaction; test errors are retained.

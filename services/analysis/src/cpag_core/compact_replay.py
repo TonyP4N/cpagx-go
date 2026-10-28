@@ -109,10 +109,10 @@ class CompactReplayCore(ReplayCore):
             'state_fingerprint':state_fingerprint,'trigger':deepcopy(trigger)}
         fields={'analysis':state['digest']}
         if self.parameters.get('standard_projection')=='standard-graph-events-1':
-            from .dual_source_export import event_graph
-            projection=event_graph(self._analysis,replay=True,identity_strategy='merkle-json-dag-1')
-            fields['graph']=writer.intern(projection['graph.json'])['digest']
-            fields['events']=writer.intern(projection['events.json'])['digest']
+            from .compact_projection import store_standard_projection
+            stored=store_standard_projection(self._analysis,writer,replay=True)
+            fields['graph']=stored['graph']['digest']
+            fields['events']=stored['events']['digest']
         identity=writer.compose(None,snapshot,fields)
         snapshot['snapshot_id']='snapshot-'+identity['digest']
         snapshot_ref=writer.compose(None,snapshot,fields)

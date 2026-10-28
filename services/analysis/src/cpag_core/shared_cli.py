@@ -34,9 +34,12 @@ def main():
     parser.add_argument('--operation');parser.add_argument('--change');parser.add_argument('--trigger',action='store_true')
     parser.add_argument('--ref-offset',type=int,default=0);parser.add_argument('--ref-limit',type=int,default=100)
     parser.add_argument('--issue-approval',action='store_true');parser.add_argument('--authority-key-fd',type=int);parser.add_argument('--approval-fd',type=int)
+    parser.add_argument('--verification-strategy',choices=(core.VERIFICATION_STRATEGY,core.REEXPORT_STRATEGY),default=None)
     args=parser.parse_args()
     try:
         if not 1<=args.seconds<=1800:raise ValueError('core_deadline_outside_budget')
+        if args.verification_strategy is not None and args.action!='verify':raise ValueError('verification_strategy_requires_verify_action')
+        strategy=args.verification_strategy or core.VERIFICATION_STRATEGY
         deadline=time.monotonic()+args.seconds
         key=None;approval=None
         if args.authority_key_fd is not None:
@@ -49,15 +52,17 @@ def main():
             if args.issue_approval or approval is not None or key is not None:raise ValueError('export_cannot_issue_approval')
             value={'manifest':core.export_task(args.network,args.process,args.profile,args.root,run_id=args.run_id,attempt_id=args.attempt_id,mode=args.mode,deadline=deadline)}
         elif args.action=='verify':
+            verification_report={}
             if approval is not None:raise ValueError('source_verifier_cannot_consume_read_approval')
             if args.issue_approval:
                 if key is None:raise ValueError('approval_authority_key_fd_required')
-                issued=core.issue_approval(args.root,key,deadline=deadline)
+                issued=core.issue_approval(args.root,key,deadline=deadline,verification_strategy=strategy,verification_report=verification_report)
                 manifest=core.read_json(os.path.join(args.root,'run_manifest.json'),65536)
-                value={'verification':'source_replayed_storage_and_business_fields_verified','manifest':manifest,'approval':issued}
+                value={'verification_strategy':strategy,'verification':'source_replayed_storage_and_business_fields_verified','manifest':manifest,'approval':issued}
             else:
                 if key is not None:raise ValueError('authority_key_requires_issue_approval')
-                value={'verification':'source_replayed_storage_and_business_fields_verified','manifest':core.verify_task(args.root,deadline=deadline)}
+                value={'verification_strategy':strategy,'verification':'source_replayed_storage_and_business_fields_verified','manifest':core.verify_task(args.root,deadline=deadline,verification_strategy=strategy,verification_report=verification_report)}
+            value['verification_report']=verification_report
         else:
             if args.issue_approval:raise ValueError('only_full_source_verify_can_issue_approval')
             if (approval is None)!=(key is None):raise ValueError('read_approval_and_authority_key_required_together')

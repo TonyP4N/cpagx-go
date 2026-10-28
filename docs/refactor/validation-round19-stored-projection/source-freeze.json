@@ -1,0 +1,110 @@
+{
+  "strategy": "stored-graph-composition-1",
+  "sources": {
+    "services/analysis/src/cpag_core/dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+    "services/analysis/src/cpag_core/compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+    "services/analysis/src/cpag_core/compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+    "tests/core/test_compact_projection.py": "885f8adfd4ea45d0a4f40a0f47e325e8411b55aa936d94516e766204bd00d542"
+  },
+  "evidence": [
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "probe.py",
+      "public_file": "before-probe.py",
+      "raw_sha256": "a0c18dfd948e223eb006cba9104930a755c07b9930f16129a967402c78c932a7",
+      "raw_bytes": 4513,
+      "public_sha256": "a0c18dfd948e223eb006cba9104930a755c07b9930f16129a967402c78c932a7",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "report.json",
+      "public_file": "before-report.json",
+      "raw_sha256": "d79eba3e1d1f0981740b206892b954ed757f6b94c2f5d02f0fe7311318505ddf",
+      "raw_bytes": 1012,
+      "public_sha256": "d79eba3e1d1f0981740b206892b954ed757f6b94c2f5d02f0fe7311318505ddf",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "projection-profile.txt",
+      "public_file": "before-profile.txt",
+      "raw_sha256": "6fb2ccdcf96ab6fc5d99bc250366abda87ab34f4acf46e3f1018e525cf1ae513",
+      "raw_bytes": 4128,
+      "public_sha256": "b4b043d94c82e8c184e4defca8fb093cb7294d42473ff0d6c8ea5e63b39bde5c",
+      "redaction": "workspace home path; trailing whitespace removed in public copy only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "stderr.log",
+      "public_file": "before-stderr.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "unit-attempt1.log",
+      "public_file": "unit-first-failure.log",
+      "raw_sha256": "a05218c42efc3a694a3fe5aa1417107ee8124ada0a7aa68b8c07bfbfbe8022b3",
+      "raw_bytes": 13595,
+      "public_sha256": "ed43f172e1cf85f0ec03735ec22a53a9117927f754209b5accef1b5f19d57e09",
+      "redaction": "workspace home path; trailing whitespace removed in public copy only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "unit-attempt2.log",
+      "public_file": "unit-after-fix.log",
+      "raw_sha256": "b92d21e40354d94b5b9faa2811d3989b23551d48eb2eb312372a406bc40b5a0e",
+      "raw_bytes": 876,
+      "public_sha256": "b92d21e40354d94b5b9faa2811d3989b23551d48eb2eb312372a406bc40b5a0e",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "replay-regression-attempt1.log",
+      "public_file": "replay-regression.log",
+      "raw_sha256": "c53792061f02083bbfe8efd1f555b2e8161d505e1c214c96fc9caa63a9aa4419",
+      "raw_bytes": 2098,
+      "public_sha256": "c53792061f02083bbfe8efd1f555b2e8161d505e1c214c96fc9caa63a9aa4419",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microbaseline-attempt1",
+      "source_basename": "shared-export-regression-attempt1.log",
+      "public_file": "shared-export-regression.log",
+      "raw_sha256": "0329f4c2084cf10004ae33b964c5614dc9984d33aad22fc87189c85be5f18976",
+      "raw_bytes": 1200,
+      "public_sha256": "0329f4c2084cf10004ae33b964c5614dc9984d33aad22fc87189c85be5f18976",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microafter-attempt1",
+      "source_basename": "probe.py",
+      "public_file": "after-probe.py",
+      "raw_sha256": "a2ca1680b755f985574c0414bf0c4eb3ca134c60f31576a4fdc06e01a6f58089",
+      "raw_bytes": 2964,
+      "public_sha256": "a2ca1680b755f985574c0414bf0c4eb3ca134c60f31576a4fdc06e01a6f58089",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microafter-attempt1",
+      "source_basename": "report.json",
+      "public_file": "after-report.json",
+      "raw_sha256": "adcc929eb25108934e85ba277b8e28233ddc092931ad2925bc213c0063d256f5",
+      "raw_bytes": 1779,
+      "public_sha256": "adcc929eb25108934e85ba277b8e28233ddc092931ad2925bc213c0063d256f5",
+      "redaction": "workspace home path only"
+    },
+    {
+      "source_attempt": "cpag-r19-core-projection-microafter-attempt1",
+      "source_basename": "stderr.log",
+      "public_file": "after-stderr.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "raw_bytes": 0,
+      "public_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "redaction": "workspace home path only"
+    }
+  ]
+}
