@@ -1,0 +1,2168 @@
+{
+  "schema_version": "r19-dev4-cost-attribution-1",
+  "scope": "partial, read-only development-core measurement attribution; no runtime/test/container computation started; no service/industrial/reference acceptance",
+  "created_at_utc": "2026-10-28T16:32:23.158904+00:00",
+  "units": {
+    "wall_seconds": "seconds by distinct explicitly labelled clocks",
+    "cpu_seconds": "CPU time, not elapsed time",
+    "memory": "bytes, process RSS and cgroup peak have different scopes"
+  },
+  "null_policy": "null means not measured, unavailable, or not reached; reasons retained; never interpreted as zero",
+  "additivity": "all nested phase durations overlap and MUST NOT be summed; no evidence-only or judgement-only timing exists",
+  "cases": [
+    {
+      "case": "S-offline",
+      "status": "passed",
+      "reason": null,
+      "controller_whole_chain_seconds": 36.73939054197399,
+      "image_id": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+      "fixture_version": "r19-density-capacity-6",
+      "phase_measurement_strategy": "phase-resources-3",
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 0,
+        "snapshots": 0
+      },
+      "counts_provenance": "producer manifest and passed report",
+      "complete_artifact_observed_file_bytes": 7611037,
+      "artifact_manifest_declared_complete_bytes": 7611037,
+      "sqlite_observed_file_bytes": 7577600,
+      "stored_node_count": 46978,
+      "report_complete_attempt_file_bytes": 8015730,
+      "limits": {
+        "complete_output_bytes": 1073741824,
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "query_seconds": 10,
+        "tmp_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "source_sink_diagnostics": {
+        "status": "passed",
+        "verification_strategy": "dag6-full-source-merkle-sink-1",
+        "physical_artifacts_created": 0,
+        "node_count": 46978,
+        "audit_index_owned_bytes": 7883064,
+        "audit_index_peak_owned_bytes": 7883064,
+        "flat_value_cache_owned_bytes": 3056445
+      },
+      "unmeasured_stages": {
+        "evidence_organization_alone_seconds": null,
+        "rule_judgement_alone_seconds": null
+      },
+      "queries": {
+        "query": [
+          {
+            "cache": "fresh_process_cold_reader",
+            "seconds": 1.134341833999997,
+            "complete_response_bytes": 2465344,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "same_process_repeat_new_reader",
+            "seconds": 0.8579987930000073,
+            "complete_response_bytes": 2465344,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "remaining_reference_page_new_reader",
+            "seconds": 1.0138651670000058,
+            "complete_response_bytes": 2837137,
+            "os_cache": "unverified"
+          }
+        ],
+        "query-after-handoff": [
+          {
+            "cache": "fresh_process_cold_reader",
+            "seconds": 1.1256685419999997,
+            "complete_response_bytes": 2465344,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "same_process_repeat_new_reader",
+            "seconds": 0.8539570419999905,
+            "complete_response_bytes": 2465344,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "remaining_reference_page_new_reader",
+            "seconds": 1.035044207999988,
+            "complete_response_bytes": 2837137,
+            "os_cache": "unverified"
+          }
+        ]
+      },
+      "terminal_summaries": {
+        "export": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 24,
+          "raw_rows_retained": 24,
+          "raw_rows_not_retained": 0,
+          "progress_write_failures": 0
+        },
+        "verify": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 25,
+          "raw_rows_retained": 25,
+          "raw_rows_not_retained": 0,
+          "progress_write_failures": 0
+        }
+      }
+    },
+    {
+      "case": "S-replay",
+      "status": "failed",
+      "reason": "verify:ValueError:shared_store_deadline_exceeded",
+      "controller_whole_chain_seconds": 1801.1512407079863,
+      "image_id": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+      "fixture_version": "r19-density-capacity-6",
+      "phase_measurement_strategy": "phase-resources-3",
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 306,
+        "snapshots": 310
+      },
+      "counts_provenance": "published producer manifest; independent complete source verification failed",
+      "complete_artifact_observed_file_bytes": 85817016,
+      "artifact_manifest_declared_complete_bytes": 85817016,
+      "sqlite_observed_file_bytes": 85753856,
+      "stored_node_count": 464754,
+      "report_complete_attempt_file_bytes": 86480190,
+      "limits": {
+        "complete_output_bytes": 1073741824,
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "query_seconds": 10,
+        "tmp_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "source_sink_diagnostics": {
+        "status": "in_progress",
+        "verification_strategy": "dag6-full-source-merkle-sink-1",
+        "physical_artifacts_created": null,
+        "node_count": null,
+        "audit_index_owned_bytes": null,
+        "audit_index_peak_owned_bytes": null,
+        "flat_value_cache_owned_bytes": null
+      },
+      "unmeasured_stages": {
+        "evidence_organization_alone_seconds": null,
+        "rule_judgement_alone_seconds": null
+      },
+      "queries": {
+        "query": null,
+        "query-after-handoff": null
+      },
+      "terminal_summaries": {
+        "export": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 7410,
+          "raw_rows_retained": 256,
+          "raw_rows_not_retained": 7154,
+          "progress_write_failures": 0
+        },
+        "verify": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 7181,
+          "raw_rows_retained": 256,
+          "raw_rows_not_retained": 6925,
+          "progress_write_failures": 0
+        }
+      }
+    },
+    {
+      "case": "M-offline",
+      "status": "passed",
+      "reason": null,
+      "controller_whole_chain_seconds": 551.1033749170019,
+      "image_id": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+      "fixture_version": "r19-density-capacity-6",
+      "phase_measurement_strategy": "phase-resources-3",
+      "counts": {
+        "candidates": 31801,
+        "changes": 999,
+        "network": 2000,
+        "operations": 1000,
+        "process": 1000,
+        "revisions": 0,
+        "snapshots": 0
+      },
+      "counts_provenance": "producer manifest and passed report",
+      "complete_artifact_observed_file_bytes": 100668118,
+      "artifact_manifest_declared_complete_bytes": 100668118,
+      "sqlite_observed_file_bytes": 100397056,
+      "stored_node_count": 583725,
+      "report_complete_attempt_file_bytes": 101419721,
+      "limits": {
+        "complete_output_bytes": 1073741824,
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "query_seconds": 10,
+        "tmp_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "source_sink_diagnostics": {
+        "status": "passed",
+        "verification_strategy": "dag6-full-source-merkle-sink-1",
+        "physical_artifacts_created": 0,
+        "node_count": 583725,
+        "audit_index_owned_bytes": 86348800,
+        "audit_index_peak_owned_bytes": 86348800,
+        "flat_value_cache_owned_bytes": 2581710
+      },
+      "unmeasured_stages": {
+        "evidence_organization_alone_seconds": null,
+        "rule_judgement_alone_seconds": null
+      },
+      "queries": {
+        "query": [
+          {
+            "cache": "fresh_process_cold_reader",
+            "seconds": 1.5480138759999136,
+            "complete_response_bytes": 2465753,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "same_process_repeat_new_reader",
+            "seconds": 1.2584296250001898,
+            "complete_response_bytes": 2465753,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "remaining_reference_page_new_reader",
+            "seconds": 1.546126458999879,
+            "complete_response_bytes": 2851032,
+            "os_cache": "unverified"
+          }
+        ],
+        "query-after-handoff": [
+          {
+            "cache": "fresh_process_cold_reader",
+            "seconds": 1.5091729999999188,
+            "complete_response_bytes": 2465753,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "same_process_repeat_new_reader",
+            "seconds": 1.277675041999828,
+            "complete_response_bytes": 2465753,
+            "os_cache": "unverified"
+          },
+          {
+            "cache": "remaining_reference_page_new_reader",
+            "seconds": 1.5076055839999754,
+            "complete_response_bytes": 2851032,
+            "os_cache": "unverified"
+          }
+        ]
+      },
+      "terminal_summaries": {
+        "export": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 24,
+          "raw_rows_retained": 24,
+          "raw_rows_not_retained": 0,
+          "progress_write_failures": 0
+        },
+        "verify": {
+          "version": "phase-resources-3",
+          "kind": "terminal_measurement_summary",
+          "all_observed_calls": 25,
+          "raw_rows_retained": 25,
+          "raw_rows_not_retained": 0,
+          "progress_write_failures": 0
+        }
+      },
+      "legacy_flat_bound": {
+        "bytes": 1795907870,
+        "kind": "mathematical_lower_bound_not_measured_output",
+        "proof_scope": "complete retained fixed-density observations; excludes parser execution, history bytes and most other mandatory fields; not a measured runtime output"
+      }
+    }
+  ],
+  "stage_table": [
+    {
+      "case": "S-offline",
+      "phase": "export",
+      "controller_status": "passed",
+      "controller_wall_seconds": 15.88528220797889,
+      "native_status": "passed",
+      "native_wall_seconds": 15.304478590000002,
+      "native_process_cpu_seconds": 14.838721,
+      "native_process_rss_high_water_bytes": 54902784,
+      "cgroup_peak_memory_bytes": 59367424,
+      "cgroup_cpu_usage_seconds": 15.242208,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "export-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-offline",
+      "phase": "verify",
+      "controller_status": "passed",
+      "controller_wall_seconds": 13.749057042005006,
+      "native_status": "passed",
+      "native_wall_seconds": 12.498119755999994,
+      "native_process_cpu_seconds": 12.46215,
+      "native_process_rss_high_water_bytes": 62976000,
+      "cgroup_peak_memory_bytes": 62357504,
+      "cgroup_cpu_usage_seconds": 12.797647,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "verify-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-offline",
+      "phase": "query",
+      "controller_status": "passed",
+      "controller_wall_seconds": 3.2637643750058487,
+      "native_status": "passed",
+      "native_wall_seconds": 3.0402167099999815,
+      "native_process_cpu_seconds": 2.997572,
+      "native_process_rss_high_water_bytes": 64851968,
+      "cgroup_peak_memory_bytes": 63655936,
+      "cgroup_cpu_usage_seconds": 3.066144,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "query-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-offline",
+      "phase": "query-after-handoff",
+      "controller_status": "passed",
+      "controller_wall_seconds": 3.2803225420066155,
+      "native_status": "passed",
+      "native_wall_seconds": 3.0471059600000103,
+      "native_process_cpu_seconds": 2.9779889999999996,
+      "native_process_rss_high_water_bytes": 65495040,
+      "cgroup_peak_memory_bytes": 63283200,
+      "cgroup_cpu_usage_seconds": 3.045943,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "query-after-handoff-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-replay",
+      "phase": "export",
+      "controller_status": "passed",
+      "controller_wall_seconds": 1103.2733896250138,
+      "native_status": "passed",
+      "native_wall_seconds": 1101.301845792,
+      "native_process_cpu_seconds": 953.2241240000001,
+      "native_process_rss_high_water_bytes": 109735936,
+      "cgroup_peak_memory_bytes": 192516096,
+      "cgroup_cpu_usage_seconds": 984.644394,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "export-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-replay",
+      "phase": "verify",
+      "controller_status": "failed",
+      "controller_wall_seconds": 697.4195711250068,
+      "native_status": "failed",
+      "native_wall_seconds": 696.5776479019999,
+      "native_process_cpu_seconds": 695.754242,
+      "native_process_rss_high_water_bytes": 155934720,
+      "cgroup_peak_memory_bytes": 241197056,
+      "cgroup_cpu_usage_seconds": 715.444201,
+      "cgroup_nr_throttled": 0,
+      "error_type": "ValueError",
+      "reason": "shared_store_deadline_exceeded",
+      "native_packet": "verify-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "S-replay",
+      "phase": "query",
+      "controller_status": null,
+      "controller_wall_seconds": null,
+      "native_status": null,
+      "native_wall_seconds": null,
+      "native_process_cpu_seconds": null,
+      "native_process_rss_high_water_bytes": null,
+      "cgroup_peak_memory_bytes": null,
+      "cgroup_cpu_usage_seconds": null,
+      "cgroup_nr_throttled": null,
+      "error_type": null,
+      "reason": null,
+      "native_packet": null,
+      "missing_reason": "not_run_after_failed_source_verification"
+    },
+    {
+      "case": "S-replay",
+      "phase": "query-after-handoff",
+      "controller_status": null,
+      "controller_wall_seconds": null,
+      "native_status": null,
+      "native_wall_seconds": null,
+      "native_process_cpu_seconds": null,
+      "native_process_rss_high_water_bytes": null,
+      "cgroup_peak_memory_bytes": null,
+      "cgroup_cpu_usage_seconds": null,
+      "cgroup_nr_throttled": null,
+      "error_type": null,
+      "reason": null,
+      "native_packet": null,
+      "missing_reason": "not_run_after_failed_source_verification"
+    },
+    {
+      "case": "M-offline",
+      "phase": "export",
+      "controller_status": "passed",
+      "controller_wall_seconds": 300.7583177500055,
+      "native_status": "passed",
+      "native_wall_seconds": 299.762327553,
+      "native_process_cpu_seconds": 279.98698,
+      "native_process_rss_high_water_bytes": 293548032,
+      "cgroup_peak_memory_bytes": 412606464,
+      "cgroup_cpu_usage_seconds": 288.59754,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "export-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "M-offline",
+      "phase": "verify",
+      "controller_status": "passed",
+      "controller_wall_seconds": 239.92354920800426,
+      "native_status": "passed",
+      "native_wall_seconds": 239.7245788590003,
+      "native_process_cpu_seconds": 239.080065,
+      "native_process_rss_high_water_bytes": 383442944,
+      "cgroup_peak_memory_bytes": 485130240,
+      "cgroup_cpu_usage_seconds": 245.910682,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "verify-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "M-offline",
+      "phase": "query",
+      "controller_status": "passed",
+      "controller_wall_seconds": 4.7861231669958215,
+      "native_status": "passed",
+      "native_wall_seconds": 4.571515793999879,
+      "native_process_cpu_seconds": 4.228663,
+      "native_process_rss_high_water_bytes": 70447104,
+      "cgroup_peak_memory_bytes": 161759232,
+      "cgroup_cpu_usage_seconds": 4.364466,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "query-result.json",
+      "missing_reason": null
+    },
+    {
+      "case": "M-offline",
+      "phase": "query-after-handoff",
+      "controller_status": "passed",
+      "controller_wall_seconds": 4.725577958015492,
+      "native_status": "passed",
+      "native_wall_seconds": 4.509864710000329,
+      "native_process_cpu_seconds": 4.136152,
+      "native_process_rss_high_water_bytes": 70393856,
+      "cgroup_peak_memory_bytes": 161738752,
+      "cgroup_cpu_usage_seconds": 4.27075,
+      "cgroup_nr_throttled": 0,
+      "error_type": null,
+      "reason": null,
+      "native_packet": "query-after-handoff-result.json",
+      "missing_reason": null
+    }
+  ],
+  "nested_phase_table": [
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "association_and_evidence",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 3.7472480849999954,
+      "cpu_seconds": 3.7440979999999997,
+      "rss_high_water_bytes": 44969984,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 2.9341170019999936,
+      "cpu_seconds": 2.8973400000000007,
+      "rss_high_water_bytes": 54902784,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "compact_store_write",
+      "calls": 16,
+      "returned": 16,
+      "failed": 0,
+      "wall_seconds": 7.367123003999978,
+      "cpu_seconds": 6.950952,
+      "rss_high_water_bytes": 54902784,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "complete_export",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 15.02143638199999,
+      "cpu_seconds": 14.537265,
+      "rss_high_water_bytes": 54902784,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "network_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.10682104199997866,
+      "cpu_seconds": 0.10627400000000001,
+      "rss_high_water_bytes": 26771456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "offline_analysis",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 3.86129871,
+      "cpu_seconds": 3.8557509999999997,
+      "rss_high_water_bytes": 44969984,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "process_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.0008750000000077307,
+      "cpu_seconds": 0.0008680000000000354,
+      "rss_high_water_bytes": 26771456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "standard_projection",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 2.058023835,
+      "cpu_seconds": 1.8948170000000006,
+      "rss_high_water_bytes": 54702080,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 2.146582417000019,
+      "cpu_seconds": 1.9686810000000006,
+      "rss_high_water_bytes": 54816768,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "export",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "artifact_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 12.21797963100002,
+      "cpu_seconds": 12.163189,
+      "rss_high_water_bytes": 62976000,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "association_and_evidence",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 3.7472907100000157,
+      "cpu_seconds": 3.745678,
+      "rss_high_water_bytes": 48349184,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 2.980738126999995,
+      "cpu_seconds": 2.940691,
+      "rss_high_water_bytes": 27566080,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "network_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.10676429099999041,
+      "cpu_seconds": 0.106186,
+      "rss_high_water_bytes": 30171136,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "offline_analysis",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 3.8603832099999806,
+      "cpu_seconds": 3.8570740000000003,
+      "rss_high_water_bytes": 48349184,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "process_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.0009361669999918831,
+      "cpu_seconds": 0.0009299999999998754,
+      "rss_high_water_bytes": 30171136,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_rebuild_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 9.192343338,
+      "cpu_seconds": 9.187484,
+      "rss_high_water_bytes": 62976000,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_root_rebuild",
+      "calls": 16,
+      "returned": 16,
+      "failed": 0,
+      "wall_seconds": 4.533855418999906,
+      "cpu_seconds": 4.5365030000000015,
+      "rss_high_water_bytes": 62976000,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "standard_projection",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 1.6128037090000191,
+      "cpu_seconds": 1.6106939999999994,
+      "rss_high_water_bytes": 60633088,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 1.6746356669999898,
+      "cpu_seconds": 1.6718480000000007,
+      "rss_high_water_bytes": 60633088,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-offline",
+      "container_phase": "verify",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "association_and_evidence",
+      "calls": 305,
+      "returned": 305,
+      "failed": 0,
+      "wall_seconds": 258.2248369640003,
+      "cpu_seconds": 258.08158800000035,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 35.6336683080001,
+      "cpu_seconds": 35.19814299999999,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "compact_store_write",
+      "calls": 4044,
+      "returned": 4044,
+      "failed": 0,
+      "wall_seconds": 635.6042886069995,
+      "cpu_seconds": 488.30468600000023,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "complete_export",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 1101.023096584,
+      "cpu_seconds": 952.91973,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "history_generation",
+      "calls": 310,
+      "returned": 310,
+      "failed": 0,
+      "wall_seconds": 738.1174843029988,
+      "cpu_seconds": 594.9907099999997,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "network_parse",
+      "calls": 202,
+      "returned": 202,
+      "failed": 0,
+      "wall_seconds": 1.5610177939999517,
+      "cpu_seconds": 1.5481689999997175,
+      "rss_high_water_bytes": 98451456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "process_parse",
+      "calls": 101,
+      "returned": 101,
+      "failed": 0,
+      "wall_seconds": 0.006797916999403242,
+      "cpu_seconds": 0.006305999999739367,
+      "rss_high_water_bytes": 81461248,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "replay_input_snapshot",
+      "calls": 608,
+      "returned": 608,
+      "failed": 0,
+      "wall_seconds": 9.275143948999244,
+      "cpu_seconds": 9.231164000000579,
+      "rss_high_water_bytes": 98451456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "replay_network_prefix",
+      "calls": 608,
+      "returned": 608,
+      "failed": 0,
+      "wall_seconds": 2.780373392999479,
+      "cpu_seconds": 2.761019000000001,
+      "rss_high_water_bytes": 98451456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "replay_process_prefix",
+      "calls": 608,
+      "returned": 608,
+      "failed": 0,
+      "wall_seconds": 0.13105433300154345,
+      "cpu_seconds": 0.12748900000017244,
+      "rss_high_water_bytes": 98451456,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "standard_projection",
+      "calls": 311,
+      "returned": 311,
+      "failed": 0,
+      "wall_seconds": 193.68447801000036,
+      "cpu_seconds": 159.7628039999998,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 311,
+      "returned": 311,
+      "failed": 0,
+      "wall_seconds": 211.475714514,
+      "cpu_seconds": 173.0200520000002,
+      "rss_high_water_bytes": 109735936,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "export",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "artifact_verification",
+      "calls": 1,
+      "returned": 0,
+      "failed": 1,
+      "wall_seconds": 696.2284355269999,
+      "cpu_seconds": 695.375745,
+      "rss_high_water_bytes": 155934720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive; failed outer call is partial execution"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "association_and_evidence",
+      "calls": 300,
+      "returned": 300,
+      "failed": 0,
+      "wall_seconds": 238.02965475600172,
+      "cpu_seconds": 237.90751800000024,
+      "rss_high_water_bytes": 155934720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 35.096744932999854,
+      "cpu_seconds": 34.652817,
+      "rss_high_water_bytes": 27635712,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "history_generation",
+      "calls": 300,
+      "returned": 299,
+      "failed": 1,
+      "wall_seconds": 379.13651360700055,
+      "cpu_seconds": 378.90830800000026,
+      "rss_high_water_bytes": 155934720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive; failed outer call is partial execution"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "network_parse",
+      "calls": 201,
+      "returned": 201,
+      "failed": 0,
+      "wall_seconds": 1.550471008001523,
+      "cpu_seconds": 1.548605000000002,
+      "rss_high_water_bytes": 103133184,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "process_parse",
+      "calls": 99,
+      "returned": 99,
+      "failed": 0,
+      "wall_seconds": 0.006482877999815173,
+      "cpu_seconds": 0.00616699999960435,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "replay_input_snapshot",
+      "calls": 598,
+      "returned": 598,
+      "failed": 0,
+      "wall_seconds": 8.587144260003697,
+      "cpu_seconds": 8.572130999999583,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "replay_network_prefix",
+      "calls": 598,
+      "returned": 598,
+      "failed": 0,
+      "wall_seconds": 2.7473287959978734,
+      "cpu_seconds": 2.74393700000046,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "replay_process_prefix",
+      "calls": 598,
+      "returned": 598,
+      "failed": 0,
+      "wall_seconds": 0.12652962799961642,
+      "cpu_seconds": 0.12367999999985102,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_rebuild_1",
+      "calls": 1,
+      "returned": 0,
+      "failed": 1,
+      "wall_seconds": 660.8801607180001,
+      "cpu_seconds": 660.4974010000001,
+      "rss_high_water_bytes": 155934720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive; failed outer call is partial execution"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_root_rebuild",
+      "calls": 3886,
+      "returned": 3885,
+      "failed": 1,
+      "wall_seconds": 296.6428106129981,
+      "cpu_seconds": 296.4699159999971,
+      "rss_high_water_bytes": 155934720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive; failed outer call is partial execution"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "standard_projection",
+      "calls": 299,
+      "returned": 299,
+      "failed": 0,
+      "wall_seconds": 92.05762563700023,
+      "cpu_seconds": 91.99057999999982,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 299,
+      "returned": 299,
+      "failed": 0,
+      "wall_seconds": 101.06257199200195,
+      "cpu_seconds": 100.99157999999943,
+      "rss_high_water_bytes": 154509312,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "S-replay",
+      "container_phase": "verify",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "association_and_evidence",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 54.51774698300005,
+      "cpu_seconds": 54.490587,
+      "rss_high_water_bytes": 281886720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 40.22724589299969,
+      "cpu_seconds": 39.71501599999999,
+      "rss_high_water_bytes": 293548032,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "compact_store_write",
+      "calls": 16,
+      "returned": 16,
+      "failed": 0,
+      "wall_seconds": 131.70542902099987,
+      "cpu_seconds": 112.54815000000004,
+      "rss_high_water_bytes": 293548032,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "complete_export",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 299.43284372000016,
+      "cpu_seconds": 279.629073,
+      "rss_high_water_bytes": 293548032,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "network_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 1.543362791999698,
+      "cpu_seconds": 1.542316,
+      "rss_high_water_bytes": 52510720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "offline_analysis",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 56.09166352500006,
+      "cpu_seconds": 56.06110700000001,
+      "rss_high_water_bytes": 281886720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "process_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.007249208000303042,
+      "cpu_seconds": 0.0072230000000002015,
+      "rss_high_water_bytes": 52510720,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "standard_projection",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 89.75016037400019,
+      "cpu_seconds": 86.971913,
+      "rss_high_water_bytes": 293548032,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 90.54260433299987,
+      "cpu_seconds": 87.737318,
+      "rss_high_water_bytes": 293548032,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "export",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "artifact_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 239.42707344200016,
+      "cpu_seconds": 238.7608,
+      "rss_high_water_bytes": 383442944,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "association_and_evidence",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 55.363754357999824,
+      "cpu_seconds": 55.334672000000005,
+      "rss_high_water_bytes": 285261824,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "compact_node_verification",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 40.73481226800004,
+      "cpu_seconds": 40.222167999999996,
+      "rss_high_water_bytes": 27553792,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "network_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 1.6031212919997415,
+      "cpu_seconds": 1.600094000000004,
+      "rss_high_water_bytes": 55644160,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "offline_analysis",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 56.99545327600026,
+      "cpu_seconds": 56.961988999999996,
+      "rss_high_water_bytes": 285261824,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "process_parse",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 0.006469874999766034,
+      "cpu_seconds": 0.00646199999999908,
+      "rss_high_water_bytes": 55644160,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_rebuild_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 198.3045080070001,
+      "cpu_seconds": 198.193388,
+      "rss_high_water_bytes": 383442944,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "source_merkle_root_rebuild",
+      "calls": 16,
+      "returned": 16,
+      "failed": 0,
+      "wall_seconds": 69.90272028000027,
+      "cpu_seconds": 69.86439200000004,
+      "rss_high_water_bytes": 383442944,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "standard_projection",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 83.8509383290002,
+      "cpu_seconds": 83.80723400000002,
+      "rss_high_water_bytes": 383016960,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "stored_graph_composition_1",
+      "calls": 1,
+      "returned": 1,
+      "failed": 0,
+      "wall_seconds": 84.52654349600016,
+      "cpu_seconds": 84.482076,
+      "rss_high_water_bytes": 383442944,
+      "is_exclusive": false,
+      "scope_note": "nested call aggregates; not additive"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "evidence_organization_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    },
+    {
+      "case": "M-offline",
+      "container_phase": "verify",
+      "measurement_phase": "rule_judgement_alone",
+      "calls": null,
+      "returned": null,
+      "failed": null,
+      "wall_seconds": null,
+      "cpu_seconds": null,
+      "rss_high_water_bytes": null,
+      "is_exclusive": null,
+      "scope_note": "not separately measured inside association_and_evidence"
+    }
+  ],
+  "historical_dev3_same_mode": [
+    {
+      "case": "S-offline",
+      "attempt": 2,
+      "status": "passed",
+      "whole_chain_seconds": 39.26325612500659,
+      "image_id": "sha256:f162027639d8ccf2696b298e696076a0b9f2864e559ac05119f46b6176133d5c",
+      "interpretation": "historical development run only; old verifier integrity gap retained; not isolated-change causal measurement",
+      "stages": [
+        {
+          "case": "S-offline",
+          "phase": "export",
+          "controller_status": "passed",
+          "controller_wall_seconds": 16.23198687497643,
+          "native_status": "passed",
+          "native_wall_seconds": 15.899229298000023,
+          "native_process_cpu_seconds": 15.651975,
+          "native_process_rss_high_water_bytes": 53719040,
+          "cgroup_peak_memory_bytes": null,
+          "cgroup_cpu_usage_seconds": null,
+          "cgroup_nr_throttled": null,
+          "error_type": null,
+          "reason": null,
+          "native_packet": "export-result.json",
+          "missing_reason": null
+        },
+        {
+          "case": "S-offline",
+          "phase": "verify",
+          "controller_status": "passed",
+          "controller_wall_seconds": 15.90006149999681,
+          "native_status": "passed",
+          "native_wall_seconds": 15.085324466000088,
+          "native_process_cpu_seconds": 15.180010000000001,
+          "native_process_rss_high_water_bytes": 55177216,
+          "cgroup_peak_memory_bytes": null,
+          "cgroup_cpu_usage_seconds": null,
+          "cgroup_nr_throttled": null,
+          "error_type": null,
+          "reason": null,
+          "native_packet": "verify-result.json",
+          "missing_reason": null
+        }
+      ],
+      "nested_aggregates": [
+        {
+          "container_phase": "export",
+          "measurement_phase": "association_and_evidence",
+          "calls": 1,
+          "cpu_seconds": 3.6692879999999994,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 44244992,
+          "wall_seconds": 3.6708274610000444
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "compact_node_verification",
+          "calls": 1,
+          "cpu_seconds": 2.959192,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 53719040,
+          "wall_seconds": 2.9968008350000446
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "compact_store_write",
+          "calls": 10,
+          "cpu_seconds": 6.989351999999998,
+          "failed": 0,
+          "returned": 10,
+          "rss_high_water_bytes": 53149696,
+          "wall_seconds": 7.334409708999829
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "complete_export",
+          "calls": 1,
+          "cpu_seconds": 15.333991,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 53719040,
+          "wall_seconds": 15.745651715000008
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "network_parse",
+          "calls": 1,
+          "cpu_seconds": 0.10255700000000001,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 25825280,
+          "wall_seconds": 0.10311633300000267
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "offline_analysis",
+          "calls": 1,
+          "cpu_seconds": 3.7775439999999993,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 44244992,
+          "wall_seconds": 3.7813977519999753
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "process_parse",
+          "calls": 1,
+          "cpu_seconds": 0.0008520000000000194,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 25825280,
+          "wall_seconds": 0.0008583329999964917
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "standard_projection",
+          "calls": 1,
+          "cpu_seconds": 1.5541950000000007,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 47026176,
+          "wall_seconds": 1.5548997090000967
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "artifact_verification",
+          "calls": 1,
+          "cpu_seconds": 14.884344,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 55177216,
+          "wall_seconds": 14.939536715000031
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "association_and_evidence",
+          "calls": 1,
+          "cpu_seconds": 3.6775729999999998,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 47673344,
+          "wall_seconds": 3.6784224600000925
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "compact_node_verification",
+          "calls": 1,
+          "cpu_seconds": 2.9106829999999997,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 27865088,
+          "wall_seconds": 2.947395418000042
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "compact_store_write",
+          "calls": 10,
+          "cpu_seconds": 6.585319999999999,
+          "failed": 0,
+          "returned": 10,
+          "rss_high_water_bytes": 55177216,
+          "wall_seconds": 6.590942586999745
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "complete_export",
+          "calls": 1,
+          "cpu_seconds": 11.9461,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 55177216,
+          "wall_seconds": 11.957648130999928
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "network_parse",
+          "calls": 1,
+          "cpu_seconds": 0.10662999999999989,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 29368320,
+          "wall_seconds": 0.10691129199994975
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "offline_analysis",
+          "calls": 1,
+          "cpu_seconds": 3.7889929999999996,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 47673344,
+          "wall_seconds": 3.790886252000064
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "process_parse",
+          "calls": 1,
+          "cpu_seconds": 0.0008270000000001332,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 29368320,
+          "wall_seconds": 0.0008330419999538208
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "standard_projection",
+          "calls": 1,
+          "cpu_seconds": 1.540533,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 50569216,
+          "wall_seconds": 1.541311250999911
+        }
+      ]
+    },
+    {
+      "case": "S-replay",
+      "attempt": 1,
+      "status": "failed",
+      "whole_chain_seconds": 1800.6258668750233,
+      "image_id": "sha256:f162027639d8ccf2696b298e696076a0b9f2864e559ac05119f46b6176133d5c",
+      "interpretation": "historical development run only; old verifier integrity gap retained; not isolated-change causal measurement",
+      "stages": [
+        {
+          "case": "S-replay",
+          "phase": "export",
+          "controller_status": "passed",
+          "controller_wall_seconds": 1166.0371197919885,
+          "native_status": "passed",
+          "native_wall_seconds": 1165.7100821130002,
+          "native_process_cpu_seconds": 1022.382919,
+          "native_process_rss_high_water_bytes": 108933120,
+          "cgroup_peak_memory_bytes": null,
+          "cgroup_cpu_usage_seconds": null,
+          "cgroup_nr_throttled": null,
+          "error_type": null,
+          "reason": null,
+          "native_packet": "export-result.json",
+          "missing_reason": null
+        },
+        {
+          "case": "S-replay",
+          "phase": "verify",
+          "controller_status": "failed",
+          "controller_wall_seconds": 634.1311061249871,
+          "native_status": "failed",
+          "native_wall_seconds": 633.8188224969999,
+          "native_process_cpu_seconds": 633.173754,
+          "native_process_rss_high_water_bytes": 73715712,
+          "cgroup_peak_memory_bytes": null,
+          "cgroup_cpu_usage_seconds": null,
+          "cgroup_nr_throttled": null,
+          "error_type": "ValueError",
+          "reason": "shared_store_deadline_exceeded",
+          "native_packet": "verify-result.json",
+          "missing_reason": null
+        }
+      ],
+      "nested_aggregates": [
+        {
+          "container_phase": "export",
+          "measurement_phase": "association_and_evidence",
+          "calls": 305,
+          "cpu_seconds": 261.4966249999991,
+          "failed": 0,
+          "returned": 305,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 261.6323760780019
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "compact_node_verification",
+          "calls": 1,
+          "cpu_seconds": 35.98400199999992,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 36.40984034999997
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "compact_store_write",
+          "calls": 2178,
+          "cpu_seconds": 484.39424799999847,
+          "failed": 0,
+          "returned": 2178,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 627.0543163929998
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "complete_export",
+          "calls": 1,
+          "cpu_seconds": 1022.078374,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 1165.5641594459998
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "history_generation",
+          "calls": 310,
+          "cpu_seconds": 658.0992259999997,
+          "failed": 0,
+          "returned": 310,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 796.6804513689985
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "network_parse",
+          "calls": 202,
+          "cpu_seconds": 1.4720589999999665,
+          "failed": 0,
+          "returned": 202,
+          "rss_high_water_bytes": 97574912,
+          "wall_seconds": 1.4851028320002797
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "process_parse",
+          "calls": 101,
+          "cpu_seconds": 0.006490000000028459,
+          "failed": 0,
+          "returned": 101,
+          "rss_high_water_bytes": 80556032,
+          "wall_seconds": 0.006854378000411998
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "replay_input_snapshot",
+          "calls": 608,
+          "cpu_seconds": 9.091496999999865,
+          "failed": 0,
+          "returned": 608,
+          "rss_high_water_bytes": 97574912,
+          "wall_seconds": 9.134287958001096
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "replay_network_prefix",
+          "calls": 608,
+          "cpu_seconds": 2.6946120000005567,
+          "failed": 0,
+          "returned": 608,
+          "rss_high_water_bytes": 97574912,
+          "wall_seconds": 2.714252000999977
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "replay_process_prefix",
+          "calls": 608,
+          "cpu_seconds": 0.1279990000000399,
+          "failed": 0,
+          "returned": 608,
+          "rss_high_water_bytes": 97574912,
+          "wall_seconds": 0.13183647000073506
+        },
+        {
+          "container_phase": "export",
+          "measurement_phase": "standard_projection",
+          "calls": 311,
+          "cpu_seconds": 148.24202900000012,
+          "failed": 0,
+          "returned": 311,
+          "rss_high_water_bytes": 108933120,
+          "wall_seconds": 148.33401027399964
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "artifact_verification",
+          "calls": 1,
+          "cpu_seconds": 632.859872,
+          "failed": 1,
+          "returned": 0,
+          "rss_high_water_bytes": 73715712,
+          "wall_seconds": 633.656815956
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "association_and_evidence",
+          "calls": 285,
+          "cpu_seconds": 182.40472300000027,
+          "failed": 0,
+          "returned": 285,
+          "rss_high_water_bytes": 73715712,
+          "wall_seconds": 182.50088983500018
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "compact_node_verification",
+          "calls": 1,
+          "cpu_seconds": 34.719205,
+          "failed": 0,
+          "returned": 1,
+          "rss_high_water_bytes": 27131904,
+          "wall_seconds": 35.15442684899995
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "compact_store_write",
+          "calls": 1987,
+          "cpu_seconds": 272.40409700000043,
+          "failed": 1,
+          "returned": 1986,
+          "rss_high_water_bytes": 73715712,
+          "wall_seconds": 272.5657773600003
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "complete_export",
+          "calls": 1,
+          "cpu_seconds": 597.906956,
+          "failed": 1,
+          "returned": 0,
+          "rss_high_water_bytes": 73715712,
+          "wall_seconds": 598.241299773
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "history_generation",
+          "calls": 285,
+          "cpu_seconds": 379.9536899999998,
+          "failed": 1,
+          "returned": 284,
+          "rss_high_water_bytes": 73715712,
+          "wall_seconds": 380.1660177700012
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "network_parse",
+          "calls": 201,
+          "cpu_seconds": 1.615427000000171,
+          "failed": 0,
+          "returned": 201,
+          "rss_high_water_bytes": 67514368,
+          "wall_seconds": 1.617397876997984
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "process_parse",
+          "calls": 84,
+          "cpu_seconds": 0.005524000000131757,
+          "failed": 0,
+          "returned": 84,
+          "rss_high_water_bytes": 73003008,
+          "wall_seconds": 0.005800584999178682
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "replay_input_snapshot",
+          "calls": 568,
+          "cpu_seconds": 8.118538000000145,
+          "failed": 0,
+          "returned": 568,
+          "rss_high_water_bytes": 73003008,
+          "wall_seconds": 8.132784582001022
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "replay_network_prefix",
+          "calls": 568,
+          "cpu_seconds": 2.8222380000004774,
+          "failed": 0,
+          "returned": 568,
+          "rss_high_water_bytes": 73003008,
+          "wall_seconds": 2.826068883998005
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "replay_process_prefix",
+          "calls": 568,
+          "cpu_seconds": 0.11351499999963632,
+          "failed": 0,
+          "returned": 568,
+          "rss_high_water_bytes": 73003008,
+          "wall_seconds": 0.11652380099758375
+        },
+        {
+          "container_phase": "verify",
+          "measurement_phase": "standard_projection",
+          "calls": 284,
+          "cpu_seconds": 80.84026999999988,
+          "failed": 0,
+          "returned": 284,
+          "rss_high_water_bytes": 73003008,
+          "wall_seconds": 80.88789803500367
+        }
+      ]
+    }
+  ],
+  "comparison_warning": "dev4 standard_projection executes writer/source-sink callbacks inside its span; dev3 standard_projection did not include these same storage operations. 148.334 to 193.684 is not an isolated algorithm slowdown.",
+  "L_extrapolation": null,
+  "original_sources": {
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/report.json": {
+      "exists": true,
+      "size_bytes": 224741,
+      "sha256": "d059fca1075d5f476ef5cf9bdaff94eb06e29a630ffee7158053e4344771153a"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/export-result.json": {
+      "exists": true,
+      "size_bytes": 10553,
+      "sha256": "723cc110e2ddaa2c750c814d8eb77ca4d5c3d85b139dacc4b8ca696f8b72fa84"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/verify-result.json": {
+      "exists": true,
+      "size_bytes": 6318,
+      "sha256": "41917c3f09fd53db85d8c36bc06a423ed9620b61cc23868a53f4cb8c3928f52c"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/query-result.json": {
+      "exists": true,
+      "size_bytes": 77774,
+      "sha256": "b0e602414d25b040b33afcad6f43e055f81c235f65824ae508a5039c405736b5"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/query-after-handoff-result.json": {
+      "exists": true,
+      "size_bytes": 77784,
+      "sha256": "ef5c2538526b3af643129455f6a34724ccb309a8305a97b3389b6051469495f4"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/result/artifact/run_manifest.json": {
+      "exists": true,
+      "size_bytes": 3957,
+      "sha256": "520099445b1d063dcd498f168f486809e83186a4b6a32b775ae92b6b802dfb17"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/result/artifact/shared/manifest.json": {
+      "exists": true,
+      "size_bytes": 857,
+      "sha256": "23ac6a8b3ef8314eaba2251f83bf4c3aed87b459bffef2735c836d4a1f0f2876"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/measurements/export/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 6623,
+      "sha256": "03993e3c481252c71fd8daf091826b0b43e68007ddf2293ea8c89e5156821ed1"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-offline-attempt1/measurements/verify/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 7077,
+      "sha256": "2dee41327c948e58f00af7aaff03e3fe4584d6d37de70f3d96180dbaf98bfce6"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/report.json": {
+      "exists": true,
+      "size_bytes": 34574,
+      "sha256": "72e712852d64ecf2a5c0500561e3ead3ddf37be443d12bc7144b69b5d4b9d652"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/export-result.json": {
+      "exists": true,
+      "size_bytes": 12225,
+      "sha256": "7389c6d7c1779e37db2405e08b2af04e2dd67ae8e8f959f8d785996f5a9af0d7"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/verify-result.json": {
+      "exists": true,
+      "size_bytes": 5506,
+      "sha256": "bb78c0bdc91318d89e6dd01ef897bdee7a964e38aefa95852733c788bab13d33"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/query-result.json": {
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/query-after-handoff-result.json": {
+      "exists": false,
+      "size_bytes": null,
+      "sha256": null
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/result/artifact/run_manifest.json": {
+      "exists": true,
+      "size_bytes": 5197,
+      "sha256": "4d6c31329042d3e85191ae1dfc7b93cdf600900cc072c7dc8fbe11b3dbbe4323"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/result/artifact/shared/manifest.json": {
+      "exists": true,
+      "size_bytes": 858,
+      "sha256": "0ab7358fe0d47c51ce2c9f08e8c8379f0e39baf7f6527bd7cb106a0f411924f7"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/measurements/export/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 54496,
+      "sha256": "c6e443af1b8bf4ad846a9b10c1e1ed43670cb027818ef3f2d88f0e398ea3a536"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-S-replay-attempt1/measurements/verify/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 55777,
+      "sha256": "ea8d4ed3508731bf87c7a573bb471ba9468be21db68e07179bc1532263e7028e"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/report.json": {
+      "exists": true,
+      "size_bytes": 225479,
+      "sha256": "31e24867da818d7de4e135bf9b309fe0afdabdd84f9f1a03c836aece63072178"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/export-result.json": {
+      "exists": true,
+      "size_bytes": 10577,
+      "sha256": "94b178788048a99b5b57c175f7a17269c6d136d62532e4666479b040f7493b24"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/verify-result.json": {
+      "exists": true,
+      "size_bytes": 6330,
+      "sha256": "f8d3abdfcb8e19e28586d6c5d0966d6ccfe0d2940d66b3f65b111f6e7d0b8c78"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/query-result.json": {
+      "exists": true,
+      "size_bytes": 78074,
+      "sha256": "092189bd0da120c7ba9b2f9e7c12c8a237d7817ebef53c19985c1c1938eb44bc"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/query-after-handoff-result.json": {
+      "exists": true,
+      "size_bytes": 78074,
+      "sha256": "aa60720fe6a803ca3e77bd89d7b5666ebfc15c86aab9ec01cb24990c650f137a"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/result/artifact/run_manifest.json": {
+      "exists": true,
+      "size_bytes": 3979,
+      "sha256": "9847a8d741bd2f589190bb4143209b100a886296a24b015bb5ee3bdf5664a501"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/result/artifact/shared/manifest.json": {
+      "exists": true,
+      "size_bytes": 860,
+      "sha256": "9131883c38ec993904a58b3ca66f0b2b0f897a1a8e65cf20a73c3b538bd1235c"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/measurements/export/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 6584,
+      "sha256": "674f435047be1122fcd6b3b70e844b69f96d601e171eb36f3cb166bdae63e8cc"
+    },
+    "outputs/cpag-r19-core-matrix-dev4-M-offline-attempt1/measurements/verify/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 7134,
+      "sha256": "d250f2ddd9c8b3b2a0846cfb515f626d71f98ee1c52c14cb53609a63d24b8b13"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-offline-attempt2/report.json": {
+      "exists": true,
+      "size_bytes": 218568,
+      "sha256": "da1b548992530469faceac103d4d62b5222c5572f14cce1017e7d4431a667893"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-offline-attempt2/export-result.json": {
+      "exists": true,
+      "size_bytes": 9498,
+      "sha256": "d416f0836c818869da0a22bc653b432ba2b88e15dbd24f48d6c31d48c1390bb2"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-offline-attempt2/measurements/export/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 5059,
+      "sha256": "1105de27d8354f44e1ca8dd547ddd23cb9b679f7aeb84d5745757f33f58a0800"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-offline-attempt2/verify-result.json": {
+      "exists": true,
+      "size_bytes": 4284,
+      "sha256": "36f1c2dbefd206c7bf82c8a229ef9a7d3c6a09f2dc57812c93a28a618da1b9da"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-offline-attempt2/measurements/verify/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 5404,
+      "sha256": "76aefcfc5a457bdab8c6334bfa16418465fe7203d41343f4429c305c2a829aaf"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-replay-attempt1/report.json": {
+      "exists": true,
+      "size_bytes": 33115,
+      "sha256": "731546fe2b0bd78e178b04c7fc6b4fd9cda7a4839aa814fdb346e8d3e284ed44"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-replay-attempt1/export-result.json": {
+      "exists": true,
+      "size_bytes": 11161,
+      "sha256": "35c50968bfe39c9c869ce1ba038e04c258f2da26736ea6b8738bf64f1610ba0c"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-replay-attempt1/measurements/export/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 54285,
+      "sha256": "ba5a6d8f0ac9a7318d3693057f4eb9dea1a0b57ccbd6b354ac559f0c00e4dc46"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-replay-attempt1/verify-result.json": {
+      "exists": true,
+      "size_bytes": 4321,
+      "sha256": "d3a08cd3b647ebf3ae2f399cddb5915be38716c650153d46d7dc8a7dcf1aeea1"
+    },
+    "outputs/cpag-r19-core-matrix-dev3-S-replay-attempt1/measurements/verify/phases.jsonl": {
+      "exists": true,
+      "size_bytes": 54497,
+      "sha256": "7d8ef939579f8268e38b4154afd97c117caf039d5d3ef327c3ff6be1e881832e"
+    }
+  }
+}

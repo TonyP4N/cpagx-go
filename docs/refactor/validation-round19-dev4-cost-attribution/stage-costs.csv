@@ -1,0 +1,13 @@
+case,phase,controller_status,controller_wall_seconds,native_status,native_wall_seconds,native_process_cpu_seconds,native_process_rss_high_water_bytes,cgroup_peak_memory_bytes,cgroup_cpu_usage_seconds,cgroup_nr_throttled,error_type,reason,native_packet,missing_reason
+S-offline,export,passed,15.88528220797889,passed,15.304478590000002,14.838721,54902784,59367424,15.242208,0,null,null,export-result.json,null
+S-offline,verify,passed,13.749057042005006,passed,12.498119755999994,12.46215,62976000,62357504,12.797647,0,null,null,verify-result.json,null
+S-offline,query,passed,3.2637643750058487,passed,3.0402167099999815,2.997572,64851968,63655936,3.066144,0,null,null,query-result.json,null
+S-offline,query-after-handoff,passed,3.2803225420066155,passed,3.0471059600000103,2.9779889999999996,65495040,63283200,3.045943,0,null,null,query-after-handoff-result.json,null
+S-replay,export,passed,1103.2733896250138,passed,1101.301845792,953.2241240000001,109735936,192516096,984.644394,0,null,null,export-result.json,null
+S-replay,verify,failed,697.4195711250068,failed,696.5776479019999,695.754242,155934720,241197056,715.444201,0,ValueError,shared_store_deadline_exceeded,verify-result.json,null
+S-replay,query,null,null,null,null,null,null,null,null,null,null,null,null,not_run_after_failed_source_verification
+S-replay,query-after-handoff,null,null,null,null,null,null,null,null,null,null,null,null,not_run_after_failed_source_verification
+M-offline,export,passed,300.7583177500055,passed,299.762327553,279.98698,293548032,412606464,288.59754,0,null,null,export-result.json,null
+M-offline,verify,passed,239.92354920800426,passed,239.7245788590003,239.080065,383442944,485130240,245.910682,0,null,null,verify-result.json,null
+M-offline,query,passed,4.7861231669958215,passed,4.571515793999879,4.228663,70447104,161759232,4.364466,0,null,null,query-result.json,null
+M-offline,query-after-handoff,passed,4.725577958015492,passed,4.509864710000329,4.136152,70393856,161738752,4.27075,0,null,null,query-after-handoff-result.json,null
