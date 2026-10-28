@@ -1,0 +1,92 @@
+[
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "before-report.json",
+    "raw_sha256": "2b86d97f61549723119221c5f7abaa203b85b27fb5c0ec060ff2ec64fc4c661e",
+    "raw_bytes": 1371,
+    "public_file": "before-report.json",
+    "public_sha256": "2b86d97f61549723119221c5f7abaa203b85b27fb5c0ec060ff2ec64fc4c661e",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "before-full-manifest.json",
+    "raw_sha256": "36e62a6f1b120036ae26aa26f7e59bff31c4859f548299707c0d248bfe96bc8d",
+    "raw_bytes": 2954,
+    "public_file": "before-full-manifest.json",
+    "public_sha256": "36e62a6f1b120036ae26aa26f7e59bff31c4859f548299707c0d248bfe96bc8d",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "before-tests.log",
+    "raw_sha256": "2b23b6c967ae69c52fb8d8a68040f15ebb3938818ebff5059e466f5cde7cf1f0",
+    "raw_bytes": 18589,
+    "public_file": "before-tests.log",
+    "public_sha256": "f43f4ca988198131007ea8a92869a376b39831465e0b7846ccd705e74396ba3b",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-report.json",
+    "raw_sha256": "161f15caabb556beb98085445f923cacd12ab507f2901f34623e60c2ed88ea30",
+    "raw_bytes": 1053,
+    "public_file": "after-report.json",
+    "public_sha256": "161f15caabb556beb98085445f923cacd12ab507f2901f34623e60c2ed88ea30",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-focused-tests.log",
+    "raw_sha256": "6a920b803c554686ab3655099546f372348ddb7091b0861b9ad1bb0ac884b7a4",
+    "raw_bytes": 1749,
+    "public_file": "after-focused-tests.log",
+    "public_sha256": "6a920b803c554686ab3655099546f372348ddb7091b0861b9ad1bb0ac884b7a4",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-contract-suite.log",
+    "raw_sha256": "8bf7fb4b0aede472369c6bcc511a0dd38c3b2d6758280384b1d8abb25f8d5f49",
+    "raw_bytes": 2883,
+    "public_file": "after-contract-suite.log",
+    "public_sha256": "8bf7fb4b0aede472369c6bcc511a0dd38c3b2d6758280384b1d8abb25f8d5f49",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-store-regression.log",
+    "raw_sha256": "6934eddc33442b1a7eccc7485adedf0c863777b51b92b5cdd30db97a1c1afad4",
+    "raw_bytes": 4277,
+    "public_file": "after-store-regression.log",
+    "public_sha256": "6934eddc33442b1a7eccc7485adedf0c863777b51b92b5cdd30db97a1c1afad4",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-publisher-regression.log",
+    "raw_sha256": "019f1aaf1fbd86f3b6e0682db0e5413b47505e15bac0a9c9d5be00f6888f0561",
+    "raw_bytes": 1200,
+    "public_file": "after-publisher-regression.log",
+    "public_sha256": "019f1aaf1fbd86f3b6e0682db0e5413b47505e15bac0a9c9d5be00f6888f0561",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-source-sink-regression.log",
+    "raw_sha256": "908f5bdf869ec5968b059cd4ef83227b9ba5bddca317ae39ec1c17cd70a4b110",
+    "raw_bytes": 1101,
+    "public_file": "after-source-sink-regression.log",
+    "public_sha256": "908f5bdf869ec5968b059cd4ef83227b9ba5bddca317ae39ec1c17cd70a4b110",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  },
+  {
+    "source_attempt": "cpag-r19-manifest-extent-contract-attempt1",
+    "source_file": "after-logical-budget-regression.log",
+    "raw_sha256": "66f362dc12c4f61d6b2a96d1f6806f9bf9e1ceaf219c33c7348684ff8b6003e2",
+    "raw_bytes": 609,
+    "public_file": "after-logical-budget-regression.log",
+    "public_sha256": "66f362dc12c4f61d6b2a96d1f6806f9bf9e1ceaf219c33c7348684ff8b6003e2",
+    "public_changes": "workspace prefix redacted; trailing whitespace only"
+  }
+]

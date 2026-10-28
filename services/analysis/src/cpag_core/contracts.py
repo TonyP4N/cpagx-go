@@ -51,6 +51,17 @@ def _validate_impl(schema, value, path):
     if '$ref' in schema:
         _validate(_schema(schema['$ref']), value, path)
         return
+    for condition in schema.get('allOf', []):
+        _validate(condition, value, path)
+    if 'if' in schema:
+        try:
+            _validate(schema['if'], value, path)
+        except ContractError:
+            branch='else'
+        else:
+            branch='then'
+        if branch in schema:
+            _validate(schema[branch], value, path)
     if 'const' in schema and (type(value) is not type(schema['const']) or value != schema['const']):
         raise ContractError(f'{path}: wrong constant/schema version')
     if 'enum' in schema and value not in schema['enum']:

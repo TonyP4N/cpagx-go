@@ -1,0 +1,10 @@
+Run from repository root; all invocations use PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=services/analysis/src .venv/bin/python.
+
+Before: -m unittest discover -s tests/contracts -p test_compact_extent_contract.py -v (exit1, retained). Direct validate(CompactStoreRunManifest,before-full-manifest.json) fails above maximum.
+After: -m unittest discover -s tests/contracts -v
+After: -m unittest discover -s tests/core -p "test_shared_artifact_store*.py" -v
+After: -m unittest discover -s tests/core -p test_shared_export.py -v
+After: -m unittest discover -s tests/core -p test_source_merkle_sink.py -v
+After: -m unittest discover -s tests/core -p test_compact_history_budget.py -v
+
+No Docker, native build, measurement fixture or active private run was modified. Before copies of schema/contracts/test source remain in the private attempt and their SHA appears in before-report.json. Do not overwrite the retained attempt.

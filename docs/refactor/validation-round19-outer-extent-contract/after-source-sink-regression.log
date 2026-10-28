@@ -1,0 +1,10 @@
+test_complete_offline_and_replay_shared_source_flow_roots_match_without_sqlite (test_source_merkle_sink.SourceMerkleSinkTests.test_complete_offline_and_replay_shared_source_flow_roots_match_without_sqlite) ... ok
+test_compose_cannot_accept_an_original_or_guessed_root_not_rebuilt_from_values (test_source_merkle_sink.SourceMerkleSinkTests.test_compose_cannot_accept_an_original_or_guessed_root_not_rebuilt_from_values) ... ok
+test_every_descriptor_node_count_and_root_index_equal_the_physical_writer (test_source_merkle_sink.SourceMerkleSinkTests.test_every_descriptor_node_count_and_root_index_equal_the_physical_writer) ... ok
+test_new_verification_strategy_still_rejects_a_self_consistent_forged_artifact (test_source_merkle_sink.SourceMerkleSinkTests.test_new_verification_strategy_still_rejects_a_self_consistent_forged_artifact) ... ok
+test_unchanged_limits_and_failed_rebuild_never_seals (test_source_merkle_sink.SourceMerkleSinkTests.test_unchanged_limits_and_failed_rebuild_never_seals) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.703s
+
+OK

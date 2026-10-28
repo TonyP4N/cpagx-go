@@ -146,7 +146,7 @@
           "logical_bytes": {
             "type": "integer",
             "minimum": 1,
-            "maximum": 549755813888
+            "maximum": 4503599627370496
           },
           "kind": {
             "enum": [
@@ -331,5 +331,45 @@
     "network_count",
     "graph_identity_strategy"
   ],
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "required": ["storage_budget"],
+        "properties": {
+          "storage_budget": {
+            "required": ["version"],
+            "properties": {
+              "version": {"const": "shared-storage-budget-2"}
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "storage_budget": {
+            "properties": {
+              "max_logical_root_bytes": {"const": 4503599627370496}
+            }
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "storage_budget": {
+            "properties": {
+              "max_logical_root_bytes": {"const": 549755813888}
+            }
+          },
+          "logical_artifacts": {
+            "items": {
+              "properties": {
+                "logical_bytes": {"maximum": 549755813888}
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
 }
