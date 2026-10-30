@@ -343,13 +343,13 @@ class Harness:
         code,_=self.client.request('GET',f'/api/v3/runs/{run}/shared-query?action=metadata',timeout=11)
         if code!=409:raise RuntimeError('restart_must_lose_in_memory_verification_approval')
         restart_clock=clock_start();deadline=restart_clock['wall']+120
-        while time.time()<deadline:
+        while True:
             self.guard_clock(run,self.run_row(run),restart_clock,'restart_reverification')
+            if time.time()>=deadline:raise RuntimeError('small_restart_reverification_timeout')
             code,value=self.client.request('GET',f'/api/v3/runs/{run}/shared-query?action=metadata',timeout=11)
             if code==200:break
             if code!=409:raise RuntimeError('restart_reverification_unexpected_status')
             time.sleep(.25)
-        else:raise RuntimeError('small_restart_reverification_timeout')
         self.report['checks']['restart_reverification']={'first_status':409,'eventual_status':200,'run_id':run}
         self.start_worker();self.flush()
     def legacy_before_compact(self):
