@@ -8,6 +8,7 @@ import (
 	"flag"
 	"github.com/TonyP4N/cpagx-go/internal/capacity"
 	"github.com/TonyP4N/cpagx-go/internal/catalog"
+	"github.com/TonyP4N/cpagx-go/internal/jobs"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"log"
 	"net/http"
@@ -43,6 +44,18 @@ func main() {
 		log.Fatal(e)
 	}
 	defer public.Close()
+	// The explicit DAG6 service owns cancellation closure even if its Worker
+	// stops after handing off verified exit evidence. Older profiles retain their
+	// separately operated recovery entrypoint.
+	if cfg.CapacityPolicy == capacity.EngineeringCore {
+		recoveryContext, stopRecovery := context.WithCancel(context.Background())
+		recoveryDone := make(chan struct{})
+		go func() {
+			defer close(recoveryDone)
+			(jobs.Repository{DB: db}).RunRecovery(recoveryContext, cfg.ControlRoot, time.Second, func(err error) { log.Printf("compact job recovery pass failed: %v", err) })
+		}()
+		defer func() { stopRecovery(); <-recoveryDone }()
+	}
 	if *backfill {
 		ctx, stop := context.WithTimeout(context.Background(), 10*time.Minute)
 		defer stop()

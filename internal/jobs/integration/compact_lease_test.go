@@ -182,7 +182,18 @@ else:raise SystemExit(2)
 				t.Fatal("pending HTTP stole lease", status.State, status.Attempt)
 			}
 			if loss == "cancel" {
-				must(repo.Cancel(ctx, job))
+				// This is the same independently owned recovery loop started
+				// by the explicit unified Go entrypoint, not a Worker ACK.
+				recoveryContext, stopRecovery := context.WithCancel(context.Background())
+				recoveryDone := make(chan struct{})
+				go func() {
+					defer close(recoveryDone)
+					repo.RunRecovery(recoveryContext, control, 100*time.Millisecond, nil)
+				}()
+				defer func() { stopRecovery(); <-recoveryDone }()
+				if code := post("cancel", nil); code != 200 {
+					t.Fatalf("HTTP cancel=%d", code)
+				}
 				if err = repo.AcknowledgeCancel(ctx, claim); !errors.Is(err, jobs.ErrStale) {
 					t.Fatalf("cancel ACK before verifier exit=%v", err)
 				}
@@ -202,6 +213,23 @@ else:raise SystemExit(2)
 			if _, err = os.Stat(marker + ".removed"); err != nil {
 				t.Fatal("verifier cleanup not proven", err)
 			}
+			if loss == "cancel" {
+				// The unchanged five-second recovery delay and both exit
+				// predicates must pass before cancellation becomes terminal.
+				closureDeadline := time.Now().Add(7 * time.Second)
+				for {
+					current, e := repo.Status(ctx, job)
+					must(e)
+					if current.State == "cancelled" {
+						break
+					}
+					if time.Now().After(closureDeadline) {
+						t.Fatalf("automatic cancellation closure stalled at %s", current.State)
+					}
+					time.Sleep(50 * time.Millisecond)
+				}
+			}
+
 			receipts, err := filepath.Glob(filepath.Join(control, "compact-verification-*.json"))
 			must(err)
 			if len(receipts) != 1 {
