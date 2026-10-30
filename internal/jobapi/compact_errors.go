@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os/exec"
 	"strings"
 )
 
 var ErrCompactResultChanged = errors.New("compact published result changed")
+var ErrCompactSourceVerificationFailed = errors.New("compact source verification failed after controlled exit")
 var ErrCompactQueryLimit = errors.New("compact query outside bounded read contract")
 
 // Only typed service failures cross the internal HTTP boundary as public codes.
@@ -22,6 +24,8 @@ func CompactErrorCode(err error) string {
 		return "verification_pending"
 	case errors.Is(err, ErrCompactResultChanged):
 		return "result_changed"
+	case errors.Is(err, ErrCompactSourceVerificationFailed):
+		return "source_verification_failed"
 	case errors.Is(err, ErrCompactQueryLimit):
 		return "query_limit"
 	}
@@ -45,4 +49,26 @@ func compactHelperError(raw []byte) error {
 	default:
 		return fmt.Errorf("compact service helper refused: %s", failure.Reason)
 	}
+}
+
+// Only an explicitly rejected, exited helper is permanent. Control transport,
+// cancellation, interrupted execution and unstructured failures remain unknown.
+func compactPermanentVerificationFailure(exitError error, exited bool, stderr []byte) error {
+	var processExit *exec.ExitError
+	if !exited || !errors.As(exitError, &processExit) || processExit.ExitCode() <= 0 {
+		return nil
+	}
+	var failure struct {
+		Status string `json:"status"`
+		Reason string `json:"reason"`
+		Type   string `json:"error_type"`
+	}
+	if json.Unmarshal(stderr, &failure) != nil || failure.Status != "failed" || failure.Reason == "" {
+		return nil
+	}
+	reason := failure.Reason
+	if len(reason) > 768 {
+		reason = reason[:768]
+	}
+	return fmt.Errorf("%w: %s: %s", ErrCompactSourceVerificationFailed, failure.Type, reason)
 }

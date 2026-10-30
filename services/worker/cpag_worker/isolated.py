@@ -35,6 +35,25 @@ def atomic_json(path,value):
     os.replace(temporary,path);sync_dir(path.parent)
 
 
+def prepare_compact_publication_root(output):
+    """Let the service owner write its anchor; the verifier may only read.
+
+    Linux bind mounts retain host ownership. The verifier UID differs from the
+    service UID and must traverse this root before completion is acknowledged.
+    Final successful publication seals the root to 0555 as before.
+    """
+    if output.is_symlink() or not output.is_dir():raise ValueError('invalid compact publication directory')
+    os.chmod(output,0o755);sync_dir(output)
+
+
+def seal_handoff(stage,*,compact=False):
+    for path in stage.rglob('*'):
+        if path.is_file():os.chmod(path,0o444)
+        elif path.is_dir():os.chmod(path,0o555)
+    if compact:prepare_compact_publication_root(stage)
+    else:sync_dir(stage)
+
+
 class RecoveryUnavailable(Exception):
     pass
 
@@ -202,6 +221,7 @@ class DockerExecutor:
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(output,beneath(self.root,payload['network']['path']))
+        if compact:prepare_compact_publication_root(output)
         self.complete(record,handoff['manifest_sha256'])
         sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
         atomic_json(base/'publication.json',handoff)
@@ -648,10 +668,7 @@ class DockerExecutor:
             lock=os.open(str(output)+'.publish-lock',os.O_WRONLY|os.O_CREAT|os.O_EXCL,0o600)
             os.fsync(lock);os.close(lock);sync_dir(output.parent)
             if output.exists():raise ValueError('immutable output already exists')
-            for path in stage.rglob('*'):
-                if path.is_file():os.chmod(path,0o444)
-                elif path.is_dir():os.chmod(path,0o555)
-            sync_dir(stage)
+            seal_handoff(stage,compact=compact)
             os.rename(stage,output);sync_dir(output.parent);stage=None
             self.checkpoint('after_publish')
             lease_health['phase']='publication'

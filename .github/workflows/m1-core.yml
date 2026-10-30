@@ -446,6 +446,7 @@ jobs:
           echo "R19_FORMAL_OUTPUT=$r19_work" >> "$GITHUB_ENV"
           sudo install -d -m 1777 /private/tmp
           r19_image="$(docker image inspect cpag-isolated:r18-acceptance --format '{{.Id}}')"
+          python scripts/validation/round19_linux_permissions.py --image "$r19_image" --output "${r19_work}-permissions"
           python scripts/validation/round19_formal_service_acceptance.py --mode small --image "$r19_image" --output "$r19_work"
       - uses: actions/upload-artifact@v4
         if: always()
@@ -465,3 +466,4 @@ jobs:
             ${{ env.R19_FORMAL_OUTPUT }}/report.json
             ${{ env.R19_FORMAL_OUTPUT }}/http-timings.json
             ${{ env.R19_FORMAL_OUTPUT }}/*-resource-proof.json
+            ${{ env.R19_FORMAL_OUTPUT }}-permissions/report.json

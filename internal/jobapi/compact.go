@@ -18,6 +18,7 @@ import (
 	"reflect"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"github.com/TonyP4N/cpagx-go/internal/capacity"
@@ -218,6 +219,9 @@ func (s *Server) compactWrapper(ctx context.Context, base string, p Payload, sha
 		if !matched || a.Path == "run_manifest.json" {
 			return m, errors.New("compact core inventory mismatch")
 		}
+	}
+	if err = s.prepareCompactAnchor(base, sha); err != nil {
+		return m, err
 	}
 	return m, nil
 }
@@ -488,6 +492,11 @@ func (s *Server) completeCompact(r *http.Request, c jobs.Claim, p Payload, sha s
 		return err
 	}
 	if _, err := s.compactApprovalFor(base, p, sha); err != nil {
+		if errors.Is(err, ErrCompactSourceVerificationFailed) && !done {
+			if failure := s.Repo.FailVerified(r.Context(), c, err.Error()); failure != nil {
+				return failure
+			}
+		}
 		return err
 	}
 	key, err := jobs.ArtifactKey(c, sha)
@@ -505,7 +514,7 @@ func (s *Server) completeCompact(r *http.Request, c jobs.Claim, p Payload, sha s
 	if err != nil || bytesSHA(raw) != sha {
 		return errors.New("compact wrapper changed before publication")
 	}
-	out, err := os.OpenFile(filepath.Join(s.Root, key), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0400)
+	out, err := os.OpenFile(filepath.Join(s.Root, key), os.O_WRONLY|os.O_CREATE|os.O_EXCL, 0444)
 	if os.IsExist(err) {
 		if _, err = s.check(Ref{key, sha}); err != nil {
 			return err
@@ -617,4 +626,49 @@ func (s *Server) OpenVerifiedCompactArtifact(r *http.Request, id, name string) (
 		return scratch, nil
 	}
 	return nil, errors.New("compact artifact not found")
+}
+
+// Publication anchors are public manifest bytes, not authority. A compact-only
+// compatibility repair permits the read-only verifier UID to reopen old 0400
+// anchors, but only after authenticating the actual regular file descriptor.
+func (s *Server) prepareCompactAnchor(base, sha string) error {
+	relative := base + sha + ".json"
+	path := filepath.Join(s.Root, relative)
+	before, err := os.Lstat(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	if !before.Mode().IsRegular() {
+		return errors.New("compact anchor must be a regular nonsymlink file")
+	}
+	path, err = s.file(relative)
+	if err != nil {
+		return err
+	}
+	file, err := os.OpenFile(path, os.O_RDONLY|syscall.O_NOFOLLOW, 0)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	info, err := file.Stat()
+	if err != nil || !info.Mode().IsRegular() || !os.SameFile(before, info) || info.Size() < 1 || info.Size() > 65536 {
+		return errors.New("compact anchor size or type mismatch")
+	}
+	hash := sha256.New()
+	if _, err = io.Copy(hash, io.LimitReader(file, 65537)); err != nil {
+		return err
+	}
+	if fmt.Sprintf("%x", hash.Sum(nil)) != sha {
+		return errors.New("compact anchor digest mismatch")
+	}
+	if info.Mode().Perm() != 0444 {
+		if err = file.Chmod(0444); err != nil {
+			return err
+		}
+		return file.Sync()
+	}
+	return nil
 }

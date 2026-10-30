@@ -56,7 +56,7 @@ func TestCompactPendingHTTPDoesNotStarveShortLeaseAndStopsOnOwnershipLoss(t *tes
 			must(e)
 		}
 	}
-	for _, loss := range []string{"cancel", "expire"} {
+	for _, loss := range []string{"cancel", "expire", "reject", "cleanup_error", "receipt_error"} {
 		t.Run(loss, func(t *testing.T) {
 			must := func(err error) {
 				t.Helper()
@@ -84,17 +84,26 @@ identity='a'*64
 operation=sys.argv[1]
 marker=Path(os.environ['CPAG_TEST_VERIFIER_MARKER'])
 if operation=='create':print(identity)
-elif operation=='inspect':print(json.dumps([{'Id':identity,'Config':{'Image':'sha256:'+'b'*64,'Labels':{'cpag.role':'dag6-source-verifier','cpag.job':'compact-http-lease','cpag.attempt':'1'}},'State':{'Running':True,'OOMKilled':False}}]))
+elif operation=='inspect':
+    failed=marker.with_suffix('.failed').exists()
+    print(json.dumps([{'Id':identity,'Config':{'Image':'sha256:'+'b'*64,'Labels':{'cpag.role':'dag6-source-verifier','cpag.job':'compact-http-lease','cpag.attempt':'1'}},'State':{'Running':not failed,'OOMKilled':False,'ExitCode':2 if failed else 0,'Status':'exited' if failed else 'running'}}]))
 elif operation=='start':
     sys.stdin.buffer.read()
     marker.write_text('started')
+    if os.environ.get('CPAG_TEST_VERIFIER_MODE') in ('reject','cleanup_error','receipt_error'):
+        marker.with_suffix('.failed').write_text('failed')
+        print(json.dumps({'status':'failed','error_type':'ValueError','reason':'shared_business_root_does_not_match_sources:analysis.json'}),file=sys.stderr)
+        raise SystemExit(2)
     while True:time.sleep(.1)
-elif operation=='rm':marker.with_suffix('.removed').write_text('removed');print(identity)
+elif operation=='rm':
+    if os.environ.get('CPAG_TEST_VERIFIER_MODE')=='cleanup_error':print('daemon unavailable',file=sys.stderr);raise SystemExit(125)
+    marker.with_suffix('.removed').write_text('removed');print(identity)
 else:raise SystemExit(2)
 `
 			must(os.WriteFile(filepath.Join(bin, "docker"), []byte(script), 0700))
 			marker := filepath.Join(control, "verifier-started")
 			t.Setenv("CPAG_TEST_VERIFIER_MARKER", marker)
+			t.Setenv("CPAG_TEST_VERIFIER_MODE", loss)
 			t.Setenv("PATH", bin+string(os.PathListSeparator)+os.Getenv("PATH"))
 			handler, err := jobapi.NewWithCoordinator(repo, root, token, strings.Repeat("c", 32), control)
 			must(err)
@@ -102,6 +111,9 @@ else:raise SystemExit(2)
 			internal.CapacityPolicy = capacity.EngineeringCore
 			internal.ResourceProfile = capacity.StorageBudget
 			internal.CompactVerifierImage = image
+			if loss == "receipt_error" {
+				internal.ControlRoot = filepath.Join(control, "unavailable-receipt-root")
+			}
 			raw, err := os.ReadFile("../../jobapi/testdata/r19-fixed-s100-replay-profile.json")
 			must(err)
 			put := func(relative string, data []byte) jobapi.Ref {
@@ -165,6 +177,40 @@ else:raise SystemExit(2)
 			if time.Since(started) > time.Second {
 				t.Fatal("complete waited for source verifier")
 			}
+			if loss == "reject" || loss == "cleanup_error" || loss == "receipt_error" {
+				deadline := time.Now().Add(5 * time.Second)
+				lastCode := 202
+				for time.Now().Before(deadline) {
+					lastCode = post("complete", map[string]any{"manifest_sha256": publication.SHA})
+					if lastCode != 202 {
+						break
+					}
+					if code := post("heartbeat", map[string]any{"lease_seconds": 2}); code != 200 {
+						t.Fatalf("pending heartbeat=%d", code)
+					}
+					time.Sleep(50 * time.Millisecond)
+				}
+				current, e := repo.Status(ctx, job)
+				must(e)
+				if loss == "reject" {
+					if lastCode != 409 || current.State != "failed" || current.Attempt != 1 || current.LastError == nil || !strings.Contains(*current.LastError, "shared_business_root_does_not_match_sources") {
+						t.Fatalf("definitive rejection not closed: status=%d job=%+v", lastCode, current)
+					}
+					if _, e = repo.Claim(ctx, "next", time.Minute); !errors.Is(e, sql.ErrNoRows) {
+						t.Fatalf("definitive failure retried: %v", e)
+					}
+					if code := post("heartbeat", map[string]any{"lease_seconds": 2}); code != 409 {
+						t.Fatalf("failed task lease renewed: %d", code)
+					}
+				} else {
+					if lastCode != 400 || current.State != "running" || !current.LeaseValid || current.LastError != nil {
+						t.Fatalf("unknown control failure turned terminal: status=%d job=%+v", lastCode, current)
+					}
+				}
+				t.Logf("%s: complete status=%d state=%s; no trusted artifact", loss, lastCode, current.State)
+				return
+			}
+
 			for deadline := time.Now().Add(2500 * time.Millisecond); time.Now().Before(deadline); time.Sleep(200 * time.Millisecond) {
 				if code := post("heartbeat", map[string]any{"lease_seconds": 2}); code != 200 {
 					t.Fatalf("heartbeat=%d", code)

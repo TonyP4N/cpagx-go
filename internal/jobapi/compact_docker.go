@@ -199,6 +199,7 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 	}
 	inspectContext, inspectCancel := context.WithTimeout(context.Background(), 10*time.Second)
 	inspection, inspectErr := dockerControl(inspectContext, "inspect", container)
+	helperExitedNonzero := false
 	inspectCancel()
 	if inspectErr != nil {
 		receipt["inspection_error"] = inspectErr.Error()
@@ -217,6 +218,10 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 		}
 		if json.Unmarshal(inspection, &values) == nil && len(values) == 1 {
 			receipt["docker_inspection"] = values[0]
+			running, runningKnown := values[0].State["Running"].(bool)
+			exitCode, exitKnown := values[0].State["ExitCode"].(float64)
+			oom, oomKnown := values[0].State["OOMKilled"].(bool)
+			helperExitedNonzero = values[0].ID == container && runningKnown && !running && exitKnown && exitCode > 0 && oomKnown && !oom && values[0].State["Status"] == "exited"
 		}
 	}
 	receiptErr := s.saveCompactReceipt(job, attempt, container, receipt)
@@ -241,6 +246,11 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 	if err != nil {
 		if runctx.Err() != nil {
 			return nil, runctx.Err()
+		}
+		if inspectErr == nil {
+			if rejection := compactPermanentVerificationFailure(err, helperExitedNonzero, stderr.Bytes()); rejection != nil {
+				return nil, rejection
+			}
 		}
 		return nil, fmt.Errorf("compact isolated source verification failed: %s", strings.TrimSpace(stderr.String()))
 	}

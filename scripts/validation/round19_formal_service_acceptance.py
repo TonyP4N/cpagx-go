@@ -197,11 +197,17 @@ class Harness:
         started=clock_start();began=started['wall'];run=self.client.expect('POST','/api/v3/runs',body,code=201)['run']['id']
         row={'id':run,'label':label,'submit_wall':began,'submit_monotonic':started['monotonic']};self.report['runs'].append(row);self.state['run_ids'].append(run);self.state['run_id']=run;self.state['dataset_id']=body['dataset_id'];self.flush()
         self.guard_clock(run,row,started,'submit')
+        next_diagnostic=0
         while True:
             self.guard_clock(run,row,started,'status_poll_before_request')
             if time.time()-began>=2100:raise RuntimeError('formal_service_2100s_timeout')
             status=self.client.expect('GET',f'/api/v3/runs/{run}')['run']
             self.guard_clock(run,row,started,'status_poll')
+            # Persist only bounded, credential-free progress for interrupted CI.
+            # S100's frozen timed sampling path remains unchanged.
+            if self.args.mode=='small' and time.monotonic()>=next_diagnostic:
+                row['last_observed_status']={'state':status['state'],'attempt':status.get('attempt',0),'elapsed_seconds':time.time()-began}
+                self.flush();next_diagnostic=time.monotonic()+5
             if status.get('attempt',0)>1:
                 # This is one bounded measurement, never an automatic retry cell.
                 row.update(state=status['state'],attempt=status['attempt'],first_attempt_retried=True,

@@ -3,7 +3,9 @@ package jobapi
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -326,5 +328,67 @@ func TestFixedCompactS100ReplayProfileMatchesCoreFrozenLimits(t *testing.T) {
 	options["sequence"] = sequence
 	if err = validateReplayProfile(arrivals, ReplayVersion); err == nil {
 		t.Fatal("arrival step budget was relaxed with the independent buffer declaration")
+	}
+}
+
+func TestCompactAnchorReadabilityRepairAuthenticatesBeforeChmod(t *testing.T) {
+	for _, condition := range []string{"valid_old_0400", "tampered", "symlink"} {
+		t.Run(condition, func(t *testing.T) {
+			s, p, base, sha := compactFixture(t)
+			wrapper, err := os.ReadFile(filepath.Join(s.Root, base, "manifest.json"))
+			if err != nil {
+				t.Fatal(err)
+			}
+			anchor := filepath.Join(s.Root, base, sha+".json")
+			if condition == "symlink" {
+				if err = os.Symlink("manifest.json", anchor); err != nil {
+					t.Fatal(err)
+				}
+			} else {
+				if condition == "tampered" {
+					wrapper[len(wrapper)-1] ^= 1
+				}
+				if err = os.WriteFile(anchor, wrapper, 0400); err != nil {
+					t.Fatal(err)
+				}
+			}
+			_, err = s.compactWrapper(context.Background(), base, p, sha)
+			if condition == "valid_old_0400" {
+				if err != nil {
+					t.Fatal(err)
+				}
+				info, e := os.Stat(anchor)
+				if e != nil || info.Mode().Perm() != 0444 {
+					t.Fatalf("old compact anchor not readable to verifier: %v %v", info, e)
+				}
+			} else {
+				if err == nil {
+					t.Fatal("unauthenticated anchor accepted")
+				}
+				info, e := os.Lstat(anchor)
+				if e != nil {
+					t.Fatal(e)
+				}
+				if condition == "tampered" && info.Mode().Perm() != 0400 {
+					t.Fatal("tampered anchor permissions changed")
+				}
+			}
+		})
+	}
+}
+func TestCompactPermanentFailureRequiresCompletedStructuredHelper(t *testing.T) {
+	exit := exec.Command("sh", "-c", "exit 2").Run()
+	structured := []byte(`{"status":"failed","error_type":"ValueError","reason":"shared_business_root_does_not_match_sources:analysis.json"}`)
+	if err := compactPermanentVerificationFailure(exit, true, structured); !errors.Is(err, ErrCompactSourceVerificationFailed) {
+		t.Fatalf("completed rejection not typed: %v", err)
+	}
+	for _, tc := range []struct {
+		err    error
+		exited bool
+		stderr []byte
+	}{{exit, false, structured}, {context.Canceled, true, structured}, {errors.New("Docker transport unavailable"), true, structured}, {exit, true, []byte("daemon unavailable")}, {exit, true, []byte(`{"status":"unknown","reason":"not source rejection"}`)}} {
+		if err := compactPermanentVerificationFailure(tc.err, tc.exited, tc.stderr); err != nil {
+			t.Fatalf("unknown/interrupted failure classified permanent: %v", err)
+		}
 	}
 }

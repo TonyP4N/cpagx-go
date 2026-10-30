@@ -38,7 +38,7 @@ paths:
         '200': { description: Complete bounded object or explicit array page with total and has_more. }
         '401': { $ref: '#/components/responses/Error' }
         '404': { $ref: '#/components/responses/Error' }
-        '409': { description: verification_pending or result_changed; no trusted result is returned. }
+        '409': { description: verification_pending, result_changed or source_verification_failed; no trusted result is returned. A current unpublished run becomes failed only after confirmed execution and verifier exit; historical terminal state is preserved. }
         '422': { description: query_limit or unsupported query; no silent truncation. }
         '504': { description: query_timeout; no trusted result is returned. }
   /health/live:
