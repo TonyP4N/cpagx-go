@@ -2657,13 +2657,17 @@
       "evidence": "s100_post_timing_formal_checks.invalid_snapshot"
     }
   },
-  "runtime_commit": "5b45a422db30c65d64bee7806d2eeae1584f4280",
+  "runtime_commit": "fa7d0c292ab521ea965df97d1397c6953a58fe12",
   "stage_commits": [
     "31b273b6185398cf396f5311e66dbacfd11243e8",
     "5daa0fb45a545600cef46d63295da15ed06dfd58",
     "3db724d4e380822b8089d659843ff8f711a69cff",
     "93a6f33e43cc24933cc759eb689772b8f00f964f",
-    "5b45a422db30c65d64bee7806d2eeae1584f4280"
+    "5b45a422db30c65d64bee7806d2eeae1584f4280",
+    {
+      "commit": "fa7d0c292ab521ea965df97d1397c6953a58fe12",
+      "purpose": "Linux handoff/anchor permissions and proven source rejection closure"
+    }
   ],
   "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
   "image_core_binding": {
@@ -3304,7 +3308,7 @@
     "delivery_gate": "all jobs on exact final signed delivery commit; link and outcome supplied with final delivery",
     "not_replaced_by_prior_green": true
   },
-  "runtime_identity_rule": "S100 runtime commit 5b45a422db30c65d64bee7806d2eeae1584f4280; final delivery only documentation/evidence updates; verify git diff --name-only runtime..delivery",
+  "runtime_identity_rule": "S100 full timed cell on5b45; fa7 only publication permissions, proven failure closure and diagnostic/test changes; same core/image/input unchanged. Impacted paths revalidated through formal small7 plus native Linux S100 byte inventory; no claim of a new fa7 S100 long run.",
   "long_measurements": {
     "actual_long_runs": 3,
     "environment_interrupted": 2,
@@ -3376,7 +3380,378 @@
         "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-s100-4-20261030.tar",
         "bytes": 199536640,
         "sha256": "27467ea473b5154592622d0e6c0108ce61d7eea3d7692361bbdd45debcbbfd30"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small7-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small7-20261030.tar",
+        "bytes": 27760640,
+        "sha256": "d5e26c72a06c558d7c6c5eaa5496a6ccef6b408bf21f480c70f1597044da8dd5"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-linux-permissions-small3-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-linux-permissions-small3-20261030.tar",
+        "bytes": 204800,
+        "sha256": "1a86028318d61eca5c74fa657d04d368ebf9d1d290ececdf9449cf3275b133ac"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-linux-permissions-s100-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-linux-permissions-s100-20261030.tar",
+        "bytes": 174080,
+        "sha256": "cc4d693ee1b11b24b69f9ca5920aa5c0aebd627a8cc9952b9ed760a1b224dfa7"
       }
     ]
+  },
+  "ci_first_failure": {
+    "run_id": 41041640851,
+    "commit": "7735824456e89d986d71998bfe9afe130a99bc5a",
+    "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/41041640851",
+    "result": "16 success; replay-persistent cancelled at 30 minute job deadline",
+    "small_step": "legacy formal read passed; first DAG6 offline task did not finish before job timeout",
+    "report_sha256": "38c9f2f409d3ef4c78ac06c8449d4a5afb5e6d3ee8a1c87207900ed3b4c946ab",
+    "evidence_directory": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/ci-41041640851",
+    "investigation": "Linux verifier UID cannot traverse owner-only staging root; targeted Linux permission and terminal verification failure regressions required; no budget extension"
+  },
+  "measured_s100_runtime_commit": "5b45a422db30c65d64bee7806d2eeae1584f4280",
+  "post_ci_fix": {
+    "runtime_commit": "fa7d0c292ab521ea965df97d1397c6953a58fe12",
+    "fixes": [
+      "compact root0755 for owner anchor write and nonowner verifier read; completed root0555",
+      "anchor0444; old0400 upgraded only after regular/O_NOFOLLOW/same-inode/SHA check",
+      "permanent structured source rejection becomes failed only after all exit/cleanup/receipt/DB proofs; no automatic retry",
+      "bounded small-case CI progress recording; S100 timed sampling unchanged"
+    ],
+    "small7": {
+      "status": "passed",
+      "report_sha256": "b837f229ca04c8ca16d491132028cbb520f7fc862bc2d534893262690572ac48",
+      "runs": [
+        {
+          "attempt": 1,
+          "complete_business_comparison": {
+            "complete_business_root_count": 11,
+            "complete_named_root_count": 11,
+            "independent_core_export": "/private/tmp/cpag-r19-service-small7-20261030/complete-business-offline/independent-core-export",
+            "output": "/private/tmp/cpag-r19-service-small7-20261030/complete-business-offline",
+            "status": "passed",
+            "unapproved_business_differences": [],
+            "version": "small-formal-complete-business-roots-1",
+            "wall_seconds": 0.10711454204283655
+          },
+          "id": "3291754487273957522e848d3813b953",
+          "label": "offline",
+          "saved_evaluation": {
+            "analysis_logical_roots_unchanged": true,
+            "checks": [
+              {
+                "detail_download_verified": true,
+                "error_or_prediction_raw_evidence": true,
+                "evaluation_id": "b8002da4f907199f1d316b7a49eceabd",
+                "expected_tp_fp_fn": [
+                  2,
+                  0,
+                  0
+                ],
+                "label_variant": 0,
+                "reference_original_and_locator_verified": true
+              },
+              {
+                "detail_download_verified": true,
+                "error_or_prediction_raw_evidence": true,
+                "evaluation_id": "05e0ba04df154b051051f3d30e6432b4",
+                "expected_tp_fp_fn": [
+                  1,
+                  1,
+                  1
+                ],
+                "label_variant": 1,
+                "reference_original_and_locator_verified": true
+              }
+            ],
+            "rejected_imports": [
+              "late_freeze",
+              "wrong_attempt",
+              "wrong_logical_root",
+              "bad_raw_reference"
+            ],
+            "same_frozen_projection": true,
+            "same_run_and_attempt": true,
+            "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+          },
+          "state": "succeeded",
+          "terminal_seconds": 4.146225929260254
+        },
+        {
+          "attempt": 1,
+          "complete_business_comparison": {
+            "complete_business_root_count": 16,
+            "complete_named_root_count": 17,
+            "independent_core_export": "/private/tmp/cpag-r19-service-small7-20261030/complete-business-replay/independent-core-export",
+            "output": "/private/tmp/cpag-r19-service-small7-20261030/complete-business-replay",
+            "status": "passed",
+            "unapproved_business_differences": [],
+            "version": "small-formal-complete-business-roots-1",
+            "wall_seconds": 0.4987327090348117
+          },
+          "id": "116a6b24fe0af61f7d5dfdc2398d052e",
+          "label": "replay",
+          "saved_evaluation": {
+            "analysis_logical_roots_unchanged": true,
+            "checks": [
+              {
+                "detail_download_verified": true,
+                "error_or_prediction_raw_evidence": true,
+                "evaluation_id": "3e866f8bf60c4971a58e4e7b8f8d3d08",
+                "expected_tp_fp_fn": [
+                  2,
+                  0,
+                  0
+                ],
+                "label_variant": 0,
+                "reference_original_and_locator_verified": true
+              },
+              {
+                "detail_download_verified": true,
+                "error_or_prediction_raw_evidence": true,
+                "evaluation_id": "c8c0d7d9b5561499c6c0c48240c9581b",
+                "expected_tp_fp_fn": [
+                  1,
+                  1,
+                  1
+                ],
+                "label_variant": 1,
+                "reference_original_and_locator_verified": true
+              }
+            ],
+            "rejected_imports": [
+              "late_freeze",
+              "wrong_attempt",
+              "wrong_logical_root",
+              "bad_raw_reference"
+            ],
+            "same_frozen_projection": true,
+            "same_run_and_attempt": true,
+            "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+          },
+          "state": "succeeded",
+          "terminal_seconds": 4.650514125823975
+        }
+      ],
+      "checks": {
+        "missing_shared/shared.sqlite3_denied": {
+          "body": {
+            "error": {
+              "code": "result_changed",
+              "message": "published bytes or run bindings changed"
+            }
+          },
+          "original_sha256": "bbcdf60d89f389c123d64c74721ee13c6a81ad0ca47b578d1903765be534102a",
+          "same_size": false,
+          "status": 409
+        },
+        "missing_sources/process.csv_denied": {
+          "body": {
+            "error": {
+              "code": "result_changed",
+              "message": "published bytes or run bindings changed"
+            }
+          },
+          "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+          "same_size": false,
+          "status": 409
+        },
+        "old_format_read": {
+          "created_through_formal_api": true,
+          "original_evidence_refs": 4,
+          "read_before_and_after_explicit_policy_upgrade": true,
+          "reused_evidence_path": "/private/tmp/cpag-r19-service-small6-20261030/report.json",
+          "reused_evidence_sha256": "3c03a9a80654f248e8255f7b3f8019459af03d8d4e9ef87ba25fd1dd75095118",
+          "run_id": "f2b67f561e3b9ad785e946dcb01e133d",
+          "status": "passed"
+        },
+        "queued_cancel_and_stale_publish": {
+          "cancelled_at_attempt": 0,
+          "id": "9937ac83a34f8b4336cfa8537a87ff4f",
+          "invalid_attempt_complete_status": 409
+        },
+        "restart_reverification": {
+          "eventual_status": 200,
+          "first_status": 409,
+          "run_id": "116a6b24fe0af61f7d5dfdc2398d052e"
+        },
+        "tamper_shared/shared.sqlite3_denied": {
+          "body": {
+            "error": {
+              "code": "result_changed",
+              "message": "published bytes or run bindings changed"
+            }
+          },
+          "original_sha256": "bbcdf60d89f389c123d64c74721ee13c6a81ad0ca47b578d1903765be534102a",
+          "same_size": true,
+          "status": 409
+        },
+        "tamper_sources/process.csv_denied": {
+          "body": {
+            "error": {
+              "code": "result_changed",
+              "message": "published bytes or run bindings changed"
+            }
+          },
+          "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+          "same_size": true,
+          "status": 409
+        }
+      }
+    },
+    "linux_permission_probes": [
+      {
+        "path": "/private/tmp/cpag-r19-linux-permissions-small3-20261030/report.json",
+        "sha256": "5441bfbbfcfc1eed281d7a5b43b3e34ebadac085b630003768c7db606ea3cc58",
+        "report": {
+          "artifact_source": null,
+          "business_bytes_unchanged": true,
+          "bytes": 1621,
+          "completed_owner_new_file": "denied",
+          "completed_root_mode": "0555",
+          "files": 8,
+          "filesystem": "native Linux container tmpfs; no host bind for artifact data",
+          "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+          "inventory": {
+            "5d14ca097def1c1ad292bec655a5c87a64da641d9cef91ad99165ae28ad74570.json": {
+              "sha256": "5d14ca097def1c1ad292bec655a5c87a64da641d9cef91ad99165ae28ad74570",
+              "size": 755
+            },
+            "manifest.json": {
+              "sha256": "5d14ca097def1c1ad292bec655a5c87a64da641d9cef91ad99165ae28ad74570",
+              "size": 755
+            },
+            "run_manifest.json": {
+              "sha256": "19cf3cb1b5840d3a053fbb7077a1dddf6aa8c9d8c5a0f723c92357f34e54245f",
+              "size": 36
+            },
+            "shared/manifest.json": {
+              "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+              "size": 3
+            },
+            "shared/shared.sqlite3": {
+              "sha256": "59f11987986eec0722d622585251ff75aa7dc044e7a0790115fd00eb51885be0",
+              "size": 34
+            },
+            "sources/network.pcap": {
+              "sha256": "a6f5f53129467bc8dba13d30880393e3743cfeae733475feaace2852868509d5",
+              "size": 20
+            },
+            "sources/process.csv": {
+              "sha256": "7e31a103261f1075aa93cfa4da9d83479724c9fa9ed0aff644e26795a5038841",
+              "size": 15
+            },
+            "sources/profile.json": {
+              "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+              "size": 3
+            }
+          },
+          "legacy0400_anchor_other_uid_read": "denied",
+          "migrated0444_anchor_other_uid_read": "passed",
+          "original_artifact_identity": {},
+          "owner_anchor_create": "passed",
+          "owner_uid": 1001,
+          "prepared_root_mode": "0755",
+          "private0700_other_uid_read": "denied",
+          "scope": "post-run permissions and retained-byte inventory impact only; no analysis, no performance acceptance",
+          "source_inventory_unchanged": true,
+          "status": "passed",
+          "valid": true,
+          "verifier_read_and_full_hash_inventory": "passed",
+          "verifier_root_and_payload_write": "denied",
+          "verifier_uid": 65532,
+          "worker_helper_sha256": "04b6093bf513dc53d6583a0a08f59be0742e7f72a6e59a34cefd831e6aae61df"
+        }
+      },
+      {
+        "path": "/private/tmp/cpag-r19-linux-permissions-s100-20261030/report.json",
+        "sha256": "80456d2ac7394340c0dac8b8cd60befe0c888dd01f3e823a5a8512e9b87271b8",
+        "report": {
+          "artifact_source": "/private/tmp/cpag-r19-service-s100-4-20261030/source/jobs/2ab02ff98d5253cfcf174c879b2e2f05/attempt-1",
+          "business_bytes_unchanged": true,
+          "bytes": 85832229,
+          "completed_owner_new_file": "denied",
+          "completed_root_mode": "0555",
+          "files": 8,
+          "filesystem": "native Linux container tmpfs; no host bind for artifact data",
+          "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+          "inventory": {
+            "4bffafb8cedeb44ba635efe5b918a493bf2a9392ad13b412b443764c23a12697.json": {
+              "sha256": "4bffafb8cedeb44ba635efe5b918a493bf2a9392ad13b412b443764c23a12697",
+              "size": 1453
+            },
+            "manifest.json": {
+              "sha256": "4bffafb8cedeb44ba635efe5b918a493bf2a9392ad13b412b443764c23a12697",
+              "size": 1453
+            },
+            "run_manifest.json": {
+              "sha256": "2a8afec3ef6c9f315c9fb60b72f5bd965c0571b1059be8c003dc0bf461fd51c7",
+              "size": 5207
+            },
+            "shared/manifest.json": {
+              "sha256": "9507747c99d0d815023279703bd9b21fc7dc61f2a7988a8ac41f39d410585ccd",
+              "size": 868
+            },
+            "shared/shared.sqlite3": {
+              "sha256": "92ee9c42be321c2eb3c2a53afe50422e397e179318a0c46074a1968daff5ba8f",
+              "size": 85766144
+            },
+            "sources/network.pcap": {
+              "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+              "size": 23424
+            },
+            "sources/process.csv": {
+              "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+              "size": 3010
+            },
+            "sources/profile.json": {
+              "sha256": "329a868e44b8c19f206c844ef2238f99818fd42abe1ea36bc71e1dcb48851e52",
+              "size": 30670
+            }
+          },
+          "legacy0400_anchor_other_uid_read": "denied",
+          "migrated0444_anchor_other_uid_read": "passed",
+          "original_artifact_identity": {
+            "attempt_id": 1,
+            "config_fingerprint": "a0f6bcf1d535cbd60c3730f38a6824c6d7fa4feab611823a3e22ff2b4b7e0fce",
+            "input_fingerprint": "9c67065455325b17989086f5758d26ff3e2e52f084a98b40c3c9e8db3883f75b",
+            "result_hashes": {
+              "events": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "graph": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c"
+            },
+            "run_id": "2ab02ff98d5253cfcf174c879b2e2f05",
+            "source_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+            "storage_format": "shared-observation-dag-6"
+          },
+          "owner_anchor_create": "passed",
+          "owner_uid": 1001,
+          "prepared_root_mode": "0755",
+          "private0700_other_uid_read": "denied",
+          "scope": "post-run permissions and retained-byte inventory impact only; no analysis, no performance acceptance",
+          "source_inventory_unchanged": true,
+          "status": "passed",
+          "valid": true,
+          "verifier_read_and_full_hash_inventory": "passed",
+          "verifier_root_and_payload_write": "denied",
+          "verifier_uid": 65532,
+          "worker_helper_sha256": "04b6093bf513dc53d6583a0a08f59be0742e7f72a6e59a34cefd831e6aae61df"
+        }
+      }
+    ],
+    "regressions": {
+      "isolated_tests": 41,
+      "formal_clock_guards": 7,
+      "go_packages": [
+        "capacity",
+        "jobapi",
+        "catalog",
+        "jobs",
+        "contracts"
+      ],
+      "real_postgres_http_race_seconds": 17.6,
+      "go_log": "/private/tmp/cpag-r19-go-permanent-rejection-race-20261031.log"
+    }
   }
 }
