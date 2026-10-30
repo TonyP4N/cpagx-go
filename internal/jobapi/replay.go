@@ -77,7 +77,11 @@ func validateReplayProfile(value any, version string) error {
 	}
 	if format == ReplaySpoolFormat || format == capacity.SharedFormat || format == capacity.CoreSharedFormat {
 		bufferMax := 11000
-		if budget.Version != "" {
+		if budget.Version == capacity.EngineeringCore {
+			// Buffered raw records and arrival actions are independent limits.
+			// DAG6 uses the same frozen ceiling as Python validate_profile.
+			bufferMax = budget.Frames + budget.ProcessRecords + 1
+		} else if budget.Version != "" {
 			bufferMax = budget.ArrivalSteps
 		}
 		for key, maximum := range map[string]int{"max_buffer_records": bufferMax, "max_snapshots": budget.Snapshots, "max_revisions": budget.Revisions, "max_output_bytes": int(budget.OutputBytes)} {

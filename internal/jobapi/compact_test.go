@@ -279,3 +279,52 @@ func TestCompactPublicationCannotBeReboundToAnotherRunOrAttempt(t *testing.T) {
 		})
 	}
 }
+
+func TestFixedCompactS100ReplayProfileMatchesCoreFrozenLimits(t *testing.T) {
+	// Exact profile bytes from the fixed r19-density-capacity-6 S100 fixture.
+	raw, err := os.ReadFile("testdata/r19-fixed-s100-replay-profile.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if bytesSHA(raw) != "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52" {
+		t.Fatal("fixed source profile bytes changed")
+	}
+	decode := func() map[string]any {
+		t.Helper()
+		value, err := parseValue(raw)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return value.(map[string]any)
+	}
+	doc := decode()
+	replay := doc["replay"].(map[string]any)
+	buffer, ok := intValue(replay["max_buffer_records"])
+	if !ok || buffer != 110001 || len(replay["sequence"].([]any)) != 304 {
+		t.Fatal("fixed S100 declaration changed")
+	}
+	if err = validateReplayProfile(doc, ReplayVersion); err != nil {
+		t.Fatalf("fixed core-valid S100 profile rejected by service: %v", err)
+	}
+	for _, field := range []string{"max_buffer_records", "max_snapshots", "max_revisions", "max_output_bytes"} {
+		bad := decode()
+		options := bad["replay"].(map[string]any)
+		value, _ := intValue(options[field])
+		next, _ := json.Marshal(value + 1)
+		options[field] = json.Number(string(next))
+		if err = validateReplayProfile(bad, ReplayVersion); err == nil {
+			t.Fatalf("frozen %s +1 accepted", field)
+		}
+	}
+	arrivals := decode()
+	options := arrivals["replay"].(map[string]any)
+	original := options["sequence"].([]any)
+	sequence := make([]any, 40001)
+	for i := range sequence {
+		sequence[i] = original[0]
+	}
+	options["sequence"] = sequence
+	if err = validateReplayProfile(arrivals, ReplayVersion); err == nil {
+		t.Fatal("arrival step budget was relaxed with the independent buffer declaration")
+	}
+}
