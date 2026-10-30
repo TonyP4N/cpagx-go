@@ -141,6 +141,7 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 	envelope := map[string]any{"authority_key": hex.EncodeToString(key[:]), "request": request}
 	stdin, _ := json.Marshal(envelope)
 	watchDone := make(chan struct{})
+	watchReason := make(chan map[string]any, 1)
 	go func() {
 		ticker := time.NewTicker(250 * time.Millisecond)
 		defer ticker.Stop()
@@ -152,7 +153,12 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 				return
 			case <-ticker.C:
 				current, e := s.Repo.Status(runctx, job)
-				if e != nil || current.Attempt != attempt || (!terminal && (current.State != "running" || !current.LeaseValid)) || (terminal && current.State != "succeeded") {
+				if reason := compactVerifierWatchReason(current, attempt, terminal, e); reason != "" {
+					event := map[string]any{"reason": reason, "observed_at": time.Now().UTC(), "expected_attempt": attempt, "actual_attempt": current.Attempt, "state": current.State, "lease_valid": current.LeaseValid}
+					if e != nil {
+						event["database_error_type"] = fmt.Sprintf("%T", e)
+					}
+					watchReason <- event
 					cancel()
 					return
 				}
@@ -174,6 +180,14 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 	receipt := map[string]any{"version": "service-compact-verification-execution-1", "run_id": job, "attempt_id": attempt, "container_id": container, "image": s.CompactVerifierImage, "created_at": createdAt, "started_at": executionStarted, "ended_at": executionEnded, "wall_seconds": executionEnded.Sub(executionStarted).Seconds(), "trusted_claimed_at": claimed, "core_deadline": deadline, "publication_sha256": sha, "restart_reverification": terminal, "cleanup_completed": false}
 	if err != nil {
 		receipt["execution_error"] = err.Error()
+	}
+	select {
+	case event := <-watchReason:
+		receipt["watcher_cancellation"] = event
+	default:
+	}
+	if runctx.Err() != nil {
+		receipt["execution_context_error"] = runctx.Err().Error()
 	}
 	var helper map[string]json.RawMessage
 	if json.Unmarshal(stdout.Bytes(), &helper) == nil {
@@ -264,4 +278,28 @@ func (s *Server) saveCompactReceipt(job string, attempt int, container string, r
 		return closeErr
 	}
 	return os.Rename(temporary.Name(), filepath.Join(s.ControlRoot, fmt.Sprintf("compact-verification-%s-%d-%s.json", job, attempt, container[:12])))
+}
+
+// Fixed diagnostic reasons preserve which ownership guard cancelled control work.
+// No token, payload, source content or caller-controlled error text is recorded.
+func compactVerifierWatchReason(status jobs.Status, attempt int, terminal bool, err error) string {
+	if err != nil {
+		return "database_status_error"
+	}
+	if status.Attempt != attempt {
+		return "attempt_changed"
+	}
+	if terminal {
+		if status.State != "succeeded" {
+			return "terminal_state_changed"
+		}
+		return ""
+	}
+	if status.State != "running" {
+		return "state_changed"
+	}
+	if !status.LeaseValid {
+		return "lease_expired"
+	}
+	return ""
 }

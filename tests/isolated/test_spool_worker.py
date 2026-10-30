@@ -65,7 +65,9 @@ class SpoolWorkerTests(unittest.TestCase):
                 worker.resume_publication(record,{'payload':bad})
             with patch.object(worker.publication_api,'post',return_value={}) as publish:
                 self.assertEqual(worker.resume_publication(record,{'payload':payload}),'succeeded')
-                publish.assert_called_once()
+                completions=[call for call in publish.call_args_list if call.args[0].endswith('/complete')]
+                self.assertEqual(len(completions),1)
+                self.assertTrue(all(call.args[0].endswith(('/heartbeat','/complete')) for call in publish.call_args_list))
 
     def test_old_payload_cannot_receive_new_spool_tar(self):
         with tempfile.TemporaryDirectory() as directory:

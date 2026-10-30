@@ -323,7 +323,15 @@ class DockerExecutor:
                     if status['state']=='running' and status['attempt']==record['attempt'] and status.get('lease_valid',True):
                         base=path.parent
                         if (base/'handoff.json').exists() and (base/'exit.json').exists() and (beneath(self.root,json.loads((base/'handoff.json').read_text())['output_dir'])/'manifest.json').is_file():
-                            outcomes.append({'id':record['id'],'attempt':record['attempt'],'publication':self.resume_publication(record,status)});continue
+                            # The live executor owns publication through verification.
+                            # Recovery must not renew/publish the same attempt concurrently.
+                            owner=(base/'owner.lock').open('a+')
+                            try:fcntl.flock(owner,fcntl.LOCK_EX|fcntl.LOCK_NB)
+                            except BlockingIOError:
+                                owner.close();outcomes.append({'id':record['id'],'attempt':record['attempt'],'skipped':'active_owner'});continue
+                            try:outcomes.append({'id':record['id'],'attempt':record['attempt'],'publication':self.resume_publication(record,status)})
+                            finally:owner.close()
+                            continue
                         outcomes.append({'id':record['id'],'attempt':record['attempt'],'skipped':'active_lease'});continue
                     self.stop_container(record)
                     owner=(path.parent/'owner.lock').open('a+')
@@ -358,22 +366,70 @@ class DockerExecutor:
         return {**{name:payload[name] for name in ('config_fingerprint','storage_format','capacity_profile','resource_profile','storage_budget_version')},
                 'run_id':run_id,'attempt_id':attempt_id,'payload_sha256':hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()}
 
-    def complete(self,record,sha,lease_health=None,deadline=None):
-        """Keep a pending verifier nonterminal; cancellation/lease remain host-owned."""
+    def keep_lease(self,record,done,health):
+        """Independent renewal, including slow source verification/publication RPCs."""
         identity={key:record[key] for key in ('worker','attempt','token')}
         endpoint='/v1/jobs/'+record['id']
+        trace={'version':'attempt-lease-observation-1','attempt':record['attempt'],'started_at':time.time(),'heartbeats':0,'events':[]}
+        target=self.control/'jobs'/record['id']/('attempt-'+str(record['attempt'])+'.worker')/'lease-observation.json'
+        while not done.is_set():
+            started=time.monotonic();event={'at':time.time(),'phase':health.get('phase','publication')}
+            try:
+                response=self.api.post(endpoint+'/heartbeat',{**identity,'lease_seconds':self.lease})
+                event['outcome']='renewed';trace['heartbeats']+=1;trace['last_renewed_at']=time.time()
+                if response and response.get('state')=='cancelling':health['cancelled']=True;event['outcome']='cancelling'
+            except APIError as error:
+                health['cancelled']=error.status==409 and error.body.get('state')=='cancelling'
+                health['owned']=False;event.update(outcome='api_error',status=error.status,state=error.body.get('state'))
+            except (OSError,ValueError,TypeError,AttributeError) as error:
+                health['owned']=False;event.update(outcome='transport_error',error_type=type(error).__name__)
+            event['wall_seconds']=time.monotonic()-started
+            trace['events']=(trace['events']+[event])[-64:]
+            trace.update(last_event=event,owned=health['owned'],cancelled=health['cancelled'])
+            try:atomic_json(target,trace)
+            except OSError:pass # A diagnostics failure cannot create lease authority.
+            if not health['owned'] or health['cancelled']:return
+            if done.wait(self.heartbeat):return
+
+    def complete(self,record,sha,lease_health=None,deadline=None):
+        """Keep a pending verifier nonterminal; renew independently of slow RPCs."""
         deadline=deadline if deadline is not None else time.monotonic()+2100
-        while True:
-            if self.stopping or lease_health and (not lease_health['owned'] or lease_health['cancelled']):
-                raise ValueError('publication ownership lost while verification pending')
-            response=self.publication_api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
-            if not response or not (response.get('verification_pending') or response.get('state')=='verification_pending' or response.get('status')=='verification_pending'):
-                return response
-            if time.monotonic()>=deadline:raise ValueError('service verification publication deadline')
-            # Recovery has no execution heartbeat thread; renew before polling.
-            heartbeat=self.api.post(endpoint+'/heartbeat',{**identity,'lease_seconds':self.lease})
-            if heartbeat and heartbeat.get('state')=='cancelling':raise ValueError('publication cancellation pending')
-            time.sleep(min(.25,self.heartbeat))
+        own_keeper=lease_health is None
+        if own_keeper:lease_health={'owned':True,'cancelled':False,'phase':'recovery_publication'}
+        done=threading.Event();keeper=None
+        if own_keeper:
+            keeper=threading.Thread(target=self.keep_lease,args=(record,done,lease_health),daemon=True);keeper.start()
+        try:
+            identity={key:record[key] for key in ('worker','attempt','token')}
+            endpoint='/v1/jobs/'+record['id']
+            trace={'version':'attempt-publication-observation-1','attempt':record['attempt'],'calls':0,'events':[]}
+            target=self.control/'jobs'/record['id']/('attempt-'+str(record['attempt'])+'.worker')/'publication-observation.json'
+            next_observation=0
+            def observe(event):
+                trace['last_event']=event
+                try:atomic_json(target,trace)
+                except OSError:pass
+            while True:
+                if self.stopping or lease_health and (not lease_health['owned'] or lease_health['cancelled']):
+                    raise ValueError('publication ownership lost while verification pending')
+                tick=time.monotonic();event={'started_at':time.time(),'outcome':'in_flight'};trace['calls']+=1
+                if tick>=next_observation:observe(event)
+                try:response=self.publication_api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
+                except (APIError,OSError,ValueError) as error:
+                    event.update(outcome='api_error' if isinstance(error,APIError) else 'transport_error',error_type=type(error).__name__,ended_at=time.time(),wall_seconds=time.monotonic()-tick)
+                    if isinstance(error,APIError):event.update(status=error.status,state=error.body.get('state'))
+                    trace['events']=(trace['events']+[event])[-64:];observe(event);raise
+                pending=bool(response and (response.get('verification_pending') or response.get('state')=='verification_pending' or response.get('status')=='verification_pending'))
+                event.update(outcome='verification_pending' if pending else 'completed',ended_at=time.time(),wall_seconds=time.monotonic()-tick)
+                trace['events']=(trace['events']+[event])[-64:]
+                if not pending or tick>=next_observation:observe(event);next_observation=time.monotonic()+1
+                if not pending:return response
+                if time.monotonic()>=deadline:raise ValueError('service verification publication deadline')
+                time.sleep(min(.25,self.heartbeat))
+
+        finally:
+            done.set()
+            if keeper:keeper.join(timeout=4)
 
     def read_output(self,container,target,payload,*,run_id=None,attempt_id=None):
         if shutil.disk_usage(self.root).free-self.output_bytes<self.min_free_bytes:raise OSError(28,'executor minimum free storage before handoff')
@@ -473,7 +529,7 @@ class DockerExecutor:
     def attempt(self,claim):
         attempt_started=time.monotonic()
         record=None;stage=None;owned=True;cancelled=False
-        keep_done=threading.Event();keep_thread=None;lease_health={'owned':True,'cancelled':False}
+        keep_done=threading.Event();keep_thread=None;lease_health={'owned':True,'cancelled':False,'phase':'execution'}
         self.validate_identity(claim)
         endpoint=self.endpoint(claim);identity={k:claim[k] for k in ('attempt','worker','token')}
         base=self.control/'jobs'/claim['id']/('attempt-'+str(claim['attempt'])+'.worker')
@@ -540,16 +596,7 @@ class DockerExecutor:
             self.checkpoint('before_start')
             self.api.post(endpoint+'/heartbeat',{**identity,'lease_seconds':self.lease})
             self.docker('start',container)
-            def keep_lease():
-                while not keep_done.wait(self.heartbeat):
-                    try:
-                        response=self.api.post(endpoint+'/heartbeat',{**identity,'lease_seconds':self.lease})
-                        if response and response.get('state')=='cancelling':lease_health['cancelled']=True;return
-                    except APIError as error:
-                        lease_health['cancelled']=error.status==409 and error.body.get('state')=='cancelling'
-                        lease_health['owned']=False;return
-                    except (OSError,ValueError):lease_health['owned']=False;return
-            keep_thread=threading.Thread(target=keep_lease,daemon=True);keep_thread.start()
+            keep_thread=threading.Thread(target=self.keep_lease,args=(claim,keep_done,lease_health),daemon=True);keep_thread.start()
             self.checkpoint('during_execution')
             deadline=time.monotonic()+self.timeout;next_heartbeat=0;result=None
             while time.monotonic()<deadline:
@@ -586,6 +633,7 @@ class DockerExecutor:
             output=beneath(self.root,claim['output_dir']);output.parent.mkdir(parents=True,exist_ok=True)
             stage=output.parent/('.handoff-'+uuid.uuid4().hex)
             atomic_json(base/'stage.json',{'path':str(stage.relative_to(self.root))})
+            lease_health['phase']='handoff'
             sha=self.read_output(container,stage,claim['payload'],run_id=claim['id'],attempt_id=claim['attempt'])
             self.checkpoint('after_copy')
             if not lease_health['owned'] or lease_health['cancelled'] or self.stopping:
@@ -606,6 +654,7 @@ class DockerExecutor:
             sync_dir(stage)
             os.rename(stage,output);sync_dir(output.parent);stage=None
             self.checkpoint('after_publish')
+            lease_health['phase']='publication'
             self.complete(claim,sha,lease_health=lease_health,deadline=attempt_started+2100 if compact else None)
             sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
             atomic_json(base/'publication.json',{'manifest_sha256':sha,'output_dir':claim['output_dir']})

@@ -45,17 +45,39 @@ def write(path,value):
     Path(path).write_text(json.dumps(value,indent=2,sort_keys=True)+'\n')
 
 
+MEASUREMENT_VERSION='formal-service-wall-clock-2'
+CLOCK_GAP_SECONDS=5
+
+
+class InvalidEnvironment(RuntimeError):
+    """A host pause or clock adjustment invalidates this performance cell."""
+
+
+def clock_start():
+    return {'wall':time.time(),'monotonic':time.monotonic()}
+
+
+def clock_elapsed(start):
+    wall=time.time()-start['wall'];monotonic=time.monotonic()-start['monotonic']
+    return {'wall_seconds':wall,'monotonic_seconds':monotonic,'wall_minus_monotonic_seconds':wall-monotonic}
+
+
 class MeasuredClient(r.Client):
     def __init__(self,origin):
         super().__init__(origin)
         self.opener=build_opener(ProxyHandler({}),HTTPCookieProcessor(self.cookies))
         self.timings=[]
     def request(self,method,path,body=None,headers=None,timeout=30):
-        start=time.monotonic()
-        code,value=super().request(method,path,body,headers,timeout)
-        size=len(value) if isinstance(value,bytes) else len(json.dumps(value,separators=(',',':')).encode())
-        self.timings.append({'method':method,'path':path,'status':code,'wall_seconds':time.monotonic()-start,'response_bytes':size})
-        return code,value
+        start=clock_start();code=None;value=None
+        try:
+            code,value=super().request(method,path,body,headers,timeout)
+            return code,value
+        finally:
+            size=len(value) if isinstance(value,bytes) else len(json.dumps(value,separators=(',',':')).encode())
+            measurement={'method':method,'path':path,'status':code,'response_bytes':size,**clock_elapsed(start)}
+            self.timings.append(measurement)
+            observer=getattr(self,'clock_observer',None)
+            if observer:observer(path,measurement)
 
 
 class Harness:
@@ -63,7 +85,7 @@ class Harness:
         self.args=args;self.work=args.output;self.app=self.worker=None;self.created=False
         self.pg='cpag-r19-formal-'+secrets.token_hex(5)
         self.root=self.work/'source';self.control=self.work/'control'
-        self.report={'status':'running','mode':args.mode,'image':args.image,'scope':'synthetic formal software integration; no industrial/reference-environment capacity claim',
+        self.report={'measurement_version':MEASUREMENT_VERSION,'clock_gap_policy':{'maximum_absolute_wall_minus_monotonic_seconds':CLOCK_GAP_SECONDS,'failure_classification':'invalid_environment','action':'cancel_and_record_bounded_cleanup'},'status':'running','mode':args.mode,'image':args.image,'scope':'synthetic formal software integration; no industrial/reference-environment capacity claim',
                      'limits':{'core_seconds':1800,'service_seconds':2100,'extra_service_seconds':300,'cpu':4,'memory_bytes':8*1024**3,'temporary_bytes':4*1024**3,'output_bytes':1024**3,'query_seconds':10,'query_bytes':8*1024**2,'page_items':100,'download_seconds':120,'download_bytes':1024**3,'download_client_chunk_bytes':65536},'checks':{},'runs':[]}
         self.env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(REPO/'services/worker'),str(REPO/'services/analysis/src')]),GOCACHE=os.environ.get('GOCACHE','/tmp/cpag-r19-go-cache'),GOMODCACHE=os.environ.get('GOMODCACHE','/tmp/cpag-go-mod'),NO_PROXY='127.0.0.1,localhost',no_proxy='127.0.0.1,localhost')
         self.state={};self.restart_number=0
@@ -77,6 +99,52 @@ class Harness:
                 with path.open('w') as stream:json.dump(self.state,stream,indent=2);stream.write('\n')
                 path.chmod(0o600)
             else:r.write_private(path,self.state)
+    def cancel_cleanup(self,run,row,key):
+        """Cancellation response is separate from terminal/exit evidence."""
+        started=clock_start();deadline=started['wall']+5;mono_deadline=started['monotonic']+5
+        cleanup={'status':'cancel_request_pending','terminal_observed':False};self._clock_cleanup_active=True
+        try:
+            self.client.expect('POST',f'/api/v3/runs/{run}/cancel',{},timeout=1)
+            row['extra_attempt_cancel_requested' if key=='extra_attempt_cleanup' else 'invalid_environment_cancel_requested']=True
+            cleanup['status']='cancellation_pending'
+            while time.time()<deadline and time.monotonic()<mono_deadline:
+                remaining=min(deadline-time.time(),mono_deadline-time.monotonic(),1)
+                if remaining<=0:break
+                current=self.client.expect('GET',f'/api/v3/runs/{run}',timeout=remaining)['run']
+                cleanup.update(last_state=current['state'],attempt=current['attempt'],attempt_history=current.get('attempt_history',[]))
+                if current['state'] in ('succeeded','failed','cancelled'):
+                    cleanup.update(status='terminal_observed',terminal_observed=True);break
+                time.sleep(min(.1,max(0,deadline-time.time()),max(0,mono_deadline-time.monotonic())))
+        except (OSError,ValueError,RuntimeError) as error:
+            cleanup.update(status='cancellation_observation_unavailable',error_type=type(error).__name__)
+        finally:
+            cleanup.update(clock_elapsed(started));self._clock_cleanup_active=False
+            if not cleanup['terminal_observed']:cleanup['required_action']='verify_extra_attempt_exit_and_cancellation_after_cleanup'
+            row[key]=cleanup;self.flush()
+
+    def guard_clock(self,run,row,start,phase,request_measurement=None):
+        observation=clock_elapsed(start)
+        whole=clock_elapsed({'wall':row['submit_wall'],'monotonic':row['submit_monotonic']})
+        observations=[observation,whole]+([request_measurement] if request_measurement else [])
+        if any(abs(value['wall_minus_monotonic_seconds'])>CLOCK_GAP_SECONDS for value in observations):
+            proof={'phase':phase,'phase_clock':observation,'run_clock':whole,'request_clock':request_measurement}
+            row['invalid_environment']=proof
+            self.report.update(status='invalid_environment',valid=False,reason='wall_monotonic_gap_exceeds_5_seconds')
+            self.flush();self.cancel_cleanup(run,row,'invalid_environment_cleanup')
+            raise InvalidEnvironment('wall_monotonic_gap_exceeds_5_seconds')
+        return observation
+
+    def observe_http_clock(self,path,measurement):
+        if getattr(self,'_clock_cleanup_active',False):return
+        match=re.match(r'/api/v3/runs/([^/?]+)',path)
+        if not match:return
+        row=next((row for row in self.report['runs'] if row['id']==match[1]),None)
+        if row is not None and 'submit_wall' in row:
+            self.guard_clock(row['id'],row,{'wall':row['submit_wall'],'monotonic':row['submit_monotonic']},'http_request',measurement)
+
+    def run_row(self,run):
+        return next(row for row in self.report['runs'] if row['id']==run)
+
     def setup(self):
         self.root.mkdir();self.control.mkdir()
         inspected=json.loads(subprocess.check_output(['docker','image','inspect',self.args.image],text=True))[0]
@@ -100,7 +168,7 @@ class Harness:
         self.config=r.make_config(pg,'m4_validation',self.root,self.control,public,internal,wt,ct,user,password,REPO/'webui/out')
         self.config.update(resource_profile=RESOURCE,capacity_policy=CAPACITY,compact_verifier_image=self.args.image)
         self.app=r.start_app(self.work,'app-initial',self.work/'cpagx-v3',self.config)
-        self.origin=f'http://127.0.0.1:{public}';self.client=MeasuredClient(self.origin)
+        self.origin=f'http://127.0.0.1:{public}';self.client=MeasuredClient(self.origin);self.client.clock_observer=self.observe_http_clock
         self.client.expect('POST','/api/v3/session',{'username':user,'password':password})
         viewer_password=secrets.token_urlsafe(24)
         self.client.expect('POST','/api/v3/users',{'username':'formal-viewer','password':viewer_password,'role':'viewer'},code=201)
@@ -126,44 +194,58 @@ class Harness:
         body={'dataset_id':dataset,'config_version_id':cfg,'preflight_id':preflight['preflight_id'],'mode':'dual_source_replay' if 'replay' in config else 'dual_source'}
         return body
     def submit_wait(self,body,label):
-        began=time.monotonic();run=self.client.expect('POST','/api/v3/runs',body,code=201)['run']['id']
-        row={'id':run,'label':label,'submit_monotonic':began};self.report['runs'].append(row);self.state['run_ids'].append(run);self.state['run_id']=run;self.state['dataset_id']=body['dataset_id'];self.flush()
-        while time.monotonic()-began<2100:
+        started=clock_start();began=started['wall'];run=self.client.expect('POST','/api/v3/runs',body,code=201)['run']['id']
+        row={'id':run,'label':label,'submit_wall':began,'submit_monotonic':started['monotonic']};self.report['runs'].append(row);self.state['run_ids'].append(run);self.state['run_id']=run;self.state['dataset_id']=body['dataset_id'];self.flush()
+        self.guard_clock(run,row,started,'submit')
+        while True:
+            self.guard_clock(run,row,started,'status_poll_before_request')
+            if time.time()-began>=2100:raise RuntimeError('formal_service_2100s_timeout')
             status=self.client.expect('GET',f'/api/v3/runs/{run}')['run']
+            self.guard_clock(run,row,started,'status_poll')
+            if status.get('attempt',0)>1:
+                # This is one bounded measurement, never an automatic retry cell.
+                row.update(state=status['state'],attempt=status['attempt'],first_attempt_retried=True,
+                           retry_observed_seconds=time.time()-began,attempt_history=status.get('attempt_history',[]))
+                # The cell is failed before cleanup begins; cleanup is not more measurement time.
+                self.report.update(status='failed',valid=False,reason='first_attempt_failed_or_expired')
+                self.flush();self.cancel_cleanup(run,row,'extra_attempt_cleanup')
+                raise RuntimeError('first_attempt_failed_or_expired_extra_attempt_cleanup_recorded')
             if status['state'] in ('succeeded','failed','cancelled'):break
             if self.worker.poll() is not None:raise RuntimeError('real_worker_exited')
             time.sleep(.25)
-        else:raise RuntimeError('formal_service_2100s_timeout')
-        row.update(state=status['state'],attempt=status['attempt'],terminal_seconds=time.monotonic()-began)
+        row.update(state=status['state'],attempt=status['attempt'],terminal_seconds=time.time()-began,terminal_monotonic_seconds=time.monotonic()-started['monotonic'])
         if status['state']!='succeeded':
             row['last_error']=status.get('last_error');raise RuntimeError('formal_worker_run_failed')
         if status['attempt']!=1:raise RuntimeError('bounded_cell_must_have_exactly_one_attempt')
         row['attempt_history']=status['attempt_history'];return run,row
     def shared(self,run,action,**query):
         path=f'/api/v3/runs/{run}/shared-query?'+urlencode(dict(action=action,**{k:json.dumps(v,separators=(',',':')) if k=='path' else v for k,v in query.items()}))
-        start=time.monotonic();value=self.client.expect('GET',path,timeout=11);elapsed=time.monotonic()-start
+        start=clock_start();value=self.client.expect('GET',path,timeout=11);elapsed=self.guard_clock(run,self.run_row(run),start,'shared_query')['wall_seconds']
         if elapsed>10 or len(json.dumps(value,separators=(',',':')).encode())>8*1024**2:raise RuntimeError('bounded_shared_query_exceeded')
         return value,elapsed
     def stream_download(self,run):
         items=self.client.expect('GET',f'/api/v3/runs/{run}/artifacts')['artifacts'];item=next(row for row in items if row['path']=='shared/shared.sqlite3')
         path=f'/api/v3/runs/{run}/artifacts/'+quote(item['path'],safe='/')+'/download'
-        start=time.monotonic();deadline=start+120;count=0;digest=hashlib.sha256()
+        start=clock_start();deadline=start['wall']+120;count=0;digest=hashlib.sha256()
         with self.client.opener.open(Request(self.origin+path),timeout=10) as response:
             if response.status!=200:raise RuntimeError('stream_download_denied')
             with (self.work/(run+'-shared.sqlite3.download')).open('xb') as stream:
                 while True:
-                    if time.monotonic()>=deadline:raise RuntimeError('stream_download_deadline')
-                    raw=response.read(65536)
+                    self.guard_clock(run,self.run_row(run),start,'stream_download')
+                    if time.time()>=deadline:raise RuntimeError('stream_download_deadline')
+                    try:raw=response.read(65536)
+                    finally:self.guard_clock(run,self.run_row(run),start,'stream_download_read')
                     if not raw:break
                     count+=len(raw)
                     if count>1024**3:raise RuntimeError('stream_download_byte_limit')
                     digest.update(raw);stream.write(raw)
-        if time.monotonic()>deadline:raise RuntimeError('stream_download_deadline_after_eof')
+        download_clock=self.guard_clock(run,self.run_row(run),start,'stream_download_eof')
+        if time.time()>deadline:raise RuntimeError('stream_download_deadline_after_eof')
         expected=item.get('size',item.get('size_bytes'))
         if digest.hexdigest()!=item['sha256'] or expected is not None and count!=expected:raise RuntimeError('stream_download_digest_or_size')
-        return {'bytes':count,'sha256':digest.hexdigest(),'wall_seconds':time.monotonic()-start,'chunk_bytes':65536,'file':'shared/shared.sqlite3'}
+        return {'bytes':count,'sha256':digest.hexdigest(),**download_clock,'chunk_bytes':65536,'file':'shared/shared.sqlite3'}
     def inspect_result(self,run,row,networks,process):
-        selected_start=time.monotonic();first_query=len(self.client.timings);metadata,tick=self.shared(run,'metadata');ticks=[tick]
+        selected_start=clock_start();first_query=len(self.client.timings);metadata,tick=self.shared(run,'metadata');ticks=[tick]
         manifest=metadata['manifest'];self.state['replay_run_id' if manifest['mode']=='replay' else 'offline_run_id']=run
         if manifest['storage_format']!=FORMAT or manifest['config_fingerprint']!=json.loads((self.root/'jobs'/run/'attempt-1/run_manifest.json').read_text())['config_fingerprint']:raise RuntimeError('service_manifest_binding')
         samples={}
@@ -185,9 +267,9 @@ class Harness:
             final,tick=self.shared(run,'snapshot',snapshot=count-1,path=['snapshot_id']);ticks.append(tick)
             if final!=manifest['final_snapshot_id']:raise RuntimeError('terminal_snapshot_binding_changed')
             revisions,tick=self.shared(run,'revisions',after=0,limit=1);ticks.append(tick);row['selected_history']=history
-        selected_seconds=time.monotonic()-selected_start
+        selected_clock=self.guard_clock(run,row,selected_start,'selected_queries');selected_seconds=selected_clock['wall_seconds']
         if any(q['wall_seconds']>10 or q['response_bytes']>8*1024**2 for q in self.client.timings[first_query:]):raise RuntimeError('selected_http_read_limit_exceeded')
-        row.update(selected_http_seconds=selected_seconds,individual_selected_query_seconds=ticks,raw_evidence_references=len(identities),independent_raw_evidence=audit,queried_success_seconds=time.monotonic()-row['submit_monotonic'])
+        row.update(selected_http_seconds=selected_seconds,selected_http_monotonic_seconds=selected_clock['monotonic_seconds'],individual_selected_query_seconds=ticks,raw_evidence_references=len(identities),independent_raw_evidence=audit,queried_success_seconds=time.time()-row['submit_wall'],queried_success_monotonic_seconds=time.monotonic()-row['submit_monotonic'])
         if any(t>10 for t in ticks) or row['queried_success_seconds']>2100:raise RuntimeError('selected_query_or_service_deadline')
         self.resource_proof(run,row,selected_seconds)
         row['download']=self.stream_download(run)
@@ -260,8 +342,9 @@ class Harness:
         self.app=r.start_app(self.work,'app-restarted-'+str(self.restart_number),self.work/'cpagx-v3',self.config)
         code,_=self.client.request('GET',f'/api/v3/runs/{run}/shared-query?action=metadata',timeout=11)
         if code!=409:raise RuntimeError('restart_must_lose_in_memory_verification_approval')
-        deadline=time.monotonic()+120
-        while time.monotonic()<deadline:
+        restart_clock=clock_start();deadline=restart_clock['wall']+120
+        while time.time()<deadline:
+            self.guard_clock(run,self.run_row(run),restart_clock,'restart_reverification')
             code,value=self.client.request('GET',f'/api/v3/runs/{run}/shared-query?action=metadata',timeout=11)
             if code==200:break
             if code!=409:raise RuntimeError('restart_reverification_unexpected_status')
@@ -348,7 +431,7 @@ class Harness:
             with (self.work/'database.sql').open('wb') as dump:
                 r.bundle.pg(self.pg,'m4_validation','pg_dump',stdout=dump)
             with (self.work/'postgres.log').open('wb') as log:subprocess.run(['docker','logs',self.pg],stdout=log,stderr=subprocess.STDOUT)
-            if self.report.get('status')=='failed':
+            if self.report.get('status') in ('failed','invalid_environment'):
                 subprocess.run(['docker','stop',self.pg],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
                 self.report['failed_database_preserved']={'container':self.pg,'state':'stopped_private_database_retained'}
             else:subprocess.run(['docker','rm','-f','-v',self.pg],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
@@ -368,7 +451,7 @@ def main():
     harness=Harness(args)
     try:harness.execute()
     except BaseException as error:
-        harness.report.update(status='failed',valid=False,error_type=type(error).__name__,reason=str(error)[:2048]);harness.flush();raise
+        harness.report.update(status='invalid_environment' if isinstance(error,InvalidEnvironment) else 'failed',valid=False,error_type=type(error).__name__,reason=str(error)[:2048]);harness.flush();raise
     finally:harness.close()
 
 
