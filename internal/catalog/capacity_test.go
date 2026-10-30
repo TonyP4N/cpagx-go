@@ -36,6 +36,16 @@ func TestConfigVersionedCapacityPoliciesAreExplicitAndClosed(t *testing.T) {
 			t.Fatalf("supported explicit settings rejected: %v", err)
 		}
 	}
+	c := base
+	c.ResourceProfile = capacity.EngineeringShared
+	c.CapacityPolicy = capacity.EngineeringShared
+	if _, err = load(c); err != nil {
+		t.Fatal(err)
+	}
+	c.CapacityPolicy = capacity.Engineering
+	if _, err = load(c); err == nil {
+		t.Fatal("shared operator policy/resource mismatch accepted")
+	}
 	for _, change := range []func(*Config){func(c *Config) { c.ResourceProfile = "unknown" }, func(c *Config) { c.CapacityPolicy = "unknown" }} {
 		c := base
 		change(&c)

@@ -59,3 +59,54 @@ func TestTargetInputBoundaryAndPlusOne(t *testing.T) {
 		t.Fatal("old byte guard expanded")
 	}
 }
+
+func TestSharedBudgetsRequireAllExplicitVersionBindings(t *testing.T) {
+	doc := map[string]any{"capacity_profile": EngineeringShared, "storage_format": SharedFormat, "analysis_mode": "bounded-real-capable-v1"}
+	b, err := FromDocument(doc)
+	if err != nil || b.Candidates != 500000 || b.Snapshots != 65000 || b.Revisions != 90000 {
+		t.Fatalf("shared bounds: %+v %v", b, err)
+	}
+	old, _ := Resolve(Engineering)
+	if old.Candidates != 100000 || old.Snapshots != 45000 {
+		t.Fatal("capacity1 was reinterpreted")
+	}
+	for _, bad := range []map[string]any{
+		{"storage_format": SharedFormat},
+		{"capacity_profile": Engineering, "storage_format": SharedFormat, "analysis_mode": "bounded-real-capable-v1"},
+		{"capacity_profile": EngineeringShared, "analysis_mode": "bounded-real-capable-v1"},
+		{"capacity_profile": EngineeringShared, "storage_format": SharedFormat, "analysis_mode": "bounded-real-capable-v1", "replay": map[string]any{"history_format": SharedFormat}},
+	} {
+		if _, err := FromDocument(bad); err == nil {
+			t.Fatalf("incomplete shared binding accepted: %v", bad)
+		}
+	}
+	doc["replay"] = map[string]any{"history_format": SharedFormat, "identity_strategy": "merkle-json-dag-1", "prefix_digest_strategy": "incremental-prefix-digest-2"}
+	if _, err := FromDocument(doc); err != nil {
+		t.Fatal(err)
+	}
+	a, _ := ArtifactBytes(Engineering)
+	c, _ := ArtifactBytes(EngineeringShared)
+	if a != c {
+		t.Fatal("shared version expanded physical resource budget")
+	}
+	first, _ := HTTPTimeouts(Engineering)
+	second, _ := HTTPTimeouts(EngineeringShared)
+	if first != second {
+		t.Fatal("shared version expanded HTTP timeout")
+	}
+}
+
+func TestCompactBudgetDoesNotRaisePhysicalQuotas(t *testing.T) {
+	doc := map[string]any{"capacity_profile": EngineeringCore, "storage_format": CoreSharedFormat, "storage_budget_version": "shared-storage-budget-2", "analysis_mode": "bounded-real-capable-v1"}
+	b, err := FromDocument(doc)
+	if err != nil || b.OutputBytes != 1<<30 || b.Snapshots != 65000 || b.Candidates != 500000 {
+		t.Fatalf("compact bounds: %+v %v", b, err)
+	}
+	delete(doc, "storage_budget_version")
+	if _, err = FromDocument(doc); err == nil {
+		t.Fatal("implicit storage budget accepted")
+	}
+	if actual, err := ArtifactBytes(StorageBudget); err != nil || actual != 1<<30 {
+		t.Fatalf("physical budget: %d %v", actual, err)
+	}
+}

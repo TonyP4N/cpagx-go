@@ -12,7 +12,7 @@ const capacityLock int64 = 19002801
 // EnableCapacityPolicy is explicit, durable and monotonic. No HTTP endpoint
 // disables it. Existing unexplained executions must be recovered first.
 func (r Repository) EnableCapacityPolicy(ctx context.Context, profile string) error {
-	if profile != capacity.Engineering {
+	if !capacity.IsEngineering(profile) {
 		return errors.New("unsupported site capacity policy")
 	}
 	tx, err := r.DB.BeginTx(ctx, nil)
@@ -30,7 +30,7 @@ func (r Repository) EnableCapacityPolicy(ctx context.Context, profile string) er
 	if current == profile {
 		return tx.Commit()
 	}
-	if current != "" {
+	if current != "" && !((current == capacity.Engineering && profile == capacity.EngineeringShared) || (capacity.IsEngineering(current) && profile == capacity.EngineeringCore)) {
 		return errors.New("site capacity policy mismatch")
 	}
 	pending, err := unexitedAttempts(ctx, tx)
@@ -48,7 +48,7 @@ func (r Repository) EnableCapacityPolicy(ctx context.Context, profile string) er
 
 func unexitedAttempts(ctx context.Context, tx *sql.Tx) (bool, error) {
 	var pending bool
-	err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE exited_at IS NULL) OR EXISTS(SELECT 1 FROM m4_jobs j WHERE j.attempt>0 AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=j.id AND a.attempt=j.attempt AND a.exited_at IS NOT NULL))`).Scan(&pending)
+	err := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE exited_at IS NULL) OR EXISTS(SELECT 1 FROM m4_jobs j WHERE j.attempt>0 AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=j.id AND a.attempt=j.attempt AND a.exited_at IS NOT NULL)) OR EXISTS(SELECT 1 FROM m4_compact_verifications WHERE state='running')`).Scan(&pending)
 	return pending, err
 }
 
@@ -66,7 +66,7 @@ func claimCapacity(ctx context.Context, tx *sql.Tx) error {
 	if profile == "" {
 		return nil
 	}
-	if profile != capacity.Engineering {
+	if !capacity.IsEngineering(profile) {
 		return errors.New("unsupported persisted site capacity policy")
 	}
 	pending, err := unexitedAttempts(ctx, tx)

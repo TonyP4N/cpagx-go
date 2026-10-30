@@ -508,7 +508,17 @@ func (s *Server) executePreparation(parent context.Context, conn *sql.Conn, lock
 	phase = time.Now()
 	if err == nil {
 		reason = "preparation_projection_failed"
-		raw, err = s.runEvaluationProjection(context.WithValue(ctx, evaluationPublicationContextKey{}, snapshot.CoreManifestSHA256), filepath.Join(s.Root, filepath.Dir(snapshot.ArtifactPath)), p.Batch, snapshot.InputFingerprint, p.Projection, p.Limit)
+		status, statusErr := internal.Repo.Status(ctx, p.Job)
+		var payload jobapi.Payload
+		if statusErr != nil || json.Unmarshal(status.Payload, &payload) != nil {
+			err = errors.New("preparation payload unavailable")
+		} else if jobapi.IsCompactPayload(payload) {
+			raw, err = internal.VerifiedCompactQuery(request, p.Job, "evaluation", map[string]any{
+				"batch": p.Batch, "sample_sha256": snapshot.InputFingerprint, "projection": p.Projection,
+			})
+		} else {
+			raw, err = s.runEvaluationProjection(context.WithValue(ctx, evaluationPublicationContextKey{}, snapshot.CoreManifestSHA256), filepath.Join(s.Root, filepath.Dir(snapshot.ArtifactPath)), p.Batch, snapshot.InputFingerprint, p.Projection, p.Limit)
+		}
 	}
 	cost["projection_seconds"] = time.Since(phase).Seconds()
 	phase = time.Now()

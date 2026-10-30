@@ -1,11 +1,46 @@
 openapi: 3.1.0
 info:
   title: CPAG v3 local research API
-  version: 0.4.0
+  version: 0.5.0
   description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay requires explicit nested history_format replay-history-checkpoint-delta-2, frozen in the payload and publication; old JSONL history retains its old limits. Capacity certification and unexecuted scales remain incomplete.
 servers:
   - url: http://127.0.0.1:8095
 paths:
+  /api/v3/runs/{run_id}/shared-query:
+    get:
+      summary: Explicit DAG6 verified logical artifact query
+      security: [{ cookieAuth: [] }]
+      description: >-
+        Dataset ACL and current run/attempt state are checked server-side. Requires explicit
+        engineering-core-capacity-3, shared-observation-dag-6, shared-storage-budget-2 and
+        operator resource_profile storage-budget-2 with a pinned compact_verifier_image.
+        Full source verification completes in a private read-only isolated verifier before
+        publication. Service restart discards in-memory authority and triggers re-verification;
+        no client approval or digest grants access. Each query rechecks current source/artifact
+        bytes. At most 100 items, 8 MiB and 10 seconds; oversized objects are refused, not
+        truncated. Use page/path for large graph/history objects. Capacity ceilings do not
+        certify M1000 or L10000 support; these remain incomplete community work.
+      parameters:
+        - { name: run_id, in: path, required: true, schema: { type: string } }
+        - { name: action, in: query, schema: { type: string, enum: [metadata, page, get, graph, snapshot, revisions, selection, evidence], default: metadata } }
+        - { name: logical_root, in: query, schema: { type: string }, description: Exact authenticated named root, such as analysis.json or history/snapshots. }
+        - { name: path, in: query, schema: { type: string, maxLength: 8192 }, description: JSON array of at most 32 field names or nonnegative indices. }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 100 } }
+        - { name: snapshot, in: query, schema: { type: integer, minimum: 0, maximum: 64999 } }
+        - { name: after, in: query, schema: { type: integer, minimum: 0, maximum: 90000 } }
+        - { name: operation, in: query, schema: { type: string } }
+        - { name: change, in: query, schema: { type: string } }
+        - { name: trigger, in: query, schema: { type: string, enum: ['true'] } }
+        - { name: ref_offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000 } }
+        - { name: ref_limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 100 } }
+      responses:
+        '200': { description: Complete bounded object or explicit array page with total and has_more. }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { description: verification_pending or result_changed; no trusted result is returned. }
+        '422': { description: query_limit or unsupported query; no silent truncation. }
+        '504': { description: query_timeout; no trusted result is returned. }
   /health/live:
     get:
       responses: { '200': { description: Live } }

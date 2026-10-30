@@ -152,6 +152,23 @@ func (s *Server) RecheckPublicationSnapshot(r *http.Request, id string, expected
 	if err = s.validHistoricalPayload(payload); err != nil {
 		return nil, "", err
 	}
+	if IsCompactPayload(payload) {
+		base, p, wrapper, _, err := s.compactPublished(r, id)
+		if err != nil {
+			return nil, "", err
+		}
+		if _, err = s.VerifiedCompactQuery(r, id, "metadata", nil); err != nil {
+			return nil, "", err
+		}
+		actual := []VerifiedArtifact{}
+		for _, a := range wrapper.Artifacts {
+			actual = append(actual, VerifiedArtifact{a.Path, a.SHA, a.Size})
+		}
+		if !reflect.DeepEqual(actual, expected.Files) || p.Fingerprint != expected.ConfigFingerprint {
+			return nil, "", errors.New("prepared compact inventory changed")
+		}
+		return actual, base, nil
+	}
 	base := replayBase(id, st.Attempt)
 	if expected.ArtifactPath != base+expected.PublicationSHA256+".json" {
 		return nil, "", errors.New("prepared publication anchor path mismatch")
@@ -175,7 +192,7 @@ func (s *Server) RecheckPublicationSnapshot(r *http.Request, id string, expected
 	var wrapper Manifest
 	decoder := json.NewDecoder(bytes.NewReader(raw))
 	decoder.DisallowUnknownFields()
-	if decoder.Decode(&wrapper) != nil || decoder.Decode(new(any)) != io.EOF || wrapper.Fingerprint != payload.Fingerprint || !publicationInputsMatch(payload, wrapper.Inputs, wrapper.Networks) || wrapper.ReplayVersion != payload.ReplayVersion || wrapper.HistoryFormat != payload.HistoryFormat {
+	if decoder.Decode(&wrapper) != nil || decoder.Decode(new(any)) != io.EOF || wrapper.Fingerprint != payload.Fingerprint || !publicationInputsMatch(payload, wrapper.Inputs, wrapper.Networks) || wrapper.ReplayVersion != payload.ReplayVersion || wrapper.HistoryFormat != payload.HistoryFormat || wrapper.StorageFormat != payload.StorageFormat {
 		return nil, "", errors.New("prepared publication binding mismatch")
 	}
 	actual := []VerifiedArtifact{}

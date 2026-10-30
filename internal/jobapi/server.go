@@ -27,16 +27,18 @@ type Ref struct {
 	SHA  string `json:"sha256"`
 }
 type Payload struct {
-	Kind            string `json:"kind,omitempty"`
-	Network         Ref    `json:"network"`
-	Networks        []Ref  `json:"networks,omitempty"`
-	Process         Ref    `json:"process"`
-	Profile         Ref    `json:"profile"`
-	Fingerprint     string `json:"config_fingerprint"`
-	ReplayVersion   string `json:"replay_version,omitempty"`
-	HistoryFormat   string `json:"history_format,omitempty"`
-	CapacityProfile string `json:"capacity_profile,omitempty"`
-	ResourceProfile string `json:"resource_profile,omitempty"`
+	Kind                 string `json:"kind,omitempty"`
+	Network              Ref    `json:"network"`
+	Networks             []Ref  `json:"networks,omitempty"`
+	Process              Ref    `json:"process"`
+	Profile              Ref    `json:"profile"`
+	Fingerprint          string `json:"config_fingerprint"`
+	ReplayVersion        string `json:"replay_version,omitempty"`
+	HistoryFormat        string `json:"history_format,omitempty"`
+	StorageFormat        string `json:"storage_format,omitempty"`
+	StorageBudgetVersion string `json:"storage_budget_version,omitempty"`
+	CapacityProfile      string `json:"capacity_profile,omitempty"`
+	ResourceProfile      string `json:"resource_profile,omitempty"`
 }
 type Server struct {
 	Repo                            jobs.Repository
@@ -44,6 +46,8 @@ type Server struct {
 	CoordinatorSecret, ControlRoot  string
 	CapacityPolicy, ResourceProfile string
 	PythonBin, PythonPath           string
+	CompactVerifierImage            string
+	compact                         compactAuthority
 	dualCacheMu                     sync.Mutex
 	dualCacheKey                    string
 	dualCacheAnalysis               map[string]any
@@ -214,7 +218,7 @@ func (s *Server) validatePayload(p Payload, historical bool) error {
 	if err != nil {
 		return err
 	}
-	if !dualFamily(p.Kind) && (p.CapacityProfile != "" || p.ResourceProfile != "") {
+	if !dualFamily(p.Kind) && (p.CapacityProfile != "" || p.ResourceProfile != "" || p.StorageFormat != "") {
 		return errors.New("resource and capacity profiles require dual-source kind")
 	}
 	var numericCheck func(any) error
@@ -355,7 +359,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		expected = s.CoordinatorSecret
 	}
 	credential := []byte(r.Header.Get("Authorization"))
-	dualRead := strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence") || (len(strings.Split(strings.Trim(r.URL.Path, "/"), "/")) == 4 && strings.Contains(r.URL.Path, "/replay-"))
+	dualRead := strings.HasSuffix(r.URL.Path, "/shared-query") || strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence") || (len(strings.Split(strings.Trim(r.URL.Path, "/"), "/")) == 4 && strings.Contains(r.URL.Path, "/replay-"))
 	authenticated := expected != "" && subtle.ConstantTimeCompare(credential, []byte("Bearer "+expected)) == 1
 	if dualRead && s.CoordinatorSecret != "" {
 		authenticated = authenticated || subtle.ConstantTimeCompare(credential, []byte("Bearer "+s.CoordinatorSecret)) == 1
@@ -371,6 +375,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		if errors.Is(err, sql.ErrNoRows) {
 			status = 404
+		}
+		if code := CompactErrorCode(err); code != "" {
+			switch code {
+			case "query_limit":
+				status = 422
+			case "query_timeout":
+				status = 504
+			default:
+				status = 409
+			}
+			reply(w, status, map[string]string{"error": err.Error(), "code": code})
+			return
 		}
 		reply(w, status, map[string]string{"error": err.Error()})
 	}
@@ -517,6 +533,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reply(w, 200, st)
 		return
 	}
+	if len(parts) == 4 && r.Method == "GET" && parts[3] == "shared-query" {
+		if err := s.serveCompactQuery(w, r, id); err != nil {
+			fail(err)
+		}
+		return
+	}
 	if len(parts) == 4 && r.Method == "GET" && strings.HasPrefix(parts[3], "replay-") {
 		if err := s.serveReplay(w, r, id, parts[3]); err != nil {
 			fail(err)
@@ -620,6 +642,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err != nil {
+		if errors.Is(err, ErrVerificationPending) {
+			reply(w, 202, map[string]string{"state": "verification_pending"})
+			return
+		}
 		if errors.Is(err, jobs.ErrStale) {
 			st, _ := s.Repo.Status(r.Context(), id)
 			reply(w, 409, map[string]string{"error": err.Error(), "state": st.State})
@@ -632,12 +658,18 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type Manifest struct {
-	Fingerprint   string            `json:"config_fingerprint"`
-	ReplayVersion string            `json:"replay_version,omitempty"`
-	HistoryFormat string            `json:"history_format,omitempty"`
-	Inputs        map[string]string `json:"inputs"`
-	Networks      []string          `json:"networks,omitempty"`
-	Artifacts     []struct {
+	RunID                string            `json:"run_id,omitempty"`
+	AttemptID            int               `json:"attempt_id,omitempty"`
+	CapacityProfile      string            `json:"capacity_profile,omitempty"`
+	ResourceProfile      string            `json:"resource_profile,omitempty"`
+	Fingerprint          string            `json:"config_fingerprint"`
+	ReplayVersion        string            `json:"replay_version,omitempty"`
+	HistoryFormat        string            `json:"history_format,omitempty"`
+	StorageFormat        string            `json:"storage_format,omitempty"`
+	StorageBudgetVersion string            `json:"storage_budget_version,omitempty"`
+	Inputs               map[string]string `json:"inputs"`
+	Networks             []string          `json:"networks,omitempty"`
+	Artifacts            []struct {
 		Path string `json:"path"`
 		SHA  string `json:"sha256"`
 		Size int64  `json:"size"`
@@ -666,6 +698,9 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 			return err
 		}
 	}
+	if IsCompactPayload(p) {
+		return s.completeCompact(r, c, p, sha, done)
+	}
 	base := fmt.Sprintf("jobs/%s/attempt-%d/", c.ID, c.Attempt)
 	if _, err = s.check(Ref{base + "manifest.json", sha}); err != nil {
 		return err
@@ -688,7 +723,7 @@ func (s *Server) complete(r *http.Request, c jobs.Claim, sha string) error {
 	if d.Decode(new(any)) != io.EOF {
 		return errors.New("invalid manifest")
 	}
-	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || m.ReplayVersion != p.ReplayVersion || m.HistoryFormat != p.HistoryFormat || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
+	if m.Fingerprint != p.Fingerprint || !publicationInputsMatch(p, m.Inputs, m.Networks) || m.ReplayVersion != p.ReplayVersion || m.HistoryFormat != p.HistoryFormat || m.StorageFormat != p.StorageFormat || len(m.Artifacts) == 0 || len(m.Artifacts) > 100 {
 		return errors.New("manifest input mismatch or artifact count")
 	}
 	seen := map[string]bool{}

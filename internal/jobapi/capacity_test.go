@@ -131,3 +131,38 @@ func TestHistoricalPayloadReadableUnderNewOperatorWithoutRelaxingSubmission(t *t
 		t.Fatal("unknown historical resource version accepted")
 	}
 }
+
+func TestSharedPayloadStorageResourceAndHistoryAreFrozenTogether(t *testing.T) {
+	doc := map[string]any{"capacity_profile": capacity.EngineeringShared, "storage_format": capacity.SharedFormat, "analysis_mode": "bounded-real-capable-v1"}
+	p := Payload{Kind: "dual-source", CapacityProfile: capacity.EngineeringShared, StorageFormat: capacity.SharedFormat, ResourceProfile: capacity.EngineeringShared}
+	s := &Server{CapacityPolicy: capacity.EngineeringShared, ResourceProfile: capacity.EngineeringShared}
+	if _, err := s.payloadBudget(p, doc); err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range []func(*Payload){func(p *Payload) { p.StorageFormat = "" }, func(p *Payload) { p.CapacityProfile = capacity.Engineering }, func(p *Payload) { p.ResourceProfile = capacity.Engineering }, func(p *Payload) { p.HistoryFormat = capacity.SharedFormat }} {
+		bad := p
+		change(&bad)
+		if _, err := s.payloadBudget(bad, doc); err == nil {
+			t.Fatalf("mismatched shared payload accepted: %+v", bad)
+		}
+	}
+	if name, format, err := replayProfileSchema(doc); err != nil || name != "DualSharedProfile" || format != "" {
+		t.Fatalf("offline schema dispatch %s %s %v", name, format, err)
+	}
+	doc["replay"] = map[string]any{"history_format": capacity.SharedFormat, "identity_strategy": "merkle-json-dag-1", "prefix_digest_strategy": "incremental-prefix-digest-2"}
+	p.Kind = "dual-source-replay"
+	p.ReplayVersion = ReplayVersion
+	p.HistoryFormat = capacity.SharedFormat
+	if _, err := s.payloadBudget(p, doc); err != nil {
+		t.Fatal(err)
+	}
+	if name, format, err := replayProfileSchema(doc); err != nil || name != "DualSharedProfile" || format != capacity.SharedFormat {
+		t.Fatalf("replay schema dispatch %s %s %v", name, format, err)
+	}
+	// New operator policy still interprets the old frozen payload with old bounds.
+	oldDoc := map[string]any{"capacity_profile": capacity.Engineering, "analysis_mode": "bounded-real-capable-v1"}
+	old := Payload{Kind: "dual-source", CapacityProfile: capacity.Engineering, ResourceProfile: capacity.Engineering}
+	if b, err := readPayloadBudget(old, oldDoc); err != nil || b.Candidates != 100000 {
+		t.Fatal("old history was reinterpreted")
+	}
+}

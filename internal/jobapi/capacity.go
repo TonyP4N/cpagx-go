@@ -27,18 +27,39 @@ func (s *Server) payloadBudget(p Payload, config map[string]any) (capacity.Budge
 // limits. A new operator policy cannot silently enlarge or reinterpret them.
 // Submission and unfinished publication must continue using payloadBudget.
 func readPayloadBudget(p Payload, config map[string]any) (capacity.Budget, error) {
-	if p.HistoryFormat != "" && (p.Kind != "dual-source-replay" || p.HistoryFormat != ReplaySpoolFormat) {
+	if p.HistoryFormat != "" && (p.Kind != "dual-source-replay" || p.HistoryFormat != ReplaySpoolFormat && p.HistoryFormat != capacity.SharedFormat && p.HistoryFormat != capacity.CoreSharedFormat) {
 		return capacity.Budget{}, errors.New("history format requires explicit supported replay payload")
 	}
 	b, err := capacity.FromDocument(config)
 	if err != nil {
 		return b, err
 	}
+	if str(config["storage_format"]) != p.StorageFormat {
+		return b, errors.New("payload/profile storage format mismatch")
+	}
+	if b.Version == capacity.EngineeringCore {
+		if p.StorageBudgetVersion != SharedStorageBudget || config["storage_budget_version"] != SharedStorageBudget {
+			return b, errors.New("compact storage budget binding mismatch")
+		}
+		if !dualFamily(p.Kind) || p.StorageFormat != capacity.CoreSharedFormat || p.ResourceProfile != capacity.StorageBudget || (p.Kind == "dual-source-replay" && p.HistoryFormat != capacity.CoreSharedFormat) {
+			return b, errors.New("compact capacity requires explicit DAG6 and storage budget binding")
+		}
+	} else if p.StorageBudgetVersion != "" {
+		return b, errors.New("storage budget requires compact capacity")
+	} else if p.StorageFormat == capacity.CoreSharedFormat || p.ResourceProfile == capacity.StorageBudget || p.HistoryFormat == capacity.CoreSharedFormat {
+		return b, errors.New("compact version mismatch")
+	} else if b.Version == capacity.EngineeringShared {
+		if !dualFamily(p.Kind) || p.StorageFormat != capacity.SharedFormat || p.ResourceProfile != capacity.EngineeringShared || (p.Kind == "dual-source-replay" && p.HistoryFormat != capacity.SharedFormat && p.HistoryFormat != capacity.CoreSharedFormat) {
+			return b, errors.New("shared capacity requires bound storage, resource and replay versions")
+		}
+	} else if p.StorageFormat != "" || p.ResourceProfile == capacity.EngineeringShared || p.HistoryFormat == capacity.SharedFormat {
+		return b, errors.New("shared execution cannot reinterpret historical capacity")
+	}
 	if b.Version != p.CapacityProfile {
 		return b, errors.New("payload/profile capacity binding mismatch")
 	}
 	if b.Version != "" {
-		if p.Kind != "dual-source" && !(p.Kind == "dual-source-replay" && p.HistoryFormat == ReplaySpoolFormat) {
+		if p.Kind != "dual-source" && !(p.Kind == "dual-source-replay" && (p.HistoryFormat == ReplaySpoolFormat || p.HistoryFormat == capacity.SharedFormat || p.HistoryFormat == capacity.CoreSharedFormat)) {
 			return b, errors.New("capacity profile requires versioned replay integration")
 		}
 	}

@@ -17,7 +17,7 @@ func HTTPTimeouts(resourceProfile string) (HTTPBudgets, error) {
 	case DevelopmentS100:
 		b.PublicWrite = 180 * time.Second
 		b.InternalWrite = 180 * time.Second
-	case Engineering:
+	case Engineering, EngineeringShared, StorageBudget:
 		b.PublicRead = 60 * time.Second
 		b.InternalRead = 60 * time.Second
 		b.PublicWrite = 600 * time.Second

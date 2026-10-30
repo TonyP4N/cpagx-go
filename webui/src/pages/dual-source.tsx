@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import SharedRun from '../components/SharedRun';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
@@ -171,6 +172,7 @@ export default function DualSourcePage() {
           v3 ? apiRequest('/api/v3', `/runs/${encodeURIComponent(id)}/artifacts`) : request(`/artifacts/${encodeURIComponent(id)}`),
         ]);
         if (activeTask.current !== id || taskGeneration.current !== generation) return;
+        if (v3 && output?.storage_format === 'shared-observation-dag-6') { setResult(output); setArtifacts(inventory); setError(''); return; }
         if ((v3 && (typeof output?.data?.analysis?.synthetic !== 'boolean' || output?.synthetic !== output?.data?.analysis?.synthetic)) || (!v3 && (output?.data?.analysis?.synthetic !== true || output?.task_kind !== 'synthetic_dual_source'))) {
           clearPublished();
           throw new Error('双源结果来源标记不一致或不受当前入口支持。');
@@ -271,12 +273,12 @@ export default function DualSourcePage() {
 
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800">
     <header className="bg-white/90 border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
-      <div><h1 className="text-2xl font-bold">{analysis?.synthetic === false ? '双源离线分析（真实适用性未验证）' : '合成双源验证'}</h1><p className="text-sm text-slate-500">网络报文与过程采样的可核查关联候选</p></div>
+      <div><h1 className="text-2xl font-bold">{(analysis?.synthetic ?? result?.manifest?.synthetic) === false ? '双源离线分析（真实适用性未验证）' : '合成双源验证'}</h1><p className="text-sm text-slate-500">网络报文与过程采样的可核查关联候选</p></div>
       <Link href={v3 ? '/workspace' : '/'} className="rounded-xl px-4 py-2 bg-emerald-100 text-emerald-900 hover:bg-emerald-200">{v3 ? '返回工作台' : '返回 CPAG 首页'}</Link>
     </div></header>
     <main className="max-w-7xl mx-auto p-6 space-y-6">
       <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" aria-label="合成验证范围">
-        <strong>{analysis?.synthetic === false ? '来源声明为真实；真实适用性未验证。' : '仅限合成验证。'}</strong> 这里展示观测事实与假设性关联候选，不作因果、攻击识别或物理动作成功判断。协议成功响应仅表示协议服务响应成功；端点地址不证明操作主体。时间偏移及漂移由版本配置提供，采样间隔不能确定动作发生时刻。
+        <strong>{(analysis?.synthetic ?? result?.manifest?.synthetic) === false ? '来源声明为真实；真实适用性未验证。' : '仅限合成验证。'}</strong> 这里展示观测事实与假设性关联候选，不作因果、攻击识别或物理动作成功判断。协议成功响应仅表示协议服务响应成功；端点地址不证明操作主体。时间偏移及漂移由版本配置提供，采样间隔不能确定动作发生时刻。
       </section>
       {!v3 && <section className="bg-white/80 rounded-2xl shadow-xl border border-slate-200 p-6 space-y-4" aria-label="提交合成双源任务">
         <h2 className="text-xl font-semibold">提交合成测试输入</h2>
@@ -298,6 +300,7 @@ export default function DualSourcePage() {
         {error && <p role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 break-words">{error}{error.startsWith('409') && ' 已清除页面上的旧结果；请核查原始文件与发布清单。'}</p>}
       </section>
 
+      {v3 && result?.storage_format === 'shared-observation-dag-6' && <SharedRun run={taskId} metadata={result} />}
       {analysis && <>
         {analysis.analysis_version === 'bounded-dual-source-1' && <section aria-label="历史分析语义" className="rounded-xl border border-amber-400 bg-amber-50 p-4 text-sm"><h2 className="font-semibold">历史版本结果：响应时间质量限制</h2><p>此结果按 bounded-dual-source-1 原语义保留和核验，未被重新分析或修改。该版本未完整约束响应时间未知时的候选生成；已有候选不代表时间依据充分。如需修正判断，请显式提交新运行，旧结果继续保留。</p></section>}
         <section className="grid sm:grid-cols-4 gap-3" aria-label="双源结果摘要">{[['网络操作', operations.length], ['过程变化', changes.length], ['关联候选', candidates.length], ['孤立过程变化', analysis.orphan_change_ids?.length ?? 0]].map(([label, count]) => <div key={label} className="bg-white rounded-xl border border-slate-200 p-4"><p className="text-sm text-slate-500">{label}</p><p className="text-2xl font-semibold">{count}</p></div>)}</section>

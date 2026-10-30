@@ -12,6 +12,25 @@ const ReplaySpoolFormat = "replay-history-checkpoint-delta-2"
 
 func replayProfileSchema(doc map[string]any) (string, string, error) {
 	replay, _ := obj(doc["replay"])
+	if storage, exists := doc["storage_format"]; exists {
+		if storage != capacity.SharedFormat && storage != capacity.CoreSharedFormat {
+			return "", "", errors.New("unsupported explicit storage format")
+		}
+		if _, err := capacity.FromDocument(doc); err != nil {
+			return "", "", err
+		}
+		format := ""
+		if _, exists := doc["replay"]; exists {
+			format = str(replay["history_format"])
+			if format != storage {
+				return "", "", errors.New("shared replay history binding missing")
+			}
+		}
+		if storage == capacity.CoreSharedFormat {
+			return "DualCompactProfile", format, nil
+		}
+		return "DualSharedProfile", format, nil
+	}
 	value, exists := replay["history_format"]
 	if !exists {
 		return "DualSourceProfile", "", nil
@@ -40,6 +59,10 @@ func validateReplayProfile(value any, version string) error {
 	schemaName := "ReplayProfile"
 	if format == ReplaySpoolFormat {
 		schemaName = "ReplaySpoolProfile"
+	} else if format == capacity.CoreSharedFormat {
+		schemaName = "ReplayCompactProfile"
+	} else if format == capacity.SharedFormat {
+		schemaName = "ReplaySharedProfile"
 	}
 	if e := replaySchema(schemaName, replay); e != nil {
 		return e
@@ -52,7 +75,7 @@ func validateReplayProfile(value any, version string) error {
 	if !ok || len(sequence) == 0 || len(sequence) > budget.ArrivalSteps {
 		return errors.New("explicit bounded replay arrival sequence required")
 	}
-	if format == ReplaySpoolFormat {
+	if format == ReplaySpoolFormat || format == capacity.SharedFormat || format == capacity.CoreSharedFormat {
 		bufferMax := 11000
 		if budget.Version != "" {
 			bufferMax = budget.ArrivalSteps
@@ -132,6 +155,9 @@ func validateReplaySourceSlots(value any, count int) error {
 	return nil
 }
 func replayArtifactNamesFor(p Payload) []string {
+	if IsCompactPayload(p) {
+		return compactArtifactNames(p)
+	}
 	names := []string{"dataset.json", "events.json", "graph.json", "quality.json", "analysis.json", "run_manifest.json", "replay.json", "snapshots.jsonl", "revisions.jsonl", "arrivals.jsonl", "metrics.json", "runtime_metrics.json", "sources/process.csv", "sources/profile.json"}
 	if p.HistoryFormat == ReplaySpoolFormat {
 		names = []string{"dataset.json", "events.json", "graph.json", "quality.json", "analysis.json", "run_manifest.json", "replay.json", "history/manifest.json", "history/history.sqlite3", "arrivals.jsonl", "metrics.json", "runtime_metrics.json", "sources/process.csv", "sources/profile.json"}
@@ -144,6 +170,14 @@ func replayArtifactNamesFor(p Payload) []string {
 }
 
 func validPayloadArtifactPath(p Payload, path string) bool {
+	if IsCompactPayload(p) {
+		for _, name := range compactArtifactNames(p) {
+			if name == path {
+				return true
+			}
+		}
+		return false
+	}
 	if p.Kind == "dual-source-replay" && p.HistoryFormat == ReplaySpoolFormat {
 		for _, name := range replayArtifactNamesFor(p) {
 			if name == path {

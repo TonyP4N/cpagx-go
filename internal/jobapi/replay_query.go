@@ -31,6 +31,24 @@ func replaySnapshot(data *replayVerified, n int) (map[string]any, error) {
 	return row, nil
 }
 func (s *Server) serveReplay(w http.ResponseWriter, r *http.Request, id, kind string) error {
+	if s.isCompactRun(r, id) {
+		q := r.URL.Query()
+		action := "metadata"
+		switch kind {
+		case "replay-revisions":
+			action = "revisions"
+		case "replay-snapshot":
+			action = "snapshot"
+		case "replay-evidence":
+			action = "evidence"
+		}
+		q.Set("action", action)
+		if q.Has("revision") {
+			q.Set("snapshot", q.Get("revision"))
+		}
+		r.URL.RawQuery = q.Encode()
+		return s.serveCompactQuery(w, r, id)
+	}
 	base, p, _, e := s.publishedDual(r, id)
 	if e != nil {
 		return e

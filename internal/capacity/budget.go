@@ -5,6 +5,11 @@ package capacity
 import "fmt"
 
 const Engineering = "engineering-capacity-1"
+const EngineeringShared = "engineering-capacity-2"
+const SharedFormat = "shared-observation-dag-5"
+const EngineeringCore = "engineering-core-capacity-3"
+const CoreSharedFormat = "shared-observation-dag-6"
+const StorageBudget = "storage-budget-2"
 const DevelopmentS100 = "r19-dev-s100-1"
 
 type Budget struct {
@@ -25,7 +30,7 @@ func Resolve(version string) (Budget, error) {
 	switch version {
 	case "":
 		return b, nil
-	case Engineering:
+	case Engineering, EngineeringShared, EngineeringCore:
 		b.NetworkFileBytes = 64 << 20
 		b.NetworkTotalBytes = 128 << 20
 		b.Frames = 100000
@@ -39,6 +44,10 @@ func Resolve(version string) (Budget, error) {
 		b.Snapshots = 45000
 		b.Revisions = 90000
 		b.OutputBytes = 1 << 30
+		if version == EngineeringShared || version == EngineeringCore {
+			b.Candidates = 500000
+			b.Snapshots = 65000
+		}
 		return b, nil
 	default:
 		return Budget{}, fmt.Errorf("unsupported capacity profile %q", version)
@@ -48,6 +57,9 @@ func Resolve(version string) (Budget, error) {
 func FromDocument(doc map[string]any) (Budget, error) {
 	value, exists := doc["capacity_profile"]
 	if !exists {
+		if _, storage := doc["storage_format"]; storage {
+			return Budget{}, fmt.Errorf("storage requires explicit capacity version")
+		}
 		return Resolve("")
 	}
 	version, ok := value.(string)
@@ -56,6 +68,26 @@ func FromDocument(doc map[string]any) (Budget, error) {
 	}
 	if doc["analysis_mode"] != "bounded-real-capable-v1" {
 		return Budget{}, fmt.Errorf("capacity profile requires explicit bounded analysis mode")
+	}
+	if version == EngineeringShared || version == EngineeringCore {
+		if version == EngineeringCore && doc["storage_budget_version"] != "shared-storage-budget-2" {
+			return Budget{}, fmt.Errorf("compact capacity requires explicit storage budget")
+		}
+		format := SharedFormat
+		if version == EngineeringCore {
+			format = CoreSharedFormat
+		}
+		if doc["storage_format"] != format {
+			return Budget{}, fmt.Errorf("shared capacity requires explicit storage format")
+		}
+		if replay, exists := doc["replay"]; exists {
+			value, ok := replay.(map[string]any)
+			if !ok || value["history_format"] != format || value["identity_strategy"] != "merkle-json-dag-1" || value["prefix_digest_strategy"] != "incremental-prefix-digest-2" {
+				return Budget{}, fmt.Errorf("shared capacity requires versioned replay format, identity and prefix digest")
+			}
+		}
+	} else if _, exists := doc["storage_format"]; exists {
+		return Budget{}, fmt.Errorf("storage capacity version mismatch")
 	}
 	return Resolve(version)
 }
@@ -88,9 +120,13 @@ func ArtifactBytes(resourceProfile string) (int64, error) {
 		return 64 << 20, nil // unchanged old per-file service guard
 	case DevelopmentS100:
 		return 512 << 20, nil
-	case Engineering:
+	case Engineering, EngineeringShared, StorageBudget:
 		return 1 << 30, nil
 	default:
 		return 0, fmt.Errorf("unsupported resource profile %q", resourceProfile)
 	}
+}
+
+func IsEngineering(version string) bool {
+	return version == Engineering || version == EngineeringShared || version == EngineeringCore
 }

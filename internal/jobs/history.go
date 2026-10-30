@@ -109,6 +109,13 @@ func (r Repository) RecordExit(ctx context.Context, c Claim, proof ExitProof) er
 }
 
 func (r Repository) allExited(ctx context.Context, id string, attempt int) (string, error) {
+	var verifierPending bool
+	if err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_compact_verifications WHERE job_id=$1 AND state='running')`, id).Scan(&verifierPending); err != nil {
+		return "", err
+	}
+	if verifierPending {
+		return "pending controlled compact verifier exit evidence", nil
+	}
 	history, err := r.History(ctx, id)
 	if err != nil {
 		return "", err

@@ -438,6 +438,15 @@ jobs:
         run: python scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"
       - name: Explicit disk history cancellation, interrupted Worker and stale attempt
         run: python scripts/validation/round18_lifecycle.py --history-format replay-history-checkpoint-delta-2 --skip-image-build --image cpag-isolated:r18-acceptance --output "$RUNNER_TEMP/round19-spool-lifecycle"
+      - name: R19 DAG6 formal service small-case integration
+        # Reuse this checkout's R18-built image, pin its immutable local ID, and
+        # run only small fixtures. S100 remains an explicitly bounded local cell.
+        run: |
+          r19_work="/private/tmp/cpag-r19-formal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_FORMAL_OUTPUT=$r19_work" >> "$GITHUB_ENV"
+          sudo install -d -m 1777 /private/tmp
+          r19_image="$(docker image inspect cpag-isolated:r18-acceptance --format '{{.Id}}')"
+          python scripts/validation/round19_formal_service_acceptance.py --mode small --image "$r19_image" --output "$r19_work"
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -453,3 +462,6 @@ jobs:
             ${{ runner.temp }}/round19-spool-lifecycle/public
             ${{ runner.temp }}/round18-lifecycle/public
             ${{ runner.temp }}/round18-lifecycle/*.log
+            ${{ env.R19_FORMAL_OUTPUT }}/report.json
+            ${{ env.R19_FORMAL_OUTPUT }}/http-timings.json
+            ${{ env.R19_FORMAL_OUTPUT }}/*-resource-proof.json

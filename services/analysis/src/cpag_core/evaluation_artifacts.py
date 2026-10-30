@@ -197,7 +197,22 @@ def adapt_artifact(output, *, batch, sample_sha256, projection='dual', expected_
         if expected_binding is not None and canonical(expected_binding) != canonical(binding):
             raise ValueError('frozen_artifact_binding_mismatch')
         return prepared
+    # DAG6 uses authenticated logical roots rather than nonexistent flat files.
+    # A service reader is supplied only inside the protected service bridge;
+    # standalone calls retain the complete independent source verification.
+    from .evaluation_shared import current_reader, adapt_shared
+    shared = current_reader(output)
+    if shared is not None or _read(Path(output) / 'run_manifest.json').get('storage_format') == 'shared-observation-dag-6':
+        return adapt_shared(output, batch=batch, sample_sha256=sample_sha256,
+                            projection=projection, expected_binding=expected_binding)
     manifest, analysis, profile, statistics, final, hashes = _verified(output)
+    return _adapt_verified(manifest, analysis, profile, statistics, final, hashes,
+                           batch=batch, sample_sha256=sample_sha256,
+                           projection=projection, expected_binding=expected_binding)
+
+
+def _adapt_verified(manifest, analysis, profile, statistics, final, hashes, *,
+                    batch, sample_sha256, projection, expected_binding=None):
     if manifest['mode'] == 'single_source' and projection != manifest['source_mode']:
         raise ValueError('single_source_projection_must_match_executed_source_mode')
     events, exclusions, links = [], [], {}
@@ -270,7 +285,8 @@ def adapt_artifact(output, *, batch, sample_sha256, projection='dual', expected_
         'predictions_sha256': fingerprint(predictions)}
     if manifest.get('history_format') is not None:
         binding['history_format']=manifest['history_format']
-        binding['history_manifest_sha256']=manifest['history_manifest_sha256']
+        if 'history_manifest_sha256' in manifest:
+            binding['history_manifest_sha256']=manifest['history_manifest_sha256']
     if expected_binding is not None and canonical(expected_binding) != canonical(binding):
         raise ValueError('frozen_artifact_binding_mismatch')
     limitations = list(LIMITATIONS)
@@ -296,6 +312,10 @@ def query_prediction(output, adapted, prediction_id):
         selector = excluded[0]['query']
     args = ({'operation_id': selector['operation_id']} if 'operation_id' in selector
             else {'change_id': selector['change_id']})
+    if binding.get('storage_format') == 'shared-observation-dag-6':
+        from .evaluation_shared import query_shared_prediction
+        return {'prediction_id': prediction_id, 'binding': deepcopy(binding),
+                'evidence': query_shared_prediction(output, actual, **args)}
     if binding['mode'] == 'replay':
         if prepared_projection(output) is not None:
             evidence = terminal_replay_evidence(output, actual, **args)

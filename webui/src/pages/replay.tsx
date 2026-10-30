@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import SharedRun from '../components/SharedRun';
 import { useRouter } from 'next/router';
 
 type Row = Record<string, any>;
@@ -31,7 +32,8 @@ export default function ReplayPage() {
     clear(); setError('');
     if (!run) return;
     setBusy(true);
-    Promise.all([read(`/runs/${encodeURIComponent(run)}/result`), read(`/runs/${encodeURIComponent(run)}/revisions`)]).then(([output, history]) => {
+    read(`/runs/${encodeURIComponent(run)}/result`).then(async output => {
+      const history = output.storage_format === 'shared-observation-dag-6' ? { revisions: [] } : await read(`/runs/${encodeURIComponent(run)}/revisions`);
       if (ticket !== generation.current) return;
       setResult(output); setRevisions(history.revisions ?? []);
     }).catch(reason => { if (ticket === generation.current) { clear(); setError(String(reason.message)); } })
@@ -68,14 +70,15 @@ export default function ReplayPage() {
     } catch (reason) { if (task === generation.current) { clear(); setError((reason as Error).message); } }
   }
   const analysis = snapshot?.analysis ?? snapshot?.result ?? snapshot?.snapshot?.analysis;
-  const synthetic = result?.synthetic ?? result?.data?.analysis?.synthetic;
+  const synthetic = result?.manifest?.synthetic ?? result?.synthetic ?? result?.data?.analysis?.synthetic;
   return <main className="max-w-6xl mx-auto p-6 space-y-5 text-slate-800">
     <header className="flex flex-wrap justify-between gap-4"><h1 className="text-2xl font-bold">双源顺序回放 · 历史证据核查</h1><Link href="/workspace" className="underline">返回工作台</Link></header>
     <p className="rounded border border-amber-300 bg-amber-50 p-4" aria-label="回放范围">{synthetic === false ? '真实来源声明，适用性未验证。' : synthetic === true ? '合成软件验证。' : '来源标记加载中，尚未核验。'} 此处查看已校验终态产物中的历史版本；pending、窗口关闭和协议响应都不表示物理成功、因果成立或攻击确认。</p>
     <p className="text-sm break-all">运行：{run || '未选择'}</p>
     {busy && <p role="status">正在校验回放产物…</p>}
     {error && <p role="alert" className="border border-red-300 bg-red-50 p-4">{error} 已清除可信结果，请核查来源、权限与完整性。</p>}
-    {result && <>
+    {result?.storage_format === 'shared-observation-dag-6' && <SharedRun run={run} metadata={result} />}
+    {result && result.storage_format !== 'shared-observation-dag-6' && <>
       <section className="border rounded p-4 space-y-3" aria-label="回放修订历史"><h2 className="text-xl font-semibold">不可变修订历史</h2>
         <label>历史版本<select aria-label="历史版本" value={revision} onChange={e => void choose(e.target.value)} className="ml-3 p-2 border rounded"><option value="">选择快照</option>{revisions.map((row, index) => { const id = String(row.new_snapshot_number ?? row.revision_number ?? index + 1); return <option key={id} value={id}>版本 {id} · {row.reason ?? row.trigger?.kind ?? '语义修订'} · {row.available_at ?? row.trigger?.available_at}</option>; })}</select></label>
         <details><summary>查看完整修订依据</summary><pre className="text-xs overflow-auto">{JSON.stringify(revisions, null, 2)}</pre></details>

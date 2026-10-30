@@ -105,7 +105,24 @@ def dual_networks(payload):
     return refs
 
 
+def reject_unproven_shared_backup(payload, profile=None):
+    """The legacy bundle adapter has no proven DAG6 restore contract.
+
+    Refuse before interpreting a shared publication as a flat export, including
+    non-successful attempts. Preserve every existing legacy backup reader.
+    """
+    for value in (payload, profile or {}):
+        if (value.get('storage_format') is not None
+                or value.get('capacity_profile') == 'engineering-core-capacity-3'
+                or value.get('resource_profile') == 'engineering-core-capacity-3'
+                or value.get('storage_budget_version') == 'shared-storage-budget-2'
+                or value.get('history_format') == 'shared-observation-dag-6'
+                or value.get('replay', {}).get('history_format') == 'shared-observation-dag-6'):
+            raise ValueError('unsupported_shared_backup_restore: DAG6 full service backup/restore adapter is not proven; retain the complete original run and sources')
+
+
 def dual_files(payload):
+    reject_unproven_shared_backup(payload)
     return DUAL_FILES | {f'dual/sources/network-{i:03d}.pcap' for i in range(1,len(dual_networks(payload)))}
 
 
@@ -115,6 +132,7 @@ def replay_export_api():
 
 
 def replay_files(payload, profile=None):
+    reject_unproven_shared_backup(payload, profile)
     options=(profile or {}).get('replay',{})
     history_format=options.get('history_format')
     if history_format is None and ('history_format' in options or 'history_format' in payload):
@@ -132,8 +150,10 @@ def replay_files(payload, profile=None):
 def audit_dual(row, root, verify):
     """Bind the database publication to the original, reverified dual run."""
     payload=row['payload']
+    reject_unproven_shared_backup(payload)
     replay=payload.get('kind')=='dual-source-replay'
     profile=strict_json(safe(root,payload['profile']['path']).read_text(encoding='utf-8'))
+    reject_unproven_shared_backup(payload, profile)
     if fingerprint(profile)!=payload['config_fingerprint']:
         raise ValueError('dual profile config fingerprint mismatch')
     if replay and (payload.get('replay_version')!='dual-source-replay-1' or profile.get('replay',{}).get('version')!=payload.get('replay_version')):

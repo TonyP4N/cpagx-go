@@ -122,7 +122,7 @@ func (r Repository) Cancel(ctx context.Context, id string) error {
 // AcknowledgeCancel must be called only after the attempt's subprocess has exited.
 // Recovery also must independently confirm no process remains before acknowledging.
 func (r Repository) AcknowledgeCancel(ctx context.Context, c Claim) error {
-	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state IN ('cancelling','cancelled') AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt`, c.ID, c.Attempt, c.Worker, c.Token))
+	return affected(r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state='cancelled',lease_until=NULL WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND state IN ('cancelling','cancelled') AND (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt AND NOT EXISTS(SELECT 1 FROM m4_compact_verifications v WHERE v.job_id=m4_jobs.id AND v.state='running')`, c.ID, c.Attempt, c.Worker, c.Token))
 }
 
 // ArtifactKey gives each attempt a distinct relative immutable destination.

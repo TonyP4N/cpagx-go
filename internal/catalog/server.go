@@ -40,6 +40,7 @@ type Config struct {
 	PythonPath             string `json:"python_path"`
 	CapacityPolicy         string `json:"capacity_policy,omitempty"`
 	ResourceProfile        string `json:"resource_profile,omitempty"`
+	CompactVerifierImage   string `json:"compact_verifier_image,omitempty"`
 }
 type Server struct {
 	DB                      *sql.DB
@@ -66,6 +67,8 @@ type auditWriter struct {
 	http.ResponseWriter
 	status int
 }
+
+func (w *auditWriter) Unwrap() http.ResponseWriter { return w.ResponseWriter }
 
 func (w *auditWriter) WriteHeader(status int) {
 	w.status = status
@@ -103,8 +106,14 @@ func LoadConfig(path string) (Config, error) {
 	if d.Decode(new(any)) != io.EOF {
 		return c, errors.New("one config object required")
 	}
-	if c.CapacityPolicy != "" && c.CapacityPolicy != capacity.Engineering {
+	if c.CapacityPolicy != "" && !capacity.IsEngineering(c.CapacityPolicy) {
 		return c, errors.New("unsupported site capacity policy")
+	}
+	if ((c.CapacityPolicy == capacity.EngineeringShared) != (c.ResourceProfile == capacity.EngineeringShared)) || ((c.CapacityPolicy == capacity.EngineeringCore) != (c.ResourceProfile == capacity.StorageBudget)) {
+		return c, errors.New("shared policy and resource profile must be explicitly paired")
+	}
+	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierImage(c.CompactVerifierImage) {
+		return c, errors.New("compact policy requires immutable verifier image")
 	}
 	if _, e = capacity.ArtifactBytes(c.ResourceProfile); e != nil {
 		return c, e
@@ -138,8 +147,14 @@ func LoopbackAddr(addr string) bool {
 	return host == "127.0.0.1" || host == "[::1]" || host == "::1" || host == "localhost"
 }
 func New(db *sql.DB, c Config) (*Server, error) {
-	if c.CapacityPolicy != "" && c.CapacityPolicy != capacity.Engineering {
+	if c.CapacityPolicy != "" && !capacity.IsEngineering(c.CapacityPolicy) {
 		return nil, errors.New("unsupported site capacity policy")
+	}
+	if ((c.CapacityPolicy == capacity.EngineeringShared) != (c.ResourceProfile == capacity.EngineeringShared)) || ((c.CapacityPolicy == capacity.EngineeringCore) != (c.ResourceProfile == capacity.StorageBudget)) {
+		return nil, errors.New("shared policy and resource profile must be explicitly paired")
+	}
+	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierImage(c.CompactVerifierImage) {
+		return nil, errors.New("compact policy requires immutable verifier image")
 	}
 	if _, err := capacity.ArtifactBytes(c.ResourceProfile); err != nil {
 		return nil, err
@@ -191,6 +206,12 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	}
 	internal.(*jobapi.Server).CapacityPolicy = c.CapacityPolicy
 	internal.(*jobapi.Server).ResourceProfile = c.ResourceProfile
+	internal.(*jobapi.Server).CompactVerifierImage = c.CompactVerifierImage
+	if c.CapacityPolicy == capacity.EngineeringCore {
+		if err := internal.(*jobapi.Server).RecoverCompactVerifiers(context.Background()); err != nil {
+			return nil, err
+		}
+	}
 	internal.(*jobapi.Server).PythonBin = c.PythonBin
 	internal.(*jobapi.Server).PythonPath = c.PythonPath
 	s := &Server{DB: db, Root: root, Internal: internal, cfg: c, repo: jobs.Repository{DB: db}}

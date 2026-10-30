@@ -36,7 +36,11 @@ func evaluationResourceProjectionLimit(resource, operator string) (int, error) {
 	switch resource {
 	case "":
 		return evaluationProjectionLimit, nil
-	case capacity.DevelopmentS100, capacity.Engineering:
+	case capacity.StorageBudget:
+		// DAG6 service reads remain within the existing interactive query cap.
+		// The storage policy is a resource version, not the capacity semantic version.
+		return evaluationProjectionLimit, nil
+	case capacity.DevelopmentS100, capacity.Engineering, capacity.EngineeringShared:
 		return evaluationV2DocumentLimit, nil
 	default:
 		return 0, errors.New("unsupported evaluation resource profile")
@@ -140,7 +144,14 @@ func (s *Server) evaluationInput(w http.ResponseWriter, r *http.Request, p *prin
 		fail(w, 409, "evaluation_input_unavailable", "published identity unavailable or changed")
 		return
 	}
-	raw, err := s.runEvaluationProjection(context.WithValue(ctx, evaluationPublicationContextKey{}, coreSHA), filepath.Join(s.Root, base), batch, core.Input, projection, projectionLimit)
+	var raw []byte
+	if jobapi.IsCompactPayload(payload) {
+		raw, err = internal.VerifiedCompactQuery(r, id, "evaluation", map[string]any{
+			"batch": batch, "sample_sha256": core.Input, "projection": projection,
+		})
+	} else {
+		raw, err = s.runEvaluationProjection(context.WithValue(ctx, evaluationPublicationContextKey{}, coreSHA), filepath.Join(s.Root, base), batch, core.Input, projection, projectionLimit)
+	}
 	if err != nil {
 		fail(w, 409, "evaluation_projection_failed", "bounded evaluation projection unavailable")
 		return

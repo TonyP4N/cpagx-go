@@ -53,6 +53,8 @@ def checked_manifest(root):
     if path.is_symlink() or file_hash(path) != state['digest']:
         raise ValueError('service_publication_manifest_changed')
     manifest = strict_json(path.read_text(encoding='utf-8'))
+    if manifest.get('storage_format') == 'shared-observation-dag-6':
+        raise ValueError('dag6_requires_protected_service_reader_not_manifest_digest')
     seen = set()
     for item in manifest['artifacts']:
         name = item['path']

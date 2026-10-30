@@ -72,6 +72,9 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 	}
 	if len(parts) == 3 && r.Method == "GET" {
 		switch parts[2] {
+		case "shared-query":
+			s.compactProjection(w, r, p, dataset, id)
+			return
 		case "evaluation-input":
 			s.evaluationInput(w, r, p, dataset, id, mode)
 			return
@@ -177,6 +180,17 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 	}
 	payload := jobapi.Payload{Kind: "dual-source", Profile: jobapi.Ref{Path: cfgPath, SHA: cfgSHA}, Fingerprint: fp}
 	payload.ResourceProfile = s.cfg.ResourceProfile
+	if value, exists := doc["storage_format"]; exists {
+		format, ok := value.(string)
+		if !ok || format == "" {
+			fail(w, 422, "invalid_config", "invalid storage format")
+			return
+		}
+		payload.StorageFormat = format
+		if version, ok := doc["storage_budget_version"].(string); ok {
+			payload.StorageBudgetVersion = version
+		}
+	}
 	if value, exists := doc["capacity_profile"]; exists {
 		version, ok := value.(string)
 		if !ok || version == "" {
@@ -375,6 +389,20 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, con
 	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "replay_version": replayVersion, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid}})
 }
 func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
+	if compact, err := s.Internal.(*jobapi.Server).IsCompactRun(r, id); err == nil && compact {
+		q := r.URL.Query()
+		action := "metadata"
+		if kind == "graph" {
+			action = "graph"
+		}
+		if kind == "evidence" {
+			action = "evidence"
+		}
+		q.Set("action", action)
+		r.URL.RawQuery = q.Encode()
+		s.compactProjection(w, r, p, dataset, id)
+		return
+	}
 	path := "/v1/jobs/" + id + "/dual-result"
 	if kind == "evidence" {
 		path = "/v1/jobs/" + id + "/dual-evidence?" + r.URL.RawQuery
@@ -420,6 +448,9 @@ func (s *Server) listArtifacts(w http.ResponseWriter, r *http.Request, p *princi
 	respond(w, 200, map[string]any{"artifacts": items})
 }
 func (s *Server) downloadArtifact(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, name string) {
+	if s.compactDownload(w, r, p, dataset, id, name) {
+		return
+	}
 	items, base, e := s.Internal.(*jobapi.Server).VerifiedDualArtifacts(r, id)
 	if e != nil {
 		fail(w, 409, "result_unavailable", "published artifacts unavailable or changed")

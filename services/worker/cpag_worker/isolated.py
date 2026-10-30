@@ -18,7 +18,7 @@ import uuid
 import urllib.request
 import urllib.error
 import urllib.parse
-from .worker import API, APIError, beneath, digest, network_refs, publication_inputs, source_flag
+from .worker import API, APIError, beneath, digest, network_refs, publication_inputs, source_flag, compact_payload
 
 
 def sync_dir(path):
@@ -180,14 +180,20 @@ class DockerExecutor:
         payload=status['payload']
         if publication['config_fingerprint']!=payload['config_fingerprint'] or any(publication.get(k)!=v for k,v in publication_inputs(payload).items()) or publication.get('networks')!=publication_inputs(payload).get('networks'):raise ValueError('handoff identity differs')
         if payload.get('kind')=='dual-source-replay' and (publication.get('replay_version')!=payload.get('replay_version') or publication.get('history_format')!=payload.get('history_format')):raise ValueError('replay handoff version differs')
+        compact=compact_payload(payload)
         dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
             from importlib import import_module
-            export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
-            FILES=export.artifact_files_for_inputs(len(network_refs(payload)),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else export.artifact_files(output)
+            export=import_module('cpag_core.shared_export' if compact else 'cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
+            FILES=export.artifact_files_for_inputs(len(network_refs(payload)),mode='replay' if payload.get('kind')=='dual-source-replay' else 'offline') if compact else export.artifact_files_for_inputs(len(network_refs(payload)),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else export.artifact_files(output)
             verify_task=export.verify_task
             if {entry['path'] for entry in publication['artifacts']}!=FILES or len(publication['artifacts'])!=len(FILES):raise ValueError('dual-source handoff inventory differs')
-            manifest=verify_task(output)
+            if compact:
+                from cpag_core.shared_service import _inventory, _envelope
+                binding=self.compact_binding(payload,record['id'],record['attempt'])
+                _,manifest,rows=_inventory(output,binding)
+                with _envelope(output,rows):export._bound(output)
+            else:manifest=verify_task(output)
             if manifest['run_id']!=record['id'] or manifest['attempt_id']!=record['attempt']:raise ValueError('dual-source handoff identity differs')
         for entry in publication['artifacts']:
             if not dual_source and Path(entry['path']).name!=entry['path']:raise ValueError('unsafe handoff path')
@@ -196,7 +202,7 @@ class DockerExecutor:
         if payload.get('kind')=='packet':
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(output,beneath(self.root,payload['network']['path']))
-        self.publication_api.post('/v1/jobs/'+record['id']+'/complete',{**{k:record[k] for k in ('worker','attempt','token')},'manifest_sha256':handoff['manifest_sha256']})
+        self.complete(record,handoff['manifest_sha256'])
         sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
         atomic_json(base/'publication.json',handoff)
         return 'succeeded'
@@ -348,6 +354,27 @@ class DockerExecutor:
         except (OSError,ValueError,KeyError,TypeError,AttributeError,subprocess.SubprocessError):
             outcomes.append({'scope':'global','pending':'discovery_unavailable','retryable':True})
         return outcomes
+    def compact_binding(self,payload,run_id,attempt_id):
+        return {**{name:payload[name] for name in ('config_fingerprint','storage_format','capacity_profile','resource_profile','storage_budget_version')},
+                'run_id':run_id,'attempt_id':attempt_id,'payload_sha256':hashlib.sha256(json.dumps(payload,sort_keys=True,separators=(',',':')).encode()).hexdigest()}
+
+    def complete(self,record,sha,lease_health=None,deadline=None):
+        """Keep a pending verifier nonterminal; cancellation/lease remain host-owned."""
+        identity={key:record[key] for key in ('worker','attempt','token')}
+        endpoint='/v1/jobs/'+record['id']
+        deadline=deadline if deadline is not None else time.monotonic()+2100
+        while True:
+            if self.stopping or lease_health and (not lease_health['owned'] or lease_health['cancelled']):
+                raise ValueError('publication ownership lost while verification pending')
+            response=self.publication_api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
+            if not response or not (response.get('verification_pending') or response.get('state')=='verification_pending' or response.get('status')=='verification_pending'):
+                return response
+            if time.monotonic()>=deadline:raise ValueError('service verification publication deadline')
+            # Recovery has no execution heartbeat thread; renew before polling.
+            heartbeat=self.api.post(endpoint+'/heartbeat',{**identity,'lease_seconds':self.lease})
+            if heartbeat and heartbeat.get('state')=='cancelling':raise ValueError('publication cancellation pending')
+            time.sleep(min(.25,self.heartbeat))
+
     def read_output(self,container,target,payload,*,run_id=None,attempt_id=None):
         if shutil.disk_usage(self.root).free-self.output_bytes<self.min_free_bytes:raise OSError(28,'executor minimum free storage before handoff')
         process=subprocess.Popen(['docker','exec',container,'tar','-C','/output/run','-cf','-','.'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
@@ -375,13 +402,14 @@ class DockerExecutor:
             timer.cancel();process.stdout.close()
             if process.poll() is None:process.kill();process.wait()
         target.mkdir(mode=0o700)
+        compact=compact_payload(payload)
         dual_source=payload.get('kind') in ('dual-source','dual-source-replay')
         if dual_source:
             from importlib import import_module
-            export=import_module('cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
-            DIRECTORIES=export.DIRECTORIES
+            export=import_module('cpag_core.shared_export' if compact else 'cpag_core.replay_export' if payload.get('kind')=='dual-source-replay' else 'cpag_core.dual_source_export')
+            DIRECTORIES=frozenset({'shared','sources'}) if compact else export.DIRECTORIES
             if payload.get('kind')=='dual-source-replay' and payload.get('history_format')=='replay-history-checkpoint-delta-2':DIRECTORIES=frozenset({'sources','history'})
-            FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None]),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))}
+            FILES=export.artifact_files_for_inputs(len(payload.get('networks') or [None]),mode='replay' if payload.get('kind')=='dual-source-replay' else 'offline') if compact else (export.artifact_files_for_inputs(len(payload.get('networks') or [None]),history_format=payload.get('history_format')) if payload.get('kind')=='dual-source-replay' else set(export.FILES)|{f"dual/sources/network-{i:03d}.pcap" for i in range(1,len(payload.get('networks') or [None]))})
         with archive_file, tarfile.open(fileobj=archive_file,mode='r:') as archive:
             total=0
             seen=set()
@@ -406,7 +434,7 @@ class DockerExecutor:
                 self.checkpoint('during_copy')
         manifest=json.loads((target/'run_manifest.json').read_text())
         from cpag_core.contracts import validate
-        manifest_schema='ReplaySpoolRunManifest' if payload.get('kind')=='dual-source-replay' and payload.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayRunManifest' if payload.get('kind')=='dual-source-replay' else 'RunManifest'
+        manifest_schema='CompactStoreRunManifest' if compact else 'ReplaySpoolRunManifest' if payload.get('kind')=='dual-source-replay' and payload.get('history_format')=='replay-history-checkpoint-delta-2' else 'ReplayRunManifest' if payload.get('kind')=='dual-source-replay' else 'RunManifest'
         validate(manifest_schema,manifest)
         if payload.get('kind')=='dual-source-replay' and (manifest.get('history_format')!=payload.get('history_format') or manifest.get('replay_version')!=payload.get('replay_version')):raise ValueError('replay output version binding mismatch')
         if manifest['config_fingerprint']!=payload['config_fingerprint']: raise ValueError('configuration mismatch')
@@ -419,7 +447,7 @@ class DockerExecutor:
             path=beneath(target.resolve(),entry['path'])
             if digest(path)!=entry['sha256'] or path.stat().st_size!=entry['size_bytes']: raise ValueError('artifact hash/size mismatch')
             schema={'dataset.json':'DatasetManifest','graph.json':'ReplayGraphArtifact' if payload.get('kind')=='dual-source-replay' else 'GraphArtifact'}.get(path.name)
-            if schema:
+            if schema and not compact:
                 value=json.loads(path.read_text());validate(schema,value)
                 del value
             if path.name=='events.json' and not dual_source:
@@ -428,7 +456,10 @@ class DockerExecutor:
             from cpag_core.packet_job import verify_artifacts
             verify_artifacts(target,beneath(self.root,payload['network']['path']))
         if dual_source:
-            export.verify_task(target)
+            if compact:
+                # Source replay runs once in the service-owned constrained verifier.
+                export._bound(target)
+            else:export.verify_task(target)
             found={p.relative_to(target).as_posix() for p in target.rglob('*') if p.is_file()}
             if found!=FILES:raise ValueError('unexpected dual-source output file')
         elif {p.name for p in target.iterdir()}!=expected|{'run_manifest.json'}: raise ValueError('unexpected output file')
@@ -436,9 +467,11 @@ class DockerExecutor:
                      **publication_inputs(payload),
                      'artifacts':[{'path':p.relative_to(target).as_posix(),'sha256':digest(p),'size':p.stat().st_size}
                                   for p in sorted(target.rglob('*')) if p.is_file()]}
+        if compact:publication.update(run_id=run_id,attempt_id=attempt_id)
         atomic_json(target/'manifest.json',publication);sync_dir(target)
         return digest(target/'manifest.json')
     def attempt(self,claim):
+        attempt_started=time.monotonic()
         record=None;stage=None;owned=True;cancelled=False
         keep_done=threading.Event();keep_thread=None;lease_health={'owned':True,'cancelled':False}
         self.validate_identity(claim)
@@ -453,7 +486,7 @@ class DockerExecutor:
         try:
             self.capacity(claim)
             inputs=base/'inputs';inputs.mkdir()
-            payload=claim['payload'];kind=payload.get('kind');network_arguments=[]
+            payload=claim['payload'];kind=payload.get('kind');compact=compact_payload(payload);network_arguments=[]
             if payload.get('resource_profile') != self.resource_profile:
                 raise ValueError('operator resource profile differs from submitted run')
             refs=[('network' if i==0 else f'network-{i:03d}',r) for i,r in enumerate(network_refs(payload))]
@@ -470,15 +503,19 @@ class DockerExecutor:
                 if name.startswith('network'):network_arguments+=['--network','/inputs/'+staged.name]
                 if name=='profile':profile_path=staged
             if kind=='dual-source-replay' and payload.get('history_format') is not None:
-                if payload['history_format']!='replay-history-checkpoint-delta-2':raise ValueError('unsupported replay history format')
+                if payload['history_format']!=('shared-observation-dag-6' if compact else 'replay-history-checkpoint-delta-2'):raise ValueError('unsupported replay history format')
                 replay_profile=json.loads(profile_path.read_text()).get('replay',{})
                 if replay_profile.get('version')!=payload.get('replay_version') or replay_profile.get('history_format')!=payload.get('history_format'):raise ValueError('replay payload/profile version binding mismatch')
+            if compact:
+                profile=json.loads(profile_path.read_text())
+                for field in ('capacity_profile','storage_format','storage_budget_version'):
+                    if profile.get(field)!=payload[field]:raise ValueError('compact payload/profile version binding mismatch')
             sync_dir(inputs);os.chmod(inputs,0o555)
-            module='cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
+            module='cpag_core.shared_cli' if compact else 'cpag_core.replay_export' if kind=='dual-source-replay' else 'cpag_core.dual_source_export' if kind=='dual-source' else 'cpag_core.packet_job' if kind=='packet' else 'cpag_core'
             command=self.command or ['python','-m',module]
-            command=command+network_arguments+sum((["--"+name,"/inputs/"+name+Path(payload[name]['path']).suffix] for name in ('process','profile')),[])+['--output','/output/run']+source_flag(profile_path,kind)
+            command=command+(['--action','export','--mode','replay' if kind=='dual-source-replay' else 'offline','--seconds',str(self.timeout)] if compact else [])+network_arguments+sum((["--"+name,"/inputs/"+name+Path(payload[name]['path']).suffix] for name in ('process','profile')),[])+[('--root' if compact else '--output'),'/output/run']+([] if compact else source_flag(profile_path,kind))
             if kind in ('dual-source','dual-source-replay'):command+=['--run-id',claim['id'],'--attempt-id',str(claim['attempt'])]
-            if kind=='dual-source-replay':command+=['--replay-version',payload['replay_version']]
+            if kind=='dual-source-replay' and not compact:command+=['--replay-version',payload['replay_version']]
             nonce=uuid.uuid4().hex
             atomic_json(base/'create-intent.json',{**self.identity(claim),'nonce':nonce,'location':self.location()})
             atomic_json(base/'resources.json',{'version':self.resource_profile or 'legacy-default','memory_bytes':self.memory_bytes,'cpus':self.cpus,'timeout_seconds':self.timeout,'output_bytes':self.output_bytes,'transfer_seconds':self.transfer_seconds,'cpu_seconds':self.cpu_seconds,'temporary_bytes':self.temporary_bytes,'publication_seconds':getattr(self.publication_api,'timeout',None)})
@@ -492,7 +529,8 @@ class DockerExecutor:
                 '--tmpfs','/runtime:rw,nosuid,nodev,size=1m,mode=1777',
                 *compute_tmpfs,
                 *(['--ulimit','cpu='+str(self.cpu_seconds)+':'+str(self.cpu_seconds)] if self.cpu_seconds else []),
-                *(['-e','CPAG_PHASE_METRICS=/runtime/phases.jsonl'] if self.resource_profile and kind=='dual-source' else []),
+                *(['-e','CPAG_PHASE_METRICS=/runtime/phases.jsonl'] if self.resource_profile and (kind=='dual-source' or compact) else []),
+                *(['-e','CPAG_PHASE_STRATEGY=phase-resources-3'] if compact else []),
                 '-e','CPAG_CONTAINER_SECONDS='+str(self.timeout),self.image,*command)
             self.checkpoint('after_create')
             record={**self.identity(claim),'container_id':container,'location':self.location()}
@@ -533,13 +571,17 @@ class DockerExecutor:
                 return 'cancelled' if cancelled else 'lost_lease'
             if result:
                 atomic_json(base/'compute-result.json',result)
-                if self.resource_profile and kind=='dual-source':
+                if self.resource_profile and (kind=='dual-source' or compact):
                     try:
                         rows=self.docker('exec',container,'cat','/runtime/phases.jsonl')
                         if len(rows.encode())>262144:raise ValueError('phase_measurement_limit')
                         atomic_json(base/'compute-phases.json',[json.loads(line) for line in rows.splitlines() if line])
                     except subprocess.CalledProcessError:
                         atomic_json(base/'compute-phases.json',{'unavailable':'image_has_no_phase_measurements'})
+            if compact and result:
+                script="import json,os;from pathlib import Path;r=Path('/sys/fs/cgroup');v={'cgroup_memory_peak_bytes':int((r/'memory.peak').read_text()),'cgroup_memory_current_bytes':int((r/'memory.current').read_text()),'cpu_stat':dict((k,int(v)) for k,v in (line.split() for line in (r/'cpu.stat').read_text().splitlines()))};v.update({name+'_bytes':sum(p.stat().st_size for p in Path(path).rglob('*') if p.is_file()) for name,path in [('tmp','/tmp'),('output','/output')]});print(json.dumps(v))"
+                atomic_json(base/'compute-cgroup.json',json.loads(self.docker('exec',container,'python','-c',script)))
+                atomic_json(base/'compute-inspect.json',self.inspect(container))
             if not result or result['returncode']!=0:raise CalculationFailure(result.get('returncode') if result else None,self.bounded_container_logs(container))
             output=beneath(self.root,claim['output_dir']);output.parent.mkdir(parents=True,exist_ok=True)
             stage=output.parent/('.handoff-'+uuid.uuid4().hex)
@@ -564,7 +606,7 @@ class DockerExecutor:
             sync_dir(stage)
             os.rename(stage,output);sync_dir(output.parent);stage=None
             self.checkpoint('after_publish')
-            self.publication_api.post(endpoint+'/complete',{**identity,'manifest_sha256':sha})
+            self.complete(claim,sha,lease_health=lease_health,deadline=attempt_started+2100 if compact else None)
             sync_dir(output);os.chmod(output,0o555);sync_dir(output.parent)
             atomic_json(base/'publication.json',{'manifest_sha256':sha,'output_dir':claim['output_dir']})
             return 'succeeded'

@@ -48,13 +48,26 @@ def network_refs(payload):
     if payload.get('kind') not in ('dual-source','dual-source-replay') or not isinstance(refs,list) or not 2<=len(refs)<=4 or refs[0]!=payload['network'] or len({r['path'] for r in refs})!=len(refs) or len({r['sha256'] for r in refs})!=len(refs):raise ValueError('invalid ordered capture refs')
     return refs
 
+def compact_payload(payload):
+    selected=payload.get('capacity_profile')=='engineering-core-capacity-3' or payload.get('storage_format')=='shared-observation-dag-6' or payload.get('resource_profile')=='storage-budget-2' or payload.get('storage_budget_version')=='shared-storage-budget-2'
+    if selected and (payload.get('kind') not in ('dual-source','dual-source-replay') or payload.get('capacity_profile')!='engineering-core-capacity-3' or payload.get('storage_format')!='shared-observation-dag-6' or payload.get('resource_profile')!='storage-budget-2' or payload.get('storage_budget_version')!='shared-storage-budget-2'):
+        raise ValueError('compact payload version binding mismatch')
+    if selected and payload.get('kind')=='dual-source-replay' and payload.get('history_format')!='shared-observation-dag-6':
+        raise ValueError('compact replay history binding mismatch')
+    if selected and payload.get('kind')=='dual-source' and any(name in payload for name in ('history_format','replay_version')):
+        raise ValueError('offline compact payload has replay fields')
+    return selected
+
 def publication_inputs(payload):
+    compact=compact_payload(payload)
     result={'inputs':{name:payload[name]['sha256'] for name in ('network','process','profile')}}
+    if compact:
+        result.update({name:payload[name] for name in ('capacity_profile','storage_format','resource_profile','storage_budget_version')})
     if payload.get('networks'):result['networks']=[r['sha256'] for r in network_refs(payload)]
     if payload.get('kind')=='dual-source-replay':
         result['replay_version']=payload['replay_version']
         if payload.get('history_format') is not None:
-            if payload['history_format']!='replay-history-checkpoint-delta-2':raise ValueError('unsupported replay history format')
+            if payload['history_format'] not in (('shared-observation-dag-6',) if compact else ('replay-history-checkpoint-delta-2',)):raise ValueError('unsupported replay history format')
             result['history_format']=payload['history_format']
     return result
 
@@ -83,6 +96,7 @@ class Worker:
         retryable = False
         try:
             payload = claim['payload']
+            if compact_payload(payload):raise ValueError('compact service requires isolated executor')
             paths = {}
             for name in ('network','process','profile'):
                 paths[name] = beneath(self.root,payload[name]['path'])

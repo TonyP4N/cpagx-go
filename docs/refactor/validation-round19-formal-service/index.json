@@ -1,0 +1,24 @@
+{
+  "version": "r19-formal-service-acceptance-1",
+  "baseline": "861640c591e48a1064ee8862c33c3890d7ee4a14",
+  "status": "implementation_in_progress",
+  "formal_s100_attempts": [],
+  "scope": "existing application formal service integration only",
+  "budgets": {
+    "core_seconds": 1800,
+    "service_whole_seconds": 2100,
+    "service_overhead_seconds": 300,
+    "query_seconds": 10,
+    "query_bytes": 8388608,
+    "query_items": 100,
+    "download_seconds": 120,
+    "download_file_bytes": 1073741824,
+    "stream_buffer_bytes": 65536
+  },
+  "community_capacity": {
+    "M1000": "incomplete_not_supported",
+    "L10000": "incomplete_not_supported",
+    "not_current_gate": true
+  },
+  "real_industrial_validation": false
+}

@@ -6,6 +6,7 @@ the coordinator keeps the key in RAM and never in the artifact or CLI arguments.
 """
 from collections import defaultdict
 from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import asdict
 import hashlib
 import hmac
@@ -29,6 +30,9 @@ from .pipeline import canonical,file_hash,fingerprint
 from .replay_history import _ordinary,_digest
 from .shared_artifact_store_compact import FORMAT,SharedArtifactWriter,SharedArtifactReader,_APPROVED_READ
 
+# Private service bridge may bind exactly one independently hashed publication envelope.
+_SERVICE_ENVELOPE = ContextVar('shared_service_envelope', default=None)
+_SERVICE_VERIFIED = ContextVar('shared_service_verified', default=None)
 APPROVAL_VERSION='core-read-approval-2'
 VERIFICATION_STRATEGY='dag6-full-source-merkle-sink-1'
 REEXPORT_STRATEGY='source-sqlite-reexport-1'
@@ -68,9 +72,16 @@ def _inventory(root,manifest):
         directories.update((Path(directory)/name).relative_to(root).as_posix() for name in dirs)
         for name in files:
             path=Path(directory)/name;_ordinary(path);found.add(path.relative_to(root).as_posix())
+    envelope=_SERVICE_ENVELOPE.get()
+    if envelope is not None and root.resolve()==envelope[0]:
+        if file_hash(root/'manifest.json')!=envelope[1]:raise ValueError('service_publication_changed')
+        for name in envelope[2]:
+            if file_hash(root/name)!=envelope[1]:raise ValueError('service_publication_anchor_changed')
+        expected=expected|{'manifest.json'}|envelope[2]
     if found!=expected or directories!={'shared','sources'}:raise ValueError('shared_inventory_mismatch')
     entries=manifest['artifacts']
-    if len(entries)!=len(expected)-1 or {entry['path'] for entry in entries}!=expected-{'run_manifest.json'}:raise ValueError('shared_artifact_entries_mismatch')
+    physical=artifact_files_for_inputs(manifest['network_count'],mode=manifest['mode'],storage_format=manifest['storage_format'])
+    if len(entries)!=len(physical-{'run_manifest.json'}) or {entry['path'] for entry in entries}!=physical-{'run_manifest.json'}:raise ValueError('shared_artifact_entries_mismatch')
     total=(root/'run_manifest.json').stat().st_size
     for entry in entries:
         path=root/entry['path'];total+=path.stat().st_size
@@ -239,6 +250,8 @@ def open_reader(output,*,deadline=None,approval=None,authority_key=None):
     """Read complete logical roots; optional coordinator capability avoids replay."""
     root,manifest,_,context=_bound(output,deadline)
     token=None
+    if _SERVICE_VERIFIED.get()==(root.resolve(),file_hash(root/'run_manifest.json')):
+        token=_APPROVED_READ
     if approval is not None:
         check_approval(root,approval,authority_key,manifest=manifest)
         token=_APPROVED_READ
@@ -367,59 +380,64 @@ def _bounded(value):
 
 def query_task(output,operation_id=None,change_id=None,*,snapshot=None,trigger=False,ref_offset=0,ref_limit=100,deadline=None,approval=None,authority_key=None):
     if approval is None:verify_task(output,deadline=deadline)
+    with open_reader(output,deadline=deadline,approval=approval,authority_key=authority_key) as reader:
+        return query_reader(output,reader,operation_id=operation_id,change_id=change_id,snapshot=snapshot,trigger=trigger,ref_offset=ref_offset,ref_limit=ref_limit,deadline=deadline)
+
+
+def query_reader(output,reader,operation_id=None,change_id=None,*,snapshot=None,trigger=False,ref_offset=0,ref_limit=100,deadline=None):
+    """Selection over an already verified reader; caller owns its trust scope."""
     if type(ref_offset) is not int or ref_offset<0 or type(ref_limit) is not int or not 1<=ref_limit<=100:raise ValueError('evidence_page_outside_budget')
     if sum((operation_id is not None,change_id is not None,trigger))!=1:raise ValueError('select_exactly_one_operation_change_trigger')
-    with open_reader(output,deadline=deadline,approval=approval,authority_key=authority_key) as reader:
-        manifest=reader.run_manifest
-        if manifest['mode']=='replay':
-            from .shared_query_replay import query_compact
-            return query_compact(output,reader,operation_id=operation_id,change_id=change_id,snapshot=snapshot,trigger=trigger,ref_offset=ref_offset,ref_limit=ref_limit,deadline=deadline)
-        if snapshot is not None or trigger:raise ValueError('offline_snapshot_or_trigger_invalid')
-        if operation_id is not None:
-            index=0 if operation_id=='first' and manifest['counts']['operations'] else _find(reader,'indices/operations',operation_id)
-            if index is None:raise KeyError('unknown_operation')
-            operation=reader.get('analysis.json',path=['operations',index]);indices=_find(reader,'indices/candidates_by_operation',operation['operation_id']) or []
-            candidates=[];selected_size=len(canonical(operation))+64
-            for number in indices:
-                path=['candidates',number]
-                selected_size+=reader._node(reader._select('analysis.json',path))[2]+1
-                if selected_size>QUERY_BYTES:raise ValueError('shared_query_output_limit')
-                candidates.append(reader.get('analysis.json',path=path))
-            changes=[]
-            for identity in sorted({row['change_id'] for row in candidates}):
-                path=['changes',_find(reader,'indices/changes',identity)]
-                selected_size+=reader._node(reader._select('analysis.json',path))[2]+1
-                if selected_size>QUERY_BYTES:raise ValueError('shared_query_output_limit')
-                changes.append(reader.get('analysis.json',path=path))
-            selected={'operation':operation,'candidates':candidates,'changes':changes}
+    manifest=reader.run_manifest
+    if manifest['mode']=='replay':
+        from .shared_query_replay import query_compact
+        return query_compact(output,reader,operation_id=operation_id,change_id=change_id,snapshot=snapshot,trigger=trigger,ref_offset=ref_offset,ref_limit=ref_limit,deadline=deadline)
+    if snapshot is not None or trigger:raise ValueError('offline_snapshot_or_trigger_invalid')
+    if operation_id is not None:
+        index=0 if operation_id=='first' and manifest['counts']['operations'] else _find(reader,'indices/operations',operation_id)
+        if index is None:raise KeyError('unknown_operation')
+        operation=reader.get('analysis.json',path=['operations',index]);indices=_find(reader,'indices/candidates_by_operation',operation['operation_id']) or []
+        candidates=[];selected_size=len(canonical(operation))+64
+        for number in indices:
+            path=['candidates',number]
+            selected_size+=reader._node(reader._select('analysis.json',path))[2]+1
+            if selected_size>QUERY_BYTES:raise ValueError('shared_query_output_limit')
+            candidates.append(reader.get('analysis.json',path=path))
+        changes=[]
+        for identity in sorted({row['change_id'] for row in candidates}):
+            path=['changes',_find(reader,'indices/changes',identity)]
+            selected_size+=reader._node(reader._select('analysis.json',path))[2]+1
+            if selected_size>QUERY_BYTES:raise ValueError('shared_query_output_limit')
+            changes.append(reader.get('analysis.json',path=path))
+        selected={'operation':operation,'candidates':candidates,'changes':changes}
+    else:
+        index=0 if change_id=='first' and manifest['counts']['changes'] else _find(reader,'indices/changes',change_id)
+        if index is not None:selected={'change':reader.get('analysis.json',path=['changes',index])}
         else:
-            index=0 if change_id=='first' and manifest['counts']['changes'] else _find(reader,'indices/changes',change_id)
-            if index is not None:selected={'change':reader.get('analysis.json',path=['changes',index])}
-            else:
-                index=_find(reader,'indices/rule_findings',change_id)
-                if index is None:raise KeyError('unknown_change')
-                selected={'rule_finding':reader.get('analysis.json',path=['rule_findings',index])}
-        _bounded(selected)
-        refs=references(selected);total=len(refs);page=refs[ref_offset:ref_offset+ref_limit]
-        root=Path(output);config=read_json(root/'sources/profile.json');limits=parser_limits(config)
-        from .packet_pipeline import PacketEvidence
-        from .evidence import EvidenceIndex
-        networks=[root/'sources'/name for name in network_names(manifest['network_count'])]
-        packet=PacketEvidence(networks if len(networks)>1 else networks[0],synthetic=config['synthetic'],limits=limits['packet_limits'],capture_limits=limits['capture_limits'])
-        csv=EvidenceIndex(root/'sources/process.csv')
-        with packet.verified_batch():
-            originals=[{'source_ref':ref,'original':packet.resolve(ref) if ref['frame_number'] is not None else csv.resolve(ref)} for ref in page]
-            frames={(ref['file_sha256'],ref['frame_number']) for ref in page if ref['frame_number'] is not None};row_indices=set()
-            for digest,number in frames:
-                row_indices.update(_find(reader,'indices/network_by_frame',canonical([digest,number]).decode()) or [])
-            fields=[]
-            for number in sorted(row_indices):
-                row=reader.get('analysis.json',path=['network',number])
-                fields.append({'event_id':row['event']['event_id'],'fields':{name:[packet.resolve(piece['source_ref'],piece) for piece in value['slices'] if (piece['source_ref']['file_sha256'],piece['source_ref']['frame_number']) in frames] for name,value in row['observation']['fields'].items()}})
-        csv.verify()
-        result={'synthetic':manifest['synthetic'],'storage_format':FORMAT,'selection':selected,'quality':reader.get('quality.json'),
-            'verified_original_evidence':originals,'verified_network_fields':fields,'time_configuration':config['clocks'],
-            'source_ranges':reader.get('quality.json',path=['source_ranges']),'config_version':config['config_version'],
-            'config_fingerprint':manifest['config_fingerprint'],'limitations':manifest['limitations'],
-            'evidence_page':{'version':'source-reference-page-1','offset':ref_offset,'limit':ref_limit,'total':total,'returned':len(page),'has_more':ref_offset+len(page)<total,'order':'canonical_source_reference'}}
-        return _bounded(result)
+            index=_find(reader,'indices/rule_findings',change_id)
+            if index is None:raise KeyError('unknown_change')
+            selected={'rule_finding':reader.get('analysis.json',path=['rule_findings',index])}
+    _bounded(selected)
+    refs=references(selected);total=len(refs);page=refs[ref_offset:ref_offset+ref_limit]
+    root=Path(output);config=read_json(root/'sources/profile.json');limits=parser_limits(config)
+    from .packet_pipeline import PacketEvidence
+    from .evidence import EvidenceIndex
+    networks=[root/'sources'/name for name in network_names(manifest['network_count'])]
+    packet=PacketEvidence(networks if len(networks)>1 else networks[0],synthetic=config['synthetic'],limits=limits['packet_limits'],capture_limits=limits['capture_limits'])
+    csv=EvidenceIndex(root/'sources/process.csv')
+    with packet.verified_batch():
+        originals=[{'source_ref':ref,'original':packet.resolve(ref) if ref['frame_number'] is not None else csv.resolve(ref)} for ref in page]
+        frames={(ref['file_sha256'],ref['frame_number']) for ref in page if ref['frame_number'] is not None};row_indices=set()
+        for digest,number in frames:
+            row_indices.update(_find(reader,'indices/network_by_frame',canonical([digest,number]).decode()) or [])
+        fields=[]
+        for number in sorted(row_indices):
+            row=reader.get('analysis.json',path=['network',number])
+            fields.append({'event_id':row['event']['event_id'],'fields':{name:[packet.resolve(piece['source_ref'],piece) for piece in value['slices'] if (piece['source_ref']['file_sha256'],piece['source_ref']['frame_number']) in frames] for name,value in row['observation']['fields'].items()}})
+    csv.verify()
+    result={'synthetic':manifest['synthetic'],'storage_format':FORMAT,'selection':selected,'quality':reader.get('quality.json'),
+        'verified_original_evidence':originals,'verified_network_fields':fields,'time_configuration':config['clocks'],
+        'source_ranges':reader.get('quality.json',path=['source_ranges']),'config_version':config['config_version'],
+        'config_fingerprint':manifest['config_fingerprint'],'limitations':manifest['limitations'],
+        'evidence_page':{'version':'source-reference-page-1','offset':ref_offset,'limit':ref_limit,'total':total,'returned':len(page),'has_more':ref_offset+len(page)<total,'order':'canonical_source_reference'}}
+    return _bounded(result)

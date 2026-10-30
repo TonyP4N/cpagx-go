@@ -25,7 +25,7 @@ func (s *Server) configBudget(raw []byte) (capacity.Budget, error) {
 }
 
 func (s *Server) configBodyLimit() int64 {
-	if s.cfg.CapacityPolicy == capacity.Engineering {
+	if capacity.IsEngineering(s.cfg.CapacityPolicy) {
 		return (8 << 20) + 65536
 	}
 	return 65536

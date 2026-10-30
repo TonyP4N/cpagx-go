@@ -368,6 +368,14 @@ func TestEvaluationVersionedJSONAndResourceBudgets(t *testing.T) {
 	}{
 		{"", "", evaluationProjectionLimit, true}, {capacity.DevelopmentS100, capacity.DevelopmentS100, evaluationV2DocumentLimit, true},
 		{capacity.Engineering, capacity.Engineering, evaluationV2DocumentLimit, true}, {"", capacity.Engineering, evaluationProjectionLimit, true}, {"unknown", "unknown", 0, false},
+		{capacity.StorageBudget, capacity.StorageBudget, evaluationProjectionLimit, true},
+		{capacity.StorageBudget, "", evaluationProjectionLimit, true},
+		{"", capacity.StorageBudget, evaluationProjectionLimit, true},
+		{capacity.Engineering, capacity.StorageBudget, evaluationV2DocumentLimit, true},
+		{capacity.EngineeringShared, capacity.StorageBudget, evaluationV2DocumentLimit, true},
+		{capacity.DevelopmentS100, capacity.StorageBudget, evaluationV2DocumentLimit, true},
+		{capacity.EngineeringCore, capacity.StorageBudget, 0, false},
+		{capacity.StorageBudget, "unknown", 0, false},
 	} {
 		actual, err := evaluationResourceProjectionLimit(test.profile, test.operator)
 		if (err == nil) != test.ok || (err == nil && actual != test.want) {

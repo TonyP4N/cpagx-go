@@ -221,7 +221,7 @@ func (r Repository) Recover(ctx context.Context, root string) error {
 			state = "cancelling"
 			reason = pending
 		}
-		_, err = r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state=$5,lease_until=CASE WHEN $5='cancelled' THEN NULL ELSE lease_until END,recovery_checked_at=clock_timestamp(),recovery_reason=$6 WHERE id=$1 AND attempt=$2 AND coalesce(worker,'')=$3 AND coalesce(attempt_token,'')=$4 AND state='cancelling' AND ($5!='cancelled' OR (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt)`, c.ID, c.Attempt, c.Worker, c.Token, state, reason)
+		_, err = r.DB.ExecContext(ctx, `UPDATE m4_jobs SET state=$5,lease_until=CASE WHEN $5='cancelled' THEN NULL ELSE lease_until END,recovery_checked_at=clock_timestamp(),recovery_reason=$6 WHERE id=$1 AND attempt=$2 AND coalesce(worker,'')=$3 AND coalesce(attempt_token,'')=$4 AND state='cancelling' AND ($5!='cancelled' OR (SELECT count(*) FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.exited_at IS NOT NULL)=m4_jobs.attempt AND NOT EXISTS(SELECT 1 FROM m4_compact_verifications v WHERE v.job_id=m4_jobs.id AND v.state='running'))`, c.ID, c.Attempt, c.Worker, c.Token, state, reason)
 		if err != nil {
 			return err
 		}

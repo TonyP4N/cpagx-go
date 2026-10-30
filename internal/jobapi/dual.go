@@ -59,6 +59,25 @@ func (s *Server) VerifiedDualArtifacts(r *http.Request, id string) ([]struct {
 	SHA  string `json:"sha256"`
 	Size int64  `json:"size_bytes"`
 }, string, error) {
+	if s.isCompactRun(r, id) {
+		base, _, wrapper, _, err := s.compactPublished(r, id)
+		if err != nil {
+			return nil, "", err
+		}
+		result := []struct {
+			Path string `json:"path"`
+			SHA  string `json:"sha256"`
+			Size int64  `json:"size_bytes"`
+		}{}
+		for _, a := range wrapper.Artifacts {
+			result = append(result, struct {
+				Path string `json:"path"`
+				SHA  string `json:"sha256"`
+				Size int64  `json:"size_bytes"`
+			}{a.Path, a.SHA, a.Size})
+		}
+		return result, base, nil
+	}
 	base, p, _, err := s.publishedDual(r, id)
 	if err != nil {
 		return nil, "", err
@@ -1029,7 +1048,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 			networks = append(networks, str(r))
 		}
 	}
-	if !ok || !publicationInputsMatch(p, inputMap, networks) || ((p.Kind == "dual-source-replay") && (pub["replay_version"] != p.ReplayVersion || str(pub["history_format"]) != p.HistoryFormat)) {
+	if !ok || str(pub["storage_format"]) != p.StorageFormat || !publicationInputsMatch(p, inputMap, networks) || ((p.Kind == "dual-source-replay") && (pub["replay_version"] != p.ReplayVersion || str(pub["history_format"]) != p.HistoryFormat)) {
 		return "", p, nil, errors.New("published dual input mismatch")
 	}
 	names := dualArtifactNamesFor(p)
@@ -1040,7 +1059,7 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 	if !ok || len(entries) != len(names) {
 		return "", p, nil, errors.New("published dual artifact count mismatch")
 	}
-	wrapper := Manifest{Fingerprint: p.Fingerprint, ReplayVersion: p.ReplayVersion, HistoryFormat: p.HistoryFormat, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
+	wrapper := Manifest{Fingerprint: p.Fingerprint, ReplayVersion: p.ReplayVersion, HistoryFormat: p.HistoryFormat, StorageFormat: p.StorageFormat, Inputs: map[string]string{"network": p.Network.SHA, "process": p.Process.SHA, "profile": p.Profile.SHA}}
 	for _, value := range entries {
 		e, ok := obj(value)
 		if !ok {
@@ -1124,6 +1143,16 @@ func (s *Server) publishedDual(r *http.Request, id string) (string, Payload, map
 }
 
 func (s *Server) serveDual(w http.ResponseWriter, r *http.Request, id, kind string) error {
+	if s.isCompactRun(r, id) {
+		q := r.URL.Query()
+		if kind == "dual-evidence" {
+			q.Set("action", "evidence")
+		} else {
+			q.Set("action", "metadata")
+		}
+		r.URL.RawQuery = q.Encode()
+		return s.serveCompactQuery(w, r, id)
+	}
 	base, p, analysis, err := s.publishedDual(r, id)
 	if err != nil {
 		return err

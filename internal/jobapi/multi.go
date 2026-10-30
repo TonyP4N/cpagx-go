@@ -35,6 +35,9 @@ func networkSourceName(i int) string {
 	return fmt.Sprintf("sources/network-%03d.pcap", i)
 }
 func dualArtifactNamesFor(p Payload) []string {
+	if IsCompactPayload(p) {
+		return compactArtifactNames(p)
+	}
 	out := dualArtifactNames()
 	refs, _ := p.networkRefs()
 	for i := 1; i < len(refs); i++ {

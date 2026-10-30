@@ -290,35 +290,53 @@ func (s *Server) verifyEvaluationDocument(r *http.Request, id, dataset string, d
 	if publicationSHA == "" {
 		return output, errors.New("verified publication manifest absent")
 	}
-	args := []string{"-m", "cpag_core.evaluation_bundle", "verify-document", "--artifact", filepath.Join(s.Root, base), "--service-publication-sha256", publicationSHA}
-	if event != "" {
-		args = append(args, "--id="+event)
-		if reference {
-			args = append(args, "--reference")
-		}
+	status, err := internal.Repo.Status(r.Context(), id)
+	var payload jobapi.Payload
+	if err != nil || json.Unmarshal(status.Payload, &payload) != nil {
+		return output, errors.New("evaluation publication payload unavailable")
 	}
-	cmd := exec.CommandContext(r.Context(), s.cfg.PythonBin, args...)
-	if handled {
-		envelope, err := json.Marshal(map[string]any{"version": "evaluation-service-envelope-1", "document": json.RawMessage(document), "prepared_adapted": json.RawMessage(prepared)})
+	var verifiedRaw []byte
+	if jobapi.IsCompactPayload(payload) {
+		query := map[string]any{"document": json.RawMessage(document), "reference": reference}
+		if event != "" {
+			query["identity"] = event
+		}
+		verifiedRaw, err = internal.VerifiedCompactQuery(r, id, "evaluation-document", query)
 		if err != nil {
 			return output, err
 		}
-		cmd.Args = append(cmd.Args, "--service-envelope")
-		cmd.Stdin = bytes.NewReader(envelope)
 	} else {
-		cmd.Stdin = bytes.NewReader(document)
+		args := []string{"-m", "cpag_core.evaluation_bundle", "verify-document", "--artifact", filepath.Join(s.Root, base), "--service-publication-sha256", publicationSHA}
+		if event != "" {
+			args = append(args, "--id="+event)
+			if reference {
+				args = append(args, "--reference")
+			}
+		}
+		cmd := exec.CommandContext(r.Context(), s.cfg.PythonBin, args...)
+		if handled {
+			envelope, err := json.Marshal(map[string]any{"version": "evaluation-service-envelope-1", "document": json.RawMessage(document), "prepared_adapted": json.RawMessage(prepared)})
+			if err != nil {
+				return output, err
+			}
+			cmd.Args = append(cmd.Args, "--service-envelope")
+			cmd.Stdin = bytes.NewReader(envelope)
+		} else {
+			cmd.Stdin = bytes.NewReader(document)
+		}
+		cmd.Env = os.Environ()
+		if s.cfg.PythonPath != "" {
+			cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
+		}
+		cmd.WaitDelay = time.Second
+		out, diagnostics := &evaluationBuffer{limit: evaluationEnvelopeLimit}, &evaluationBuffer{limit: 8192}
+		cmd.Stdout, cmd.Stderr = out, diagnostics
+		if err = cmd.Run(); err != nil {
+			return output, err
+		}
+		verifiedRaw = out.Bytes()
 	}
-	cmd.Env = os.Environ()
-	if s.cfg.PythonPath != "" {
-		cmd.Env = append(cmd.Env, "PYTHONPATH="+s.cfg.PythonPath)
-	}
-	cmd.WaitDelay = time.Second
-	out, diagnostics := &evaluationBuffer{limit: evaluationEnvelopeLimit}, &evaluationBuffer{limit: 8192}
-	cmd.Stdout, cmd.Stderr = out, diagnostics
-	if err = cmd.Run(); err != nil {
-		return output, err
-	}
-	decoder := json.NewDecoder(bytes.NewReader(out.Bytes()))
+	decoder := json.NewDecoder(bytes.NewReader(verifiedRaw))
 	if decoder.Decode(&output) != nil || decoder.Decode(new(any)) != io.EOF || !shaRE.MatchString(output.SHA) || len(output.Document) == 0 || len(output.Document) > limit || len(output.Result) == 0 || (event != "" && len(output.Evidence) == 0) {
 		return output, errors.New("invalid verified evaluation envelope")
 	}

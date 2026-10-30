@@ -17,9 +17,15 @@ PROFILES = {
 }
 
 
+# New execution/storage strategy, identical numerical resource ceilings.
+PROFILES["engineering-capacity-2"]=dict(PROFILES["engineering-capacity-1"])
+
 def resolve(name):
     if name is None:
         return None
     if not isinstance(name,str) or name not in PROFILES:
         raise ValueError('unknown operator resource profile')
     return dict(PROFILES[name])
+
+# Explicit DAG6 service resources; numerical engineering ceilings are unchanged.
+PROFILES["storage-budget-2"]=dict(PROFILES["engineering-capacity-1"])

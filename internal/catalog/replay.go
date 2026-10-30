@@ -2,6 +2,7 @@ package catalog
 
 import (
 	"encoding/json"
+	"github.com/TonyP4N/cpagx-go/internal/jobapi"
 	"net/http"
 	"net/http/httptest"
 )
@@ -9,6 +10,30 @@ import (
 // Only verified terminal artifacts are visible. Running attempts continue to
 // expose ordinary task status and cancellation, never unverified snapshot files.
 func (s *Server) replayProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
+	if compact, err := s.Internal.(*jobapi.Server).IsCompactRun(r, id); err == nil && compact {
+		q := r.URL.Query()
+		action := "metadata"
+		switch kind {
+		case "graph":
+			action = "graph"
+		case "evidence":
+			action = "evidence"
+		case "snapshots":
+			action = "snapshot"
+		case "revisions":
+			action = "revisions"
+		}
+		if q.Has("revision") {
+			q.Set("snapshot", q.Get("revision"))
+			if kind == "result" {
+				action = "snapshot"
+			}
+		}
+		q.Set("action", action)
+		r.URL.RawQuery = q.Encode()
+		s.compactProjection(w, r, p, dataset, id)
+		return
+	}
 	suffix := "replay-result"
 	switch kind {
 	case "revisions":
