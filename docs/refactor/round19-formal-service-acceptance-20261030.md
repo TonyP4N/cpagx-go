@@ -1,6 +1,6 @@
 # R19 共享产物正式服务接入：有限验收
 
-基线 `861640c591e48a1064ee8862c33c3890d7ee4a14`，本地/远端一致。保留既有未提交 capacity2/DAG5、资源、备份及并发原型，逐文件检查后仅接入相关部分；不重置，不混入私有数据库/日志。
+起始基线 `861640c591e48a1064ee8862c33c3890d7ee4a14`（接入开始时本地/远端一致）；后续运行提交分别记录。保留既有未提交 capacity2/DAG5、资源、备份及并发原型，逐文件检查后仅接入相关部分；不重置，不混入私有数据库/日志。
 
 ## 范围与预登记退出条件
 
@@ -30,16 +30,80 @@
 
 ## 当前状态与证据
 
-实施中，尚未通过本工作包。唯一机器索引：`validation-round19-formal-service/index.json`。本轮详细日志留受控输出目录，公开索引去凭据/私有数据库；不另建内容重复报告。
+**显式DAG6正式服务的限定功能已本地通过（small6及S100第4次）；最终交付同提交完整CI仍是门禁，R19不整体结项。** 唯一机器索引：[validation-round19-formal-service/index.json](validation-round19-formal-service/index.json)。详细日志、失败目录和私有数据库留受控输出目录，公开索引去除凭据；不另建重复报告。
 
-M/L由用户明确移交社区：**未完成、不承诺支持**。目标、工具和失败保留，非本工作包阻塞项；不能伪称已支持。Ubuntu参考环境、真实工业材料、后续三次稳定性复验、完整备份恢复、R20界面及部署分别待办。本次只判定正式服务接入，不宣布R19整体完成或生产就绪。
+本次通过的S100运行绑定提交 `5b45a422db30c65d64bee7806d2eeae1584f4280`、不可变镜像 `sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400`；镜像核心文件逐件匹配记录在唯一索引。宿主为Darwin/arm64 Docker Desktop开发环境，不能替代Ubuntu参考环境；未清OS页缓存，查询每次仍重查当前字节。
+
+### 最新小例与业务一致性
+
+small6绑定提交 `93a6f33e43cc24933cc759eb689772b8f00f964f` 和同一镜像，原始记录为 `/private/tmp/cpag-r19-service-small6-20261030/report.json`。离线、回放均为attempt1，终态墙钟分别3.370秒、3.223秒；导出、来源核验及选定读取合计分别1.620秒、2.439秒。完整业务根与同原件/配置的独立核心导出分别11/11、16/16一致；回放另有1个实际资源遥测根，预先声明并保留双方完整字节，未删业务字段或身份字段。
+
+两种模式均验证四条原证据、SQLite流式下载、无会话/无ACL拒绝、超限页422，以及同一冻结run/attempt下手写标注TP/FP/FN为2/0/0与1/1/1；分析逻辑根和投影不变，错误预测及独立参考CSV原件可查询。原件和共享库同大小篡改/缺失均409；队列取消保持attempt0，过期发布409；重启首先409/pending，独立来源复核后恢复200。small4、small5的阶段结果及small2旧格式兼容证据仍保留，不用后续成功覆盖早期失败。
+
+普通点击已在真实Go静态工作台检查：任务→回放结果，snapshot3为pending_response，保留response_missing、source_intervals_disjoint且无未来响应引用；终态候选明确hypothetical，四原件可展开，历史图、标准事件、修订下一页及原生SQLite下载可用。窄屏可读，控制台无脚本错误。负编号422并清除旧可信内容；最初越界返回409，后续精确映射422的普通点击复查仍待补，不能把代码修复当作已完成浏览器复查。
+
+### 原失败与后续修复（原目录保留）
+
+| 记录 | 事实与处理 |
+| --- | --- |
+| small1 | `/private/tmp/cpag-r19-service-small1-20261030`：本地旧Go模块缓存缺文件，构建前失败；改用既有完整缓存，未改应用语义。 |
+| small2 | `/private/tmp/cpag-r19-service-small2-20261030`：新产物已发布，但评估入口误拒绝storage-budget-2；补齐同一8MiB预算映射。旧格式正式任务及显式策略升级后读取已通过，后续引用该原始证据。 |
+| small3 | `/private/tmp/cpag-r19-service-small3-20261030`：篡改已拒绝，但错误文本budget被误映射为422；改为类型化错误，完整性409、输入页超限422。完整业务根补验原件也保留在该目录。 |
+| S100第1次 | `/private/tmp/cpag-r19-service-s100-1-20261030`：提交422，计算尚未启动。Go误把ArrivalSteps=40000用作原记录缓冲限额；仅对DAG6对齐既有Frames+ProcessRecords+1=110001契约，原输入、窗口、容器预算及旧版门禁不变。 |
+| S100第2次 | `/private/tmp/cpag-r19-service-s100-2-20261030`，提交5daa0fb：导出946.918秒、85,829,323字节，进程RSS峰值111,321,088字节、容器内存峰值201,248,768字节；核验616.017秒后失权中止，未来源核验通过、未发布。意外自动attempt2经正式API取消并确认终态，不算首次成功。电源摘录确认16:47:55—16:52:11合盖睡眠256秒；旧日志不足以确定最后一次成功心跳，也不能把另行发现的重复恢复发布缺陷宣称为唯一原因。 |
+| S100第3次 | `/private/tmp/cpag-r19-service-s100-3-20261030`，提交3db724d：导出858.156秒后核验，真实墙钟与monotonic偏差15.929秒，按环境中断拒绝并取消；17:48:36—17:48:54再次合盖睡眠有最小电源证据。核验容器已取消移除，未发布；应用/Worker恢复30秒仍cancelling，暴露正式入口未启动既有RunRecovery的软件缺口，后续已修复，见下。 |
+
+S100第4次通过的原始记录和详细度量见下一节；前3次失败不被覆盖。以上环境中断不改变1800/2100秒标准。原始失败报告保持原结论；电源摘录仅保留相关最小事件并另存哈希，不公开其他系统日志。
+
+### 已修复的发布、续租和取消收尾
+
+`3db724d`使恢复扫描尊重活动owner.lock，避免正常发布者仍持锁时重复恢复发布；慢核验/发布RPC期间由独立线程续租，失权记录并停止旧attempt权限。真实独立PostgreSQL及Go HTTP的2秒租约短回归验证延迟核验保持202且心跳有效；取消和故意停心跳均清理verifier、记录退出并拒绝旧attempt，包含race检查。Worker定向测试覆盖活动owner、慢RPC独立续租和失权收尾。
+
+`93a6f33`仅在显式capacity3正式应用入口启动既有RunRecovery，不改变旧配置的独立恢复入口。使用修复后的正式应用及既有隔离Worker，针对S100第3次原数据库仅作SELECT及正式HTTP会话/状态读取，1.031秒内原attempt1进入cancelled；未重提任务或手改数据库。证据：`/private/tmp/cpag-r19-service-s100-3-20261030/cancel-closure-v2/result.json`，unexited_attempts=0、running_verifiers=0。small6随后通过；`5b45a422db30c65d64bee7806d2eeae1584f4280`补充中断重启核验的错误分类，不能据此重写旧失败。
+
+### 真实墙钟与S100第4次限定结果
+
+计量契约 `formal-service-wall-clock-2`以真实墙钟判断1800/2100/10/120秒，保留monotonic辅助值；偏差超过5秒明确标为环境中断，即使任务已succeeded也不能通过该次测量。核验容器的完整执行墙钟计入核心预算，包含解释器启动及度量写出。首见自动attempt2即判失败并正式取消，取消清理不算额外成功测量时间。
+
+S100第4次在提交 `5b45a422db30c65d64bee7806d2eeae1584f4280`、同一不可变镜像和未改动的原固定S100输入下，attempt1完成导出、独立来源核验、发布及选定HTTP历史/原证据读取。原始目录为 `/private/tmp/cpag-r19-service-s100-4-20261030`，run为 `2ab02ff98d5253cfcf174c879b2e2f05`；report.json及final-http-check.json均记录passed。用户确认开盖接电，临时防空闲休眠与真实墙钟偏差守卫保留，未改系统持久配置。
+
+| 实际墙钟项目 | 本次结果与原门槛 |
+| --- | --- |
+| 隔离导出 | 977.934秒 |
+| 独立来源核验完整容器墙钟 | 805.245秒；内部核验进程804.483秒仅作辅助，不代替完整墙钟 |
+| 选定HTTP历史/证据读取 | 5.403秒 |
+| 核心累计 | **1788.582 / 1800秒，余11.418秒** |
+| 正式POST至发布及选定读取完成 | 1792.044 / 2100秒 |
+| 核心外服务开销 | 3.462 / 300秒 |
+
+这是**一次连续有效通过样本**，不能据此声称稳定余量或完成三次固定版本稳定性复验。四次S100提交中第1次门禁失败、未启动计算；第2及第3次实际长测被合盖休眠中断；第4次通过。因此实际执行了3次长测，原失败均保留，不能写成三次通过。
+
+| 内存度量 | 隔离导出 | 独立来源核验 |
+| --- | ---: | ---: |
+| 进程RSS峰值 | 111,771,648字节 | 190,849,024字节 |
+| 容器cgroup内存峰值 | 202,825,728字节 | 273,027,072字节 |
+
+RSS与容器内存是不同口径，均不代替固定8GiB容器配额；完整物理输出85,829,323字节。最终HTTP复查确认200网络观测、100工艺观测、100操作、99变化、2596候选、310快照及306修订保持。SQLite流式下载85,766,144字节及其余5个物理文件逐件下载/哈希核对通过；业务计数分页符合预期，越界snapshot返回422。补充HTTP检查独立留证，不混入预登记选定读取的5.403秒。小例完整业务根与手算评估证据见上文，不以本次S100替代。
 
 ### 评估接口与未支持备份
 
-`evaluation_shared.adapt_reader` 读取已完成独立来源核验的逻辑根，只取评估字段，每批至多100个数组位置，不展开完整analysis/graph/snapshot；整体8MiB响应和10秒服务期限保留。服务评估输入、后台预备及已保存bundle导入/详情/下载/证据统一走 `VerifiedCompactQuery`，先数据集授权，再检查当前终态attempt、payload和全部原件/产物字节，读取后复核发布。普通 `--service-publication-sha256` 明确拒绝DAG6，独立实验许可不能冒充服务授权。
+`evaluation_shared.adapt_reader`从已来源核验的逻辑根读取评估字段，每批至多100个数组位置，不展开完整analysis/graph/snapshot；整体8MiB及10秒限制保留。评估输入、后台预备及bundle导入/详情/下载/证据统一经VerifiedCompactQuery，先数据集授权，再检查当前终态attempt、payload、全部原件/产物字节，并在读取后复核。普通service-publication SHA及实验许可不能冒充DAG6服务授权。
 
-新适配器 `final-artifact-evaluation-dag6-1` 绑定完整逻辑根及集合摘要、run/attempt、输入/配置/规则、存储/历史/身份/prefix版本。最终预测取终态live+frozen；`process_statistics` 分列终态及全程ever-observed的network/process/operations/changes稳定ID去重数，遍历全部快照保留后来过期的观察，不重复计数修订，另留首次出现快照。候选首次可见/撤回沿用旧含义，撤回候选不混入终态预测。标注和独立参考原件只进入评估sidecar。
+适配器 `final-artifact-evaluation-dag6-1`绑定完整逻辑根及集合摘要、run/attempt、输入/配置/规则和存储/历史/身份/prefix版本。最终预测取终态live+frozen；process_statistics另列全程ever-observed稳定ID并集和首次快照，包含过期观察且不重复计数修订，撤回候选不混入终态预测。标注和参考原件只进入评估sidecar；本地冻结时间与独立性是声明，不是外部保管证明。定向手计数覆盖终态process2、全程process6及network2。
 
-`round19_shared_evaluation_check.check_saved_evaluation` 在同一小normal run/attempt上固定两组手写CSV标注，使用实际本地冻结/开放时间和原有V3 bundle导入，检查2/0/0及1/1/1、详情/下载、错误原证据、独立参考原件及CSV逻辑记录，同时确认分析逻辑根和投影不变；本地时间和独立性仍是声明，不是外部保管证明。定向单测含过期后终态process2、全程process6及network2的手计数对照；运行中的正式API验收另见唯一索引。
+旧备份引擎遇DAG6共享标记（含失败attempt）明确返回unsupported_shared_backup_restore；旧备份格式保留。既有未跟踪scripts/backup/shared_storage.py仍只是DAG5容器审计原型，不声称成套恢复。
 
-旧备份引擎遇到DAG6共享标记明确返回 `unsupported_shared_backup_restore`，包含失败attempt；旧备份格式保留。既有未跟踪 `scripts/backup/shared_storage.py` DAG5容器审计原型不改，不据此声称成套恢复。
+## 常规入口与最短复现
+
+正常应用为internal/jobs/integration/cmd/cpagx-v3，不是验收代理。原R16部署配置在独立环境显式加入capacity_policy=engineering-core-capacity-3、resource_profile=storage-budget-2及固定compact_verifier_image；Worker使用同一不可变镜像和资源策略。公共监听提供静态前端及/api/v3，内部监听仅loopback；用户会话与Worker令牌分离，输入配置显式绑定DAG6/容量3/存储预算2及历史身份版本。
+
+依赖Docker、Go、Node静态前端、Python测试依赖及PostgreSQL16镜像；使用新目录保留每次失败：
+
+```sh
+PYTHONPATH=services/analysis/src:services/worker python scripts/validation/round19_formal_service_acceptance.py --mode small --image sha256:<本提交镜像ID> --output /private/tmp/cpag-r19-new-small
+PYTHONPATH=services/analysis/src:services/worker python scripts/validation/round19_formal_service_acceptance.py --mode s100 --image sha256:<同一镜像ID> --fixture <原S6夹具目录> --output /private/tmp/cpag-r19-new-s100
+```
+
+脚本仅编排正式应用、数据库、Worker及HTTP，不复制产物冒充成功或修改任务状态。--serve保留独立工作台；私有state含本机登录信息，不进仓库，不改变用户当前部署。
+
+M/L已由用户移交社区：**未完成、不承诺支持**，保留目标、工具和失败，非本工作包阻塞项。Ubuntu参考环境、真实工业材料、后续三次稳定性复验、完整备份恢复、R20界面及部署分别待办；本次正式服务限定功能本地通过不等于R19整体完成或生产就绪；最终交付同提交完整CI仍待门禁。

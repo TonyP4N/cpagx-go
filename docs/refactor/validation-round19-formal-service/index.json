@@ -1,8 +1,2612 @@
 {
   "version": "r19-formal-service-acceptance-1",
   "baseline": "861640c591e48a1064ee8862c33c3890d7ee4a14",
-  "status": "implementation_in_progress",
-  "formal_s100_attempts": [],
+  "status": "local_formal_service_acceptance_passed_final_commit_ci_required",
+  "formal_s100_attempts": [
+    {
+      "directory": "/private/tmp/cpag-r19-service-s100-1-20261030",
+      "status": "failed_before_compute",
+      "reason": "POST runs 422 invalid_inputs on fixed S100 profile; preserving original fixture and budgets",
+      "compute_attempts": 0
+    },
+    {
+      "directory": "/private/tmp/cpag-r19-service-s100-2-20261030",
+      "status": "failed_verification_lease_fenced",
+      "runtime_commit": "5daa0fb45a545600cef46d63295da15ed06dfd58",
+      "run_id": "8da75dbe30b886c388a0163527c45d64",
+      "attempt": 1,
+      "input_unchanged": true,
+      "export_seconds": 946.918254222,
+      "verifier_seconds_before_cancel": 616.016655,
+      "source_verified": false,
+      "published": false,
+      "additional_attempt": {
+        "attempt": 2,
+        "unexpected_automatic_retry": true,
+        "disposition": "cancelled_through_formal_api_and_exit_confirmed"
+      },
+      "reason": "attempt1 lost publication ownership before deadline; verifier killed and removed; exact initiating heartbeat cause not recorded in old telemetry",
+      "classification": "invalid_continuous_environment_host_sleep",
+      "power_event_evidence": {
+        "source": "Observed local pmset -g log output in this diagnostic turn; normalized event fields, not a complete raw power log",
+        "observed_events": [
+          {
+            "time": "2026-10-30 16:47:55 +0800",
+            "event": "Sleep",
+            "reason": "Clamshell Sleep",
+            "reported_duration_seconds": 256
+          },
+          {
+            "time": "2026-10-30 16:52:11 +0800",
+            "event": "Wake",
+            "reason": "Wake from Deep Idle"
+          }
+        ],
+        "worker_stale_409_time": "2026-10-30 16:52:22.815 +0800",
+        "verifier_cancelled_time": "2026-10-30 16:52:22.928 +0800",
+        "interpretation": "The run was interrupted by confirmed host sleep. This supports lease expiry during interruption; the old logs do not identify the exact last successful heartbeat or exclude independent concurrency effects."
+      },
+      "power_event_sha256": "38ba07f913267aadf205955b1760ab9ea05199510c8c1c732ffbffc7df145199",
+      "initiating_condition": "host clamshell sleep256s exceeded live lease; resumed stale execution correctly fenced",
+      "known_software_defect_separately": "recovery could concurrently resume publication despite active owner lock; fixed but not claimed sole cause of observed lease expiration"
+    },
+    {
+      "directory": "/private/tmp/cpag-r19-service-s100-3-20261030",
+      "status": "invalid_environment",
+      "runtime_commit": "3db724d4e380822b8089d659843ff8f711a69cff",
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "measurement_version": "formal-service-wall-clock-2",
+      "idle_sleep_assertion": "temporary caffeinate -i -t 2200; clamshell still not guaranteed",
+      "reason": "wall_monotonic_gap_exceeds_5_seconds",
+      "invalid_environment": {
+        "phase": "status_poll_before_request",
+        "phase_clock": {
+          "monotonic_seconds": 1451.4648157500196,
+          "wall_minus_monotonic_seconds": 15.929242239100859,
+          "wall_seconds": 1467.3940579891205
+        },
+        "request_clock": null,
+        "run_clock": {
+          "monotonic_seconds": 1451.4648186660488,
+          "wall_minus_monotonic_seconds": 15.92924456828041,
+          "wall_seconds": 1467.3940632343292
+        }
+      },
+      "compute_attempts": 1,
+      "published": false,
+      "source_verified": false,
+      "export_seconds": 858.156,
+      "verifier_seconds_before_cancel": 606.926901,
+      "initial_cancel_closure": "cancelling_after_30_seconds; periodic recovery missing from explicit official application entry"
+    },
+    {
+      "directory": "/private/tmp/cpag-r19-service-s100-4-20261030",
+      "status": "passed",
+      "runtime_commit": "5b45a422db30c65d64bee7806d2eeae1584f4280",
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "measurement_version": "formal-service-wall-clock-2",
+      "environment_basis": "user confirmed lid open and AC connected; temporary idle sleep prevention and explicit drift guard remain",
+      "report_sha256": "35693e7707825f391d7cc0df27bd2f8c6ed702ee780ac45d6ccbf15262d472c2",
+      "report": "/private/tmp/cpag-r19-service-s100-4-20261030/report.json",
+      "run_id": "2ab02ff98d5253cfcf174c879b2e2f05",
+      "attempt": 1,
+      "source_verified": true,
+      "published": true,
+      "metrics": {
+        "core_export_verify_selected_seconds": 1788.582281209496,
+        "queried_success_seconds": 1792.0438857078552,
+        "queried_success_monotonic_seconds": 1792.033457499987,
+        "service_overhead_seconds": 3.461604498359293,
+        "selected_http_seconds": 5.40292501449585,
+        "individual_selected_query_seconds": [
+          0.49338197708129883,
+          0.37704992294311523,
+          0.33617210388183594,
+          0.31035923957824707,
+          0.3122439384460449,
+          1.2623579502105713,
+          0.548396110534668,
+          0.43826723098754883,
+          0.3280909061431885,
+          0.3141140937805176,
+          0.3233170509338379
+        ],
+        "compute_usage": {
+          "cpu_system_seconds": 64.085511,
+          "cpu_user_seconds": 910.337631,
+          "measurement_version": "compute-process-resources-1",
+          "returncode": 0,
+          "rss_peak_bytes": 111771648,
+          "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+          "wall_seconds": 977.9340181950001
+        },
+        "compute_cgroup": {
+          "cgroup_memory_current_bytes": 101969920,
+          "cgroup_memory_peak_bytes": 202825728,
+          "cpu_stat": {
+            "burst_usec": 0,
+            "nice_usec": 0,
+            "nr_bursts": 0,
+            "nr_periods": 9784,
+            "nr_throttled": 0,
+            "system_usec": 78006496,
+            "throttled_usec": 0,
+            "usage_usec": 1027410666,
+            "user_usec": 949404169
+          },
+          "output_bytes": 85829323,
+          "tmp_bytes": 0
+        },
+        "verification_metrics": {
+          "cgroup_cpu_usage_usec": 803009742,
+          "cgroup_memory_peak_bytes": 273027072,
+          "ended_at": 1793356207.8767998,
+          "max_rss_bytes": 190849024,
+          "phase_resources": [
+            {
+              "cpu_seconds": 46.104924999999994,
+              "kind": "sample",
+              "phase": "compact_node_verification",
+              "rss_high_water_bytes": 30904320,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 46.65322752100019
+            },
+            {
+              "cpu_seconds": 0.0007289999999979813,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0007457499996235128
+            },
+            {
+              "cpu_seconds": 0.0010350000000016735,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0010427919996800483
+            },
+            {
+              "cpu_seconds": 1.699999999971169e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.0458999642869458e-05
+            },
+            {
+              "cpu_seconds": 1.0000000003174137e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.141600023402134e-05
+            },
+            {
+              "cpu_seconds": 7.999999999341867e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.958999726222828e-06
+            },
+            {
+              "cpu_seconds": 4.0999999995960934e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.266700034349924e-05
+            },
+            {
+              "cpu_seconds": 3.399999999942338e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.575000027922215e-05
+            },
+            {
+              "cpu_seconds": 7.80000000020209e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.037499992497033e-05
+            },
+            {
+              "cpu_seconds": 6.900000000342743e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.14170000719605e-05
+            },
+            {
+              "cpu_seconds": 0.0007169999999963039,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000721542000064801
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.3208000382292084e-05
+            },
+            {
+              "cpu_seconds": 0.000825999999998217,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0008290830000987626
+            },
+            {
+              "cpu_seconds": 0.0001490000000003988,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00015041700044093886
+            },
+            {
+              "cpu_seconds": 0.00012699999999910005,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001287909999518888
+            },
+            {
+              "cpu_seconds": 0.0028650000000016718,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.002872749999369262
+            },
+            {
+              "cpu_seconds": 5.6000000002498496e-05,
+              "kind": "sample",
+              "phase": "network_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.058300004951889e-05
+            },
+            {
+              "cpu_seconds": 0.00017900000000459215,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00018304199966223678
+            },
+            {
+              "cpu_seconds": 0.00015800000000432135,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016149999919434777
+            },
+            {
+              "cpu_seconds": 0.00026400000000492696,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00026679100028559333
+            },
+            {
+              "cpu_seconds": 0.0005979999999965457,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000601124999775493
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.2666999282373581e-05
+            },
+            {
+              "cpu_seconds": 1.4000000000180535e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.5749999874969944e-05
+            },
+            {
+              "cpu_seconds": 0.00012900000000115597,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001314589999310556
+            },
+            {
+              "cpu_seconds": 0.0005890000000050577,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0005957499997748528
+            },
+            {
+              "cpu_seconds": 0.0005960000000015953,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0006047500000931905
+            },
+            {
+              "cpu_seconds": 2.1000000003823516e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.4916999791457783e-05
+            },
+            {
+              "cpu_seconds": 8.200000000613272e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.050000062416075e-05
+            },
+            {
+              "cpu_seconds": 1.9000000001767603e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.191700059483992e-05
+            },
+            {
+              "cpu_seconds": 1.6000000002236447e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.912500010803342e-05
+            },
+            {
+              "cpu_seconds": 3.900000000101045e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.291599998396123e-05
+            },
+            {
+              "cpu_seconds": 0.00015499999999946112,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016229199991357746
+            },
+            {
+              "cpu_seconds": 8.300000000360797e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.558299941796577e-05
+            },
+            {
+              "cpu_seconds": 0.0012559999999979254,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0012594169993462856
+            },
+            {
+              "cpu_seconds": 1.3000000002705292e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.5458999769180082e-05
+            },
+            {
+              "cpu_seconds": 0.0013720000000034815,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00137425000048097
+            },
+            {
+              "cpu_seconds": 0.00018199999999524152,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001844589996835566
+            },
+            {
+              "cpu_seconds": 0.0001490000000003988,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00015041700044093886
+            },
+            {
+              "cpu_seconds": 0.0001600000000010482,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001627080000616843
+            },
+            {
+              "cpu_seconds": 0.00017300000000375348,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00017541699980938574
+            },
+            {
+              "cpu_seconds": 0.0035769999999999413,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0035799999996015686
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0208999810856767e-05
+            },
+            {
+              "cpu_seconds": 0.00018000000000029104,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00018345900025451556
+            },
+            {
+              "cpu_seconds": 0.00032199999999704687,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00032537500010221265
+            },
+            {
+              "cpu_seconds": 0.0004559999999997899,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000458292000075744
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.5124999663385097e-05
+            },
+            {
+              "cpu_seconds": 1.599999999513102e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.820800025598146e-05
+            },
+            {
+              "cpu_seconds": 0.00017300000000375348,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00019587499991757795
+            },
+            {
+              "cpu_seconds": 0.0008699999999990382,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0009040830000230926
+            },
+            {
+              "cpu_seconds": 0.0009310000000013474,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0009352080005555763
+            },
+            {
+              "cpu_seconds": 6.700000000137152e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.054200068523642e-05
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1375000212865416e-05
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0041000678029377e-05
+            },
+            {
+              "cpu_seconds": 3.6999999998954536e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.7834000067960005e-05
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0917000508925412e-05
+            },
+            {
+              "cpu_seconds": 6.900000000342743e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.162500060076127e-05
+            },
+            {
+              "cpu_seconds": 7.000000000090267e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.216599988169037e-05
+            },
+            {
+              "cpu_seconds": 0.0007739999999998304,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0007755420001558377
+            },
+            {
+              "cpu_seconds": 0.00011400000000350019,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00011620800069067627
+            },
+            {
+              "cpu_seconds": 0.000996000000000663,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000997875000393833
+            },
+            {
+              "cpu_seconds": 0.00016099999999852344,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016312499974446837
+            },
+            {
+              "cpu_seconds": 0.00013799999999974943,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00013970800046081422
+            },
+            {
+              "cpu_seconds": 0.00016700000000469117,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016862499978742562
+            },
+            {
+              "cpu_seconds": 0.0010590000000050281,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0010719590000007884
+            },
+            {
+              "cpu_seconds": 0.004128000000001464,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.004134291999434936
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0500000826141331e-05
+            },
+            {
+              "cpu_seconds": 6.700000000137152e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.008400007180171e-05
+            },
+            {
+              "cpu_seconds": 0.00019700000000000273,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00020004199996037642
+            },
+            {
+              "cpu_seconds": 0.00034600000000040154,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00034954100010509137
+            },
+            {
+              "cpu_seconds": 7.000000003642981e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.207999937643763e-06
+            },
+            {
+              "cpu_seconds": 1.800000000429236e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.0415999642864335e-05
+            },
+            {
+              "cpu_seconds": 0.00016099999999852344,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016362499991373625
+            },
+            {
+              "cpu_seconds": 0.0011009999999984643,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0011066249999203137
+            },
+            {
+              "cpu_seconds": 0.0011209999999977072,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0011235830006626202
+            },
+            {
+              "cpu_seconds": 0.00013099999999610645,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001335420001851162
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0167000255023595e-05
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0832999578269664e-05
+            },
+            {
+              "cpu_seconds": 3.300000000194814e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.441700027906336e-05
+            },
+            {
+              "cpu_seconds": 1.0000000003174137e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1958999493799638e-05
+            },
+            {
+              "cpu_seconds": 6.799999999884676e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.03329997122637e-05
+            },
+            {
+              "cpu_seconds": 6.400000000184036e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.608399962715339e-05
+            },
+            {
+              "cpu_seconds": 0.0009510000000005903,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0009548750003887108
+            },
+            {
+              "cpu_seconds": 0.00031599999999798456,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00031895800020720344
+            },
+            {
+              "cpu_seconds": 0.0013629999999977827,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0013659999995070393
+            },
+            {
+              "cpu_seconds": 0.00017400000000122873,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00017720799951348454
+            },
+            {
+              "cpu_seconds": 0.00015499999999946112,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000157667000166839
+            },
+            {
+              "cpu_seconds": 0.0001889999999988845,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001922920000652084
+            },
+            {
+              "cpu_seconds": 0.00019999999999953388,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00020245799987606006
+            },
+            {
+              "cpu_seconds": 0.003914999999999225,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.003918999999768857
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0624999958963599e-05
+            },
+            {
+              "cpu_seconds": 4.600000000465343e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.908399932901375e-05
+            },
+            {
+              "cpu_seconds": 0.00015199999999992997,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00015416699989145854
+            },
+            {
+              "cpu_seconds": 0.0002910000000042601,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00029333400016184896
+            },
+            {
+              "cpu_seconds": 7.000000000090267e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.291999620269053e-06
+            },
+            {
+              "cpu_seconds": 1.8000000000739647e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.9332999727339484e-05
+            },
+            {
+              "cpu_seconds": 0.000280000000000058,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0002875419995689299
+            },
+            {
+              "cpu_seconds": 0.0016669999999958662,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0016716250001991284
+            },
+            {
+              "cpu_seconds": 0.0014710000000022205,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.001478666000366502
+            },
+            {
+              "cpu_seconds": 0.00021200000000476393,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021420900066004833
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0500000826141331e-05
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0624999958963599e-05
+            },
+            {
+              "cpu_seconds": 3.6999999998954536e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.8333000702550635e-05
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1249999261053745e-05
+            },
+            {
+              "cpu_seconds": 6.099999999875649e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.29579999440466e-05
+            },
+            {
+              "cpu_seconds": 7.80000000020209e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.020899986149743e-05
+            },
+            {
+              "cpu_seconds": 0.001228000000001117,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0012305410000408301
+            },
+            {
+              "cpu_seconds": 0.0005530000000035784,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00055587499991816
+            },
+            {
+              "cpu_seconds": 0.0018889999999949225,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0018910419994426775
+            },
+            {
+              "cpu_seconds": 0.0001759999999961792,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00017833299989433726
+            },
+            {
+              "cpu_seconds": 0.00014999999999787406,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001520000005257316
+            },
+            {
+              "cpu_seconds": 0.00021600000000177033,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00022004200036462862
+            },
+            {
+              "cpu_seconds": 0.00021300000000223918,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021608400038530817
+            },
+            {
+              "cpu_seconds": 0.005046000000003659,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00504854099926888
+            },
+            {
+              "cpu_seconds": 7.999999994012796e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0458000360813458e-05
+            },
+            {
+              "cpu_seconds": 8.300000000360797e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.783400062384317e-05
+            },
+            {
+              "cpu_seconds": 0.00023300000000148202,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00023624999994353857
+            },
+            {
+              "cpu_seconds": 0.0004060000000052355,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0004096669999853475
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.374999535793904e-06
+            },
+            {
+              "cpu_seconds": 2.2999999998774e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.4667000616318546e-05
+            },
+            {
+              "cpu_seconds": 0.00034399999999834563,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00034862499978771666
+            },
+            {
+              "cpu_seconds": 0.00148200000000287,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.001489708999542927
+            },
+            {
+              "cpu_seconds": 0.0016089999999948645,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0016124590001709294
+            },
+            {
+              "cpu_seconds": 0.0002309999999994261,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00023345800036622677
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0624999958963599e-05
+            },
+            {
+              "cpu_seconds": 6.999999996537554e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.541999704902992e-06
+            },
+            {
+              "cpu_seconds": 4.100000000306636e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.337500013207318e-05
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.291999958804809e-06
+            },
+            {
+              "cpu_seconds": 6.900000000342743e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.045799975458067e-05
+            },
+            {
+              "cpu_seconds": 7.500000000248974e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.791699954395881e-05
+            },
+            {
+              "cpu_seconds": 0.0013670000000018945,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0013709579998248955
+            },
+            {
+              "cpu_seconds": 0.0007579999999975939,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0007600830003866577
+            },
+            {
+              "cpu_seconds": 0.002238999999995883,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0022413329998016707
+            },
+            {
+              "cpu_seconds": 0.0002879999999976235,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0002978749998874264
+            },
+            {
+              "cpu_seconds": 0.0002080000000006521,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021145800019439775
+            },
+            {
+              "cpu_seconds": 0.0002099999999956026,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021416699928522576
+            },
+            {
+              "cpu_seconds": 0.00021699999999924557,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021933299922238803
+            },
+            {
+              "cpu_seconds": 0.005950999999996043,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.005959291999715788
+            },
+            {
+              "cpu_seconds": 9.999999996068709e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.2040999536111485e-05
+            },
+            {
+              "cpu_seconds": 5.3999999998666226e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 5.8458999774302356e-05
+            },
+            {
+              "cpu_seconds": 0.0002570000000048367,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00026616699960868573
+            },
+            {
+              "cpu_seconds": 0.0005179999999995744,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0005224579999776324
+            },
+            {
+              "cpu_seconds": 5.600000000072214e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.604100053664297e-05
+            },
+            {
+              "cpu_seconds": 4.700000000212867e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.9666999984765425e-05
+            },
+            {
+              "cpu_seconds": 0.00037800000000487444,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00038499999936902896
+            },
+            {
+              "cpu_seconds": 0.0016379999999998063,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0016412499999205465
+            },
+            {
+              "cpu_seconds": 0.001926999999994905,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0019302909995531081
+            },
+            {
+              "cpu_seconds": 0.00031200000000097816,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000314542000523943
+            },
+            {
+              "cpu_seconds": 2.3999999996249244e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.73750001724693e-05
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0417000339657534e-05
+            },
+            {
+              "cpu_seconds": 4.0999999995960934e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.383299983601319e-05
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0624999958963599e-05
+            },
+            {
+              "cpu_seconds": 6.599999999679085e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.80840003042249e-05
+            },
+            {
+              "cpu_seconds": 7.300000000043383e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.491700034734095e-05
+            },
+            {
+              "cpu_seconds": 0.0014950000000055752,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0014974169998822617
+            },
+            {
+              "cpu_seconds": 0.0012009999999946785,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0012814170004276093
+            },
+            {
+              "cpu_seconds": 0.0030500000000017735,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0030745829999432317
+            },
+            {
+              "cpu_seconds": 0.00017100000000169757,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00017754199961927952
+            },
+            {
+              "cpu_seconds": 0.00013400000000274304,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00013625000065076165
+            },
+            {
+              "cpu_seconds": 0.00022799999999989495,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00023158300064096693
+            },
+            {
+              "cpu_seconds": 0.00023999999999979593,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00024291699992318172
+            },
+            {
+              "cpu_seconds": 0.006926999999997463,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0069304999997257255
+            },
+            {
+              "cpu_seconds": 1.000000000139778e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1624999388004653e-05
+            },
+            {
+              "cpu_seconds": 3.9999999996709334e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.2749999920488335e-05
+            },
+            {
+              "cpu_seconds": 0.0001600000000010482,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016179099930013763
+            },
+            {
+              "cpu_seconds": 0.00032699999999863394,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00032900000041991007
+            },
+            {
+              "cpu_seconds": 6.999999996537554e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.041000339493621e-06
+            },
+            {
+              "cpu_seconds": 2.099999999671809e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.2915999579709023e-05
+            },
+            {
+              "cpu_seconds": 0.00018599999999935335,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00018850000014936086
+            },
+            {
+              "cpu_seconds": 0.001847000000005039,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0018498330000511487
+            },
+            {
+              "cpu_seconds": 0.002293000000001655,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.002305375000105414
+            },
+            {
+              "cpu_seconds": 0.000610999999999251,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0006204589999470045
+            },
+            {
+              "cpu_seconds": 1.8999999994662176e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.300000051036477e-05
+            },
+            {
+              "cpu_seconds": 9.999999996068709e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.2167000022600405e-05
+            },
+            {
+              "cpu_seconds": 4.899999999707916e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 5.395800053520361e-05
+            },
+            {
+              "cpu_seconds": 1.0000000003174137e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1291999726381619e-05
+            },
+            {
+              "cpu_seconds": 7.999999999697138e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 8.504200013703667e-05
+            },
+            {
+              "cpu_seconds": 7.399999999790907e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.641600041097263e-05
+            },
+            {
+              "cpu_seconds": 0.0024540000000001783,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0024570410005253507
+            },
+            {
+              "cpu_seconds": 0.0013349999999974216,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0013409160001174314
+            },
+            {
+              "cpu_seconds": 0.003925999999999874,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.003929459000573843
+            },
+            {
+              "cpu_seconds": 0.0001600000000010482,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016225000035774428
+            },
+            {
+              "cpu_seconds": 0.00015799999999899228,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00016079099987109657
+            },
+            {
+              "cpu_seconds": 0.00024700000000166256,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000249541999437497
+            },
+            {
+              "cpu_seconds": 0.00023900000000054433,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00024233399926743004
+            },
+            {
+              "cpu_seconds": 0.008283999999996183,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.008286708000014187
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.304199940932449e-05
+            },
+            {
+              "cpu_seconds": 4.899999999707916e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 5.162500019650906e-05
+            },
+            {
+              "cpu_seconds": 0.00017799999999823513,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00018004100002144696
+            },
+            {
+              "cpu_seconds": 0.0003839999999968313,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00038616700021520955
+            },
+            {
+              "cpu_seconds": 1.0000000003174137e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.195799995912239e-05
+            },
+            {
+              "cpu_seconds": 2.5000000000829914e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 2.73750001724693e-05
+            },
+            {
+              "cpu_seconds": 0.00023000000000195087,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00023166600021795603
+            },
+            {
+              "cpu_seconds": 0.002392000000000394,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00239758299994719
+            },
+            {
+              "cpu_seconds": 0.0027230000000031396,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.002726500000790111
+            },
+            {
+              "cpu_seconds": 0.0005319999999997549,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0005362499996408587
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.3374999980442226e-05
+            },
+            {
+              "cpu_seconds": 5.9000000000253294e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.500000032858225e-05
+            },
+            {
+              "cpu_seconds": 4.700000000212867e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.945799992128741e-05
+            },
+            {
+              "cpu_seconds": 8.000000001118224e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 9.999999747378752e-06
+            },
+            {
+              "cpu_seconds": 6.49999999993156e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.791700070607476e-05
+            },
+            {
+              "cpu_seconds": 6.700000000137152e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.974999996600673e-05
+            },
+            {
+              "cpu_seconds": 0.0020779999999973597,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.002080750000459375
+            },
+            {
+              "cpu_seconds": 0.001502999999999588,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.001508250000370026
+            },
+            {
+              "cpu_seconds": 0.0036990000000045598,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0037016669994045515
+            },
+            {
+              "cpu_seconds": 0.00017499999999870397,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00017737500002112938
+            },
+            {
+              "cpu_seconds": 0.00015000000000497948,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00015233300018735463
+            },
+            {
+              "cpu_seconds": 0.0002270000000024197,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00023074999990058132
+            },
+            {
+              "cpu_seconds": 0.00023399999999895726,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0002365000000281725
+            },
+            {
+              "cpu_seconds": 0.008499000000000478,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.008502041999236098
+            },
+            {
+              "cpu_seconds": 9.999999996068709e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.208400044561131e-05
+            },
+            {
+              "cpu_seconds": 0.00021100000000018326,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00021474999994097743
+            },
+            {
+              "cpu_seconds": 0.00034200000000339514,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0003447919998507132
+            },
+            {
+              "cpu_seconds": 0.0005409999999983484,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0005441250004878384
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.3500000022759195e-05
+            },
+            {
+              "cpu_seconds": 2.8999999997836312e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.100000049016671e-05
+            },
+            {
+              "cpu_seconds": 0.00024099999999549482,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00024324999958480475
+            },
+            {
+              "cpu_seconds": 0.002258999999995126,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0022638749996986007
+            },
+            {
+              "cpu_seconds": 0.0030520000000038294,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.003056415999708406
+            },
+            {
+              "cpu_seconds": 0.00046999999999997044,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0004732919996968121
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1666999853332527e-05
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0541999472479802e-05
+            },
+            {
+              "cpu_seconds": 4.299999999801685e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.537499989964999e-05
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1208000614715274e-05
+            },
+            {
+              "cpu_seconds": 7.500000000248974e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.666700003028382e-05
+            },
+            {
+              "cpu_seconds": 6.8999999996322e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.087500034685945e-05
+            },
+            {
+              "cpu_seconds": 0.0022719999999978313,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.002292000000124972
+            },
+            {
+              "cpu_seconds": 0.0014129999999994425,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0014154579994283267
+            },
+            {
+              "cpu_seconds": 0.003796999999998718,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0038162910004757578
+            },
+            {
+              "cpu_seconds": 0.00015499999999946112,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00015691699991293717
+            },
+            {
+              "cpu_seconds": 0.00013500000000021828,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00013712500003748573
+            },
+            {
+              "cpu_seconds": 0.0002750000000020236,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0002774160002445569
+            },
+            {
+              "cpu_seconds": 0.00028100000000108594,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.000284667000414629
+            },
+            {
+              "cpu_seconds": 0.008954000000002793,
+              "kind": "sample",
+              "phase": "history_generation",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.008973500000138301
+            },
+            {
+              "cpu_seconds": 1.100000000064938e-05,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.3124999895808287e-05
+            },
+            {
+              "cpu_seconds": 4.400000000259752e-05,
+              "kind": "sample",
+              "phase": "process_parse",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 4.720800006907666e-05
+            },
+            {
+              "cpu_seconds": 0.00018000000000029104,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0001822500007619965
+            },
+            {
+              "cpu_seconds": 0.00040899999999766123,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00041233400042983703
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "replay_network_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0707999535952695e-05
+            },
+            {
+              "cpu_seconds": 2.8999999997836312e-05,
+              "kind": "sample",
+              "phase": "replay_process_prefix",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.087499953835504e-05
+            },
+            {
+              "cpu_seconds": 0.00024900000000371847,
+              "kind": "sample",
+              "phase": "replay_input_snapshot",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00025099999947997276
+            },
+            {
+              "cpu_seconds": 0.0028889999999961447,
+              "kind": "sample",
+              "phase": "association_and_evidence",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0028949170000487356
+            },
+            {
+              "cpu_seconds": 0.0028750000000030695,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0028790420001314487
+            },
+            {
+              "cpu_seconds": 0.0005439999999978795,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0005465829999593552
+            },
+            {
+              "cpu_seconds": 8.999999998593466e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1082999662903603e-05
+            },
+            {
+              "cpu_seconds": 7.999999994012796e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.0542000381974503e-05
+            },
+            {
+              "cpu_seconds": 3.6999999998954536e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 3.937499968742486e-05
+            },
+            {
+              "cpu_seconds": 9.000000005698894e-06,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 1.1083000572398305e-05
+            },
+            {
+              "cpu_seconds": 7.000000000090267e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 7.220799943752354e-05
+            },
+            {
+              "cpu_seconds": 6.799999999884676e-05,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 6.966700038901763e-05
+            },
+            {
+              "cpu_seconds": 0.0021789999999981546,
+              "kind": "sample",
+              "phase": "standard_projection",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0021809170002597966
+            },
+            {
+              "cpu_seconds": 0.0016460000000009245,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.0016494589999638265
+            },
+            {
+              "cpu_seconds": 0.0039349999999984675,
+              "kind": "sample",
+              "phase": "stored_graph_composition_1",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.003937165999559511
+            },
+            {
+              "cpu_seconds": 0.000385000000001412,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00040949999947770266
+            },
+            {
+              "cpu_seconds": 0.00014000000000180535,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00014270799965743208
+            },
+            {
+              "cpu_seconds": 0.00029699999999621696,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00030208299995138077
+            },
+            {
+              "cpu_seconds": 0.00026400000000137425,
+              "kind": "sample",
+              "phase": "source_merkle_root_rebuild",
+              "rss_high_water_bytes": 31547392,
+              "status": "returned",
+              "version": "phase-resources-3",
+              "wall_seconds": 0.00026729199998953845
+            },
+            {
+              "all_observed_calls": 7411,
+              "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+              "kind": "terminal_measurement_summary",
+              "last_progress_error_type": null,
+              "phases": {
+                "artifact_verification": {
+                  "calls": 1,
+                  "cpu_seconds": 802.293952,
+                  "failed": 0,
+                  "returned": 1,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 804.2555054880004
+                },
+                "association_and_evidence": {
+                  "calls": 305,
+                  "cpu_seconds": 299.8017449999998,
+                  "failed": 0,
+                  "returned": 305,
+                  "rss_high_water_bytes": 190267392,
+                  "wall_seconds": 300.3155976380158
+                },
+                "compact_node_verification": {
+                  "calls": 1,
+                  "cpu_seconds": 46.104924999999994,
+                  "failed": 0,
+                  "returned": 1,
+                  "rss_high_water_bytes": 30904320,
+                  "wall_seconds": 46.65322752100019
+                },
+                "history_generation": {
+                  "calls": 310,
+                  "cpu_seconds": 409.9045069999998,
+                  "failed": 0,
+                  "returned": 310,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 410.64355889298986
+                },
+                "network_parse": {
+                  "calls": 202,
+                  "cpu_seconds": 2.035718000000225,
+                  "failed": 0,
+                  "returned": 202,
+                  "rss_high_water_bytes": 180404224,
+                  "wall_seconds": 2.0426821169958203
+                },
+                "process_parse": {
+                  "calls": 101,
+                  "cpu_seconds": 0.008891000000238236,
+                  "failed": 0,
+                  "returned": 101,
+                  "rss_high_water_bytes": 159518720,
+                  "wall_seconds": 0.009335674008070782
+                },
+                "replay_input_snapshot": {
+                  "calls": 608,
+                  "cpu_seconds": 11.084080999999584,
+                  "failed": 0,
+                  "returned": 608,
+                  "rss_high_water_bytes": 180404224,
+                  "wall_seconds": 11.116343751989916
+                },
+                "replay_network_prefix": {
+                  "calls": 608,
+                  "cpu_seconds": 3.4077490000001607,
+                  "failed": 0,
+                  "returned": 608,
+                  "rss_high_water_bytes": 180404224,
+                  "wall_seconds": 3.4186144070099544
+                },
+                "replay_process_prefix": {
+                  "calls": 608,
+                  "cpu_seconds": 0.16078699999990498,
+                  "failed": 0,
+                  "returned": 608,
+                  "rss_high_water_bytes": 180404224,
+                  "wall_seconds": 0.163745096002458
+                },
+                "source_merkle_rebuild_1": {
+                  "calls": 1,
+                  "cpu_seconds": 755.8134689999999,
+                  "failed": 0,
+                  "returned": 1,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 757.1488597999996
+                },
+                "source_merkle_root_rebuild": {
+                  "calls": 4044,
+                  "cpu_seconds": 310.7260570000017,
+                  "failed": 0,
+                  "returned": 4044,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 311.3028873530302
+                },
+                "standard_projection": {
+                  "calls": 311,
+                  "cpu_seconds": 143.59125900000015,
+                  "failed": 0,
+                  "returned": 311,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 143.84983556000225
+                },
+                "stored_graph_composition_1": {
+                  "calls": 311,
+                  "cpu_seconds": 152.84990800000014,
+                  "failed": 0,
+                  "returned": 311,
+                  "rss_high_water_bytes": 190849024,
+                  "wall_seconds": 153.12500273099704
+                }
+              },
+              "progress_file": "progress.json",
+              "progress_last_snapshot_calls": 7411,
+              "progress_write_failures": 0,
+              "progress_writes": 163,
+              "raw_rows_not_retained": 7155,
+              "raw_rows_retained": 256,
+              "version": "phase-resources-3"
+            }
+          ],
+          "process_cpu_seconds": 802.475643984,
+          "started_at": 1793355403.387796,
+          "wall_seconds": 804.4832273210004
+        },
+        "download": {
+          "bytes": 85766144,
+          "chunk_bytes": 65536,
+          "file": "shared/shared.sqlite3",
+          "monotonic_seconds": 0.9052872500033118,
+          "sha256": "92ee9c42be321c2eb3c2a53afe50422e397e179318a0c46074a1968daff5ba8f",
+          "wall_minus_monotonic_seconds": 3.83047154173255e-06,
+          "wall_seconds": 0.9052910804748535
+        }
+      },
+      "selected_history": [
+        {
+          "number": 0,
+          "snapshot_id": "snapshot-3382732460d4b97138b0cb195bffef07d30a6d92dd01d401a531eed937af8cc4"
+        },
+        {
+          "number": 155,
+          "snapshot_id": "snapshot-3ee9f2b10452c0b3e7dabf3b26c46437ed87faebcf51ba1b0e5137efed7e37c0"
+        },
+        {
+          "number": 309,
+          "snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d"
+        }
+      ],
+      "acl_denials": {
+        "anonymous:artifacts/shared/shared.sqlite3/download": 401,
+        "anonymous:evidence": 401,
+        "anonymous:shared-query": 401,
+        "viewer_without_acl:artifacts/shared/shared.sqlite3/download": 404,
+        "viewer_without_acl:evidence": 404,
+        "viewer_without_acl:shared-query": 404
+      },
+      "raw_evidence_references": 100,
+      "fixed_input_unchanged": true
+    }
+  ],
   "scope": "existing application formal service integration only",
   "budgets": {
     "core_seconds": 1800,
@@ -20,5 +2624,759 @@
     "L10000": "incomplete_not_supported",
     "not_current_gate": true
   },
-  "real_industrial_validation": false
+  "real_industrial_validation": false,
+  "small_formal": {
+    "status": "passed",
+    "report": "/private/tmp/cpag-r19-service-small4-20261030/report.json",
+    "report_sha256": "64cfb073a32461b403785c2b41dac88e1550e5d4455f52c31367fb60a2b4a0b1",
+    "old_compatibility_reference": "/private/tmp/cpag-r19-service-small2-20261030/report.json"
+  },
+  "browser": {
+    "status": "passed_for_small_ui",
+    "method": "ordinary clicks through actual existing Go static app; no proxy or injected state",
+    "run_id": "2e82fe14c20235881020917db7b08fc2",
+    "checks": [
+      "workspace dataset -> succeeded attempt1 -> replay link",
+      "terminal operation/change/candidate; hypothetical explicitly displayed",
+      "four raw records; CSV and original response frame expanded",
+      "snapshot3 pending_response; response_missing/source_intervals_disjoint; no future response refs",
+      "historical graph nodes",
+      "revision1 and next revision2 preserve old/new versions and triggers",
+      "negative snapshot999 clears trusted content (initial409; precise422 classification patched separately)",
+      "negative snapshot-1 422 query_limit clears trusted page/downloads",
+      "standard event page recovers after invalid input",
+      "native SQLite link download 147456 bytes matches published hash",
+      "final build shows terminal totals label and no stale trust after error"
+    ],
+    "download_sha256": "e832b25e5a7ff0d9265ba50c611f236e04988a884bfe76603cde64fad9c92e38",
+    "console_errors": [],
+    "visual": "narrow viewport checked; wrapped records and controls readable; no redesign",
+    "post_patch_http_classification_recheck": {
+      "status": "passed",
+      "actual_http_status": 422,
+      "evidence": "s100_post_timing_formal_checks.invalid_snapshot"
+    }
+  },
+  "runtime_commit": "5b45a422db30c65d64bee7806d2eeae1584f4280",
+  "stage_commits": [
+    "31b273b6185398cf396f5311e66dbacfd11243e8",
+    "5daa0fb45a545600cef46d63295da15ed06dfd58",
+    "3db724d4e380822b8089d659843ff8f711a69cff",
+    "93a6f33e43cc24933cc759eb689772b8f00f964f",
+    "5b45a422db30c65d64bee7806d2eeae1584f4280"
+  ],
+  "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+  "image_core_binding": {
+    "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+    "core_files": {
+      "intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+      "dual_source.py": "62f0ee709eaec8edd2ca1722e8db0f98647bcf5e7809f4139f356045df2ed7bc",
+      "capacity.py": "8ef91e883e645735b6e5ef7dfccbe1fca0af36b794dedb6deb3ffc80c06f0571",
+      "evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+      "evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+      "shared_service.py": "a0de05133bd930d1b3a7cafca8185444b4725c8106c1cb11962f5be276ad49b8",
+      "dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+      "shared_cli.py": "92c6a9d8159504002ac248b0886a7fb84f0b8441a701d7ae33375e048525c620",
+      "shared_artifact_store_compressed.py": "625365c969e9631368ece22ebfea28918e29fa1c15ca9b3e252873e93c0576f2",
+      "evaluation_context.py": "82774d5bcbcb5fe800e7cce025d165bb1e1f3547e5903adba9271e8c9c37bade",
+      "evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+      "evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+      "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+      "replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+      "packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+      "evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+      "dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+      "measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+      "evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+      "__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+      "shared_export.py": "15e68729933f8222864393cdb415142f8a1367225cb838f7aaaa289819b87648",
+      "replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+      "shared_artifact_store_compact.py": "2db4b7a132ff65d5593a3fc7365fde5986fcb6043708424c4c8bfa678228c877",
+      "replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+      "single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+      "replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+      "replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+      "replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+      "measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+      "replay_core.py": "91c07886404f059854a1081697bb26e3880afe66c20b47996a1937f95bbfce2b",
+      "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+      "measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+      "evaluation_shared.py": "6a5226b2df4365de53b8093148ac79f677e0094be1e39e32385b6f9e1cef6aad",
+      "contracts.py": "611c22510c2824b8ede5b24c48279b50e98352ec450fb5ba5fc9c48320110484",
+      "compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+      "evaluation_artifacts.py": "15be834eb74ca39e851461cc21999aa664bac84676ed4c77553746310a6232d7",
+      "evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+      "reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+      "shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+      "replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+      "packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+      "compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+      "evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+      "__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+      "source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29"
+    },
+    "matched": true
+  },
+  "development_host": {
+    "os": "Darwin",
+    "release": "27.0.0",
+    "architecture": "arm64",
+    "docker": {
+      "OperatingSystem": "Docker Desktop",
+      "OSType": "linux",
+      "Architecture": "aarch64",
+      "NCPU": 10,
+      "MemTotal": 8217448448,
+      "ServerVersion": "29.1.3",
+      "Driver": "overlayfs"
+    },
+    "configured_container_limits_not_host_available_resources": true,
+    "reference_environment_qualified": false
+  },
+  "remaining": {
+    "software": [
+      "new DAG6 terminal backup and restore end-to-end; currently explicit refusal",
+      "three fixed-delivery stability runs",
+      "complete formal-service fault matrix; this work covers only affected cancellation/publication edges",
+      "preserved explicit policy2/DAG5 prototype is not supported; policy3 rejects mixed configuration"
+    ],
+    "community": [
+      "M1000 and L10000 capacity incomplete, not supported; retain targets/tools/failures"
+    ],
+    "reference_environment": [
+      "Ubuntu24.04 x86_64 8vCPU/16GiB/SSD qualification and reference capacity/performance acceptance"
+    ],
+    "external_materials": [
+      "authorized synchronized original PCAP/process sample",
+      "device field mapping and clock basis",
+      "independent real annotations/holdout and real historical examples"
+    ],
+    "later_rounds": [
+      "R20 comprehensive interface",
+      "R21-R22 domain/HTTPS/independent client deployment and release acceptance"
+    ]
+  },
+  "measurement_version": "formal-service-wall-clock-2",
+  "clock_gap_rejection_seconds": 5,
+  "small_formal_after_lifecycle_fix": {
+    "status": "passed",
+    "report": "/private/tmp/cpag-r19-service-small5-20261030/report.json",
+    "report_sha256": "990b9429f8429b6377e258656e737bcfdb0c32e0b697c558ceb1fb74e8b4e024",
+    "source_commit": "3db724d4e380822b8089d659843ff8f711a69cff",
+    "runs": [
+      {
+        "id": "74756e31bce26253a0c93f08ae0f7ab9",
+        "label": "offline",
+        "terminal_seconds": 4.74832010269165,
+        "core_export_verify_selected_seconds": 2.373671956497138,
+        "raw_evidence_references": 4,
+        "complete_business_comparison": {
+          "complete_business_root_count": 11,
+          "complete_named_root_count": 11,
+          "independent_core_export": "/private/tmp/cpag-r19-service-small5-20261030/complete-business-offline/independent-core-export",
+          "output": "/private/tmp/cpag-r19-service-small5-20261030/complete-business-offline",
+          "status": "passed",
+          "unapproved_business_differences": [],
+          "version": "small-formal-complete-business-roots-1",
+          "wall_seconds": 0.0631550420075655
+        },
+        "saved_evaluation": {
+          "analysis_logical_roots_unchanged": true,
+          "checks": [
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "c2fa43c7475dd381dd95d09cfe0a1810",
+              "expected_tp_fp_fn": [
+                2,
+                0,
+                0
+              ],
+              "label_variant": 0,
+              "reference_original_and_locator_verified": true
+            },
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "18a451f07d07c6fd76e7d06034648172",
+              "expected_tp_fp_fn": [
+                1,
+                1,
+                1
+              ],
+              "label_variant": 1,
+              "reference_original_and_locator_verified": true
+            }
+          ],
+          "rejected_imports": [
+            "late_freeze",
+            "wrong_attempt",
+            "wrong_logical_root",
+            "bad_raw_reference"
+          ],
+          "same_frozen_projection": true,
+          "same_run_and_attempt": true,
+          "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+        },
+        "acl_denials": {
+          "anonymous:artifacts/shared/shared.sqlite3/download": 401,
+          "anonymous:evidence": 401,
+          "anonymous:shared-query": 401,
+          "viewer_without_acl:artifacts/shared/shared.sqlite3/download": 404,
+          "viewer_without_acl:evidence": 404,
+          "viewer_without_acl:shared-query": 404
+        },
+        "download": {
+          "bytes": 65536,
+          "chunk_bytes": 65536,
+          "file": "shared/shared.sqlite3",
+          "monotonic_seconds": 0.1149816659744829,
+          "sha256": "2600b4333ca48e363657bcca7eba75501f9013ed2ebbfb6ae6357ccf1964416a",
+          "wall_minus_monotonic_seconds": 4.621688276529312e-07,
+          "wall_seconds": 0.11498212814331055
+        },
+        "invalid_page_limit_status": 422
+      },
+      {
+        "id": "8b686c522c5d6961e95e66de2b96402c",
+        "label": "replay",
+        "terminal_seconds": 3.468629837036133,
+        "core_export_verify_selected_seconds": 2.6355191113663747,
+        "raw_evidence_references": 4,
+        "complete_business_comparison": {
+          "complete_business_root_count": 16,
+          "complete_named_root_count": 17,
+          "independent_core_export": "/private/tmp/cpag-r19-service-small5-20261030/complete-business-replay/independent-core-export",
+          "output": "/private/tmp/cpag-r19-service-small5-20261030/complete-business-replay",
+          "status": "passed",
+          "unapproved_business_differences": [],
+          "version": "small-formal-complete-business-roots-1",
+          "wall_seconds": 0.29462512501049787
+        },
+        "saved_evaluation": {
+          "analysis_logical_roots_unchanged": true,
+          "checks": [
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "a97641d50cf84c999a813dc36e1b4ed5",
+              "expected_tp_fp_fn": [
+                2,
+                0,
+                0
+              ],
+              "label_variant": 0,
+              "reference_original_and_locator_verified": true
+            },
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "339298839c6f2092b68a48ebdfcfa37e",
+              "expected_tp_fp_fn": [
+                1,
+                1,
+                1
+              ],
+              "label_variant": 1,
+              "reference_original_and_locator_verified": true
+            }
+          ],
+          "rejected_imports": [
+            "late_freeze",
+            "wrong_attempt",
+            "wrong_logical_root",
+            "bad_raw_reference"
+          ],
+          "same_frozen_projection": true,
+          "same_run_and_attempt": true,
+          "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+        },
+        "acl_denials": {
+          "anonymous:artifacts/shared/shared.sqlite3/download": 401,
+          "anonymous:evidence": 401,
+          "anonymous:shared-query": 401,
+          "viewer_without_acl:artifacts/shared/shared.sqlite3/download": 404,
+          "viewer_without_acl:evidence": 404,
+          "viewer_without_acl:shared-query": 404
+        },
+        "download": {
+          "bytes": 147456,
+          "chunk_bytes": 65536,
+          "file": "shared/shared.sqlite3",
+          "monotonic_seconds": 0.12070854200283065,
+          "sha256": "76ad8fb8aa3ab66393a35e6ab770942e213a37c5f1354ab52f2807351e45f942",
+          "wall_minus_monotonic_seconds": 6.388290785253048e-07,
+          "wall_seconds": 0.12070918083190918
+        },
+        "invalid_page_limit_status": 422
+      }
+    ],
+    "checks": {
+      "missing_shared/shared.sqlite3_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "76ad8fb8aa3ab66393a35e6ab770942e213a37c5f1354ab52f2807351e45f942",
+        "same_size": false,
+        "status": 409
+      },
+      "missing_sources/process.csv_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "same_size": false,
+        "status": 409
+      },
+      "old_format_read": {
+        "created_through_formal_api": true,
+        "original_evidence_refs": 4,
+        "read_before_and_after_explicit_policy_upgrade": true,
+        "reused_evidence_path": "/private/tmp/cpag-r19-service-small2-20261030/report.json",
+        "reused_evidence_sha256": "fd77893b42ab0bf7c61473ff9b9258b8cc7d2fd0526b96e7e1295bf5d4921500",
+        "run_id": "f2b67f561e3b9ad785e946dcb01e133d",
+        "status": "passed"
+      },
+      "queued_cancel_and_stale_publish": {
+        "cancelled_at_attempt": 0,
+        "id": "e52915a40992982e8fa72665d8469617",
+        "invalid_attempt_complete_status": 409
+      },
+      "restart_reverification": {
+        "eventual_status": 200,
+        "first_status": 409,
+        "run_id": "8b686c522c5d6961e95e66de2b96402c"
+      },
+      "tamper_shared/shared.sqlite3_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "76ad8fb8aa3ab66393a35e6ab770942e213a37c5f1354ab52f2807351e45f942",
+        "same_size": true,
+        "status": 409
+      },
+      "tamper_sources/process.csv_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "same_size": true,
+        "status": 409
+      }
+    }
+  },
+  "targeted_regressions": {
+    "real_postgres_verifier_slot": "/private/tmp/cpag-r19-go-durable-slot-20261030.log",
+    "fixed_s100_raw_profile_gate": "/private/tmp/cpag-r19-go-fixed-s100-gate-20261030.log",
+    "real_postgres_http_short_lease": "/private/tmp/cpag-r19-go-short-lease-20261030.log",
+    "real_postgres_http_short_lease_race": "/private/tmp/cpag-r19-go-short-lease-race-20261030.log",
+    "isolated_suite": "38 passed after recovery ownership fix",
+    "clock_and_retry_guard": "7 passed; includes sleep256s, clock rollback, real request deadline, EOF121s, cancellation cleanup"
+  },
+  "cache_conditions": {
+    "application": "new helper process per query; private source-verification capability in Go memory; restart loses capability and requires source verification",
+    "os_page_cache": "not cleared; development warm filesystem cache, not an OS cold-cache acceptance",
+    "read_integrity": "current file bytes and identity rechecked for every query"
+  },
+  "environment_ready_reply": "user confirmed keep lid open and AC connected before next fixed run",
+  "cancellation_closure_fix": {
+    "method": "existing RunRecovery enabled only for explicit capacity3 official app",
+    "evidence": "/private/tmp/cpag-r19-service-s100-3-20261030/cancel-closure-v2/result.json",
+    "result": {
+      "run_id": "87d26d18c672e4929da839954a64b254",
+      "state": "cancelled",
+      "attempt": 1,
+      "seconds": 1.031095027923584,
+      "method": "fixed official app and existing isolated Worker restarted against original DB; only SELECT and formal HTTP session/status requests; no task resubmission or manual state update",
+      "app_binary_sha256": "bbdec24be1b6466cd9ec710fc8a0372eeb9bbfa82f841f5c0ee658fa9367d6a9",
+      "observations": [
+        {
+          "id": "87d26d18c672e4929da839954a64b254",
+          "state": "cancelled",
+          "attempt": 1,
+          "attempt_history": [
+            {
+              "attempt": 1,
+              "exited_at": "2026-10-30T17:38:47.660257+08:00",
+              "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:1ce56397a3e92baa0ace8f37",
+              "publication_state": "fenced"
+            }
+          ]
+        }
+      ],
+      "database_summary": {
+        "run_id": "87d26d18c672e4929da839954a64b254",
+        "state": "cancelled",
+        "attempt": 1,
+        "recovery_checked_at": "2026-10-30T09:57:55.105359+00:00",
+        "recovery_reason": "all attempt exit evidence recorded",
+        "unexited_attempts": 0,
+        "running_verifiers": 0
+      }
+    }
+  },
+  "small_formal_final_runtime": {
+    "path": "/private/tmp/cpag-r19-service-small6-20261030/report.json",
+    "sha256": "3c03a9a80654f248e8255f7b3f8019459af03d8d4e9ef87ba25fd1dd75095118",
+    "status": "passed",
+    "runtime_commit": "93a6f33e43cc24933cc759eb689772b8f00f964f",
+    "runs": [
+      {
+        "acl_denials": {
+          "anonymous:artifacts/shared/shared.sqlite3/download": 401,
+          "anonymous:evidence": 401,
+          "anonymous:shared-query": 401,
+          "viewer_without_acl:artifacts/shared/shared.sqlite3/download": 404,
+          "viewer_without_acl:evidence": 404,
+          "viewer_without_acl:shared-query": 404
+        },
+        "attempt": 1,
+        "complete_business_comparison": {
+          "complete_business_root_count": 11,
+          "complete_named_root_count": 11,
+          "independent_core_export": "/private/tmp/cpag-r19-service-small6-20261030/complete-business-offline/independent-core-export",
+          "output": "/private/tmp/cpag-r19-service-small6-20261030/complete-business-offline",
+          "status": "passed",
+          "unapproved_business_differences": [],
+          "version": "small-formal-complete-business-roots-1",
+          "wall_seconds": 0.055621708976104856
+        },
+        "id": "197a0bddff124e757ec4f39767617120",
+        "invalid_page_limit_status": 422,
+        "label": "offline",
+        "saved_evaluation": {
+          "analysis_logical_roots_unchanged": true,
+          "checks": [
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "f882169540b6574deab0e8c2e9d8cdf8",
+              "expected_tp_fp_fn": [
+                2,
+                0,
+                0
+              ],
+              "label_variant": 0,
+              "reference_original_and_locator_verified": true
+            },
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "fc77a75c6b5a8f148965fae4c93541f6",
+              "expected_tp_fp_fn": [
+                1,
+                1,
+                1
+              ],
+              "label_variant": 1,
+              "reference_original_and_locator_verified": true
+            }
+          ],
+          "rejected_imports": [
+            "late_freeze",
+            "wrong_attempt",
+            "wrong_logical_root",
+            "bad_raw_reference"
+          ],
+          "same_frozen_projection": true,
+          "same_run_and_attempt": true,
+          "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+        },
+        "state": "succeeded",
+        "terminal_seconds": 3.370128870010376
+      },
+      {
+        "acl_denials": {
+          "anonymous:artifacts/shared/shared.sqlite3/download": 401,
+          "anonymous:evidence": 401,
+          "anonymous:shared-query": 401,
+          "viewer_without_acl:artifacts/shared/shared.sqlite3/download": 404,
+          "viewer_without_acl:evidence": 404,
+          "viewer_without_acl:shared-query": 404
+        },
+        "attempt": 1,
+        "complete_business_comparison": {
+          "complete_business_root_count": 16,
+          "complete_named_root_count": 17,
+          "independent_core_export": "/private/tmp/cpag-r19-service-small6-20261030/complete-business-replay/independent-core-export",
+          "output": "/private/tmp/cpag-r19-service-small6-20261030/complete-business-replay",
+          "status": "passed",
+          "unapproved_business_differences": [],
+          "version": "small-formal-complete-business-roots-1",
+          "wall_seconds": 0.2756211669766344
+        },
+        "id": "ea405fd7255c31ac6fbf96a4927d85e9",
+        "invalid_page_limit_status": 422,
+        "label": "replay",
+        "saved_evaluation": {
+          "analysis_logical_roots_unchanged": true,
+          "checks": [
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "5f27485d8238b6125d429c44db9bc0f5",
+              "expected_tp_fp_fn": [
+                2,
+                0,
+                0
+              ],
+              "label_variant": 0,
+              "reference_original_and_locator_verified": true
+            },
+            {
+              "detail_download_verified": true,
+              "error_or_prediction_raw_evidence": true,
+              "evaluation_id": "3ed123d7cc6c6a9e033dcf4fe027a700",
+              "expected_tp_fp_fn": [
+                1,
+                1,
+                1
+              ],
+              "label_variant": 1,
+              "reference_original_and_locator_verified": true
+            }
+          ],
+          "rejected_imports": [
+            "late_freeze",
+            "wrong_attempt",
+            "wrong_logical_root",
+            "bad_raw_reference"
+          ],
+          "same_frozen_projection": true,
+          "same_run_and_attempt": true,
+          "scope": "synthetic handwritten observation matching; declared local timing and independence, no industrial validation"
+        },
+        "state": "succeeded",
+        "terminal_seconds": 3.222806930541992
+      }
+    ],
+    "checks": {
+      "missing_shared/shared.sqlite3_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "34059d703f2c6ce60d2d025cd018aafa30179b03d6a11db889cd746334f14b5b",
+        "same_size": false,
+        "status": 409
+      },
+      "missing_sources/process.csv_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "same_size": false,
+        "status": 409
+      },
+      "old_format_read": {
+        "created_through_formal_api": true,
+        "original_evidence_refs": 4,
+        "read_before_and_after_explicit_policy_upgrade": true,
+        "reused_evidence_path": "/private/tmp/cpag-r19-service-small2-20261030/report.json",
+        "reused_evidence_sha256": "fd77893b42ab0bf7c61473ff9b9258b8cc7d2fd0526b96e7e1295bf5d4921500",
+        "run_id": "f2b67f561e3b9ad785e946dcb01e133d",
+        "status": "passed"
+      },
+      "queued_cancel_and_stale_publish": {
+        "cancelled_at_attempt": 0,
+        "id": "77e5c4dba1b7ee388a90894bf410b0c7",
+        "invalid_attempt_complete_status": 409
+      },
+      "restart_reverification": {
+        "eventual_status": 200,
+        "first_status": 409,
+        "run_id": "ea405fd7255c31ac6fbf96a4927d85e9"
+      },
+      "tamper_shared/shared.sqlite3_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "34059d703f2c6ce60d2d025cd018aafa30179b03d6a11db889cd746334f14b5b",
+        "same_size": true,
+        "status": 409
+      },
+      "tamper_sources/process.csv_denied": {
+        "body": {
+          "error": {
+            "code": "result_changed",
+            "message": "published bytes or run bindings changed"
+          }
+        },
+        "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "same_size": true,
+        "status": 409
+      }
+    },
+    "compatibility_note": "5b45a42 changes only diagnostic clock classification in restart harness; application, worker, core same as small6"
+  },
+  "s100_post_timing_formal_checks": {
+    "status": "passed",
+    "counts": {
+      "candidates": 2596,
+      "changes": 99,
+      "network": 200,
+      "operations": 100,
+      "process": 100,
+      "revisions": 306,
+      "snapshots": 310
+    },
+    "queries": {
+      "analysis.json['operations']": {
+        "total": 100,
+        "expected_total": 100
+      },
+      "analysis.json['changes']": {
+        "total": 99,
+        "expected_total": 99
+      },
+      "analysis.json['candidates']": {
+        "total": 2596,
+        "expected_total": 2596
+      }
+    },
+    "invalid_snapshot": {
+      "status": 422,
+      "body": {
+        "error": {
+          "code": "query_limit",
+          "message": "query exceeds the page, path or byte bounds; select a smaller page or narrower path"
+        }
+      }
+    },
+    "downloads": [
+      {
+        "path": "run_manifest.json",
+        "bytes": 5207,
+        "sha256": "2a8afec3ef6c9f315c9fb60b72f5bd965c0571b1059be8c003dc0bf461fd51c7",
+        "wall_seconds": 0.37054014205932617
+      },
+      {
+        "path": "shared/manifest.json",
+        "bytes": 868,
+        "sha256": "9507747c99d0d815023279703bd9b21fc7dc61f2a7988a8ac41f39d410585ccd",
+        "wall_seconds": 0.37851595878601074
+      },
+      {
+        "path": "sources/network.pcap",
+        "bytes": 23424,
+        "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+        "wall_seconds": 0.36944103240966797
+      },
+      {
+        "path": "sources/process.csv",
+        "bytes": 3010,
+        "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+        "wall_seconds": 0.3650531768798828
+      },
+      {
+        "path": "sources/profile.json",
+        "bytes": 30670,
+        "sha256": "329a868e44b8c19f206c844ef2238f99818fd42abe1ea36bc71e1dcb48851e52",
+        "wall_seconds": 0.3650329113006592
+      }
+    ],
+    "report_sha256": "05e71f3735ac8bc73992a24149c1b379fe343d61e9ed1e4c776447564697b6ba",
+    "scope": "additional API count and physical-file download checks after registered timed cell; not included in its elapsed time"
+  },
+  "ci": {
+    "required": true,
+    "workflow": ".github/workflows/m1-core.yml",
+    "delivery_gate": "all jobs on exact final signed delivery commit; link and outcome supplied with final delivery",
+    "not_replaced_by_prior_green": true
+  },
+  "runtime_identity_rule": "S100 runtime commit 5b45a422db30c65d64bee7806d2eeae1584f4280; final delivery only documentation/evidence updates; verify git diff --name-only runtime..delivery",
+  "long_measurements": {
+    "actual_long_runs": 3,
+    "environment_interrupted": 2,
+    "successful": 1,
+    "additional_submission_rejected_before_compute": 1,
+    "not_three_repeat_stability": true,
+    "core_margin_seconds": 11.417718790504068
+  },
+  "controlled_raw_evidence": {
+    "access": "local directory 0700, tar files 0600; includes private credentials/SQL, never commit or publish these archives",
+    "purpose": "preserve all original measurements/failures; not a product backup/restore acceptance",
+    "archives": [
+      {
+        "source": "/private/tmp/cpag-r19-service-small1-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small1-20261030.tar",
+        "bytes": 30720,
+        "sha256": "9c653afe5c66890b675dc8eb5c35f0c4b36d1ef4b631d78aa872ef17bcacb3a1"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small2-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small2-20261030.tar",
+        "bytes": 25743360,
+        "sha256": "0036a61e637485a9f2a81abd3b3982c483203ced69eb420517e949834913d8e9"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small3-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small3-20261030.tar",
+        "bytes": 27432960,
+        "sha256": "bae123f4dd3ee6e4a09c79a3793bef2004184dbe342cb4bf37987620ac1129bb"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small4-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small4-20261030.tar",
+        "bytes": 27822080,
+        "sha256": "8259eab24fc7cc497281a1d06b714633d4b38ac52ea5b9c46c16c86c1762ad45"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small5-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small5-20261030.tar",
+        "bytes": 27719680,
+        "sha256": "32a6bb4b6d37c8d41a5e5309a549435a5ef92f3d5b9fcb3d2b1fc8884d66a595"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-small6-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-small6-20261030.tar",
+        "bytes": 27719680,
+        "sha256": "662f25d993a97b1016560cbc492b55b30097f5ae80b7a5925e5c86daff1631e1"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-s100-1-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-s100-1-20261030.tar",
+        "bytes": 25241600,
+        "sha256": "45a5e06e076d4642a7dcb2b91b0d3d41767292019740c3b89aff6f8eead31793"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-s100-2-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-s100-2-20261030.tar",
+        "bytes": 112824320,
+        "sha256": "0b2485b7f5bd1dc5f9d0c11d909b14a138a9e0033844c333ab48440cc0f7ab40"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-s100-3-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-s100-3-20261030.tar",
+        "bytes": 129740800,
+        "sha256": "c07597c1b0de9077a6022dedd44806f3ca590a8e0b9021abc33314abce388375"
+      },
+      {
+        "source": "/private/tmp/cpag-r19-service-s100-4-20261030",
+        "archive": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-formal-service-20261030/private-evidence/cpag-r19-service-s100-4-20261030.tar",
+        "bytes": 199536640,
+        "sha256": "27467ea473b5154592622d0e6c0108ce61d7eea3d7692361bbdd45debcbbfd30"
+      }
+    ]
+  }
 }
