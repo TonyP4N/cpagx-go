@@ -6,6 +6,7 @@ formats/readers are unchanged. Storage integrity alone is never source approval.
 """
 from collections import OrderedDict
 import hashlib
+from functools import lru_cache
 from pathlib import Path
 import sqlite3
 from urllib.parse import quote
@@ -25,7 +26,23 @@ VOLATILE = frozenset(('run_id','ingest_time'))
 KINDS = ('scalar','dict','array_leaf','array_branch')
 
 
+HASH_STRATEGY = 'bounded-pure-node-hash-1'
+
+
+@lru_cache(maxsize=4096)
+def _small_hash(kind, raw, size, items, height):
+    return _uncached_hash(kind, raw, size, items, height)
+
+
 def _hash(kind, raw, size, items, height):
+    # Pure function: every type/payload/extent parameter participates in the key.
+    # At most 4 MiB payload plus bounded key metadata, never artifact authority.
+    if len(raw)<=1024:
+        return _small_hash(kind,raw,size,items,height)
+    return _uncached_hash(kind,raw,size,items,height)
+
+
+def _uncached_hash(kind, raw, size, items, height):
     return hashlib.sha256((FORMAT+'\0'+CODEC+'\0'+kind+'\0').encode()+canonical([size,items,height])+b'\0'+raw).hexdigest()
 
 

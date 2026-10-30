@@ -56,8 +56,15 @@ def overlaps(a,b): return a[0]<=b[1] and b[0]<=a[1]
 
 
 def references(values, _cache=None):
-    result={};seen_refs=set()
+    result={};seen_refs=set();seen_containers=set()
     def visit(value):
+        # A synchronous traversal never mutates input. Shared subtrees contribute
+        # a set of references, so revisiting the same live container adds nothing.
+        # This set is discarded on return, including between replay prefixes.
+        if isinstance(value,(dict,list)):
+            identity=id(value)
+            if identity in seen_containers:return
+            seen_containers.add(identity)
         if isinstance(value,dict):
             if ({'file_sha256','frame_number','record_number','column','raw_time'}<=set(value) or
                 {'source_slot','record_sha256','frame_number','record_number','column','raw_time'}<=set(value)):
