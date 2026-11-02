@@ -449,6 +449,16 @@ jobs:
           echo "R19_DAG6_IMAGE=$r19_image" >> "$GITHUB_ENV"
           python scripts/validation/round19_linux_permissions.py --image "$r19_image" --output "${r19_work}-permissions"
           python scripts/validation/round19_formal_service_acceptance.py --mode small --image "$r19_image" --output "$r19_work"
+      - name: R19 actual DAG6 short faults and two-Worker slot checks
+        run: |
+          r19_fault_work="/private/tmp/cpag-r19-short-faults-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_SHORT_FAULT_OUTPUT=$r19_fault_work" >> "$GITHUB_ENV"
+          python scripts/validation/round19_short_formal_faults.py --image "$R19_DAG6_IMAGE" --output "$r19_fault_work" --seconds 240
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r19-short-formal-fault-public-evidence
+          path: ${{ env.R19_SHORT_FAULT_OUTPUT }}/public/report.json
       - name: R19 DAG6 terminal backup and fresh restore small-case integration
         # One bounded recovery drill, reusing the exact formal-smoke image.
         # All DB dumps, credentials, source/control bytes and raw receipts stay

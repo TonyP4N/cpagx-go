@@ -1,0 +1,66 @@
+{
+  "version": "r19-fixed-stability-1",
+  "baseline": "4c1057c5296395aaa40754d16d461e0ded73e11f",
+  "status": "preflight_not_frozen",
+  "planned_groups": 3,
+  "modes": [
+    "offline",
+    "replay"
+  ],
+  "fixture_sha256": {
+    "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+    "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+    "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+    "replay-profile.json": "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52",
+    "fixture.json": "ecb7deea6e9e3c6954c3162e9d967a775499ba78253823a060ef1bdf469b2b1f"
+  },
+  "samples": [],
+  "r19_software_closed": false,
+  "power_precondition": "user_confirmed_AC_and_open_lid; observed_AC; recheck_before_long_run",
+  "short_linux_health": {
+    "status": "passed",
+    "files": 8,
+    "bytes": 1621,
+    "evidence": "/private/tmp/cpag-r19-stability-linux-preflight-20261102/report.json"
+  },
+  "independent_expectations": {
+    "offline": {
+      "network": 200,
+      "process": 100,
+      "operations": 100,
+      "changes": 99,
+      "candidate_range_inclusive": [
+        2594,
+        2596
+      ],
+      "basis": "frozen preflight integer density geometry; no new output used"
+    },
+    "replay": {
+      "network": 200,
+      "process": 100,
+      "operations": 100,
+      "changes": 99,
+      "candidates": 2596,
+      "snapshots": 310,
+      "revisions": 306,
+      "basis": "user fixed acceptance requirement"
+    }
+  },
+  "short_faults": {
+    "status": "actual_cases_passed_saved_evidence_reaudit",
+    "evidence": "short-fault-reaudit.json",
+    "runtime_changed": false,
+    "attempt1": "observer docker top after pause timeout; original retained",
+    "attempt2": "actual cases passed; aggregate initially failed short/full container ID mismatch; original retained, read-only normalized evidence passes",
+    "not_repeated": [
+      "full backup restore",
+      "browser",
+      "source tamper/restart unchanged4c evidence"
+    ],
+    "remaining_scope": "no new natural lease-expiry or failed verification scenario; unchanged component and prior real evidence separately cited"
+  },
+  "measurement_unit_tests": {
+    "passed": 8,
+    "seconds": 0.455
+  }
+}

@@ -1,0 +1,289 @@
+{
+  "actual_intervals": [
+    {
+      "attempt": "1",
+      "container_id": "24b99458c3c70a87321824618bbfe2060dc2257204c3a9807558cafccd47f9aa",
+      "die": 1793592455164187335,
+      "job": "ed4e05471c4da50fdf309c5525b51efc",
+      "role": "compute",
+      "start": 1793592454398354918,
+      "worker": "short-A"
+    },
+    {
+      "attempt": "1",
+      "container_id": "0766cdf7561685b4077a45be00cc523e4f34e6f21ded616a27f415c56c88b40d",
+      "die": 1793592462728541505,
+      "job": "8a547a7306753612e64f4af31e75b0f5",
+      "role": "compute",
+      "start": 1793592461459006213,
+      "worker": "short-B"
+    },
+    {
+      "attempt": "1",
+      "container_id": "21d1f79102bc322ac15dedf3c4a403171fa8a46cd1db107d325170eaab271c3f",
+      "die": 1793592464259866797,
+      "job": "8a547a7306753612e64f4af31e75b0f5",
+      "role": "verifier",
+      "start": 1793592463073177755,
+      "worker": null
+    },
+    {
+      "attempt": "1",
+      "container_id": "9c02bac739108fd071b3794eeadc2d299d4f915a23e78a6dec0bfc4f1b7d2c6c",
+      "die": 1793592471917958718,
+      "job": "461bbb89fbc36e58f29a1a74786a46b2",
+      "role": "compute",
+      "start": 1793592470742469717,
+      "worker": "short-A"
+    },
+    {
+      "attempt": "1",
+      "container_id": "cbe4034cabe9490d08757baa4a769b49244754a0f6ff167e571369f425257cf2",
+      "die": 1793592472850913260,
+      "job": "461bbb89fbc36e58f29a1a74786a46b2",
+      "role": "verifier",
+      "start": 1793592472246452676,
+      "worker": null
+    }
+  ],
+  "actual_resource_proofs": [
+    {
+      "cpus": 4,
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "memory_bytes": 8589934592,
+      "network": "none",
+      "readonly_root": true,
+      "role": "compute",
+      "run": "ed4e05471c4da50fdf309c5525b51efc"
+    },
+    {
+      "cpus": 4,
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "memory_bytes": 8589934592,
+      "network": "none",
+      "readonly_root": true,
+      "role": "compute",
+      "run": "8a547a7306753612e64f4af31e75b0f5"
+    },
+    {
+      "cpus": 4,
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "memory_bytes": 8589934592,
+      "network": "none",
+      "readonly_root": true,
+      "role": "compute",
+      "run": "461bbb89fbc36e58f29a1a74786a46b2"
+    },
+    {
+      "cpus": 4,
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "memory_bytes": 8589934592,
+      "network": "none",
+      "readonly_root": true,
+      "role": "verifier",
+      "run": "461bbb89fbc36e58f29a1a74786a46b2"
+    },
+    {
+      "cpus": 4,
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "memory_bytes": 8589934592,
+      "network": "none",
+      "readonly_root": true,
+      "role": "verifier",
+      "run": "8a547a7306753612e64f4af31e75b0f5"
+    }
+  ],
+  "actual_worker_ids": [
+    "short-A",
+    "short-B"
+  ],
+  "bound_compute_exits": [
+    {
+      "attempt": 1,
+      "exited": true,
+      "removed": true,
+      "run": "ed4e05471c4da50fdf309c5525b51efc",
+      "running": false,
+      "state": "cancelled",
+      "worker": "short-A"
+    },
+    {
+      "attempt": 1,
+      "exited": true,
+      "removed": true,
+      "run": "8a547a7306753612e64f4af31e75b0f5",
+      "running": false,
+      "state": "cancelled",
+      "worker": "short-B"
+    },
+    {
+      "attempt": 1,
+      "exited": true,
+      "removed": true,
+      "run": "461bbb89fbc36e58f29a1a74786a46b2",
+      "running": false,
+      "state": "succeeded",
+      "worker": "short-A"
+    }
+  ],
+  "correction": "observer container IDs normalized to inspected full ID; runtime, image, inputs, and recorded events unchanged; no third run",
+  "git_head": "4c1057c5296395aaa40754d16d461e0ded73e11f",
+  "global_max_active_compute_or_verifier": 1,
+  "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+  "input_evidence_sha256": {
+    "0020-killed-compute-inspect.stdout": "0887090b4b6c718b73b6d9db4ade7639c88120ecab68884ef8221aca90f489c9",
+    "0073-all-actual-container-identities.stdout": "9967b973151e0fcf1cfca9681974a8e4ff21cf80f6a6b6b4b8b3c96b1c7064f7",
+    "control/compact-verification-461bbb89fbc36e58f29a1a74786a46b2-1-cbe4034cabe9.json": "f358c1733b5a5f5c9df9fcb3016161ee937cc0b07cc65c30381e446525c051e0",
+    "control/compact-verification-8a547a7306753612e64f4af31e75b0f5-1-21d1f79102bc.json": "198bbdff3c50e53072d36eb1eec50eee978e5383e68e1af8cc5e134becb44d92",
+    "control/jobs/461bbb89fbc36e58f29a1a74786a46b2/attempt-1.worker/compute-inspect.json": "e04d599b1a3b520efa0558871b843c44b4294a06e95dccc5402f007f018161a5",
+    "control/jobs/461bbb89fbc36e58f29a1a74786a46b2/attempt-1.worker/execution.json": "4b6e72ece8b30f9f6268522800941eb61c4e3f411172ee22b8d143f4bf5d28de",
+    "control/jobs/461bbb89fbc36e58f29a1a74786a46b2/attempt-1.worker/exit.json": "41a449a481d2040cd29df8cab27b4450abfa7deaa2973b0bf0b040788d15e3b9",
+    "control/jobs/8a547a7306753612e64f4af31e75b0f5/attempt-1.worker/compute-inspect.json": "788dea951e7c11123d22f59dcc22210d6163bd32be1a85834c26264da3cb1330",
+    "control/jobs/8a547a7306753612e64f4af31e75b0f5/attempt-1.worker/execution.json": "c21134beeac5d639a46ac803e0bd89d97f0d756b09f0c72541da2ef1e28f0428",
+    "control/jobs/8a547a7306753612e64f4af31e75b0f5/attempt-1.worker/exit.json": "ebf50ed34250cc366fed8cd623671ee2cfea86a57d841378cb9a12698ddc75e9",
+    "control/jobs/ed4e05471c4da50fdf309c5525b51efc/attempt-1.worker/execution.json": "2b80e8f5f212100ca4cce33b4dbbb576ef4133be3f092e38f4385d23dc900d93",
+    "control/jobs/ed4e05471c4da50fdf309c5525b51efc/attempt-1.worker/exit.json": "edacc2c444d57aaf37a3faf1a7dfea28c2ae263382746cae8bb2d09fa152b959",
+    "owned-docker-events.jsonl": "d2f87bcd568fbe18c481911ad5c823bc8696aec244ce3815872b4cd3f58df724",
+    "report.json": "2bcc3d355e4ded362d2f23fa554d227155a6a32a44f365fd2ba204f9fc5b9057"
+  },
+  "original_aggregate_reason": "actual_lifecycle_inventory_incomplete",
+  "original_aggregate_status": "failed",
+  "public_checks": {
+    "compute_interruption": {
+      "attempt": 1,
+      "competition_samples": [
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53044
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        },
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53044
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        },
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53044
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        }
+      ],
+      "docker_exit_code": 137,
+      "observed_phase": "actual exporter process executing before publication; write phase not asserted",
+      "retry_restriction": "no retry; API cancellation before resuming host Workers",
+      "run": "ed4e05471c4da50fdf309c5525b51efc",
+      "stale_complete_status": 409,
+      "terminal_state": "cancelled",
+      "trusted_query_status": 409
+    },
+    "post_fault_control": {
+      "attempt": 1,
+      "run": "461bbb89fbc36e58f29a1a74786a46b2",
+      "state": "succeeded"
+    },
+    "verifier_cancellation": {
+      "actual_container_removed": true,
+      "attempt": 1,
+      "cleanup_completed": true,
+      "competition_samples": [
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53988
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        },
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53988
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        },
+        {
+          "attempt": 0,
+          "state": "queued",
+          "workers": {
+            "A": {
+              "alive": true,
+              "pid": 53988
+            },
+            "B": {
+              "alive": true,
+              "pid": 53078
+            }
+          }
+        }
+      ],
+      "run": "8a547a7306753612e64f4af31e75b0f5",
+      "stale_complete_status": 409,
+      "terminal_state": "cancelled",
+      "trusted_query_status": 409,
+      "watcher_reason": "state_changed"
+    }
+  },
+  "remaining_boundaries": [
+    "No new actual natural-lease-expiry or failed-source-verification scenario was executed; existing separately scoped evidence remains distinct.",
+    "The interrupted compute was observed executing before publication; interruption during SQLite writing is not claimed.",
+    "No stability, full fault matrix, reference-environment or industrial-data acceptance."
+  ],
+  "scope": "two small actual DAG6 fault gaps; no stability/capacity/reference/industrial acceptance",
+  "status": "passed_saved_evidence_reaudit",
+  "valid": true,
+  "verifier_exit_proofs": [
+    {
+      "cleanup_completed": true,
+      "run": "461bbb89fbc36e58f29a1a74786a46b2",
+      "source_verification_status": "passed",
+      "watcher_reason": null
+    },
+    {
+      "cleanup_completed": true,
+      "run": "8a547a7306753612e64f4af31e75b0f5",
+      "source_verification_status": null,
+      "watcher_reason": "state_changed"
+    }
+  ],
+  "version": "dag6-short-formal-faults-1"
+}
