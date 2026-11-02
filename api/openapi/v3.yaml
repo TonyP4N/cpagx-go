@@ -220,7 +220,18 @@ paths:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     get:
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Sanitized M4 state, attempt history, explicit mode, nullable replay_version and immutable ordered network_file_ids (null for legacy or scalar input) }, '404': { $ref: '#/components/responses/Error' } }
+      responses: { '200': { description: 'Sanitized M4 state, persisted execution phase and registered/exited attempt counts (live processed_records is null), attempt history, explicit mode, nullable replay_version and immutable ordered network_file_ids (null for legacy or scalar input)' }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/retry:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Requeue the same failed or cancelled binding after confirmed exit of every execution, within original attempt and resource budgets. The next successful claim increments the attempt. Requires dataset write access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [expected_attempt], properties: { expected_attempt: { type: integer, minimum: 0 } } }
+      responses: { '200': { description: Original run queued }, '403': { $ref: '#/components/responses/Error' }, '404': { $ref: '#/components/responses/Error' }, '409': { description: 'retry_conflict, retry_binding_unverified or retry_input_invalid' }, '422': { description: invalid_attempt } }
   /api/v3/runs/{run_id}/cancel:
     parameters: [{ $ref: '#/components/parameters/runId' }]
     post:
@@ -284,7 +295,7 @@ paths:
     parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
     get:
       security: [{ cookieAuth: [] }]
-      responses: { '200': { description: Saved metadata and result after complete bundle and current original publication re-verification }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Saved document, versions, current attempt or original evidence unavailable or changed }, '503': { description: Database or audit unavailable } }
+      responses: { '200': { description: Saved metadata and result plus read-only context for registration and split definitions with freeze and annotation versions after complete bundle and current original publication re-verification }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Saved document, versions, current attempt or original evidence unavailable or changed }, '503': { description: Database or audit unavailable } }
   /api/v3/runs/{run_id}/evaluations/{evaluation_id}/download:
     parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
     get:

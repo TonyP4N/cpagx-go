@@ -1,10 +1,20 @@
 # 第十六轮正式入口与复现
 
+**R20 用户入口**　完成下述 Go 服务与隔离 Worker 启动后，在浏览器打开 `http://127.0.0.1:8095/workbench/`（端口取配置中的 `public_addr`），或从 `/workspace/` 选择「进入统一分析工作台」。从仓库根执行 `npm --prefix webui ci` 和 `npm --prefix webui run build` 生成静态页面。Go 服务的 `static_root` 指向 `webui/out`；新版本 Go 的重试、阶段与评估详情接口和该前端一并使用。登录使用应用会话。
+
+在「数据与配置」选择批次或创建数据集，上传抓包与工艺 CSV，保存接收配置并运行预检。保存并选择双源配置，选离线或回放模式，点击「提交双源运行」。在「任务中心」查看执行次数、阶段、退出及错误。成功任务可转至「分析结果」选择操作或候选，查询请求、响应、工艺前后记录；回放任务可切换历史快照，已有独立评估通过「独立评估」查看版本、分母与错误原件。原件、下载与评估列表使用同一数据集权限，URL 可携带的数据集与运行 ID 仅用于定位。
+
+
+
 补验收合同升级至0.2.0：新增迁移007，运行请求必须增加预检返回的 `preflight_id`；只提供 `synthetic` 和 dual 配置不能入队。V1/V2默认入口不变，已完成结果保留。历史升级和format4备份说明见本文末尾。
 
 本轮是显式可选、本机访问的工程入口，不修改原 `cmd/cpagx`、Celery 路径、用户当前部署或冻结 RC1。浏览器直接访问 Go 服务，Python 不提供对外 HTTP 代理。此文和 [服务配置](round16-v3-service.md)、[API 契约](../../api/openapi/v3.yaml) 一起使用。
 
-## 正常应用启动
+## 当前 R20 环境的启动前提
+
+使用已经过 R19 核验的独立应用配置启动两项服务。新建空测试库时，按文件名顺序应用本提交的 001 至 016 迁移。DAG6 运行还需要服务和 Worker 选择 `storage-budget-2`、`engineering-core-capacity-3`、固定的计算与核验镜像，并使两个进程能读取同一受控原件和产物目录。详见 [DAG6 正式运行配置与支持范围](round19-formal-service-acceptance-20261030.md)。受支持的真实来源可经过材料门禁，真实适用性仍待独立验证。
+
+## 原 R16 入口启动记录
 
 1. 准备独立 PostgreSQL 数据库，按文件顺序应用 `internal/jobs/migrations/001_jobs.sql` 至 `007_v3_preflight_snapshots.sql`。迁移新增表/列，不迁移或覆盖旧 V1/V2 数据；生产迁移及任意历史格式不在本轮承诺中。
 2. 在仓库执行 `npm --prefix webui ci`、`npm --prefix webui run build:static`，静态目录为 `webui/out`。准备 Python 环境，安装 `services/analysis/requirements-test.txt` 中的验证依赖，并使现有 `cpag_core` 和 `cpag_worker` 可导入。

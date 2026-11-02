@@ -33,6 +33,7 @@ type compactApproval struct {
 	approval json.RawMessage
 	err      error
 	pending  bool
+	retryAt  time.Time
 }
 type compactAuthority struct {
 	mu          sync.Mutex
@@ -42,6 +43,8 @@ type compactAuthority struct {
 }
 
 var compactVerifySlot = make(chan struct{}, 1)
+
+const compactCapacityRetryDelay = 2 * time.Second
 
 func IsCompactPayload(p Payload) bool {
 	return p.CapacityProfile == capacity.EngineeringCore && p.StorageFormat == capacity.CoreSharedFormat && p.ResourceProfile == capacity.StorageBudget && p.StorageBudgetVersion == SharedStorageBudget
@@ -311,46 +314,7 @@ func (s *Server) compactCLI(ctx context.Context, base string, p Payload, sha, ac
 // successful full source reconstruction can create an entry usable by reads.
 func (s *Server) compactApprovalFor(base string, p Payload, sha string) (json.RawMessage, error) {
 	key := base + sha
-	s.compact.mu.Lock()
-	if s.compact.entries == nil {
-		s.compact.entries = map[string]*compactApproval{}
-	}
-	if e := s.compact.entries[key]; e != nil {
-		approval, err, pending := append(json.RawMessage(nil), e.approval...), e.err, e.pending
-		s.compact.mu.Unlock()
-		if pending {
-			return nil, ErrVerificationPending
-		}
-		return approval, err
-	}
-	if len(s.compact.entries) >= 16 {
-		for existing, state := range s.compact.entries {
-			if !state.pending {
-				delete(s.compact.entries, existing)
-				break
-			}
-		}
-	}
-	if len(s.compact.entries) >= 16 {
-		s.compact.mu.Unlock()
-		return nil, errors.New("compact verifier state capacity reached")
-	}
-	e := &compactApproval{pending: true}
-	s.compact.entries[key] = e
-	s.compact.mu.Unlock()
-	go func() {
-		ctx, cancel := context.WithTimeout(context.Background(), 1800*time.Second)
-		defer cancel()
-		select {
-		case compactVerifySlot <- struct{}{}:
-			defer func() { <-compactVerifySlot }()
-		case <-ctx.Done():
-			s.compact.mu.Lock()
-			e.pending = false
-			e.err = ctx.Err()
-			s.compact.mu.Unlock()
-			return
-		}
+	return s.compact.approvalFor(key, func(ctx context.Context) (json.RawMessage, error) {
 		_, err := s.compactWrapper(ctx, base, p, sha)
 		var raw []byte
 		if err == nil {
@@ -365,13 +329,66 @@ func (s *Server) compactApprovalFor(base string, p Payload, sha string) (json.Ra
 		if err == nil {
 			_, err = s.compactWrapper(ctx, base, p, sha)
 		}
-		s.compact.mu.Lock()
+		return result.Approval, err
+	})
+}
+
+// Only a typed admission refusal is retryable. Rejected bytes, incomplete exits,
+// transport failures and other unknown errors never acquire read authority.
+func (a *compactAuthority) approvalFor(key string, verify func(context.Context) (json.RawMessage, error)) (json.RawMessage, error) {
+	a.mu.Lock()
+	if a.entries == nil {
+		a.entries = map[string]*compactApproval{}
+	}
+	if e := a.entries[key]; e != nil && !(errors.Is(e.err, jobs.ErrCompactCapacityBusy) && !e.pending && !time.Now().Before(e.retryAt)) {
+		approval, err, pending := append(json.RawMessage(nil), e.approval...), e.err, e.pending
+		a.mu.Unlock()
+		if pending || errors.Is(err, jobs.ErrCompactCapacityBusy) {
+			return nil, ErrVerificationPending
+		}
+		return approval, err
+	}
+	// Replace an elapsed busy entry, retaining the same bounded cache size.
+	delete(a.entries, key)
+	if len(a.entries) >= 16 {
+		for existing, state := range a.entries {
+			if !state.pending {
+				delete(a.entries, existing)
+				break
+			}
+		}
+	}
+	if len(a.entries) >= 16 {
+		a.mu.Unlock()
+		return nil, errors.New("compact verifier state capacity reached")
+	}
+	e := &compactApproval{pending: true}
+	a.entries[key] = e
+	a.mu.Unlock()
+	go func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 1800*time.Second)
+		defer cancel()
+		select {
+		case compactVerifySlot <- struct{}{}:
+			defer func() { <-compactVerifySlot }()
+		case <-ctx.Done():
+			a.mu.Lock()
+			e.pending = false
+			e.err = ctx.Err()
+			a.mu.Unlock()
+			return
+		}
+		approval, err := verify(ctx)
+		a.mu.Lock()
 		e.pending = false
 		e.err = err
-		if err == nil {
-			e.approval = result.Approval
+		if errors.Is(err, jobs.ErrCompactCapacityBusy) {
+			e.retryAt = time.Now().Add(compactCapacityRetryDelay)
 		}
-		s.compact.mu.Unlock()
+		if err == nil {
+			e.approval = append(json.RawMessage(nil), approval...)
+		}
+		a.mu.Unlock()
 	}()
 	return nil, ErrVerificationPending
 }

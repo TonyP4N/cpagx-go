@@ -188,6 +188,14 @@ func TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence(t *testing.T
 		if suffix == "/download" && !json.Valid(w.Body.Bytes()) {
 			t.Fatal("download invalid")
 		}
+		if suffix == "" {
+			var detail struct {
+				Context map[string]json.RawMessage `json:"context"`
+			}
+			if json.Unmarshal(w.Body.Bytes(), &detail) != nil || len(detail.Context) != 4 || !bytes.Contains(detail.Context["split"], []byte("holdout")) || bytes.Contains(detail.Context["annotations"], []byte(`"events"`)) {
+				t.Fatal("verified detail missing frozen context or includes gold events")
+			}
+		}
 	}
 	var doc map[string]any
 	if err := json.Unmarshal(document, &doc); err != nil {

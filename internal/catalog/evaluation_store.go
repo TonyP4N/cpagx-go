@@ -161,8 +161,35 @@ func (s *Server) serveEvaluations(w http.ResponseWriter, r *http.Request, p *pri
 		respondEvaluationEvidence(w, map[string]any{"evaluation": saved, "evidence": verified.Evidence})
 		return true
 	}
-	respond(w, 200, map[string]any{"evaluation": saved, "result": verified.Result})
+	respond(w, 200, map[string]any{"evaluation": saved, "result": verified.Result, "context": evaluationReviewContext(verified.Document)})
 	return true
+}
+
+// The document has already passed current-publication and original-byte
+// verification. Expose its frozen review context without copying gold events
+// or raw reference inventories into the interactive result response.
+func evaluationReviewContext(document json.RawMessage) map[string]json.RawMessage {
+	var files map[string]json.RawMessage
+	if json.Unmarshal(document, &files) != nil {
+		return nil
+	}
+	context := map[string]json.RawMessage{}
+	for _, name := range []string{"split", "registration", "freeze"} {
+		if value, ok := files[name+".json"]; ok {
+			context[name] = value
+		}
+	}
+	var annotations map[string]json.RawMessage
+	if json.Unmarshal(files["annotations.json"], &annotations) == nil {
+		summary := map[string]json.RawMessage{}
+		for _, name := range []string{"origin", "source_ref", "review_ref", "annotation_version", "disputed_intervals"} {
+			if value, ok := annotations[name]; ok {
+				summary[name] = value
+			}
+		}
+		context["annotations"], _ = json.Marshal(summary)
+	}
+	return context
 }
 
 func (s *Server) importEvaluation(w http.ResponseWriter, r *http.Request, p *principal, dataset, id string) {

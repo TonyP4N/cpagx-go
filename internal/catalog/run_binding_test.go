@@ -39,6 +39,8 @@ func (c *runBindingConn) QueryContext(_ context.Context, q string, _ []driver.Na
 			captures = []byte(`["capture-one","capture-two"]`)
 		}
 		return &runBindingRows{[]string{"dataset_id", "config_version_id", "mode", "created_at", "preflight_id", "preflight_link_origin", "network_file_ids", "replay_version"}, [][]driver.Value{{"dataset", "config", "dual_source", time.Date(2026, 1, 1, 0, 0, 0, 0, time.UTC), "preflight", "native_gate", captures, nil}}}, nil
+	case strings.Contains(q, "SELECT max_attempts,"):
+		return &runBindingRows{[]string{"max_attempts", "verifying"}, [][]driver.Value{{int64(3), false}}}, nil
 	case strings.Contains(q, "FROM m4_jobs WHERE id="):
 		return &runBindingRows{[]string{"id", "state", "attempt", "payload", "artifact_path", "artifact_sha256", "last_error", "recovery_deadline", "recovery_checked_at", "recovery_reason", "lease_valid"}, [][]driver.Value{{"run", "queued", int64(0), []byte(`{}`), nil, nil, nil, nil, nil, nil, false}}}, nil
 	case strings.Contains(q, "FROM m4_job_attempts WHERE job_id="):
@@ -79,8 +81,9 @@ func TestRunGETPreservesSQLNullLegacyCaptureBinding(t *testing.T) {
 			}
 			var result struct {
 				Run struct {
-					State    string   `json:"state"`
-					Captures []string `json:"network_file_ids"`
+					State    string         `json:"state"`
+					Captures []string       `json:"network_file_ids"`
+					Progress map[string]any `json:"progress"`
 				} `json:"run"`
 			}
 			if e = json.Unmarshal(rec.Body.Bytes(), &result); e != nil {
@@ -88,6 +91,9 @@ func TestRunGETPreservesSQLNullLegacyCaptureBinding(t *testing.T) {
 			}
 			if result.Run.State != "queued" {
 				t.Fatal(result.Run.State)
+			}
+			if result.Run.Progress["phase"] != "queued" || result.Run.Progress["max_attempts"] != float64(3) || result.Run.Progress["processed_records"] != nil {
+				t.Fatal("unexpected phase or invented record count", result.Run.Progress)
 			}
 			if kind == "scalar" && result.Run.Captures != nil {
 				t.Fatal("legacy scalar binding changed")

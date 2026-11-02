@@ -173,6 +173,12 @@ func TestCompactVerifierKeepsDurableSlotUntilControlledExit(t *testing.T) {
 	must(repo.Enqueue(ctx, "verify-next", 1))
 	claim, err := repo.Claim(ctx, "worker", time.Minute)
 	must(err)
+	// A live computation must remain a typed temporary admission refusal. The
+	// API uses that type to keep historical reads pending instead of retaining a
+	// permanent failure after this same persistent slot is eventually released.
+	if _, busyErr := repo.BeginCompactVerification(ctx, claim.ID, claim.Attempt, strings.Repeat("c", 64), false); !errors.Is(busyErr, jobs.ErrCompactCapacityBusy) {
+		t.Fatalf("active compute did not preserve typed verifier admission gate: %v", busyErr)
+	}
 	_, err = db.ExecContext(ctx, "UPDATE m4_job_attempts SET exited_at=clock_timestamp() WHERE job_id=$1 AND attempt=$2", claim.ID, claim.Attempt)
 	must(err)
 	started, err := repo.BeginCompactVerification(ctx, claim.ID, claim.Attempt, strings.Repeat("a", 64), false)

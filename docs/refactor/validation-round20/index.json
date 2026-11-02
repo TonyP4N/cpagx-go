@@ -1,0 +1,664 @@
+{
+  "baseline": "912eb7b1a877b0d15083d832ef90577daa9cea8a",
+  "scope": "R20 UI, synthetic formal service and bounded synthetic browser fixture",
+  "reused": [
+    "validation-round19-stability/index.json",
+    "validation-round19-shared-backup/index.json"
+  ],
+  "formal_browser": {
+    "browser-main": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "ceeb8b3035f1514691a0ae775fc2c83a8bb31395a593c8fe6880baabe0dba4c6",
+      "failures": [
+        {
+          "stage": "restored-offline-linked-evidence",
+          "category": "TimeoutError: locator.click: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "multi-device-and-time-order",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "empty-candidates-and-failed-over-limit",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "restored-replay-prefix-and-revisions",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "restored-independent-evaluation",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "narrow-screen-and-keyboard",
+          "category": "Error: page.setViewportSize: Target page, context or browser has been closed"
+        }
+      ],
+      "page_error_count": 0
+    },
+    "browser-main-attempt2": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "3be00d6c72c6d4c771a3177236b7a4eefbedea777ccd198bd19b43a2f4936bd2",
+      "failures": [
+        {
+          "stage": "restored-offline-linked-evidence",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "multi-device-and-time-order",
+          "category": "Error: locator.waitFor: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "empty-candidates-and-failed-over-limit",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "restored-replay-prefix-and-revisions",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "restored-independent-evaluation",
+          "category": "Error: locator.click: Target page, context or browser has been closed"
+        },
+        {
+          "stage": "narrow-screen-and-keyboard",
+          "category": "Error: page.setViewportSize: Target page, context or browser has been closed"
+        }
+      ],
+      "page_error_count": 0
+    },
+    "browser-main-attempt3": {
+      "status": "failed",
+      "checks": {
+        "narrow-screen-and-keyboard": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "e13b8a87d6bb7ec84c1b140717147d490925fc04a26af9cbe1838af2e40dcb45",
+      "failures": [
+        {
+          "stage": "restored-offline-linked-evidence",
+          "category": "Error"
+        },
+        {
+          "stage": "multi-device-and-time-order",
+          "category": "Error"
+        },
+        {
+          "stage": "empty-candidates-and-failed-over-limit",
+          "category": "Error"
+        },
+        {
+          "stage": "restored-replay-prefix-and-revisions",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "restored-independent-evaluation",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 1
+    },
+    "candidate1-crossrun": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "aa9d2444b04b417b2dcb29e83ec279fe00f3fb9cd40dde3bb387004920fcc98d",
+      "failures": [
+        {
+          "stage": "actual-cross-run-delayed-response-and-back-refresh",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-crossrun-observer2": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "be36903aedac3f2a7a75e71fa16d0c26679f3251e0a3eed0c983bb3c49729c35",
+      "failures": [
+        {
+          "stage": "actual-cross-run-delayed-response-and-back-refresh",
+          "category": "Error: trusted analysis did not become available: 跳至主工作区"
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-main": {
+      "status": "failed",
+      "checks": {
+        "narrow-screen-and-keyboard": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "55efdfa71b1817e52595ff718fafdeb5ba7817d97f4e62eaa640dec9a2221096",
+      "failures": [
+        {
+          "stage": "restored-offline-linked-evidence",
+          "category": "TimeoutError: locator.selectOption: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "multi-device-and-time-order",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "empty-candidates-and-failed-over-limit",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "restored-replay-prefix-and-revisions",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "restored-independent-evaluation",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-main-observer2": {
+      "status": "failed",
+      "checks": {
+        "restored-offline-linked-evidence": {
+          "status": "passed"
+        },
+        "empty-candidates-and-failed-over-limit": {
+          "status": "passed"
+        },
+        "restored-independent-evaluation": {
+          "status": "passed"
+        },
+        "narrow-screen-and-keyboard": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "f018c7217c81ea7ca05b4e247b24352a3bf03f5ecb1fc9accb99735f6a8f9e20",
+      "failures": [
+        {
+          "stage": "multi-device-and-time-order",
+          "category": "Error: trusted analysis did not become available: 跳至主工作区"
+        },
+        {
+          "stage": "restored-replay-prefix-and-revisions",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-roles": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "ab73269e2a63ba5d645d9deac69705415a141fd7999736be3b1f1ea53b8fcd33",
+      "failures": [
+        {
+          "stage": "ordinary-submit-cancel-attempt1-retry-attempt2",
+          "category": "TimeoutError: locator.waitFor: Timeout 30000ms exceeded."
+        },
+        {
+          "stage": "cancelled-queued-retry",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        },
+        {
+          "stage": "viewer-grant-and-read-only",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-roles-observer2": {
+      "status": "passed",
+      "checks": {
+        "ordinary-submit-cancel-attempt1-retry-attempt2": {
+          "status": "passed"
+        },
+        "cancelled-queued-retry": {
+          "status": "passed"
+        },
+        "viewer-grant-and-read-only": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "090e6d242b3fb97cfcd151cadca82e8224586debb75ca8cd1c105f7c90d0102f",
+      "failures": [],
+      "page_error_count": 0,
+      "actual_retry": {
+        "run_id": "60628a0b00b816bad217a2a3d1ad37e4",
+        "first_attempt": 1,
+        "first_state": "cancelled",
+        "first_exit_confirmed": true,
+        "retry_status": 200,
+        "final_attempt": 2,
+        "final_state": "succeeded",
+        "history_count": 2,
+        "exit_count": 2
+      }
+    },
+    "candidate1-submissions": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "c9ef02e198d65dbe7a3f36aaaf2e735f2901d2a864bf8f8affa6a76e62523dab",
+      "failures": [
+        {
+          "stage": "ordinary-new-offline-attempt1",
+          "category": "TimeoutError: locator.waitFor: Timeout 150000ms exceeded."
+        },
+        {
+          "stage": "ordinary-new-replay-attempt1",
+          "category": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate1-submissions-observer2": {
+      "status": "passed",
+      "checks": {
+        "ordinary-new-offline-attempt1": {
+          "status": "passed"
+        },
+        "ordinary-new-replay-attempt1": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "a2813e0bb5e16a1b1b8bd28fb8c395f1ba554a0fa582fdb05c5a843bf2b9faef",
+      "failures": [],
+      "page_error_count": 0,
+      "ordinary_new_runs": {
+        "offline": {
+          "run_id": "4a49c414791d85a11387e24e26870d85",
+          "state": "succeeded",
+          "attempt": 1,
+          "ordinary_click_submission": true,
+          "verified_original_refs": 4
+        },
+        "replay": {
+          "run_id": "6f58c8d2a9fe28d561e575498adc53bb",
+          "state": "succeeded",
+          "attempt": 1,
+          "ordinary_click_submission": true,
+          "verified_original_refs": 4
+        }
+      }
+    },
+    "candidate3-crossrun": {
+      "status": "passed",
+      "checks": {
+        "actual-cross-run-delayed-response-and-back-refresh": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "b11771522d1a38754cc9ff3649e3acb74c2a3780e76f652fec4200633ca4c6b9",
+      "failures": [],
+      "page_error_count": 0,
+      "cross_run": {
+        "actual_A_response_held": true,
+        "actual_A_response_delivered_or_request_cancelled": true,
+        "late_response_fulfilled": true,
+        "B_selection_unchanged": true,
+        "back_refresh_A_context": true
+      }
+    },
+    "candidate3-evaluation-errors": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "434f3c76da422cf42b0c0ac07403e9a5dfac8a1bc35b93ade760fedc1ed74028",
+      "failures": [
+        {
+          "stage": "FP-prediction-and-FN-independent-original-trace",
+          "category": "TimeoutError: locator.click: Timeout 12000ms exceeded."
+        }
+      ],
+      "page_error_count": 0,
+      "evaluation_error_trace": {}
+    },
+    "candidate3-multi": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "cf806baf17186de47cd3761776c0c6fd17d4c95a2e883b301ee258aa38d7fe80",
+      "failures": [
+        {
+          "stage": "two-assets-same-time-own-originals-and-raw-order",
+          "category": "SyntaxError: Unexpected end of JSON input"
+        }
+      ],
+      "page_error_count": 0,
+      "multi_device": [
+        {
+          "asset": "synthetic-pump",
+          "tag": "pump_state",
+          "change_id": "change-9ac24c939dffd0c0e59e5a7af24e6226ded9900a38829204268366651721ced3",
+          "record_number": 2,
+          "verified_refs": 2
+        }
+      ]
+    },
+    "candidate3-multi-observer2": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "7fd812685c2b663926c7fd4092074bea477bb77d3856df9585357318e660c860",
+      "failures": [
+        {
+          "stage": "two-assets-same-time-own-originals-and-raw-order",
+          "category": "AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:"
+        }
+      ],
+      "page_error_count": 0,
+      "multi_device": [
+        {
+          "asset": "synthetic-pump",
+          "tag": "pump_state",
+          "change_id": "change-9ac24c939dffd0c0e59e5a7af24e6226ded9900a38829204268366651721ced3",
+          "record_number": 2,
+          "verified_refs": 2
+        },
+        {
+          "asset": "synthetic-valve",
+          "tag": "valve_state",
+          "change_id": "change-b810ef7cb508423a52ff362b543e49376b5868938c6408a1f64dcd6aca8af1a5",
+          "record_number": 2,
+          "verified_refs": 2
+        }
+      ]
+    },
+    "candidate3-multi-observer3": {
+      "status": "passed",
+      "checks": {
+        "two-assets-same-time-own-originals-and-raw-order": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "d2a1b331b994659b63ff8982dc9d89588483de13300ba0998dcbf7e7d7171cae",
+      "failures": [],
+      "page_error_count": 0,
+      "multi_device": [
+        {
+          "asset": "synthetic-pump",
+          "tag": "pump_state",
+          "change_id": "change-9ac24c939dffd0c0e59e5a7af24e6226ded9900a38829204268366651721ced3",
+          "record_number": 2,
+          "verified_refs": 2
+        },
+        {
+          "asset": "synthetic-valve",
+          "tag": "valve_state",
+          "change_id": "change-b810ef7cb508423a52ff362b543e49376b5868938c6408a1f64dcd6aca8af1a5",
+          "record_number": 2,
+          "verified_refs": 2
+        }
+      ]
+    },
+    "candidate3-replay": {
+      "status": "passed",
+      "checks": {
+        "restored-replay-prefix-and-revisions": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "46a74ddb82db73c38aa0d01ffb495ccdcbadbf835f3b1548bc785dcf82cef8c4",
+      "failures": [],
+      "page_error_count": 0
+    },
+    "candidate3-security": {
+      "status": "passed",
+      "checks": {
+        "native-admin-analyst-viewer-and-denied-downloads": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "3b24c5431e417fb33ff664410b776f694ac483e62a0a9ef3f8322b78e5af2dc0",
+      "failures": [],
+      "page_error_count": 0,
+      "viewer_download": {
+        "status": 404,
+        "artifact_body_delivered": false
+      },
+      "anonymous_download": {
+        "status": 401,
+        "artifact_body_delivered": false
+      }
+    },
+    "candidate3-semantics": {
+      "status": "passed",
+      "checks": {
+        "ambiguity-counterevidence-unknown": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "da436f3964a06494ff9c1e4aa25fdf8bd96a62948318a51f1ab189d2230ba7b4",
+      "failures": [],
+      "page_error_count": 0
+    },
+    "candidate5-evaluation-errors": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "a637b0c1e33c801bf6ccbda4b2371f0e0aa146e54b279bbcd3bddae2c7e7c9a1",
+      "failures": [
+        {
+          "stage": "FP-prediction-and-FN-independent-original-trace",
+          "category": "TimeoutError: locator.waitFor: Timeout 12000ms exceeded."
+        }
+      ],
+      "page_error_count": 0
+    },
+    "candidate5-evaluation-errors-observer2": {
+      "status": "failed",
+      "checks": {},
+      "raw_sha256": "240d8bb39518a57f4b4993b1d3a0fb66a1f10057a935cc8d47104f18e99b3e11",
+      "failures": [
+        {
+          "stage": "FP-prediction-and-FN-independent-original-trace",
+          "category": "AssertionError [ERR_ASSERTION]: '2026-01-01T00:00:14Z' == '2026-01-01T00:00:12Z'"
+        }
+      ],
+      "page_error_count": 0,
+      "evaluation_error_trace": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 1,
+        "FP": {
+          "verified_refs": 2,
+          "actual_locator": true
+        }
+      }
+    },
+    "candidate5-evaluation-errors-observer3": {
+      "status": "passed",
+      "checks": {
+        "FP-prediction-and-FN-independent-original-trace": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "6bd8b260f3b2b3edde084795c707d261a612dbdaa574f3494a0e93e0af61da12",
+      "failures": [],
+      "page_error_count": 0,
+      "evaluation_error_trace": {
+        "tp": 1,
+        "fp": 1,
+        "fn": 1,
+        "FP": {
+          "verified_refs": 2,
+          "actual_locator": true
+        },
+        "FN": {
+          "status": "reference_original_csv_record_verified",
+          "actual_original": true,
+          "actual_locator": true,
+          "record_number": 4,
+          "sha256": "5a28e7bad6a2981ce2a8703fe4d3ad523c89c03a1e8cced80dee0f822d46ef30"
+        }
+      }
+    },
+    "candidate5-real-capacity-retry": {
+      "status": "passed",
+      "checks": {
+        "actual_new_compute_held_durable_slot": true,
+        "busy_reads_pending_not_permanent_error": true,
+        "historical_run_and_attempt_unchanged": true,
+        "new_probe_attempt1_succeeded": true,
+        "no_historical_recomputation": true,
+        "old_source_bytes_unchanged": true,
+        "same_instance_auto_recheck_200_after_release": true
+      },
+      "raw_sha256": "2b6c57f56f068b685f6ef6e867fefbac2f5f99e7885f09409aba7907ca29fcc4",
+      "failures": [],
+      "page_error_count": 0
+    },
+    "candidate5-replay": {
+      "status": "passed",
+      "checks": {
+        "restored-replay-prefix-and-revisions": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "d7ced571f5d5160ebfb41462ad17d92d341d778ef9eed0335f78a38d539782e1",
+      "failures": [],
+      "page_error_count": 0
+    },
+    "candidate5-tamper": {
+      "status": "passed",
+      "checks": {
+        "same-size-source-tamper-trust-cleared": {
+          "status": "passed"
+        }
+      },
+      "raw_sha256": "0c8b3e820a236a49c1c6d45798b42a5d57818453c7a8e6c83b1d1b6ca40de74e",
+      "failures": [],
+      "page_error_count": 0,
+      "tamper": {
+        "original_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "same_size": true,
+        "integrity_rejection": "409 result_changed：published bytes or run bindings changed检查当前选择和数据权限后重试。;409 result_changed：published bytes or run bindings changed 可信结果已清除，请核查权限、来源与产物后重新核验。",
+        "trusted_result_cleared": true,
+        "original_restored": true
+      }
+    },
+    "cases": {
+      "status": "passed",
+      "checks": {},
+      "raw_sha256": "cbe2d67d32bdfb5a85aacb16e1d0ae3ec65dbf391ee4df0245fe862bd06ede31",
+      "failures": [],
+      "page_error_count": 0
+    },
+    "cases-ambiguity-counter-unknown": {
+      "status": "passed",
+      "checks": {},
+      "raw_sha256": "1caa0bedc6affbb26597ca6e3bed5381746dd9de7189b13036b9d9fcab0ed742",
+      "failures": [],
+      "page_error_count": 0
+    }
+  },
+  "bounded_display": {
+    "scope": "injected synthetic frontend-only; not backend capacity or source verification",
+    "osVersion": "27.2",
+    "osBuild": "26B123",
+    "browser": "156.0.8078.76",
+    "node": "v25.2.1",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "checks": {
+      "frozenBuildIdentity": true,
+      "candidateFilterExcludesSiblingEdges": true,
+      "rawEvidencePagination": true,
+      "candidateChangeLink": true,
+      "staleSelectionRejected": true,
+      "sensitiveFilterStaysOffUrl": true,
+      "routeContextPreserved": true,
+      "aggregation": true,
+      "nativeHistoryContextPreserved": true,
+      "integrityClearsTrustedData": true,
+      "parentErrorClearedAfterSuccessfulReverify": true,
+      "budgets": true
+    },
+    "measurements": {
+      "firstReadyMs": 342.99012500000003,
+      "expandReadyMs": 201.70495800000003,
+      "fullDrawMs": 0.6,
+      "fullNodes": 1000,
+      "fullEdges": 3000,
+      "domNodes": 460,
+      "jsHeapUsedBytes": 5217040,
+      "jsHeapBaselineBytes": 574032,
+      "jsHeapDeltaBytes": 4643008,
+      "selectEvidenceMs": 32.73500000000013,
+      "filterMs": 132.78412499999968,
+      "mobileHorizontalOverflow": 0,
+      "pageErrors": [],
+      "apiRequests": 104
+    },
+    "servedBuildId": "YnAmzCCaj2JRpTeQErTIb"
+  },
+  "scale_measurement_sha256": "2705381a7bcecaf5835b56da4130832074d93de21b8336b7a02878e70d1de554",
+  "screenshots": {
+    "before-workspace.png": "0df06ca0e8880b4e5e01dd6ba2db9c799240810040e8fd479d694f85449655a6",
+    "bounded-graph.png": "33bce406136e38ed7cb8168e1a026a1f866a62a26070c5fed1ab627c8a25dc76",
+    "narrow-navigation.png": "b2a17416d050e7749188e0d1a66612a5102a48f5dfd8ef66391b0ec9c31a1fa6",
+    "restored-evidence.png": "cfcfe6b070efd342ae5225b108f5bcf613e79a8730a4cc1ca9b50b6453be59e1"
+  },
+  "workbench_sources_sha256": {
+    "webui/src/components/r20/Analysis.tsx": "ade41bc3af6c1c08d6431cbdc9808e45c93f4d55da10d7a3d1cb21bf3b701b75",
+    "webui/src/components/r20/ConfigDetails.tsx": "16cc8bffc620978340b16aadd61df6caa0206a193736c4b4f7728a8ea7a80a2b",
+    "webui/src/components/r20/Evaluation.tsx": "60dcb466a98eac8d384f7e2e7f5b14d4362cc8d1f3d441eedc79b0e25d10b07d",
+    "webui/src/components/r20/Replay.tsx": "1e197d47621a7cf4ec98509844a3802dcd0891f6834a76cd5777d9d353cfb7d3",
+    "webui/src/components/r20/analysisModel.ts": "5ede248767ddbfcf30477402ff801ee60b87bec1be9ed16cac7389a773569f6b",
+    "webui/src/components/r20/historyModel.ts": "5962dac5e913c1902562357b8f104843822fd2021d8240c730d4ddba3b0e433b",
+    "webui/src/components/r20/navigation.ts": "9ed330ec9560f75465f5f27717bbb5c316c01a4726e1181f088ea303cba8266b",
+    "webui/src/pages/workbench.tsx": "ec9ad06faf550190fe3d7e96e750efb0fe94c14b0ea940f35ec64c8c8c7d4966",
+    "webui/src/pages/workspace.tsx": "5ba27fa2b05eb6bfcca612bc4b878862259aeb570df407d1a31884aa85b665c6",
+    "webui/src/styles/globals.css": "5942e0b68f805f79901e63536ff527876c6a71eaad65474804698281cb407141"
+  },
+  "s100_service": {
+    "runId": "d962550cb7c2bfde901623dad671d99f",
+    "scope": "Actual authorized verified S100 synthetic replay service view; no API interception, no source reanalysis, no reference-environment or real-industrial-data acceptance",
+    "servedBuildId": "u5v5vSSAFQyW8pKS_qt5i",
+    "measurements": {
+      "defaultReadyMs": 4364.174125,
+      "defaultNodes": 200,
+      "defaultEdges": 0,
+      "defaultHeapBytes": 10863388,
+      "expandedReadyMs": 28005.263375000002,
+      "expandedNodes": 399,
+      "expandedEdges": 2596,
+      "fullDrawMs": 0.9,
+      "expandedHeapBytes": 74536132,
+      "expandedHeapDeltaBytes": 73962100,
+      "domNodes": 472,
+      "selectEvidenceMs": 938.4603750000024
+    },
+    "checks": {
+      "frozenBuild": true,
+      "actualGraphCounts": true,
+      "selectedRawEvidence": true,
+      "candidateSecondPage": true,
+      "candidateEvidenceLink": true,
+      "displayedBounds": true
+    },
+    "errors": [],
+    "status": "passed selected display/pagination checks",
+    "raw_sha256": "d3e4ce4bb2211dd511c81c7815500540f990e3be502fe91de33a3b21be198f0f"
+  },
+  "diagnostics": {
+    "wrong_export_identified": "candidate2 attempt that still served candidate1 excluded before final fixed display probe",
+    "candidate_filter": "same endpoint sibling candidate in filtered graph; model and final browser check match by claim ID",
+    "raw_scale_trials": {
+      "r20-analysis-candidate2-fixed": "18268acb2786094d354c7951c9513471248a8e9bb00cb3dd074cb8daeb55b022",
+      "r20-analysis-candidate5-fixed-attempt2": "2705381a7bcecaf5835b56da4130832074d93de21b8336b7a02878e70d1de554",
+      "r20-analysis-final-candidate1": "8bb773836ece2f4d3f37a5d8152f1d84fe3a73cfbdd7f51fa55e5a5284195208",
+      "r20-analysis-final-candidate2": "a4f80f58dd75e9535c03cd26cc339a4b23d691d50479a1ff4a4cf9292fa71c57",
+      "r20-analysis-run2": "e8dfd555a920536b002dbf229c13efa3d172242407cfc89798ec80cd501f65fe"
+    },
+    "raw_verified_s100_trials": {
+      "r20-analysis-s100-final": "9842cfd06d2284937e491726b573af8053bf9006f4fa6a64b2ad0bb10ce0419a",
+      "r20-analysis-s100-final-attempt2": "d3e4ce4bb2211dd511c81c7815500540f990e3be502fe91de33a3b21be198f0f"
+    }
+  },
+  "static_exports": {
+    "1": "666f73b44e479d436657132a7bc8d83a54b3dad115993bc114929fcd05933bb7",
+    "2": "32fce7191a254e64169e44527b1ecaa4974dd846534494105ea307c89a5658c4",
+    "3": "92b47cdb9c4829962071140062a60fee27188c90a84932eef13f8ad489993d38",
+    "4": "2168190ac0af24edb8182a95024f4d94114db1629b851aaf4e066db1151c6714",
+    "5": "2d04bb9274b4425b386f2d929b407e23b9025f198f4a45d8f9d5af8edb7cfec4"
+  }
+}

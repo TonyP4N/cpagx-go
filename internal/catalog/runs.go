@@ -51,6 +51,10 @@ func (s *Server) serveRuns(w http.ResponseWriter, r *http.Request, p *principal,
 		s.getRun(w, r, id, dataset, config, mode, at, preflightID, linkOrigin, json.RawMessage(captureIDs), replayVersion)
 		return
 	}
+	if len(parts) == 3 && parts[2] == "retry" && r.Method == "POST" {
+		s.retryRun(w, r, p, dataset, id, linkOrigin == "native_gate" && preflightID != nil)
+		return
+	}
 	if len(parts) == 3 && parts[2] == "cancel" && r.Method == "POST" {
 		if !s.can(r.Context(), p, dataset, true) {
 			fail(w, 403, "forbidden", "write access required")
@@ -382,11 +386,38 @@ func (s *Server) getRun(w http.ResponseWriter, r *http.Request, id, dataset, con
 		fail(w, 503, "database_error", "run unavailable")
 		return
 	}
+	// Report only persisted units. Isolated computation has no live frame counter.
+	var maxAttempts int
+	var verifying bool
+	err := s.DB.QueryRowContext(r.Context(), `SELECT max_attempts,
+	 EXISTS(SELECT 1 FROM m4_compact_verifications v WHERE v.job_id=j.id AND v.attempt=$2 AND v.state='running')
+	 FROM m4_jobs j WHERE j.id=$1`, id, st.Attempt).Scan(&maxAttempts, &verifying)
+	if err != nil {
+		fail(w, 503, "database_error", "run phase unavailable")
+		return
+	}
+	phase := st.State
+	exited := 0
 	history := []any{}
 	for _, a := range st.AttemptHistory {
-		history = append(history, map[string]any{"attempt": a.Attempt, "location": a.Location, "exited_at": a.ExitedAt, "publication_state": a.PublicationState})
+		if a.ExitedAt != nil {
+			exited++
+		}
+		if st.State == "running" && a.Attempt == st.Attempt {
+			switch {
+			case verifying:
+				phase = "source_verification"
+			case a.ExitedAt != nil:
+				phase = "awaiting_publication"
+			case a.ContainerID != "":
+				phase = "compute_registered"
+			default:
+				phase = "claimed"
+			}
+		}
+		history = append(history, map[string]any{"attempt": a.Attempt, "claimed_at": a.ClaimedAt, "location": a.Location, "exited_at": a.ExitedAt, "publication_state": a.PublicationState})
 	}
-	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "replay_version": replayVersion, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid}})
+	respond(w, 200, map[string]any{"run": map[string]any{"id": id, "dataset_id": dataset, "config_version_id": config, "preflight_id": preflightID, "preflight_link_origin": linkOrigin, "mode": mode, "replay_version": replayVersion, "created_at": at, "state": st.State, "attempt": st.Attempt, "last_error": st.LastError, "network_file_ids": captureIDs, "attempt_history": history, "lease_valid": st.LeaseValid, "progress": map[string]any{"phase": phase, "attempts_registered": len(history), "executions_exited": exited, "max_attempts": maxAttempts, "processed_records": nil}}})
 }
 func (s *Server) verifiedProjection(w http.ResponseWriter, r *http.Request, p *principal, dataset, id, kind string) {
 	if compact, err := s.Internal.(*jobapi.Server).IsCompactRun(r, id); err == nil && compact {

@@ -122,7 +122,9 @@ func (s *Server) compactDockerVerify(ctx context.Context, base string, p Payload
 	terminal := st.State == "succeeded"
 	claimed, err := s.Repo.BeginCompactVerification(ctx, job, attempt, container, terminal)
 	if err != nil {
-		s.removeCompactVerifier(container, job, attempt)
+		if cleanupErr := s.removeCompactVerifier(container, job, attempt); cleanupErr != nil {
+			return nil, fmt.Errorf("compact rejected verifier cleanup failed: %w", cleanupErr)
+		}
 		return nil, err
 	}
 	// The trusted persistent attempt claim clock includes export. Reverification

@@ -131,6 +131,10 @@ jobs:
           cache: npm
           cache-dependency-path: webui/package-lock.json
       - run: npm ci
+      - name: Bounded workbench projections and historical selection
+        run: |
+          node ../scripts/validation/round20_analysis_model.cjs
+          node scripts/check-history-model.cjs
       - run: npm run build
         env:
           NEXT_TELEMETRY_DISABLED: '1'

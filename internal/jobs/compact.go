@@ -8,6 +8,9 @@ import (
 	"time"
 )
 
+// ErrCompactCapacityBusy is temporary admission refusal, not a source verdict.
+var ErrCompactCapacityBusy = errors.New("compact verification requires idle durable capacity slot")
+
 // BeginCompactVerification reserves the same durable site slot after compute
 // exit; a verifier remains outstanding until Docker removal is proven.
 func (r Repository) BeginCompactVerification(ctx context.Context, id string, attempt int, name string, terminal bool) (time.Time, error) {
@@ -34,7 +37,7 @@ func (r Repository) BeginCompactVerification(ctx context.Context, id string, att
 		return claimed, err
 	}
 	if pending {
-		return claimed, errors.New("compact verification requires idle durable capacity slot")
+		return claimed, ErrCompactCapacityBusy
 	}
 	if _, err = tx.ExecContext(ctx, `INSERT INTO m4_compact_verifications(job_id,attempt,container_name,state) VALUES($1,$2,$3,'running') ON CONFLICT(job_id,attempt) DO UPDATE SET container_name=$3,state='running',started_at=clock_timestamp(),exited_at=NULL WHERE m4_compact_verifications.state='exited'`, id, attempt, name); err != nil {
 		return claimed, err
