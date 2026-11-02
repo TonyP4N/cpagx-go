@@ -446,8 +446,39 @@ jobs:
           echo "R19_FORMAL_OUTPUT=$r19_work" >> "$GITHUB_ENV"
           sudo install -d -m 1777 /private/tmp
           r19_image="$(docker image inspect cpag-isolated:r18-acceptance --format '{{.Id}}')"
+          echo "R19_DAG6_IMAGE=$r19_image" >> "$GITHUB_ENV"
           python scripts/validation/round19_linux_permissions.py --image "$r19_image" --output "${r19_work}-permissions"
           python scripts/validation/round19_formal_service_acceptance.py --mode small --image "$r19_image" --output "$r19_work"
+      - name: R19 DAG6 terminal backup and fresh restore small-case integration
+        # One bounded recovery drill, reusing the exact formal-smoke image.
+        # All DB dumps, credentials, source/control bytes and raw receipts stay
+        # private to the runner; only the explicit report allowlist is uploaded.
+        run: |
+          r19_backup_work="/private/tmp/cpag-r19-backup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_BACKUP_OUTPUT=$r19_backup_work" >> "$GITHUB_ENV"
+          python scripts/validation/round19_shared_backup_acceptance.py --image "$R19_DAG6_IMAGE" --output "$r19_backup_work"
+          r19_replay_artifact="$(python - "$r19_backup_work" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          work = Path(sys.argv[1])
+          report = json.loads((work / 'public/report.json').read_text())
+          assert report['status'] == 'passed' and report['valid'] is True
+          runs = [row for row in report['runs'] if row['label'] == 'dag6-replay']
+          assert len(runs) == 1 and runs[0]['state'] == 'succeeded' and runs[0]['attempt'] == 1
+          run = runs[0]
+          print(work / 'restored-new-root' / 'jobs' / run['id'] / f"attempt-{run['attempt']}")
+          PY
+          )"
+          python scripts/validation/round19_linux_permissions.py --image "$R19_DAG6_IMAGE" --artifact "$r19_replay_artifact" --output "${r19_backup_work}-restored-permissions"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r19-shared-backup-public-evidence
+          path: |
+            ${{ env.R19_BACKUP_OUTPUT }}/public/report.json
+            ${{ env.R19_BACKUP_OUTPUT }}/restore-mutants/report.json
+            ${{ env.R19_BACKUP_OUTPUT }}-restored-permissions/report.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

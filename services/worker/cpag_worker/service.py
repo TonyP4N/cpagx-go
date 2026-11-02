@@ -3,6 +3,7 @@
 Its private configuration contains no database or user session credentials.
 """
 import argparse
+import fcntl
 import json
 import os
 from pathlib import Path
@@ -46,6 +47,14 @@ def read_config(path):
     return config
 
 def serve(config):
+    if config.get('resource_profile')!='storage-budget-2':return _serve(config)
+    control=Path(config['control_root']);control.mkdir(parents=True,exist_ok=True)
+    with (control/'.maintenance.lock').open('a+') as lock:
+        try:fcntl.flock(lock,fcntl.LOCK_SH|fcntl.LOCK_NB)
+        except BlockingIOError:raise ValueError('terminal backup maintenance in progress')
+        return _serve(config)
+
+def _serve(config):
     worker=DockerExecutor(API(config['api_url'].rstrip('/'),config['worker_token']),
         API(config['api_url'].rstrip('/'),config['coordinator_token']),config['shared_root'],
         config['control_root'],config.get('worker_id','cpag-v3-worker'),image=config.get('image','cpag-isolated:round5'),resource_profile=config.get('resource_profile'))

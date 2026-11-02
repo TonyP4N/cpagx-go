@@ -16,6 +16,8 @@ import tempfile
 
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO/'services/analysis/src'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import terminal_shared
 from cpag_core.contracts import validate
 from cpag_core.evidence import EvidenceIndex
 from cpag_core.packet_pipeline import PacketEvidence
@@ -150,6 +152,12 @@ def replay_files(payload, profile=None):
 def audit_dual(row, root, verify):
     """Bind the database publication to the original, reverified dual run."""
     payload=row['payload']
+    import dag6
+    if not isinstance(payload.get('profile'),dict):
+        reject_unproven_shared_backup(payload)
+        raise ValueError('dual profile reference missing')
+    if dag6.detects(payload, strict_json(safe(root,payload['profile']['path']).read_text(encoding='utf-8'))):
+        return dag6.audit(row,root,verify)
     reject_unproven_shared_backup(payload)
     replay=payload.get('kind')=='dual-source-replay'
     profile=strict_json(safe(root,payload['profile']['path']).read_text(encoding='utf-8'))
@@ -282,9 +290,10 @@ def audit(rows, root):
                 ref=payload.get(role)
                 if not isinstance(ref,dict):raise ValueError('missing or invalid input reference: '+role)
                 verify(ref['path'],ref['sha256'])
+            shared_audit=None
             if dual:
                 for ref in dual_networks(payload):verify(ref['path'],ref['sha256'])
-                audit_dual(row,root,verify)
+                shared_audit=audit_dual(row,root,verify)
             if row['state']=='succeeded' and not dual:
                 manifest=verify(row['artifact_path'],row['artifact_sha256'])
                 wrapper=json.loads(manifest.read_text())
@@ -365,7 +374,9 @@ def audit(rows, root):
                 if graph['statistics']!={'nodes':len(nodes),'edges':len(edge_ids)}:raise ValueError('graph statistics mismatch')
                 for source in indexes.values():
                     source._verified() if isinstance(source,PacketEvidence) else source.verify()
-            jobs.append({'row_index':position,'job_id':job_id,'valid':True})
+            entry={'row_index':position,'job_id':job_id,'valid':True}
+            if shared_audit is not None:entry['shared_storage_audit']=shared_audit
+            jobs.append(entry)
         except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError) as exc:
             errors.append({'row_index':position,'job_id':job_id,'reason':str(exc)})
             jobs.append({'row_index':position,'job_id':job_id,'valid':False})
@@ -561,7 +572,12 @@ def audit_preparation_documents(container,db,catalog,rows,root,*,semantic_cache=
         key=tuple(row[name] for name in ('job_id','attempt','payload_sha256','publication_sha256','batch','projection','strategy_version'))
         computed=False
         if key not in cache:
-            expected=adapt_artifact(safe(root,str(Path(row['artifact_path']).parent)),batch=row['batch'],
+            adapt=adapt_artifact
+            job=next(job for job in rows if job['id']==row['job_id'])
+            if job['payload'].get('storage_format')=='shared-observation-dag-6':
+                from dag6_evaluation import adapt_preparation
+                adapt=adapt_preparation
+            expected=adapt(safe(root,str(Path(row['artifact_path']).parent)),batch=row['batch'],
                 sample_sha256=row['input_fingerprint'],projection=row['projection'])
             cache[key]=hashlib.sha256(canonical(expected)).hexdigest();computed=True
         if hashlib.sha256(canonical(adapted)).hexdigest()!=cache[key]:raise ValueError('prepared document differs from independently verified source projection')
@@ -890,6 +906,8 @@ def audit_catalog(catalog, rows, root):
                 raise ValueError('evaluation document exceeds versioned backup budget')
             if document!=row.get('document'):raise ValueError('evaluation document projection mismatch')
             if hashlib.sha256(canonical(document)).hexdigest()!=row.get('document_sha256'):raise ValueError('evaluation document checksum mismatch')
+            if job['payload'].get('storage_format')=='shared-observation-dag-6':
+                from dag6_evaluation import verify_document
             result=verify_document(document,safe(root,str(Path(job['artifact_path']).parent)))
             identity=document['adapted.json']['binding']
             if (identity['run_id']!=job['id'] or identity['attempt_id']!=job['attempt']
@@ -946,7 +964,21 @@ def attempts_now(container,db):
     return json.loads(result.stdout)
 
 
-def backup(container, db, root, destination):
+def backup(container, db, root, destination, *, control_root=None, maintenance=False):
+    if control_root is None:
+        if maintenance:raise ValueError('maintenance control root required')
+        return _backup(container,db,root,destination)
+    if not maintenance:raise ValueError('explicit terminal maintenance required')
+    source,control_path,target=(Path(path).resolve() for path in (root,control_root,destination))
+    if (source.is_relative_to(control_path) or control_path.is_relative_to(source)
+            or target.is_relative_to(source) or source.is_relative_to(target)
+            or target.is_relative_to(control_path) or control_path.is_relative_to(target)):
+        raise ValueError('new bundle outside separate shared and control roots required')
+    with terminal_shared.maintenance(control_root) as control:
+        return _backup(container,db,root,destination,control=control)
+
+
+def _backup(container, db, root, destination, *, control=None):
     root=Path(root).resolve();destination=Path(destination).resolve()
     if not root.is_dir(): raise ValueError('source root must exist')
     if destination.exists() or destination.is_relative_to(root): raise ValueError('new bundle outside shared root required')
@@ -967,6 +999,8 @@ def backup(container, db, root, destination):
         if not legacy_fixture and first not in ('CATALOG_PRESENT:true','CATALOG_PRESENT:false'):
             raise ValueError('could not establish catalog schema state')
         has_catalog=first=='CATALOG_PRESENT:true'
+        if control is not None:
+            conn.stdin.write('LOCK TABLE m4_compact_verifications, m4_capacity_policy IN SHARE MODE;\n')
         if has_catalog:
             conn.stdin.write('LOCK TABLE '+', '.join(CATALOG_TABLES)+' IN SHARE MODE;\n')
         conn.stdin.write("SELECT 'SNAPSHOT:'||pg_export_snapshot(); "
@@ -986,6 +1020,14 @@ def backup(container, db, root, destination):
                 raw=conn.stdout.readline().strip();prefix='CATALOG:'+table+':'
                 if not raw.startswith(prefix):raise ValueError('could not establish catalog snapshot: '+table)
                 catalog[table]=json.loads(raw[len(prefix):])
+        if control is not None and not has_catalog:raise ValueError('format7 requires unified catalog schema')
+        shared=any(row['payload'].get('storage_format')=='shared-observation-dag-6' for row in rows)
+        if shared and control is None:raise ValueError('DAG6 requires format7 stopped-service control snapshot')
+        verifiers=[];control_files=None;exit_audit=None
+        if control is not None:
+            verifiers=terminal_shared.verifier_rows(pg,container,db)
+            exit_audit=terminal_shared.audit_exits(rows,attempts,verifiers,control,safe)
+            control_files=inventory(control)
         phase='source_audit';before=audit(rows,root)
         if not before['valid']: raise ValueError('source reference audit failed: '+json.dumps(before['errors']))
         history=audit_attempts(rows,attempts)
@@ -1000,6 +1042,9 @@ def backup(container, db, root, destination):
         destination.mkdir(mode=0o700);created_destination=True
         phase='copy_files';files=inventory(root)
         shutil.copytree(root,destination/'files',symlinks=False)
+        if control is not None:
+            shutil.copytree(control,destination/'control',symlinks=False)
+            if inventory(control)!=control_files or inventory(destination/'control')!=control_files:raise ValueError('control evidence changed during backup')
         if inventory(destination/'files')!=files or inventory(root)!=files: raise ValueError('source changed during backup')
         # The source may have changed between the first reference audit and the
         # inventory captured for copying. Hash agreement between two copies alone
@@ -1026,6 +1071,11 @@ def backup(container, db, root, destination):
             bundle.update(catalog=catalog,catalog_audit=directory,copied_catalog_audit=copied_directory,
                           session_restore_policy='revoke_all_sessions_before_restored_service_start',
                           preparation_audit=preparations,copied_preparation_audit=copied_preparations)
+        if control is not None:
+            if inventory(control)!=control_files or inventory(destination/'control')!=control_files:raise ValueError('control evidence changed during database dump')
+            bundle.update(format_version=7,control_files=control_files,verifiers=verifiers,exit_audit=exit_audit,
+                original_root=str(root),source_verification_policy='restored_service_background_once_before_trusted_reads',
+                consistency='exclusive maintenance lock; stopped Go and Worker; PostgreSQL SHARE locks/exported snapshot; terminal exit proofs; pre/post byte inventories')
         write_report(destination/'bundle.json',bundle)
         return bundle
     except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
@@ -1053,7 +1103,17 @@ def write_report(path, value):
         if temporary is not None and temporary.exists():temporary.unlink()
 
 
-def restore(container, bundle_dir, destination):
+def restore(container, bundle_dir, destination, *, control_destination=None):
+    if control_destination is None:return _restore(container,bundle_dir,destination)
+    control=Path(control_destination).resolve()
+    if control.exists() or control==Path(destination).resolve() or control.is_relative_to(Path(destination).resolve()) or Path(destination).resolve().is_relative_to(control) or control.is_relative_to(Path(bundle_dir).resolve()):
+        raise ValueError('new separate control destination required')
+    control.mkdir(mode=0o700,parents=True)
+    with terminal_shared.maintenance(control):
+        return _restore(container,bundle_dir,destination,control_destination=control,_reserved_control=True)
+
+
+def _restore(container, bundle_dir, destination, *, control_destination=None,_reserved_control=False):
     bundle_dir=Path(bundle_dir).resolve();destination=Path(destination).resolve()
     report=destination.parent/(destination.name+'-audit.json')
     if destination.exists() or report.exists() or destination.is_relative_to(bundle_dir):
@@ -1068,17 +1128,25 @@ def restore(container, bundle_dir, destination):
         bundle=json.loads(safe(bundle_dir,'bundle.json').read_text())
         if bundle['format_version']==3:
             raise ValueError('legacy v3 catalog bundle lacks verified preflight snapshots; restore with b208bc9 in an isolated maintenance environment, apply migration 007, run cpagx-v3 --backfill-legacy, then create a format-4 backup')
-        if bundle['format_version'] not in (2,4,5,6) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
+        if bundle['format_version'] not in (2,4,5,6,7) or bundle['synthetic_validation_only'] is not True: raise ValueError('unsupported bundle')
         if sha(safe(bundle_dir,'database.dump'))!=bundle['database_sha256'] or inventory(bundle_dir/'files')!=bundle['files']:
             raise ValueError('bundle integrity mismatch')
+        shared=any(row['payload'].get('storage_format')=='shared-observation-dag-6' for row in bundle['rows'])
+        if shared and bundle['format_version']!=7:raise ValueError('DAG6 requires format7 control/exit snapshot')
+        if bundle['format_version']==7:
+            if control_destination is None:raise ValueError('new private control destination required')
+            control_destination=Path(control_destination).resolve()
+            if (control_destination.exists() and not _reserved_control) or control_destination==destination or control_destination.is_relative_to(destination) or destination.is_relative_to(control_destination) or control_destination.is_relative_to(bundle_dir):raise ValueError('control destination must be new and separate')
+            if inventory(bundle_dir/'control')!=bundle['control_files']:raise ValueError('control bundle integrity mismatch')
+            terminal_shared.audit_exits(bundle['rows'],bundle['attempts'],bundle['verifiers'],bundle_dir/'control',safe)
         phase='pre_restore_references'
         before=audit(bundle['rows'],bundle_dir/'files')
         if not before['valid']: raise ValueError('bundle references invalid: '+json.dumps(before['errors']))
         history=audit_attempts(bundle['rows'],bundle.get('attempts',[]))
         if not history['valid']:raise ValueError('bundle attempt history invalid: '+json.dumps(history['errors']))
-        has_catalog=bundle['format_version'] in (4,5,6)
+        has_catalog=bundle['format_version'] in (4,5,6,7)
         if bundle['format_version']==5 and set(bundle.get('catalog',{}))!=set(V5_CATALOG_TABLES):raise ValueError('format5 evaluation catalog required')
-        if bundle['format_version']==6 and set(bundle.get('catalog',{}))!=set(CATALOG_TABLES):raise ValueError('format6 preparation catalog required')
+        if bundle['format_version'] in (6,7) and set(bundle.get('catalog',{}))!=set(CATALOG_TABLES):raise ValueError('format6 preparation catalog required')
         if has_catalog:
             directory=audit_catalog(bundle['catalog'],bundle['rows'],bundle_dir/'files')
             if not directory['valid']:
@@ -1095,6 +1163,12 @@ def restore(container, bundle_dir, destination):
             revoked_sessions=revoke_restored_sessions(container)
         phase='restore_files'
         shutil.copytree(bundle_dir/'files',destination)
+        if bundle['format_version']==7:
+            shutil.copytree(bundle_dir/'control',control_destination,dirs_exist_ok=_reserved_control)
+            os.chmod(control_destination,0o700)
+            if inventory(control_destination)!=bundle['control_files']:raise ValueError('restored control bytes differ')
+            if terminal_shared.verifier_rows(pg,container,'m4_restore_validation')!=bundle['verifiers']:raise ValueError('restored verifier history differs')
+            terminal_shared.audit_exits(bundle['rows'],bundle['attempts'],bundle['verifiers'],control_destination,safe)
         rows=rows_now(container,'m4_restore_validation')
         if rows!=bundle['rows']: raise ValueError('restored task metadata differs from snapshot')
         if attempts_now(container,'m4_restore_validation')!=bundle.get('attempts',[]):raise ValueError('restored attempt history differs from snapshot')
@@ -1109,7 +1183,7 @@ def restore(container, bundle_dir, destination):
             if not directory['valid']:
                 raise ValueError('restored catalog invalid: '+json.dumps(directory['errors']))
             include_catalog_references(result,directory)
-            if bundle['format_version']==6:
+            if bundle['format_version'] in (6,7):
                 result['preparation_audit']=audit_preparation_documents(container,'m4_restore_validation',restored_catalog,rows,destination)
         if inventory(destination)!=bundle['files']:raise ValueError('restored file inventory differs from bundle')
         result.update(phase='completed',database='m4_restore_validation',metadata_equal=True,
@@ -1117,6 +1191,10 @@ def restore(container, bundle_dir, destination):
         if has_catalog:
             result.update(catalog_equal=True,catalog_audit=directory,sessions_revoked=revoked_sessions,
                           session_restore_policy='revoke_all_sessions_before_restored_service_start')
+        if bundle['format_version']==7:
+            result.update(control_inventory_equal_before_rebase=True,verifier_history_equal=True,
+                capacity_rebase=terminal_shared.rebase_capacity(control_destination,bundle['original_root'],destination),
+                source_trust='pending_formal_service_reverification',restored_authority_credentials=False)
         write_report(report,result)
         return result
     except (OSError,ValueError,KeyError,TypeError,AttributeError,IndexError,subprocess.SubprocessError) as error:
@@ -1135,8 +1213,10 @@ def main():
     for action in ('backup','restore'):
         q=sub.add_parser(action);q.add_argument('--container',required=True);q.add_argument('--destination',required=True)
         q.add_argument('--source',required=True)
+        q.add_argument('--control-root' if action=='backup' else '--control-destination')
+        if action=='backup':q.add_argument('--maintenance',action='store_true')
     args=p.parse_args()
-    result=backup(args.container,'m4_validation',args.source,args.destination) if args.action=='backup' else restore(args.container,args.source,args.destination)
+    result=backup(args.container,'m4_validation',args.source,args.destination,control_root=args.control_root,maintenance=args.maintenance) if args.action=='backup' else restore(args.container,args.source,args.destination,control_destination=args.control_destination)
     print(json.dumps({'action':args.action,'valid':True,'orphan_policy':result.get('orphan_policy',result.get('source_audit',{}).get('orphan_policy'))}))
 
 if __name__=='__main__': main()

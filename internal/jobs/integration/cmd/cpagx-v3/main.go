@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 	"time"
 )
@@ -34,6 +35,19 @@ func main() {
 		log.Fatal(e)
 	}
 	defer db.Close()
+	if cfg.CapacityPolicy == capacity.EngineeringCore {
+		if e = os.MkdirAll(cfg.ControlRoot, 0700); e != nil {
+			log.Fatal(e)
+		}
+		lock, err := os.OpenFile(filepath.Join(cfg.ControlRoot, ".maintenance.lock"), os.O_CREATE|os.O_RDWR, 0600)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if err = syscall.Flock(int(lock.Fd()), syscall.LOCK_SH|syscall.LOCK_NB); err != nil {
+			log.Fatal("terminal backup maintenance in progress")
+		}
+		defer lock.Close()
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	if e = db.PingContext(ctx); e != nil {

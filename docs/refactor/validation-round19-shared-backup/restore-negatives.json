@@ -1,0 +1,49 @@
+{
+  "checks": [
+    {
+      "database_command_count": 0,
+      "mutant": "missing_database",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    },
+    {
+      "database_command_count": 0,
+      "mutant": "same_size_source_tamper",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    },
+    {
+      "database_command_count": 0,
+      "mutant": "wrong_run_identity",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    },
+    {
+      "database_command_count": 0,
+      "mutant": "unknown_format",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    },
+    {
+      "database_command_count": 0,
+      "mutant": "unexited_verifier",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    },
+    {
+      "database_command_count": 0,
+      "mutant": "unexited_attempt",
+      "phase": "bundle_integrity",
+      "restore_files_created": false,
+      "status": "rejected"
+    }
+  ],
+  "original_bundle_inventory_unchanged": true,
+  "scope": "stored format7 restore preflight; no new computation or database writes",
+  "status": "passed"
+}
