@@ -28,12 +28,33 @@ export function matches(row: Row, filter: Filter): boolean {
   }
   return true;
 }
-export function boundedGraph(nodes: Row[], edges: Row[], rows: Row[], filter: Filter, nodeCap = 200, edgeCap = 600) {
+export type AnalysisProjection = { timeline: Row[]; candidates: Row[] };
+/** Join only the saved operation/change IDs. Labels never establish an association. */
+export function filterAnalysisRows(operations: Row[], changes: Row[], candidates: Row[], filter: Filter) {
+  const operationById = new Map(operations.map(row => [idOf(row), row]));
+  const changeById = new Map(changes.map(row => [idOf(row), row]));
+  const directOperations = filter.kind === 'candidate' ? [] : operations.filter(row => matches(row, filter));
+  const directChanges = filter.kind === 'candidate' ? [] : changes.filter(row => matches(row, filter));
+  const operationIds = new Set(directOperations.map(idOf)), changeIds = new Set(directChanges.map(idOf));
+  const textOnly = { ...EMPTY_FILTER, text: filter.text };
+  const candidateFilter = { ...filter, kind: '', text: '' };
+  const selectedCandidates = candidates.filter(row => {
+    if (!matches(row, candidateFilter)) return false;
+    const operation = operationById.get(row.operation_id), change = changeById.get(row.change_id);
+    if (filter.kind === 'operation' && !operationIds.has(row.operation_id)) return false;
+    if (filter.kind === 'change' && !changeIds.has(row.change_id)) return false;
+    return !filter.text || matches(row, textOnly) || Boolean(operation && matches(operation, textOnly)) || Boolean(change && matches(change, textOnly));
+  });
+  // Timeline rows must satisfy their own filter; candidate context belongs to the graph.
+  return { timeline: [...directOperations, ...directChanges], candidates: selectedCandidates };
+}
+
+export function boundedGraph(nodes: Row[], edges: Row[], rows: Row[], filter: Filter, nodeCap = 200, edgeCap = 600, projection?: AnalysisProjection) {
   const filtering = Object.values(filter).some(Boolean);
-  const ids = new Set<string>(), directEvents = new Set<string>();
-  if (filtering) rows.filter(row => matches(row, filter)).forEach(row => {
+  const projected = projection ?? filterAnalysisRows(rows.filter(row => kindOf(row) === 'operation'), rows.filter(row => kindOf(row) === 'change'), rows.filter(row => kindOf(row) === 'candidate'), filter);
+  const ids = new Set<string>(), candidateIds = new Set(projected.candidates.map(idOf));
+  if (filtering) [...projected.timeline, ...projected.candidates].forEach(row => {
     ids.add(idOf(row));
-    if (!row.candidate_id) directEvents.add(idOf(row));
     if (row.candidate_id) { ids.add(row.operation_id); ids.add(row.change_id); }
     if (row.response?.event_id) ids.add(row.response.event_id);
     if (row.result) { ids.add(row.result.before_event_id); ids.add(row.result.after_event_id); }
@@ -41,16 +62,24 @@ export function boundedGraph(nodes: Row[], edges: Row[], rows: Row[], filter: Fi
   const eligible = filtering ? nodes.filter(node => ids.has(node.event_id ?? node.id)) : nodes;
   const visible = eligible.slice(0, Math.min(nodeCap, LIMITS.nodes));
   const visibleIds = new Set(visible.map(node => node.id));
-  const eligibleEdges = edges.filter(edge => visibleIds.has(edge.source) && visibleIds.has(edge.target) && (!filtering || ids.has(edge.claim_id ?? edge.id) || directEvents.has(edge.source) || directEvents.has(edge.target)) && (!filter.state || edge.candidate_state === filter.state || ids.has(edge.claim_id ?? edge.id)));
+  const eligibleEdges = edges.filter(edge => visibleIds.has(edge.source) && visibleIds.has(edge.target) && (!filtering || candidateIds.has(edge.claim_id ?? edge.id)));
   return { nodes: visible, edges: eligibleEdges.slice(0, Math.min(edgeCap, LIMITS.edges)), eligibleNodes: eligible.length, eligibleEdges: eligibleEdges.length, clippedNodes: Math.max(0, eligible.length - visible.length), clippedEdges: Math.max(0, eligibleEdges.length - Math.min(edgeCap, LIMITS.edges)) };
 }
-export function aggregate(rows: Row[], dimension: 'state' | 'asset' | 'minute') {
+export function selectionInView(selection: Selection, timeline: Row[], candidates: Row[], nodes: Row[]) {
+  const rows = selection.kind === 'candidate' ? candidates : selection.kind === 'node' ? nodes : timeline.filter(row => kindOf(row) === selection.kind);
+  return rows.some(row => (selection.kind === 'node' ? String(row.id) : idOf(row)) === selection.id);
+}
+export type GroupDimension = 'state' | 'asset' | 'minute';
+export function aggregationKey(row: Row, dimension: GroupDimension) {
+  const time = intervalOf(row);
+  return dimension === 'state' ? stateOf(row) : dimension === 'asset' ? String(row.mapping?.asset_id ?? row.result?.asset_id ?? '未知资产') : time ? new Date(Math.floor(time[0] / 60) * 60000).toISOString() : '时间未知';
+}
+export function groupMembers(rows: Row[], dimension: GroupDimension, key: string) {
+  return rows.filter(row => aggregationKey(row, dimension) === key);
+}
+export function aggregate(rows: Row[], dimension: GroupDimension) {
   const groups = new Map<string, number>();
-  rows.forEach(row => {
-    const time = intervalOf(row);
-    const key = dimension === 'state' ? stateOf(row) : dimension === 'asset' ? String(row.mapping?.asset_id ?? row.result?.asset_id ?? '未知资产') : time ? new Date(Math.floor(time[0] / 60) * 60000).toISOString() : '时间未知';
-    groups.set(key, (groups.get(key) ?? 0) + 1);
-  });
+  rows.forEach(row => { const key = aggregationKey(row, dimension); groups.set(key, (groups.get(key) ?? 0) + 1); });
   return Array.from(groups, ([key, count]) => ({ key, count })).sort((a, b) => b.count - a.count || a.key.localeCompare(b.key));
 }
 /** Fixed lanes, linear cost, and no force-layout / animation work. */

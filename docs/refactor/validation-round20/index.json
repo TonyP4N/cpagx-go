@@ -660,5 +660,306 @@
     "3": "92b47cdb9c4829962071140062a60fee27188c90a84932eef13f8ad489993d38",
     "4": "2168190ac0af24edb8182a95024f4d94114db1629b851aaf4e066db1151c6714",
     "5": "2d04bb9274b4425b386f2d929b407e23b9025f198f4a45d8f9d5af8edb7cfec4"
+  },
+  "review_followup_20261104": {
+    "baseline": "74d676b23178880901199fab5be9f726725fd00b",
+    "independent_review": {
+      "sha256": "4d071ddc830666b10e596b85f4c46f69f1fb38ab0c92bc8ce0a755f760c53ec7",
+      "source": "cpag-r20-review-74d676b.json",
+      "scope": "Final frozen workbench served inside a browser route. Local HTTP fixtures use actual generated Go spool responses; no public site or real authentication.",
+      "findings": {
+        "before": {
+          "graphEdges": 1,
+          "candidateRows": 1
+        },
+        "afterAsset": {
+          "graphEdges": 1,
+          "candidateRows": 0,
+          "timelineRows": 2
+        },
+        "group": {
+          "text": "synthetic-pump\t2",
+          "actions": 0
+        },
+        "emptyFilter": {
+          "graphNodes": "0",
+          "candidateRows": 0,
+          "timelineRows": 0,
+          "oldRefsVisible": true
+        },
+        "terminal": {
+          "query": {
+            "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+            "ref_offset": "0",
+            "ref_limit": "25"
+          },
+          "clearsGraph": true,
+          "serviceReason": "explicit bounded spool snapshot required"
+        },
+        "explicit": {
+          "query": {
+            "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+            "ref_offset": "0",
+            "ref_limit": "25",
+            "revision": "15"
+          },
+          "rawRefs": 4
+        }
+      }
+    },
+    "reused": {
+      "r19_fixed_s100": "912eb7b1a877b0d15083d832ef90577daa9cea8a",
+      "r20_browser_scale": "74d676b23178880901199fab5be9f726725fd00b",
+      "format7_restore": "4c1057c5296395aaa40754d16d461e0ded73e11f"
+    },
+    "build_id": "SxpheMa-bm9_4-RbD5J_H",
+    "filter_and_groups": {
+      "fixture": "synthetic-pump / normal legacy spool",
+      "method": "isolated formal HTTP service and ordinary browser controls; held and released one genuine HTTP evidence response",
+      "status": "passed",
+      "checks": {
+        "fixed_build_identity": true,
+        "asset_filter_two_timeline_one_candidate_one_saved_edge": true,
+        "candidate_kind_allows_deliberate_member_drilldown": true,
+        "filtered_selection_and_late_verified_response_revoked": true,
+        "clear_filter_allows_reselection": true,
+        "aggregate_mouse_and_keyboard_expand_collapse": true,
+        "aggregate_each_saved_member_resolves_own_originals": true
+      },
+      "selection_ids": {
+        "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+        "change": "change-7e2f509051bc8d01c5f6c8f071e8c80d3529944c4871091bbda45c4f4c7f38b5",
+        "candidate": "candidate-6c523a01e95c128062a5888bb3625b5ab27a944ecd01be402b4b6c196930d2f3",
+        "edge": "candidate-6c523a01e95c128062a5888bb3625b5ab27a944ecd01be402b4b6c196930d2f3",
+        "claim": "candidate-6c523a01e95c128062a5888bb3625b5ab27a944ecd01be402b4b6c196930d2f3",
+        "asset": "synthetic-pump"
+      },
+      "delayed_response": "released",
+      "page_errors": [],
+      "raw_report": "output/playwright/r20-linked-controls-20261104-attempt2/linked-controls-report.json",
+      "sha256": "122877e9b4a9500bc8f65edd9194d1494fb5e5d22bec4f9eee2fa8c187004a0b",
+      "member_originals": {
+        "operation": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225610000000",
+            "record_number": null,
+            "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504",
+            "source_slot": "network-0"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225611000000",
+            "record_number": null,
+            "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec",
+            "source_slot": "network-1"
+          }
+        ],
+        "change": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          }
+        ]
+      }
+    },
+    "legacy_replay": {
+      "status": "passed",
+      "checks": {
+        "terminal": {
+          "status": "passed",
+          "snapshot": 15,
+          "verifiedRawReferences": 4
+        },
+        "explicit-final": {
+          "status": "passed",
+          "snapshot": 15,
+          "verifiedRawReferences": 4
+        },
+        "early-prefix": {
+          "status": "passed",
+          "snapshot": 3,
+          "verifiedRawReferences": 1
+        }
+      },
+      "requests": [
+        {
+          "label": "terminal",
+          "query": {
+            "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+            "ref_offset": "0",
+            "ref_limit": "25",
+            "revision": "15"
+          },
+          "status": 200
+        },
+        {
+          "label": "explicit-final",
+          "query": {
+            "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+            "ref_offset": "0",
+            "ref_limit": "25",
+            "revision": "15"
+          },
+          "status": 200
+        },
+        {
+          "label": "early-prefix",
+          "query": {
+            "operation": "packet-f9a03e68e763ccb3ddf6ac41ae9aeb5f3a2438f56087f697272b80a7ce42d48f",
+            "ref_offset": "0",
+            "ref_limit": "25",
+            "revision": "3"
+          },
+          "status": 200
+        }
+      ],
+      "page_errors": [],
+      "independent_originals": {
+        "terminal": {
+          "version": "r19-independent-core-oracle-1",
+          "checked_references": [
+            {
+              "kind": "csv",
+              "number": 3,
+              "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+              "byte_offset": 33
+            },
+            {
+              "kind": "csv",
+              "number": 4,
+              "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+              "byte_offset": 63
+            },
+            {
+              "kind": "frame",
+              "number": 1,
+              "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+              "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504"
+            },
+            {
+              "kind": "frame",
+              "number": 1,
+              "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+              "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec"
+            }
+          ],
+          "all_returned_references_match_independent_originals": true
+        },
+        "explicit-final": {
+          "version": "r19-independent-core-oracle-1",
+          "checked_references": [
+            {
+              "kind": "csv",
+              "number": 3,
+              "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+              "byte_offset": 33
+            },
+            {
+              "kind": "csv",
+              "number": 4,
+              "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+              "byte_offset": 63
+            },
+            {
+              "kind": "frame",
+              "number": 1,
+              "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+              "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504"
+            },
+            {
+              "kind": "frame",
+              "number": 1,
+              "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+              "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec"
+            }
+          ],
+          "all_returned_references_match_independent_originals": true
+        },
+        "early-prefix": {
+          "version": "r19-independent-core-oracle-1",
+          "checked_references": [
+            {
+              "kind": "frame",
+              "number": 1,
+              "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+              "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504"
+            }
+          ],
+          "all_returned_references_match_independent_originals": true
+        }
+      },
+      "raw_report": "../outputs/cpag-r20-followup-legacy-private-20261104-attempt2/browser-legacy/verification.json",
+      "sha256": "07829958ca47cb4c509b6341d95eab6f6e139a7563e88fa332341f7e6d12b017"
+    },
+    "sources_sha256": {
+      "webui/src/components/r20/Analysis.tsx": "1bb58ab572eec9e6adc3535c76ec6432b573d41c88d6b805ef22adf0fe96a95c",
+      "webui/src/components/r20/analysisModel.ts": "9b4d1171003e158d32a7c8468c5dff1f997b7f5e2c25d6ef71694c5728222fe2"
+    },
+    "setup_observations": [
+      "Initial private fixture preparation rejected an undersized upload idempotency key with HTTP 422. A new isolated directory used a valid key and kept the first failure.",
+      "The first device-browser run passed. The final run uses bounded timeout and cleanup around intentionally delayed requests."
+    ],
+    "injected_metadata_only": {
+      "scope": "defensive browser count-field injection only, not a real one-snapshot task acceptance",
+      "checks": {
+        "count-one": {
+          "status": "passed",
+          "terminalNumber": 0,
+          "revision": "0",
+          "actualBackendStatus": 409,
+          "inconsistentSelectionRejected": true
+        },
+        "missing-count": {
+          "status": "passed",
+          "trustedGraphAndEvidenceAbsent": true
+        },
+        "zero-count": {
+          "status": "passed",
+          "trustedGraphAndEvidenceAbsent": true
+        },
+        "fractional-count": {
+          "status": "passed",
+          "trustedGraphAndEvidenceAbsent": true
+        },
+        "string-count": {
+          "status": "passed",
+          "trustedGraphAndEvidenceAbsent": true
+        }
+      },
+      "pageErrors": [],
+      "buildId": "SxpheMa-bm9_4-RbD5J_H",
+      "status": "passed"
+    }
   }
 }
