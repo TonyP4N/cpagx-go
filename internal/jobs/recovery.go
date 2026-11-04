@@ -14,6 +14,7 @@ import (
 // ExitProof is written by the trusted guardian only after the entire computation
 // process group has exited. No remote PID is interpreted on the recovery host.
 type ExitProof struct {
+	Kubernetes  *KubeTermination  `json:"kubernetes,omitempty"`
 	Removed     bool              `json:"removed,omitempty"`
 	InspectedID string            `json:"inspected_id,omitempty"`
 	Running     *bool             `json:"running,omitempty"`

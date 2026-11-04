@@ -599,22 +599,23 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var q struct {
-		Attempt     int               `json:"attempt"`
-		Worker      string            `json:"worker"`
-		Token       string            `json:"token"`
-		Lease       int               `json:"lease_seconds"`
-		Message     string            `json:"message"`
-		Retryable   bool              `json:"retryable"`
-		ManifestSHA string            `json:"manifest_sha256"`
-		Location    string            `json:"location"`
-		ContainerID string            `json:"container_id"`
-		Scope       string            `json:"scope"`
-		Removed     bool              `json:"removed"`
-		Exited      bool              `json:"exited"`
-		InspectedID string            `json:"inspected_id"`
-		Running     *bool             `json:"running"`
-		PID         *int              `json:"pid"`
-		Labels      map[string]string `json:"labels"`
+		Attempt     int                   `json:"attempt"`
+		Worker      string                `json:"worker"`
+		Token       string                `json:"token"`
+		Lease       int                   `json:"lease_seconds"`
+		Message     string                `json:"message"`
+		Retryable   bool                  `json:"retryable"`
+		ManifestSHA string                `json:"manifest_sha256"`
+		Location    string                `json:"location"`
+		Kubernetes  *jobs.KubeTermination `json:"kubernetes,omitempty"`
+		ContainerID string                `json:"container_id"`
+		Scope       string                `json:"scope"`
+		Removed     bool                  `json:"removed"`
+		Exited      bool                  `json:"exited"`
+		InspectedID string                `json:"inspected_id"`
+		Running     *bool                 `json:"running"`
+		PID         *int                  `json:"pid"`
+		Labels      map[string]string     `json:"labels"`
 	}
 	if err := decode(w, r, &q); err != nil {
 		fail(err)
@@ -628,7 +629,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "execution":
 		err = s.Repo.RegisterExecution(r.Context(), c, q.Location, q.ContainerID)
 	case "exit":
-		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
+		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{Kubernetes: q.Kubernetes, ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
 	case "heartbeat":
 		err = s.Repo.Heartbeat(r.Context(), c, time.Duration(q.Lease)*time.Second)
 		if err == nil {
