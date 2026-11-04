@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"database/sql/driver"
 	"errors"
+	"io"
 	"net/http/httptest"
 	"os"
 	"path/filepath"
@@ -25,7 +26,26 @@ func (healthTestConnection) Prepare(string) (driver.Stmt, error) { return nil, e
 func (healthTestConnection) Close() error                        { return nil }
 func (healthTestConnection) Begin() (driver.Tx, error)           { return nil, errors.New("unused") }
 func (healthTestConnection) Ping(context.Context) error          { return nil }
-func init()                                                      { sql.Register("catalog-health-test", healthTestDriver{}) }
+
+type absentObservationRows struct{ emitted bool }
+
+func (*absentObservationRows) Columns() []string { return []string{"exists"} }
+func (*absentObservationRows) Close() error      { return nil }
+func (rows *absentObservationRows) Next(values []driver.Value) error {
+	if rows.emitted {
+		return io.EOF
+	}
+	rows.emitted = true
+	values[0] = false
+	return nil
+}
+func (healthTestConnection) QueryContext(_ context.Context, query string, _ []driver.NamedValue) (driver.Rows, error) {
+	if strings.Contains(query, "to_regclass") {
+		return &absentObservationRows{}, nil
+	}
+	return nil, errors.New("unused query")
+}
+func init() { sql.Register("catalog-health-test", healthTestDriver{}) }
 func healthFixture(t *testing.T, name string) *Server {
 	t.Helper()
 	root, err := filepath.EvalSymlinks(t.TempDir())
@@ -120,5 +140,19 @@ func TestOperationsRequireAdminAndBoundQuery(t *testing.T) {
 	s.ServeHTTP(w, httptest.NewRequest("GET", "/api/v3/health/operations", nil))
 	if w.Code != 401 {
 		t.Fatalf("unauthenticated=%d", w.Code)
+	}
+}
+
+func TestOperationsMissingObservationSchemaIsExplicit(t *testing.T) {
+	s := healthFixture(t, "up")
+	w := httptest.NewRecorder()
+	s.serveOperations(w, httptest.NewRequest("GET", "/api/v3/health/operations", nil), &principal{Role: "admin"}, []string{"health", "operations"})
+	if w.Code != 503 || !strings.Contains(w.Body.String(), "operations_schema_not_ready") {
+		t.Fatalf("missing schema=%d %s", w.Code, w.Body.String())
+	}
+	w = httptest.NewRecorder()
+	s.ServeHTTP(w, httptest.NewRequest("GET", "/health/ready", nil))
+	if w.Code != 200 {
+		t.Fatal("optional observation schema changed legacy readiness")
 	}
 }

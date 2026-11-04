@@ -262,6 +262,7 @@ class CatalogBackupTests(unittest.TestCase):
                  patch.object(bundle,'attempts_now',return_value=[]),\
                  patch.object(bundle,'catalog_now',return_value=selected),\
                  patch.object(bundle,'revoke_restored_sessions',side_effect=revoke),\
+                 patch.object(bundle,'clear_restored_worker_observations',return_value={'table_present':False,'removed':0}),\
                  patch.object(bundle.shutil,'copytree',side_effect=tracked_copy):
                 result=bundle.restore('mock',source,dest)
             self.assertTrue(result['valid'],result)

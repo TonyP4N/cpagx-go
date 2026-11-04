@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Offline M4 validation bundles. Local directories + docker pg_dump, no archive extraction.
-Only explicitly named disposable databases are accepted by this validation utility.
+The default validation lane accepts only named disposable databases. Deployment
+callers need an explicit, scoped operator database policy; names are not aliased.
 """
 import argparse
 from datetime import datetime
@@ -18,6 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO/'services/analysis/src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import terminal_shared
+from postgres_target import require_database
 from cpag_core.contracts import validate
 from cpag_core.evidence import EvidenceIndex
 from cpag_core.packet_pipeline import PacketEvidence
@@ -80,21 +82,41 @@ def catalog_now(container, db, tables=CATALOG_TABLES):
     return catalog
 
 
-def revoke_restored_sessions(container):
+def revoke_restored_sessions(container, database='m4_restore_validation'):
     """Invalidate every restored login before a restored service can be started."""
-    result = pg(container, 'm4_restore_validation', 'psql', '-X', '-qAt',
+    result = pg(container, database, 'psql', '-X', '-qAt',
                 '-v', 'ON_ERROR_STOP=1', '-c',
                 "WITH revoked AS (UPDATE v3_sessions SET revoked_at=clock_timestamp() "
                 "WHERE revoked_at IS NULL RETURNING id) SELECT count(*) FROM revoked;",
                 capture_output=True, text=True)
     count = int(result.stdout.strip())
-    remaining = pg(container, 'm4_restore_validation', 'psql', '-X', '-qAt',
+    remaining = pg(container, database, 'psql', '-X', '-qAt',
                    '-v', 'ON_ERROR_STOP=1', '-c',
                    'SELECT count(*) FROM v3_sessions WHERE revoked_at IS NULL;',
                    capture_output=True, text=True)
     if int(remaining.stdout.strip()) != 0:
         raise ValueError('restored login sessions remain active')
     return count
+
+
+def clear_restored_worker_observations(container, database):
+    """A restored heartbeat is historical data, never evidence of a live Worker."""
+    result = pg(container, database, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
+                '-c', "SELECT (to_regclass('public.m4_worker_observations') IS NOT NULL)::text;",
+                capture_output=True, text=True).stdout.strip()
+    if result == 'false':
+        return {'table_present': False, 'removed': 0}
+    if result != 'true':
+        raise ValueError('cannot establish restored Worker observation schema')
+    count = pg(container, database, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
+               '-c', 'SELECT count(*) FROM m4_worker_observations;', capture_output=True, text=True).stdout.strip()
+    pg(container, database, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
+       '-c', 'TRUNCATE m4_worker_observations;', capture_output=True, text=True)
+    remaining = pg(container, database, 'psql', '-X', '-qAt', '-v', 'ON_ERROR_STOP=1',
+                   '-c', 'SELECT count(*) FROM m4_worker_observations;', capture_output=True, text=True).stdout.strip()
+    if int(remaining) != 0:
+        raise ValueError('restored Worker observations remain active')
+    return {'table_present': True, 'removed': int(count)}
 
 
 def dual_networks(payload):
@@ -950,7 +972,7 @@ def include_catalog_references(task_audit, catalog_audit):
 
 
 def pg(container, db, command, *args, **kwargs):
-    if db not in ('m4_validation','m4_restore_validation'): raise ValueError('only disposable validation databases allowed')
+    require_database(container, db)
     return subprocess.run(['docker','exec','-i',container,command,'-U','postgres','-d',db,*args],check=True,**kwargs)
 
 
@@ -982,7 +1004,7 @@ def _backup(container, db, root, destination, *, control=None):
     root=Path(root).resolve();destination=Path(destination).resolve()
     if not root.is_dir(): raise ValueError('source root must exist')
     if destination.exists() or destination.is_relative_to(root): raise ValueError('new bundle outside shared root required')
-    if db!='m4_validation': raise ValueError('backup source must be disposable m4_validation')
+    require_database(container, db, 'source')
     # Hold SHARE locks across dump and copy. Writers cannot change the M4 task
     # history or V3 directory metadata while the exported snapshot is in use.
     created_destination=False;phase='database_snapshot';preparation_cache={};preparations=None;copied_preparations=None
@@ -1103,17 +1125,19 @@ def write_report(path, value):
         if temporary is not None and temporary.exists():temporary.unlink()
 
 
-def restore(container, bundle_dir, destination, *, control_destination=None):
-    if control_destination is None:return _restore(container,bundle_dir,destination)
+def restore(container, bundle_dir, destination, *, control_destination=None, database='m4_restore_validation'):
+    require_database(container, database, 'restore')
+    if control_destination is None:return _restore(container,bundle_dir,destination,database=database)
     control=Path(control_destination).resolve()
     if control.exists() or control==Path(destination).resolve() or control.is_relative_to(Path(destination).resolve()) or Path(destination).resolve().is_relative_to(control) or control.is_relative_to(Path(bundle_dir).resolve()):
         raise ValueError('new separate control destination required')
     control.mkdir(mode=0o700,parents=True)
     with terminal_shared.maintenance(control):
-        return _restore(container,bundle_dir,destination,control_destination=control,_reserved_control=True)
+        return _restore(container,bundle_dir,destination,control_destination=control,_reserved_control=True,database=database)
 
 
-def _restore(container, bundle_dir, destination, *, control_destination=None,_reserved_control=False):
+def _restore(container, bundle_dir, destination, *, control_destination=None,_reserved_control=False,database='m4_restore_validation'):
+    require_database(container, database, 'restore')
     bundle_dir=Path(bundle_dir).resolve();destination=Path(destination).resolve()
     report=destination.parent/(destination.name+'-audit.json')
     if destination.exists() or report.exists() or destination.is_relative_to(bundle_dir):
@@ -1153,27 +1177,31 @@ def _restore(container, bundle_dir, destination, *, control_destination=None,_re
                 raise ValueError('bundle catalog invalid: '+json.dumps(directory['errors']))
         phase='create_new_database'
         # createdb refuses an existing target: never overwrite a current database.
-        subprocess.run(['docker','exec',container,'createdb','-U','postgres','m4_restore_validation'],check=True)
+        subprocess.run(['docker','exec',container,'createdb','-U','postgres',database],check=True)
         phase='restore_database'
         with (bundle_dir/'database.dump').open('rb') as dump:
-            pg(container,'m4_restore_validation','pg_restore','--exit-on-error','--no-owner',stdin=dump)
+            pg(container,database,'pg_restore','--exit-on-error','--no-owner',stdin=dump)
         revoked_sessions=0
         if has_catalog:
             phase='revoke_restored_sessions'
-            revoked_sessions=revoke_restored_sessions(container)
+            revoked_sessions=revoke_restored_sessions(container) if database=='m4_restore_validation' else revoke_restored_sessions(container,database)
+        worker_observations={'table_present':False,'removed':0}
+        if has_catalog:
+            phase='clear_restored_worker_observations'
+            worker_observations=clear_restored_worker_observations(container,database)
         phase='restore_files'
         shutil.copytree(bundle_dir/'files',destination)
         if bundle['format_version']==7:
             shutil.copytree(bundle_dir/'control',control_destination,dirs_exist_ok=_reserved_control)
             os.chmod(control_destination,0o700)
             if inventory(control_destination)!=bundle['control_files']:raise ValueError('restored control bytes differ')
-            if terminal_shared.verifier_rows(pg,container,'m4_restore_validation')!=bundle['verifiers']:raise ValueError('restored verifier history differs')
+            if terminal_shared.verifier_rows(pg,container,database)!=bundle['verifiers']:raise ValueError('restored verifier history differs')
             terminal_shared.audit_exits(bundle['rows'],bundle['attempts'],bundle['verifiers'],control_destination,safe)
-        rows=rows_now(container,'m4_restore_validation')
+        rows=rows_now(container,database)
         if rows!=bundle['rows']: raise ValueError('restored task metadata differs from snapshot')
-        if attempts_now(container,'m4_restore_validation')!=bundle.get('attempts',[]):raise ValueError('restored attempt history differs from snapshot')
+        if attempts_now(container,database)!=bundle.get('attempts',[]):raise ValueError('restored attempt history differs from snapshot')
         if has_catalog:
-            restored_catalog=catalog_now(container,'m4_restore_validation',tuple(bundle['catalog']))
+            restored_catalog=catalog_now(container,database,tuple(bundle['catalog']))
             if restored_catalog!=bundle['catalog']:
                 raise ValueError('restored catalog metadata differs from snapshot')
         result=audit(rows,destination)
@@ -1184,10 +1212,11 @@ def _restore(container, bundle_dir, destination, *, control_destination=None,_re
                 raise ValueError('restored catalog invalid: '+json.dumps(directory['errors']))
             include_catalog_references(result,directory)
             if bundle['format_version'] in (6,7):
-                result['preparation_audit']=audit_preparation_documents(container,'m4_restore_validation',restored_catalog,rows,destination)
+                result['preparation_audit']=audit_preparation_documents(container,database,restored_catalog,rows,destination)
         if inventory(destination)!=bundle['files']:raise ValueError('restored file inventory differs from bundle')
-        result.update(phase='completed',database='m4_restore_validation',metadata_equal=True,
-                      file_inventory_equal=True,attempt_history_equal=True)
+        result.update(phase='completed',database=database,metadata_equal=True,
+                      file_inventory_equal=True,attempt_history_equal=True,
+                      worker_observations_cleared=worker_observations)
         if has_catalog:
             result.update(catalog_equal=True,catalog_audit=directory,sessions_revoked=revoked_sessions,
                           session_restore_policy='revoke_all_sessions_before_restored_service_start')
