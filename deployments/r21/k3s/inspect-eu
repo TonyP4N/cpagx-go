@@ -1,0 +1,13 @@
+#!/bin/sh
+# Read-only inventory. Run on the EU management host with its explicit context.
+set -eu
+: "${1:?usage: inspect-eu <authorized-EU-context>}"
+ctx=$1
+k() { kubectl --context="$ctx" --request-timeout=15s "$@"; }
+project=$(k -n argocd get appproject eu-apps -o jsonpath='{.metadata.name}')
+[ "$project" = eu-apps ] || { echo 'EU project could not be confirmed' >&2; exit 1; }
+k get nodes -o 'custom-columns=NODE:.metadata.name,ARCH:.status.nodeInfo.architecture,RUNTIME:.status.nodeInfo.containerRuntimeVersion,CPU:.status.allocatable.cpu,MEMORY:.status.allocatable.memory,EPHEMERAL:.status.allocatable.ephemeral-storage'
+k get storageclass -o 'custom-columns=CLASS:.metadata.name,PROVISIONER:.provisioner,BINDING:.volumeBindingMode'
+k get pvc -n app -o 'custom-columns=CLAIM:.metadata.name,STATUS:.status.phase,CLASS:.spec.storageClassName,CAPACITY:.status.capacity.storage'
+k top nodes || echo 'Live utilization unavailable; check EU monitoring before sizing.' >&2
+echo 'Allocatable capacity excludes system reservations but includes existing workload requests. Check their totals and actual backing-volume free space before scheduling.'
