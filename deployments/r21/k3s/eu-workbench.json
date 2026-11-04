@@ -1,0 +1,316 @@
+{
+  "apiVersion": "apps/v1",
+  "kind": "Deployment",
+  "metadata": {
+    "name": "cpag-api",
+    "namespace": "cpag"
+  },
+  "spec": {
+    "progressDeadlineSeconds": 600,
+    "replicas": 1,
+    "revisionHistoryLimit": 10,
+    "selector": {
+      "matchLabels": {
+        "app": "cpag-api"
+      }
+    },
+    "strategy": {
+      "type": "Recreate"
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "app": "cpag-api"
+        }
+      },
+      "spec": {
+        "automountServiceAccountToken": false,
+        "containers": [
+          {
+            "image": "nginx:stable-alpine",
+            "imagePullPolicy": "IfNotPresent",
+            "name": "public-relay",
+            "resources": {
+              "limits": {
+                "cpu": "250m",
+                "memory": "64Mi"
+              },
+              "requests": {
+                "cpu": "10m",
+                "memory": "16Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/etc/nginx/conf.d",
+                "name": "relay",
+                "readOnly": true
+              }
+            ]
+          },
+          {
+            "command": [
+              "/opt/cpag/bin/cpagx-v3",
+              "--config",
+              "/etc/cpag/app.json"
+            ],
+            "env": [
+              {
+                "name": "CPAG_VERIFY_BACKEND",
+                "value": "kube-sidecar-v1"
+              }
+            ],
+            "image": "cpag-eu-suite:v2",
+            "imagePullPolicy": "Never",
+            "name": "api",
+            "readinessProbe": {
+              "exec": {
+                "command": [
+                  "python3",
+                  "-c",
+                  "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/health/ready',timeout=2).read()"
+                ]
+              },
+              "failureThreshold": 3,
+              "periodSeconds": 10,
+              "successThreshold": 1,
+              "timeoutSeconds": 4
+            },
+            "resources": {
+              "limits": {
+                "cpu": "1",
+                "memory": "512Mi"
+              },
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/verify-channel",
+                "name": "verify-channel"
+              },
+              {
+                "mountPath": "/etc/cpag",
+                "name": "config",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/state/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/state/control",
+                "name": "control"
+              }
+            ]
+          },
+          {
+            "command": [
+              "python3",
+              "/opt/cpag/source-verifier.py"
+            ],
+            "env": [
+              {
+                "name": "PYTHONPATH",
+                "value": "/opt/cpag/services/analysis/src"
+              }
+            ],
+            "image": "cpag-eu-suite:v2",
+            "imagePullPolicy": "Never",
+            "name": "source-verifier",
+            "resources": {
+              "limits": {
+                "cpu": "4",
+                "memory": "8Gi"
+              },
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              },
+              "readOnlyRootFilesystem": true
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/state/shared/jobs",
+                "name": "shared",
+                "readOnly": true,
+                "subPath": "jobs"
+              },
+              {
+                "mountPath": "/verify-channel",
+                "name": "verify-channel"
+              },
+              {
+                "mountPath": "/tmp",
+                "name": "verify-tmp"
+              }
+            ]
+          },
+          {
+            "command": [
+              "sh",
+              "-ec",
+              "umask 077; mkdir -p /private; cp /config/worker.json /private/worker.json; exec python3 -m cpag_worker.kube_service /private/worker.json"
+            ],
+            "env": [
+              {
+                "name": "CPAG_NAMESPACE_UID",
+                "value": "7953c811-8adc-468b-a6c1-ec03c9b47d73"
+              }
+            ],
+            "image": "cpag-eu-suite:v2",
+            "imagePullPolicy": "Never",
+            "name": "worker",
+            "resources": {
+              "limits": {
+                "cpu": "1",
+                "memory": "256Mi"
+              },
+              "requests": {
+                "cpu": "50m",
+                "memory": "64Mi"
+              }
+            },
+            "terminationMessagePath": "/dev/termination-log",
+            "terminationMessagePolicy": "File",
+            "volumeMounts": [
+              {
+                "mountPath": "/config",
+                "name": "worker-config",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                "name": "worker-account",
+                "readOnly": true
+              },
+              {
+                "mountPath": "/state/shared",
+                "name": "shared"
+              },
+              {
+                "mountPath": "/state/control",
+                "name": "control"
+              }
+            ]
+          }
+        ],
+        "dnsPolicy": "ClusterFirst",
+        "restartPolicy": "Always",
+        "schedulerName": "default-scheduler",
+        "securityContext": {},
+        "serviceAccount": "cpag-worker",
+        "serviceAccountName": "cpag-worker",
+        "terminationGracePeriodSeconds": 30,
+        "volumes": [
+          {
+            "emptyDir": {},
+            "name": "verify-channel"
+          },
+          {
+            "emptyDir": {
+              "medium": "Memory",
+              "sizeLimit": "4Gi"
+            },
+            "name": "verify-tmp"
+          },
+          {
+            "name": "worker-config",
+            "secret": {
+              "defaultMode": 384,
+              "secretName": "cpag-worker-config"
+            }
+          },
+          {
+            "name": "worker-account",
+            "projected": {
+              "defaultMode": 420,
+              "sources": [
+                {
+                  "serviceAccountToken": {
+                    "expirationSeconds": 3600,
+                    "path": "token"
+                  }
+                },
+                {
+                  "configMap": {
+                    "items": [
+                      {
+                        "key": "ca.crt",
+                        "path": "ca.crt"
+                      }
+                    ],
+                    "name": "kube-root-ca.crt"
+                  }
+                },
+                {
+                  "downwardAPI": {
+                    "items": [
+                      {
+                        "fieldRef": {
+                          "apiVersion": "v1",
+                          "fieldPath": "metadata.namespace"
+                        },
+                        "path": "namespace"
+                      }
+                    ]
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "configMap": {
+              "defaultMode": 420,
+              "name": "cpag-public-relay"
+            },
+            "name": "relay"
+          },
+          {
+            "name": "config",
+            "secret": {
+              "defaultMode": 384,
+              "secretName": "cpag-app-config"
+            }
+          },
+          {
+            "name": "shared",
+            "persistentVolumeClaim": {
+              "claimName": "cpag-shared"
+            }
+          },
+          {
+            "name": "control",
+            "persistentVolumeClaim": {
+              "claimName": "cpag-control"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

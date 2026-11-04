@@ -453,7 +453,10 @@ class DockerExecutor:
 
     def read_output(self,container,target,payload,*,run_id=None,attempt_id=None):
         if shutil.disk_usage(self.root).free-self.output_bytes<self.min_free_bytes:raise OSError(28,'executor minimum free storage before handoff')
-        process=subprocess.Popen(['docker','exec',container,'tar','-C','/output/run','-cf','-','.'],stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
+        return self.read_archive(['docker','exec',container,'tar','-C','/output/run','-cf','-','.'],target,payload,run_id,attempt_id)
+
+    def read_archive(self,argv,target,payload,run_id,attempt_id):
+        process=subprocess.Popen(argv,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL)
         expired=threading.Event()
         def cutoff(): expired.set();process.kill()
         timer=threading.Timer(self.transfer_seconds,cutoff);timer.start()
