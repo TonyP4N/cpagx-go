@@ -81,7 +81,7 @@ func (s *Server) compactDownload(w http.ResponseWriter, r *http.Request, p *prin
 		fail(w, 409, "result_unavailable", "artifact unavailable")
 		return true
 	}
-	if s.audit(r.Context(), p, dataset, id, "artifact_download", "ok") != nil {
+	if s.audit(r.Context(), p, dataset, id, "artifact_download", "ok", name) != nil {
 		fail(w, 503, "audit_unavailable", "download audit unavailable")
 		return true
 	}

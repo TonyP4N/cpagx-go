@@ -26,6 +26,7 @@ import (
 )
 
 type Config struct {
+	ExternalOrigin         string `json:"external_origin,omitempty"`
 	DatabaseURL            string `json:"database_url"`
 	SharedRoot             string `json:"shared_root"`
 	ControlRoot            string `json:"control_root"`
@@ -106,6 +107,9 @@ func LoadConfig(path string) (Config, error) {
 	if d.Decode(new(any)) != io.EOF {
 		return c, errors.New("one config object required")
 	}
+	if err := validateExternalOrigin(c.ExternalOrigin); err != nil {
+		return c, err
+	}
 	if c.CapacityPolicy != "" && !capacity.IsEngineering(c.CapacityPolicy) {
 		return c, errors.New("unsupported site capacity policy")
 	}
@@ -147,6 +151,9 @@ func LoopbackAddr(addr string) bool {
 	return host == "127.0.0.1" || host == "[::1]" || host == "::1" || host == "localhost"
 }
 func New(db *sql.DB, c Config) (*Server, error) {
+	if err := validateExternalOrigin(c.ExternalOrigin); err != nil {
+		return nil, err
+	}
 	if c.CapacityPolicy != "" && !capacity.IsEngineering(c.CapacityPolicy) {
 		return nil, errors.New("unsupported site capacity policy")
 	}
@@ -285,16 +292,28 @@ func auditFields(p *principal, dataset, job string) (any, any, any) {
 	}
 	return uid, ds, j
 }
-func auditTx(ctx context.Context, tx *sql.Tx, p *principal, dataset, job, action, outcome string) error {
-	uid, ds, j := auditFields(p, dataset, job)
-	_, e := tx.ExecContext(ctx, "INSERT INTO v3_audit_events(user_id,dataset_id,job_id,action,outcome) VALUES($1,$2,$3,$4,$5)", uid, ds, j, action, outcome)
-	return e
+
+type auditExecutor interface {
+	ExecContext(context.Context, string, ...any) (sql.Result, error)
 }
-func (s *Server) audit(ctx context.Context, p *principal, dataset, job, action, outcome string) error {
+
+// Optional object is a server-owned identifier or an inventoried artifact member.
+// Credentials, caller-provided filesystem paths and request bodies stay out of audit.
+func auditTx(ctx context.Context, tx auditExecutor, p *principal, dataset, job, action, outcome string, object ...string) error {
 	uid, ds, j := auditFields(p, dataset, job)
-	// Fixed fields only: no request bodies, cookies, passwords, paths, or worker credentials.
-	_, e := s.DB.ExecContext(ctx, "INSERT INTO v3_audit_events(user_id,dataset_id,job_id,action,outcome) VALUES($1,$2,$3,$4,$5)", uid, ds, j, action, outcome)
-	return e
+	details := "{}"
+	if len(object) > 0 {
+		raw, err := json.Marshal(map[string]string{"object": object[0]})
+		if err != nil {
+			return err
+		}
+		details = string(raw)
+	}
+	_, err := tx.ExecContext(ctx, "INSERT INTO v3_audit_events(user_id,dataset_id,job_id,action,outcome,details) VALUES($1,$2,$3,$4,$5,$6::jsonb)", uid, ds, j, action, outcome, details)
+	return err
+}
+func (s *Server) audit(ctx context.Context, p *principal, dataset, job, action, outcome string, object ...string) error {
+	return auditTx(ctx, s.DB, p, dataset, job, action, outcome, object...)
 }
 func (s *Server) session(r *http.Request) (*principal, error) {
 	cookie, e := r.Cookie("cpag_session")
@@ -324,24 +343,12 @@ func (s *Server) can(ctx context.Context, p *principal, dataset string, write bo
 }
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(r.URL.Path, "/api/v3/") && r.Method != "GET" && r.Method != "HEAD" {
-		o := r.Header.Get("Origin")
-		if (o != "" && o != "http://"+s.cfg.PublicAddr) || r.Header.Get("Sec-Fetch-Site") == "cross-site" {
+		if !s.cfg.allowsWrite(r) {
 			fail(w, 403, "origin_denied", "request origin denied")
 			return
 		}
 	}
-	if r.URL.Path == "/health/live" {
-		respond(w, 200, map[string]string{"status": "live"})
-		return
-	}
-	if r.URL.Path == "/health/ready" {
-		ctx, c := context.WithTimeout(r.Context(), 2*time.Second)
-		defer c()
-		if s.DB.PingContext(ctx) != nil {
-			fail(w, 503, "not_ready", "database unavailable")
-			return
-		}
-		respond(w, 200, map[string]string{"status": "ready"})
+	if s.serveHealth(w, r) {
 		return
 	}
 	if r.URL.Path == "/api/v3/session" {
@@ -363,6 +370,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w = tracked
 		parts := strings.Split(strings.TrimPrefix(r.URL.Path, "/api/v3/"), "/")
 		switch parts[0] {
+		case "history":
+			s.legacyRead(w, r, p, parts)
 		case "users":
 			s.serveUsers(w, r, p, parts)
 		case "datasets":
@@ -371,6 +380,8 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			s.serveRuns(w, r, p, parts)
 		case "audit":
 			s.serveAudit(w, r, p)
+		case "health":
+			s.serveOperations(w, r, p, parts)
 		default:
 			fail(w, 404, "not_found", "route not found")
 		}
@@ -438,7 +449,7 @@ func (s *Server) serveSession(w http.ResponseWriter, r *http.Request) {
 			fail(w, 503, "database_error", "session unavailable")
 			return
 		}
-		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Value: raw, Path: "/api/v3", HttpOnly: true, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
+		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Value: raw, Path: "/api/v3", Secure: s.cfg.ExternalOrigin != "", HttpOnly: true, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
 		respond(w, 200, map[string]any{"user": p})
 	case "GET":
 		p, e := s.session(r)
@@ -468,7 +479,7 @@ func (s *Server) serveSession(w http.ResponseWriter, r *http.Request) {
 			fail(w, 503, "database_error", "session unavailable")
 			return
 		}
-		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Path: "/api/v3", MaxAge: -1, HttpOnly: true, SameSite: http.SameSiteStrictMode})
+		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Path: "/api/v3", MaxAge: -1, Secure: s.cfg.ExternalOrigin != "", HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		respond(w, 200, map[string]bool{"ok": true})
 	default:
 		fail(w, 405, "method_not_allowed", "method not allowed")
@@ -540,7 +551,7 @@ func (s *Server) serveAudit(w http.ResponseWriter, r *http.Request, p *principal
 		fail(w, 405, "method_not_allowed", "method not allowed")
 		return
 	}
-	rows, e := s.DB.QueryContext(r.Context(), "SELECT id,occurred_at,user_id,dataset_id,job_id,action,outcome FROM v3_audit_events ORDER BY id DESC LIMIT 200")
+	rows, e := s.DB.QueryContext(r.Context(), "SELECT id,occurred_at,user_id,dataset_id,job_id,action,outcome,details FROM v3_audit_events ORDER BY id DESC LIMIT 200")
 	if e != nil {
 		fail(w, 503, "database_error", "audit unavailable")
 		return
@@ -552,9 +563,17 @@ func (s *Server) serveAudit(w http.ResponseWriter, r *http.Request, p *principal
 		var at time.Time
 		var uid, ds, job *string
 		var action, outcome string
-		if rows.Scan(&id, &at, &uid, &ds, &job, &action, &outcome) == nil {
-			out = append(out, map[string]any{"id": id, "occurred_at": at, "user_id": uid, "dataset_id": ds, "job_id": job, "action": action, "outcome": outcome})
+		var detail json.RawMessage
+		if err := rows.Scan(&id, &at, &uid, &ds, &job, &action, &outcome, &detail); err != nil {
+			fail(w, 503, "database_error", "audit row unavailable")
+			return
+		} else {
+			out = append(out, map[string]any{"id": id, "occurred_at": at, "user_id": uid, "dataset_id": ds, "job_id": job, "action": action, "outcome": outcome, "details": detail})
 		}
+	}
+	if rows.Err() != nil {
+		fail(w, 503, "database_error", "audit incomplete")
+		return
 	}
 	respond(w, 200, map[string]any{"events": out})
 }

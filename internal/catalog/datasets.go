@@ -194,7 +194,7 @@ func (s *Server) grantACL(w http.ResponseWriter, r *http.Request, p *principal, 
 	defer tx.Rollback()
 	_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_dataset_acl(dataset_id,user_id,access) VALUES($1,$2,$3) ON CONFLICT(dataset_id,user_id) DO UPDATE SET access=EXCLUDED.access WHERE v3_dataset_acl.access!='owner'", id, q.UserID, q.Access)
 	if e == nil {
-		e = auditTx(r.Context(), tx, p, id, "", "acl_grant", "ok")
+		e = auditTx(r.Context(), tx, p, id, "", "acl_grant", "ok", q.UserID+"/"+q.Access)
 	}
 	if e != nil || tx.Commit() != nil {
 		fail(w, 409, "acl_conflict", "access grant failed")
@@ -303,7 +303,14 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request, p *principal
 		fail(w, 503, "storage_error", "storage unavailable")
 		return
 	}
-	_ = os.Chmod(target, 0400)
+	if e = os.Chmod(target, 0400); e == nil {
+		e = syncCatalogDirs(s.Root, dir)
+	}
+	if e != nil {
+		os.Remove(target)
+		fail(w, 503, "storage_error", "uploaded file could not be made durable")
+		return
+	}
 	tx, e := s.DB.BeginTx(r.Context(), nil)
 	if e != nil {
 		os.Remove(target)
@@ -322,11 +329,17 @@ func (s *Server) uploadFile(w http.ResponseWriter, r *http.Request, p *principal
 		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_dataset_files(id,dataset_id,source_file_id,role,filename,idempotency_key,created_by) VALUES($1,$2,$3,$4,$5,$6,$7)", fileID, id, sourceID, role, name, key, p.ID)
 	}
 	if e == nil {
-		e = auditTx(r.Context(), tx, p, id, "", "file_upload", "ok")
+		e = auditTx(r.Context(), tx, p, id, "", "file_upload", "ok", fileID)
 	}
-	if e != nil || tx.Commit() != nil {
+	if e != nil {
 		os.Remove(target)
 		fail(w, 409, "upload_conflict", "upload catalog conflict")
+		return
+	}
+	if tx.Commit() != nil {
+		// PostgreSQL might already have committed. Retrying this key reconciles
+		// the catalog; only an offline inventory can prove an orphan is unused.
+		fail(w, 503, "commit_unconfirmed", "retry with the same upload idempotency key")
 		return
 	}
 	respond(w, 201, map[string]any{"file": fileInfo{fileID, role, name, sha, n, time.Now().UTC()}})
@@ -348,7 +361,7 @@ func (s *Server) downloadFile(w http.ResponseWriter, r *http.Request, p *princip
 		fail(w, 409, "file_changed", "stored source changed")
 		return
 	}
-	if s.audit(r.Context(), p, dataset, "", "file_download", "ok") != nil {
+	if s.audit(r.Context(), p, dataset, "", "file_download", "ok", fileID) != nil {
 		fail(w, 503, "audit_unavailable", "download audit unavailable")
 		return
 	}
@@ -506,14 +519,44 @@ func (s *Server) createConfig(w http.ResponseWriter, r *http.Request, p *princip
 		fail(w, 503, "storage_error", "config unavailable")
 		return
 	}
+	if e = syncCatalogDirs(s.Root, dir); e != nil {
+		os.Remove(path)
+		fail(w, 503, "storage_error", "configuration directory could not be made durable")
+		return
+	}
 	_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_config_versions(id,dataset_id,kind,version,profile_storage_path,profile_sha256,config_fingerprint,profile_json,created_by) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)", cfgID, id, q.Kind, version, rel, sha, fingerprint, string(q.Document), p.ID)
 	if e == nil {
-		e = auditTx(r.Context(), tx, p, id, "", "config_create", "ok")
+		e = auditTx(r.Context(), tx, p, id, "", "config_create", "ok", cfgID)
 	}
-	if e != nil || tx.Commit() != nil {
+	if e != nil {
 		os.Remove(path)
 		fail(w, 503, "database_error", "config unavailable")
 		return
 	}
+	if tx.Commit() != nil {
+		fail(w, 503, "commit_unconfirmed", "list configuration versions before resubmission")
+		return
+	}
 	respond(w, 201, map[string]any{"config": configInfo{cfgID, q.Kind, version, sha, fingerprint, time.Now().UTC()}})
+}
+
+// Fsync each directory entry up through shared_root before the DB may reference
+// a new file. This also covers a first upload into a newly created directory.
+func syncCatalogDirs(root, dir string) error {
+	for {
+		f, err := os.Open(dir)
+		if err != nil {
+			return err
+		}
+		err = f.Sync()
+		f.Close()
+		if err != nil || dir == root {
+			return err
+		}
+		parent := filepath.Dir(dir)
+		if dir == parent {
+			return errors.New("catalog directory outside root")
+		}
+		dir = parent
+	}
 }

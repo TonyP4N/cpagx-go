@@ -1,11 +1,33 @@
 openapi: 3.1.0
 info:
-  title: CPAG v3 local research API
-  version: 0.5.0
-  description: Explicit opt-in local API. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay requires explicit nested history_format replay-history-checkpoint-delta-2, frozen in the payload and publication; old JSONL history retains its old limits. Capacity certification and unexecuted scales remain incomplete.
+  title: CPAG v3 research API
+  version: 0.6.0
+  description: Loopback API with optional operator-configured external HTTPS origin. External browser writes must match that origin. Sessions use HttpOnly and SameSite=Strict with Secure enabled in HTTPS mode. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay requires explicit nested history_format replay-history-checkpoint-delta-2, frozen in the payload and publication; old JSONL history retains its old limits. Capacity certification and unexecuted scales remain incomplete.
 servers:
   - url: http://127.0.0.1:8095
 paths:
+  /api/v3/history/jobs/{job}/artifacts:
+    parameters: [{ in: path, name: job, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator-only read of a published legacy normalized or packet synthetic job without dataset ACLs. Rechecks its attempt and source and artifact fingerprints.
+      responses:
+        '200': { description: Verified member names and digests }
+        '403': { description: Administrator required }
+        '409': { description: Unsupported format or unavailable publication }
+  /api/v3/history/jobs/{job}/artifacts/{name}/download:
+    parameters:
+      - { in: path, name: job, required: true, schema: { type: string } }
+      - { in: path, name: name, required: true, schema: { type: string } }
+    get:
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Attachment from the reverified inventory }
+        '401': { description: Login required }
+        '403': { description: Administrator required }
+        '404': { description: Artifact missing from the known inventory }
+        '409': { description: Invalid original or changed publication }
+        '429': { description: Controlled download busy }
   /api/v3/runs/{run_id}/shared-query:
     get:
       summary: Explicit DAG6 verified logical artifact query
@@ -43,10 +65,35 @@ paths:
         '504': { description: query_timeout; no trusted result is returned. }
   /health/live:
     get:
-      responses: { '200': { description: Live } }
+      description: Process response only, independent of database/storage/Worker availability.
+      responses: { '200': { description: Live }, '405': { $ref: '#/components/responses/Error' } }
   /health/ready:
     get:
-      responses: { '200': { description: Database ready }, '503': { $ref: '#/components/responses/Error' } }
+      description: Database ping within 2 seconds and required shared/control directories accessible on writable filesystems with at least 64 MiB available; returns status and boolean database/storage checks, never paths or database errors. This floor does not replace Worker profile admission.
+      responses: { '200': { description: Dependencies ready }, '503': { description: status not_ready with boolean database/storage checks }, '405': { $ref: '#/components/responses/Error' } }
+  /api/v3/health/operations:
+    get:
+      summary: Administrator-only bounded queue, Worker, storage and retained-error query
+      security: [{ cookieAuth: [] }]
+      description: >-
+        Requires migration 017. Authenticated successful claim polls and active heartbeats
+        update ephemeral observations, cleared on backup restore. Observations never grant
+        lease or publication authority. Categories summarize current retained job last_error,
+        not event rates; raw text is excluded. Queue wait starts at eligible available_at.
+        Worker list is at most 100; errors use pagination; DB deadline 3 seconds.
+        Alerts are explicit response conditions, not external notification delivery.
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000, default: 0 } }
+        - { name: errors, in: query, schema: { type: string, enum: [all, parse, storage, resource, execution], default: all } }
+        - { name: worker_stale_seconds, in: query, schema: { type: integer, minimum: 2, maximum: 3600, default: 120 } }
+        - { name: queue_warn_seconds, in: query, schema: { type: integer, minimum: 1, maximum: 86400, default: 60 } }
+      responses:
+        '200': { description: operations-1 with thresholds, queue, workers, storage, retained_error_counts, errors/error_page and alerts; status ok or degraded }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '503': { description: operations_schema_not_ready or operations_unavailable, never empty success }
   /api/v3/session:
     post:
       summary: Login and set HttpOnly SameSite Strict session cookie

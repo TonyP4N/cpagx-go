@@ -494,6 +494,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		} else {
 			c, err = s.Repo.ClaimExecution(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second, q.Executor, q.Location)
 		}
+		if err == nil || err == sql.ErrNoRows {
+			s.observeWorker(r.Context(), q.Worker, "claim")
+		}
 		if err == sql.ErrNoRows {
 			w.WriteHeader(204)
 			return
@@ -628,6 +631,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
 	case "heartbeat":
 		err = s.Repo.Heartbeat(r.Context(), c, time.Duration(q.Lease)*time.Second)
+		if err == nil {
+			s.observeWorker(r.Context(), q.Worker, "heartbeat")
+		}
 	case "fail":
 		err = s.Repo.Fail(r.Context(), c, q.Message, q.Retryable)
 	case "ack-cancel":

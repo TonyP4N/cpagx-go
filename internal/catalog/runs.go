@@ -490,7 +490,7 @@ func (s *Server) downloadArtifact(w http.ResponseWriter, r *http.Request, p *pri
 	for _, x := range items {
 		if x.Path == name {
 			path := filepath.Join(s.Root, base, name)
-			if s.audit(r.Context(), p, dataset, id, "artifact_download", "ok") != nil {
+			if s.audit(r.Context(), p, dataset, id, "artifact_download", "ok", name) != nil {
 				fail(w, 503, "audit_unavailable", "download audit unavailable")
 				return
 			}

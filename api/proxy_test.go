@@ -94,3 +94,34 @@ func TestUnhealthyTaskListAndSwitch(t *testing.T) {
 		}
 	}
 }
+
+// Exercise the shipped router rather than registering a test-only v1/v2 alias.
+// The upstreams are controlled fixtures; this verifies routing, not a historical instance.
+func TestR21LegacyRoutesRemainSeparateFromV3(t *testing.T) {
+	gin.SetMode(gin.TestMode)
+	versions := map[string]VersionInfo{}
+	for _, version := range []string{"v1", "v2"} {
+		v := version
+		upstream := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != "GET" || r.URL.Path != "/cpag/result/synthetic" {
+				http.NotFound(w, r)
+				return
+			}
+			_, _ = w.Write([]byte("retained-" + v))
+		}))
+		t.Cleanup(upstream.Close)
+		t.Setenv("PYTHON_"+strings.ToUpper(v)+"_SERVICE_URL", upstream.URL)
+		versions[v] = VersionInfo{Enabled: true, ServiceURL: upstream.URL}
+	}
+	router := gin.New()
+	SetupRoutes(router, &Handler{}, NewVersionProxy(&Config{Versions: versions}))
+	for _, tc := range []struct{ path, version string }{{"/api/v1/cpag/result/synthetic", "v1"}, {"/api/v2/cpag/result/synthetic", "v2"}, {"/api/cpag/result/synthetic", "v1"}} {
+		w := httptest.NewRecorder()
+		ctx, cancel := context.WithCancel(context.Background())
+		router.ServeHTTP(w, httptest.NewRequest("GET", tc.path, nil).WithContext(ctx))
+		cancel()
+		if w.Code != 200 || w.Body.String() != "retained-"+tc.version || w.Header().Get("X-Cpag-Version") != tc.version {
+			t.Fatalf("%s: %d %s", tc.path, w.Code, w.Body.String())
+		}
+	}
+}

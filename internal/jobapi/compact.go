@@ -580,69 +580,82 @@ func (s *Server) OpenVerifiedCompactArtifact(r *http.Request, id, name string) (
 		if a.Path != name {
 			continue
 		}
-		path, err := s.file(base + name)
+		limit, err := s.artifactLimit(p)
 		if err != nil {
 			return nil, err
 		}
-		f, err := os.Open(path)
-		if err != nil {
-			return nil, err
-		}
-		limit, _ := s.artifactLimit(p)
-		info, err := f.Stat()
-		if err != nil || !info.Mode().IsRegular() || info.Size() != a.Size || a.Size > limit {
-			f.Close()
-			return nil, errors.New("compact download size changed")
-		}
-		// Copy into an unlinked private descriptor while hashing. Serving this
-		// snapshot cannot expose a later rewrite of the producer's inode.
-		scratch, err := os.CreateTemp(s.ControlRoot, "compact-download-")
-		if err != nil {
-			f.Close()
-			return nil, err
-		}
-		os.Remove(scratch.Name())
-		hash := sha256.New()
-		buffer := make([]byte, 64<<10)
-		var copied int64
-		for {
-			if err = r.Context().Err(); err != nil {
-				break
-			}
-			var n int
-			n, err = f.Read(buffer)
-			if n > 0 {
-				copied += int64(n)
-				if copied > a.Size {
-					err = errors.New("compact download grew")
-					break
-				}
-				if _, e := scratch.Write(buffer[:n]); e != nil {
-					err = e
-					break
-				}
-				hash.Write(buffer[:n])
-			}
-			if err == io.EOF {
-				err = nil
-				break
-			}
-			if err != nil {
-				break
-			}
-		}
-		f.Close()
-		if err != nil || copied != a.Size || fmt.Sprintf("%x", hash.Sum(nil)) != a.SHA {
-			scratch.Close()
-			return nil, errors.New("compact download bytes changed or deadline exceeded")
-		}
-		if _, err = scratch.Seek(0, io.SeekStart); err != nil {
-			scratch.Close()
-			return nil, err
-		}
-		return scratch, nil
+		return s.openArtifactSnapshot(r, base+name, a.Size, a.SHA, limit)
 	}
 	return nil, errors.New("compact artifact not found")
+}
+
+// Serve a verified private snapshot. A producer rewrite after hashing cannot
+// change the download stream.
+func (s *Server) openArtifactSnapshot(r *http.Request, relative string, size int64, digest string, limit int64) (*os.File, error) {
+	path, err := s.file(relative)
+	if err != nil {
+		return nil, err
+	}
+	f, err := os.Open(path)
+	if err != nil {
+		return nil, err
+	}
+	info, err := f.Stat()
+	if err != nil || !info.Mode().IsRegular() || info.Size() != size || size > limit {
+		f.Close()
+		return nil, errors.New("compact download size changed")
+	}
+	// Copy into an unlinked private descriptor while hashing. Serving this
+	// snapshot cannot expose a later rewrite of the producer's inode.
+	scratch, err := os.CreateTemp(s.ControlRoot, "compact-download-")
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+	if err := os.Remove(scratch.Name()); err != nil {
+		f.Close()
+		scratch.Close()
+		return nil, err
+	}
+	hash := sha256.New()
+	buffer := make([]byte, 64<<10)
+	var copied int64
+	for {
+		if err = r.Context().Err(); err != nil {
+			break
+		}
+		var n int
+		n, err = f.Read(buffer)
+		if n > 0 {
+			copied += int64(n)
+			if copied > size {
+				err = errors.New("compact download grew")
+				break
+			}
+			if _, e := scratch.Write(buffer[:n]); e != nil {
+				err = e
+				break
+			}
+			hash.Write(buffer[:n])
+		}
+		if err == io.EOF {
+			err = nil
+			break
+		}
+		if err != nil {
+			break
+		}
+	}
+	f.Close()
+	if err != nil || copied != size || fmt.Sprintf("%x", hash.Sum(nil)) != digest {
+		scratch.Close()
+		return nil, errors.New("compact download bytes changed or deadline exceeded")
+	}
+	if _, err = scratch.Seek(0, io.SeekStart); err != nil {
+		scratch.Close()
+		return nil, err
+	}
+	return scratch, nil
 }
 
 // Publication anchors are public manifest bytes, not authority. A compact-only
