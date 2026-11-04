@@ -1,0 +1,47 @@
+{
+  "version": "r21-backup-restore-observed-size-time-1",
+  "sizes_bytes": {
+    "shared": 75745813,
+    "control": 217450,
+    "postgres_dump": 81006,
+    "complete_bundle_all_files": 76219265
+  },
+  "file_counts": {
+    "shared": 29,
+    "control": 47
+  },
+  "observed_intervals_seconds": {
+    "online_refusal_receipt_to_successful_backup_package": 62.034154176712036,
+    "restore_reserved_audit_to_complete_audit": 1.753718126
+  },
+  "timing_basis": {
+    "backup": "same Linux filesystem receipt timestamps; includes service stop and tool orchestration; not pure backup CPU/wall instrumentation",
+    "restore": "root restore audit filename time_ns at reservation to final atomic audit mtime_ns; wall-clock derived, not a monotonic benchmark"
+  },
+  "restore_raw_wall_timestamps_ns": {
+    "start": 1793778212494737885,
+    "end": 1793778214248456011
+  },
+  "current_ownership": {
+    "backup_root": {
+      "uid": 0,
+      "mode": "0o700"
+    },
+    "original_shared": {
+      "uid": 1001,
+      "mode": "0o700"
+    },
+    "original_control": {
+      "uid": 1001,
+      "mode": "0o700"
+    },
+    "restored_shared": {
+      "uid": 1001,
+      "mode": "0o700"
+    },
+    "restored_control": {
+      "uid": 1001,
+      "mode": "0o700"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "version": "independent-ops-install-1",
+  "package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+  "source_reference_commit": "914a0c35b08551bb2659d278616540894f42df20",
+  "runtime_manifest_sha256": "e0a18b4e5f13b4e5cfd9b97e4efc404b45d45aa1651e9c43de83086746bc22c6",
+  "installed_root": "/opt/cpag-ops/dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+  "files_verified": 10,
+  "effective_uid": 0,
+  "runtime_go_worker_replaced": false
+}

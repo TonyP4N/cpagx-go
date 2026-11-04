@@ -1,0 +1,38 @@
+{
+  "version": "deployment-closed-file-retention-1",
+  "deployment_id": "r21-linux-20261104",
+  "valid": true,
+  "phase": "completed",
+  "actor": {
+    "uid": 0,
+    "effective_uid": 0,
+    "role": "deployment_root_operator"
+  },
+  "deleted": [
+    {
+      "scope": "logs",
+      "relative": "r21-retention-eb279a08a795-opened.log.1",
+      "size": 31,
+      "sha256": "b9301afccf8606b6c2ec23efaca287874b595360a7d1c3675d1302a85114eb85"
+    },
+    {
+      "scope": "logs",
+      "relative": "r21-retention-eb279a08a795.log.1",
+      "size": 36,
+      "sha256": "3be8497d7d5330c69e06b59fbc12923a626a0f47bc3eba819d2beeb2118475ac"
+    },
+    {
+      "scope": "runtime",
+      "relative": "r21-retention-eb279a08a795.tmp.closed",
+      "size": 38,
+      "sha256": "f6f08c9122ae95255077417b43a24d9a9a8d4204c44a5ff764152a8e19afbe68"
+    }
+  ],
+  "preserved_roots": [
+    "shared_root",
+    "control_root",
+    "backup_root"
+  ],
+  "preview_sha256": "e5f20903536fe114c0852f5982e2cd1f08945698e638fee6a51b59e9c923b45d",
+  "deleted_bytes": 105
+}

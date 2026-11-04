@@ -1,0 +1,30 @@
+[Unit]
+Description=CPAG unified public and internal loopback APIs
+After=docker.service network.target
+Requires=docker.service
+
+[Service]
+Type=simple
+User=cpag
+Group=cpag
+SupplementaryGroups=docker
+WorkingDirectory=/opt/cpag/current
+Environment=PYTHONPATH=/opt/cpag/current/services/analysis/src
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/cpag/current/bin/cpagx-v3 --config /etc/cpag/app.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=35
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/cpag /var/log/cpag /run/cpag
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

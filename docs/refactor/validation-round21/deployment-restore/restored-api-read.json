@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "phase": "read",
+  "scope": "restored independent Linux target; same retained synthetic dataset",
+  "dataset_id": "253bcf5942373ae1a62594598eb95186",
+  "checks": {
+    "real_pre_backup_session_invalidated": {
+      "status": "passed",
+      "source_status": 200,
+      "restored_status": 401
+    },
+    "retained_run_52280551d6851436f1420efce9aeb339": {
+      "status": "passed",
+      "attempt": 1,
+      "verification_statuses": [
+        409,
+        409,
+        200
+      ],
+      "counts": {
+        "candidates": 1,
+        "changes": 1,
+        "network": 2,
+        "operations": 1,
+        "process": 5,
+        "revisions": 0,
+        "snapshots": 0
+      }
+    },
+    "retained_run_c1e32a791ec871c5d967bedfad5a822a": {
+      "status": "passed",
+      "attempt": 1,
+      "verification_statuses": [
+        409,
+        409,
+        409,
+        200
+      ],
+      "counts": {
+        "candidates": 1,
+        "changes": 1,
+        "network": 2,
+        "operations": 1,
+        "process": 5,
+        "revisions": 11,
+        "snapshots": 16
+      }
+    },
+    "replay_four_originals_no_future_prefix_and_FP_FN": {
+      "status": "passed",
+      "verified_originals": 4,
+      "tp": 1,
+      "fp": 1,
+      "fn": 1,
+      "reference_record": 2
+    },
+    "viewer_restored_acl_download": {
+      "status": "passed",
+      "role": "viewer",
+      "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+    },
+    "analyst_restored_acl_download": {
+      "status": "passed",
+      "role": "analyst",
+      "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+    }
+  }
+}

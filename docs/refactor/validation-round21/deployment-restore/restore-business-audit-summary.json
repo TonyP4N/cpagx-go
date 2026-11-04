@@ -1,0 +1,24 @@
+{
+  "valid": true,
+  "phase": "completed",
+  "database": "cpag_restore",
+  "metadata_equal": true,
+  "file_inventory_equal": true,
+  "attempt_history_equal": true,
+  "catalog_equal": true,
+  "sessions_revoked": 11,
+  "control_inventory_equal_before_rebase": true,
+  "verifier_history_equal": true,
+  "capacity_rebase": {
+    "field": "capacity.json.root",
+    "old": "/var/lib/cpag/shared",
+    "new": "/var/lib/cpag-recovery/shared",
+    "reservations_preserved": true
+  },
+  "source_trust": "pending_formal_service_reverification",
+  "restored_authority_credentials": false,
+  "worker_observations_cleared": {
+    "table_present": true,
+    "removed": 1
+  }
+}

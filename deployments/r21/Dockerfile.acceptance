@@ -1,0 +1,5 @@
+# Isolated Linux acceptance host only. Never mount the preparation host's socket.
+FROM mirror.gcr.io/library/docker@sha256:173f284a4299164772a90f52b373e73e087583c0963f1334c9995f190ef6f3f5
+RUN apk add --no-cache python3 nginx
+ENV DOCKER_TLS_CERTDIR="" PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+RUN addgroup -S cpag && adduser -S -D -H -u 1001 -G cpag cpag && addgroup cpag docker

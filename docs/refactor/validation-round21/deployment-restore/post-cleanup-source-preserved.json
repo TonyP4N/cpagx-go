@@ -1,0 +1,7 @@
+{
+  "passed": true,
+  "checks": {
+    "shared_originals_unchanged_after_cleanup": true,
+    "complete_original_control_unchanged_after_cleanup": true
+  }
+}

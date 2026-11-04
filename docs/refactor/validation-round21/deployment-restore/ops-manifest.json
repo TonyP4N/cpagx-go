@@ -1,0 +1,21 @@
+{
+  "analysis_library_policy": "read-only symlink to the fixed runtime analysis source; no Go or Worker replacement",
+  "files": {
+    "scripts/backup/bundle.py": "2d1e8c2223d89c038645e2b069ff7a07cbffb17a6a35eb27858209502cf59f9c",
+    "scripts/backup/dag6.py": "cb3c07708ec20b50f8fde3dc1acf0b7b2a31e27a5be65cc0651280b0611e85ab",
+    "scripts/backup/dag6_evaluation.py": "79576450895f7a81b67abb06b5ec5598715e44b285310c606aa4da86ec432d9c",
+    "scripts/backup/deployment_ops.py": "437622a998f66f7aa90aaf810e4a89474900e94b4b67327006ccf3a9cbc24512",
+    "scripts/backup/engineering.py": "81814c001f862e2176cca6f7c0f684767966f0f820efaab73b349076f2846e03",
+    "scripts/backup/postgres_target.py": "14a45bc9d31e92885ab210d6a697e954757e0d94a8932fc260d6d27bf8523318",
+    "scripts/backup/retention.py": "64dbdb83649ef7b0658eaaa8cce58aa827410e9c9f8d174e8c17f2511cd72995",
+    "scripts/backup/terminal_shared.py": "761067aee14b8628bae5a1fdd1c70ef1586924b9fa1730debda98ccb10cd123a",
+    "scripts/validation/round21_retention_drill.py": "cff8823e648cade24b2776ee4241831e2481a1e5014ff2c277ce9c9607d17fef",
+    "tests/backup/test_operator.py": "56c95de2619247090a1cdba6047db8b9d721d5add75899b97f333552abf5023a"
+  },
+  "package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+  "runtime_manifest_path": "/opt/cpag-release/release.json",
+  "runtime_manifest_sha256": "e0a18b4e5f13b4e5cfd9b97e4efc404b45d45aa1651e9c43de83086746bc22c6",
+  "runtime_root": "/opt/cpag-release",
+  "source_reference_commit": "914a0c35b08551bb2659d278616540894f42df20",
+  "version": "r21-independent-backup-ops-1"
+}

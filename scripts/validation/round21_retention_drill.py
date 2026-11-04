@@ -5,6 +5,7 @@ Use --phase live before stopping the deployment, then --phase stopped after
 services exit. No source/control evidence, database or unknown file is removed.
 """
 import argparse
+import errno
 import hashlib
 import json
 import os
@@ -32,6 +33,12 @@ def main():
     config,_=ops.load_config(args.config);args.output.mkdir(parents=True,exist_ok=True)
     state_path=args.output/'retention-fixture.json';report_path=args.output/'retention-report.json'
     report=json.loads(report_path.read_text()) if report_path.exists() else {'version':'actual-linux-closed-file-retention-1','checks':{},'scope':'unique synthetic log/runtime fixtures only; no business inventory reclamation'}
+    report.setdefault('validation_scripts', {})[args.phase]=hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
+    manifest=Path(ops.__file__).resolve().parents[2]/'ops-manifest.json'
+    if manifest.is_file():
+        package=json.loads(manifest.read_text());report['production_ops_package_sha256']=package['package_sha256']
+        if args.phase=='stopped' and report['checks'].get('live_cleanup_refused_without_file_deletion'):
+            report['validation_scripts'].setdefault('live',package['files']['scripts/validation/round21_retention_drill.py'])
     if os.geteuid()!=0:raise ValueError('run on the isolated deployment as root')
     if args.phase=='live':
         if state_path.exists():raise ValueError('new retention drill output required')
@@ -63,7 +70,14 @@ def main():
         state=json.loads(state_path.read_text());prefix=state['prefix'];files={name:Path(value) for name,value in state['paths'].items()}
         opened=Path(config['log_root'])/(prefix+'-opened.log.1');opened.write_bytes(b'actual open descriptor fixture\n')
         os.utime(opened,(time.time()-40*86400,time.time()-40*86400))
-        linked=Path(config['log_root'])/(prefix+'-linked.log.1');os.link(files['protected'],linked)
+        linked=Path(config['log_root'])/(prefix+'-linked.log.1');os.link(files['current'],linked)
+        cross=Path(config['log_root'])/(prefix+'-cross-volume.log.1');cross_created=False
+        try:
+            os.link(files['protected'],cross);cross_created=True
+            report['cross_volume_guard']='same device; protected evidence link retained until explicit drill teardown'
+        except OSError as error:
+            if error.errno!=errno.EXDEV:raise
+            report['checks']['cross_volume_control_link_rejected_by_os']=True
         try:
             with opened.open('rb'):
                 planned=retention.plan(config)
@@ -81,13 +95,14 @@ def main():
             assert all(not path.exists() for path in (files['rotated'],files['temporary'],opened))
             for name in ('current','unknown','protected'):
                 assert files[name].is_file() and ops.bundle.sha(files[name])==state['sha256'][name]
-            assert linked.is_file() and ops.bundle.sha(linked)==state['sha256']['protected']
-            report['checks'].update(closed_preview_only_deleted_with_root_audit=True,current_log_unknown_runtime_and_control_evidence_preserved=True,hard_link_to_protected_evidence_preserved=True)
+            assert linked.is_file() and ops.bundle.sha(linked)==state['sha256']['current']
+            report['checks'].update(closed_preview_only_deleted_with_root_audit=True,current_log_unknown_runtime_and_control_evidence_preserved=True,hard_link_to_current_log_preserved=True)
             report['audit']=str(audit);report['deleted_count']=3
         finally:
             # Remove only the exact hard link introduced by this drill; preserve
             # its original control evidence and all recorded failed/success audits.
-            if linked.exists() and linked.stat().st_ino==files['protected'].stat().st_ino:linked.unlink()
+            if linked.exists() and linked.stat().st_ino==files['current'].stat().st_ino:linked.unlink()
+            if cross_created and cross.exists() and cross.stat().st_ino==files['protected'].stat().st_ino:cross.unlink()
         report['status']='passed'
     write(report_path,report);print(json.dumps(report,sort_keys=True))
 
