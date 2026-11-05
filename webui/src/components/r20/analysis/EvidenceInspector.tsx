@@ -43,6 +43,7 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
   onClear: () => void;
 }) {
   const [place, setPlace] = useState<'summary' | 'evidence' | 'tech'>('summary');
+  const [hashNote, setHashNote] = useState('');
   const [narrow, setNarrow] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(true);
   useEffect(() => {
@@ -58,6 +59,15 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [narrow]);
+  async function copyHash(sha: string) {
+    try {
+      if (!navigator.clipboard?.writeText) throw new Error('clipboard_unavailable');
+      await navigator.clipboard.writeText(sha);
+      setHashNote('已复制文件哈希。');
+    } catch {
+      setHashNote('无法写入剪贴板。请展开完整记录复制哈希。');
+    }
+  }
   function focusPlace(next: 'summary' | 'evidence' | 'tech') {
     setPlace(next);
     const id = next === 'summary' ? 'wb-inspector-summary' : next === 'evidence' ? 'wb-inspector-evidence' : 'wb-inspector-tech';
@@ -113,12 +123,13 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
           {evidenceBusy && <p role="status" className="text-sm">正在核验原始记录…</p>}
           {evidence && <>
             <p className="text-sm" aria-live="polite">已核验原始记录：本页 {evidence.verified_original_evidence?.length ?? 0} 条{evidence.evidence_page ? ` / 共 ${evidence.evidence_page.total} 条` : ''}</p>
+            {hashNote && <p role="status" className="text-xs">{hashNote}</p>}
             <div className="space-y-2">{(evidence.verified_original_evidence ?? []).slice(0, 25).map((row: Row, index: number) => {
               const sha = row.source_ref?.file_sha256 as string | undefined;
               const pairs = humanPairs(row);
               return <div className="rounded border border-slate-200 p-3" key={index}>
                 <p className="mb-2 break-all text-xs">{sha ? '文件 SHA-256：' + sha : '来源文件槽：' + (row.source_ref?.source_slot ?? '未提供')} · 帧 {row.source_ref?.frame_number ?? '—'} · 记录 {row.source_ref?.record_number ?? '—'} · 列 {row.source_ref?.column ?? '—'}</p>
-                {sha && <p className="mb-2 text-xs">哈希 {shortHash(sha)} <button type="button" className="underline" onClick={() => void navigator.clipboard?.writeText(sha)}>复制文件哈希</button></p>}
+                {sha && <p className="mb-2 text-xs">哈希 {shortHash(sha)} <button type="button" className="underline" onClick={() => void copyHash(sha)}>复制文件哈希</button></p>}
                 {!!pairs.length && <dl className="wb-kv">{pairs.map(([key, value]) => <React.Fragment key={key}><dt>{key}</dt><dd className="break-all">{value}</dd></React.Fragment>)}</dl>}
                 <JsonDetails value={row} label={`原始记录 ${(evidence.evidence_page?.offset ?? 0) + index + 1}`} />
               </div>;

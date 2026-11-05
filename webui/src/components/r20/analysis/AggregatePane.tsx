@@ -36,6 +36,8 @@ export function AggregatePane({
   const slice = groups.slice(groupPage * LIMITS.page, (groupPage + 1) * LIMITS.page);
   const memberSlice = members.slice(memberPage * LIMITS.page, (memberPage + 1) * LIMITS.page);
   const dimensionLabel = dimension === 'asset' ? '资产' : dimension === 'minute' ? '分钟（UTC）' : '判断状态';
+  const preview = groups.slice(0, 5);
+  const hiddenGroups = Math.max(0, groups.length - preview.length);
   return <section className="wb-card space-y-3" aria-label="范围内聚合">
     <div className="flex flex-wrap items-center justify-between gap-2">
       <h3 className="font-semibold">当前筛选范围聚合</h3>
@@ -43,9 +45,9 @@ export function AggregatePane({
     </div>
     <details>
       <summary>
-        <span>当前维度 {dimensionLabel} Top</span>
-        <span className="wb-aggregate-keys">{groups.map(group => <span key={group.key}>{group.key}</span>)}</span>
-        <span>共 {timelineCount} 项</span>
+        <span>当前维度 {dimensionLabel}</span>
+        <span className="wb-aggregate-keys">{preview.map(group => <span key={group.key}>{group.key}</span>)}</span>
+        <span>{hiddenGroups ? `另有 ${hiddenGroups} 组 · ` : ''}共 {groups.length} 组 / {timelineCount} 项</span>
       </summary>
       <table className="w-full table-fixed text-sm"><caption className="pb-2 text-left text-xs text-slate-500">只统计已载入且符合筛选的操作与变化，共 {timelineCount} 项。</caption><thead><tr className="border-b text-left"><th className="py-2">分组</th><th className="w-24 py-2 text-right">数量</th></tr></thead><tbody>{slice.map((group, index) => {
         const expanded = expandedGroup === group.key, regionId = `${groupRegionId}-${groupPage * LIMITS.page + index}`;

@@ -11,6 +11,8 @@ export function WorkbenchShell({
   view,
   onLogout,
   datasetId,
+  linkDataset,
+  linkRun,
   datasetName,
   datasetDetail,
   configLabel,
@@ -31,6 +33,8 @@ export function WorkbenchShell({
   view: Section;
   onLogout: () => void;
   datasetId?: string;
+  linkDataset?: string;
+  linkRun?: string;
   datasetName: string;
   datasetDetail?: string;
   configLabel: string;
@@ -65,7 +69,7 @@ export function WorkbenchShell({
     </details>
     {user && <>
       <nav className="wb-nav" aria-label="工作区导航">{(Object.keys(sections) as Section[]).filter(key => key !== 'access' || user.role === 'admin').map(key =>
-        <a key={key} href={workbenchURL(key, datasetId, run?.id)} aria-current={key === view ? 'page' : undefined} onClick={event => {
+        <a key={key} href={workbenchURL(key, linkDataset || datasetId, linkRun || run?.id)} aria-current={key === view ? 'page' : undefined} onClick={event => {
           if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
           event.preventDefault();
           onNavigate(key);

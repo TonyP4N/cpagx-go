@@ -315,10 +315,12 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   .workbench .wb-context { grid-template-columns: 1fr 1fr; margin-inline: .8rem; }
   .workbench .wb-context > :nth-child(3) { border-left: 0; }
   .workbench .wb-context-actions { grid-column: 1 / -1; flex-direction: row; flex-wrap: wrap; border-left: 0; border-top: 1px solid var(--line); }
-  .workbench .wb-shell,
-  .workbench .wb-shell.is-collapsed { grid-template-columns: minmax(0,1fr); padding-inline: .8rem; }
-  .workbench .wb-rail { width: auto; min-height: 0; }
-  .workbench .wb-rail button { writing-mode: horizontal-tb; letter-spacing: .08em; min-height: 2.5rem; padding: .5rem .75rem; }
+  .workbench .wb-shell { grid-template-columns: minmax(0,1fr); padding-inline: .8rem; }
+  .workbench .wb-shell.is-collapsed { grid-template-columns: 48px minmax(0,1fr); padding-inline: .8rem; }
+  .workbench .wb-shell:not(.is-collapsed) .wb-rail { width: auto; min-height: 0; }
+  .workbench .wb-shell:not(.is-collapsed) .wb-rail button { writing-mode: horizontal-tb; letter-spacing: .08em; min-height: 2.5rem; padding: .5rem .75rem; }
+  .workbench .wb-shell.is-collapsed .wb-rail { width: 48px; min-height: 12rem; }
+  .workbench .wb-shell.is-collapsed .wb-rail button { writing-mode: vertical-rl; min-height: 8rem; padding: .75rem 0; }
   .workbench .wb-id { max-width: none; white-space: normal; overflow: visible; text-overflow: unset; }
   .workbench .wb-nav { padding-inline: .8rem; }
 }
