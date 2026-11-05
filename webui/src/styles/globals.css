@@ -5,40 +5,55 @@
 html, body, #__next { height: 100%; }
 body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; }
 
-/* Scheme A 冷钢蓝. Scoped to .workbench; /workspace does not inherit these tokens. */
+/* Dark industrial palette. Scoped to .workbench; /workspace does not inherit these tokens. */
 .workbench {
-  --ink: #15202b;
-  --muted: #5b6b7c;
-  --line: #d5dbe3;
-  --surface: #ffffff;
-  --canvas: #f3f5f8;
-  --surface-2: #e8edf3;
-  --accent: #2f5f8a;
-  --accent-soft: #e4eef6;
-  --accent-bright: #6fa0c8;
-  --on-accent: #ffffff;
-  --header: #152536;
-  --header-ink: #f4f7fb;
-  --header-muted: #c5d3e0;
-  --header-line: #6fa0c8;
-  --mark: #9dc0dd;
-  --focus: #2f5f8a;
-  --code-bg: #f3f5f8;
-  --warn-ink: #594824;
-  --warn-bg: #f7f3e7;
-  --warn-line: #ac8032;
-  --danger-ink: #8f1d2c;
-  --danger-bg: #fdecee;
-  --danger-line: #e3a0a8;
-  --ok-ink: #1f6b45;
-  --ok-bg: #e8f5ee;
-  --ok-line: #8fbfa3;
-  --select: #b45309;
-  --select-bg: #fff7ed;
-  --net: #2f5f8a;
-  --change: #5b4db8;
-  --sample: #64748b;
-  --edge: #d5dbe3;
+  --canvas: #161616;
+  --surface: #262626;
+  --panel: var(--surface);
+  --surface-raised: #2e2e2e;
+  --surface-2: var(--surface-raised);
+  --line: #393939;
+  --grid: var(--line);
+  --ink: #F4F4F4;
+  --text: var(--ink);
+  --ink-muted: rgba(244, 244, 244, 0.62);
+  --ink-faint: rgba(244, 244, 244, 0.38);
+  --muted: var(--ink-muted);
+  --accent: #5E6AD2;
+  --accent-soft: rgba(94, 106, 210, 0.18);
+  --accent-bright: #7B86E0;
+  --accent-alt: #0F62FE;
+  --on-accent: #F4F4F4;
+  --header: var(--surface);
+  --header-ink: var(--ink);
+  --header-muted: var(--ink-muted);
+  --header-line: var(--line);
+  --mark: var(--accent-bright);
+  --focus: var(--accent);
+  --code-bg: var(--canvas);
+  --critical: #DA1E28;
+  --warning: #FF832B;
+  --minor: #F1C21B;
+  --healthy: #24A148;
+  --ok: var(--healthy);
+  --warn-ink: #FFD9BE;
+  --warn-bg: #3A2418;
+  --warn-line: var(--warning);
+  --minor-ink: #FDE9A0;
+  --minor-bg: #332B0A;
+  --minor-line: var(--minor);
+  --danger-ink: #FFD7D9;
+  --danger-bg: #3B1214;
+  --danger-line: var(--critical);
+  --ok-ink: #A7F0BA;
+  --ok-bg: #0E2A16;
+  --ok-line: var(--healthy);
+  --select: #A78BFA;
+  --select-bg: rgba(167, 139, 250, 0.35);
+  --net: #8B95E8;
+  --change: #C4B5FD;
+  --sample: #8D8D8D;
+  --edge: var(--grid);
   --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -48,9 +63,9 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   --radius-card: var(--radius-lg);
   --radius-control: var(--radius-sm);
   --elev-0: none;
-  --elev-1: 0 1px 2px rgb(21 32 43 / 4%), 0 1px 1px rgb(21 32 43 / 3%);
-  --elev-2: 0 4px 12px rgb(21 32 43 / 6%), 0 1px 3px rgb(21 32 43 / 4%);
-  --elev-3: 0 12px 28px rgb(21 32 43 / 10%), 0 2px 8px rgb(21 32 43 / 5%);
+  --elev-1: 0 1px 0 rgba(0, 0, 0, 0.4), 0 1px 2px rgba(0, 0, 0, 0.35);
+  --elev-2: 0 2px 6px rgba(0, 0, 0, 0.45);
+  --elev-3: 0 8px 24px rgba(0, 0, 0, 0.55);
   --motion-fast: 120ms;
   --motion-base: 180ms;
   --motion-slow: 240ms;
@@ -104,7 +119,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   outline:2px solid var(--focus); outline-offset:2px; scroll-margin-block:1rem;
 }
 .workbench :is(a,button,summary,input,textarea,select,[tabindex]):focus:not(:focus-visible) { outline: none; }
-.workbench :is(input,select,textarea) { color:var(--ink); background-color:var(--surface); max-width:100%; }
+.workbench :is(input,select,textarea) { color:var(--ink); background-color:var(--canvas); border-color:var(--line); max-width:100%; }
 .workbench summary { cursor:pointer; padding-block:.35rem; }
 .workbench code, .workbench pre { overflow-wrap:anywhere; white-space:pre-wrap; }
 .workbench pre { max-height:24rem; overflow:auto; padding:.7rem; background:var(--code-bg); font-size:.78rem; }
@@ -383,6 +398,25 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .border-teal-200,
 .workbench .border-emerald-200 { border-color: var(--line); }
 .workbench .bg-emerald-50 { background-color: var(--accent-soft); }
+.workbench .bg-white,
+.workbench .bg-slate-50,
+.workbench .bg-slate-100 { background-color: var(--surface); color: var(--ink); }
+.workbench .bg-slate-50,
+.workbench .bg-slate-100 { background-color: var(--surface-2); }
+.workbench .text-slate-400,
+.workbench .text-slate-500,
+.workbench .text-slate-600 { color: var(--muted); }
+.workbench .text-slate-700,
+.workbench .text-slate-800,
+.workbench .text-slate-900 { color: var(--ink); }
+.workbench .border-slate-100,
+.workbench .border-slate-200,
+.workbench .border-slate-300 { border-color: var(--line); }
+.workbench .bg-slate-700 { background-color: var(--surface-2); color: var(--ink); }
+.workbench button,
+.workbench input,
+.workbench select,
+.workbench textarea { color: var(--ink); }
 .workbench .border-amber-200 { border-color: var(--warn-line); }
 .workbench .bg-amber-50 { background-color: var(--warn-bg); }
 .workbench .text-amber-800,
@@ -439,7 +473,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-run-row { min-height: 32px; align-items: center; }
 .workbench table th { font-size: 12px; font-weight: 600; color: var(--muted); background: var(--surface-2); border-bottom: 1px solid var(--line); }
 .workbench table th, .workbench table td { height: 32px; }
-.workbench tbody tr:hover { background: color-mix(in srgb, var(--accent-soft) 70%, transparent); }
+.workbench tbody tr:hover { background: rgba(244, 244, 244, 0.04); }
 .workbench .wb-stepper button[data-state="current"] .wb-step-index { background: var(--accent); color: var(--on-accent); border-radius: var(--radius-pill); padding: 0 .35rem; }
 .workbench .wb-stepper button[data-state="done"] .wb-step-index { color: var(--muted); }
 .workbench .wb-stepper button[data-state="todo"] .wb-step-index { border: 1px solid var(--line); border-radius: var(--radius-xs); padding: 0 .35rem; color: var(--muted); }
@@ -486,6 +520,13 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-boundary { border-radius: 0; box-shadow: var(--elev-0); }
 .workbench .wb-empty-panel { border: 1px dashed var(--line); border-radius: var(--radius-lg); padding: 14px 16px; color: var(--muted); box-shadow: var(--elev-0); }
 .workbench pre { border-radius: var(--radius-sm); }
+.workbench { scrollbar-color: #525252 transparent; }
+.workbench ::-webkit-scrollbar { width: 10px; height: 10px; }
+.workbench ::-webkit-scrollbar-thumb { background: #525252; border-radius: var(--radius-pill); }
+.workbench ::-webkit-scrollbar-track { background: transparent; }
+.workbench .wb-main button:not(.wb-primary):not(:disabled):hover,
+.workbench .wb-drawer button:not(.wb-primary):not(:disabled):hover { background: var(--surface-raised); }
+.workbench[data-accent="ibm"] { --accent: var(--accent-alt); --accent-soft: rgba(15, 98, 254, 0.18); --accent-bright: #4589FF; }
 
 /* Round 5 application shell. Radius and elevation stay on the R4 tokens. */
 .workbench .wb-app { min-height: 100vh; display: flex; flex-direction: column; }
@@ -510,7 +551,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-page-toolbar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 12px; }
 .workbench .wb-page-toolbar h2 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
 .workbench .wb-page-toolbar p { margin: 0; color: var(--muted); font-size: 12px; line-height: 18px; }
-.workbench .wb-drawer-mask { position: fixed; inset: 48px 0 0 0; border: 0; background: rgb(21 32 43 / 36%); z-index: 7; }
+.workbench .wb-drawer-mask { position: fixed; inset: 48px 0 0 0; border: 0; background: rgb(0 0 0 / 36%); z-index: 7; }
 .workbench .wb-drawer { position: fixed; top: 48px; left: 0; bottom: 0; width: 320px; z-index: 8; overflow: auto; padding: 16px; background: var(--surface); border-right: 1px solid var(--line); box-shadow: var(--elev-3); }
 .workbench .wb-drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .workbench .wb-main[data-view="datasets"] #wb-step-overview,
