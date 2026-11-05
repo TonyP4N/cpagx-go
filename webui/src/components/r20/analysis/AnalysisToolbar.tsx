@@ -18,6 +18,8 @@ export function AnalysisToolbar({
   onToggleLarge,
   onRefresh,
   onClearSelection,
+  applied,
+  statusNote,
   onReadSnapshot,
   verifyHref,
 }: {
@@ -36,6 +38,8 @@ export function AnalysisToolbar({
   onToggleLarge: () => void;
   onRefresh: () => void;
   onClearSelection: () => void;
+  applied?: boolean;
+  statusNote?: string;
   onReadSnapshot: (event: React.FormEvent) => void;
   verifyHref?: string;
 }) {
@@ -50,7 +54,9 @@ export function AnalysisToolbar({
       <button type="button" className={control} onClick={onToggleLarge}>{large ? '恢复概览 200 / 600' : '扩展视图 1000 / 3000'}</button>
       <button type="button" className={control} disabled={busy} onClick={onRefresh}>重新核验</button>
       <button type="button" className={control} aria-expanded={more} onClick={() => setMore(value => !value)}>{more ? '收起时间筛选' : '更多筛选'}</button>
-      {selectionCount > 0 && <span className="text-xs text-slate-600">已选 {selectionCount} 项 · <button type="button" className="underline" onClick={onClearSelection}>清除选择</button></span>}
+      {selectionCount > 0 && <span className="wb-selection-bar text-xs">已选 {selectionCount} 项 · <button type="button" className="underline" onClick={onClearSelection}>清除选择</button></span>}
+      {applied && <span className="wb-applied" role="status">已应用</span>}
+      {statusNote && <p className="wb-toolbar-note" role="status">{statusNote}</p>}
       {verifyHref && <a className={control + ' wb-link inline-flex items-center'} href={verifyHref}>完整分页核查与受控下载 →</a>}
       {more && <div className="flex flex-wrap gap-3 basis-full">
         <label><span>开始时间（浏览器本地时区）</span><input name="analysis-from" autoComplete="off" type="datetime-local" step="1" className={control + ' w-full'} value={draft.from} onChange={event => setDraft({ ...draft, from: event.target.value })} /></label>

@@ -43,6 +43,8 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
   const [selection, setSelection] = useState<Selection | null>(null), [evidence, setEvidence] = useState<Row | null>(null), [evidenceBusy, setEvidenceBusy] = useState(false);
   const [timelinePage, setTimelinePage] = useState(0), [candidatePage, setCandidatePage] = useState(0), [nodePage, setNodePage] = useState(0), [groupPage, setGroupPage] = useState(0);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null), [memberPage, setMemberPage] = useState(0);
+  const [statusNote, setStatusNote] = useState(''), [applied, setApplied] = useState(false);
+  const appliedTimer = useRef(0);
   const groupRegionId = React.useId();
   const generation = useRef(0), evidenceGeneration = useRef(0), errorHandler = useRef(onError), evidenceAbort = useRef<AbortController | null>(null);
   errorHandler.current = onError;
@@ -144,7 +146,7 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
       const nextRows = filterAnalysisRows(data.operations, data.changes, data.candidates, next);
       const nextGraph = boundedGraph(data.nodes, data.edges, [...data.operations, ...data.changes, ...data.candidates], next, large ? LIMITS.nodes : 200, large ? LIMITS.edges : 600, nextRows);
       // Invalidate the request synchronously, before a late response can publish.
-      if (!selectionInView(selection, nextRows.timeline, nextRows.candidates, nextGraph.nodes)) clearSelection();
+      if (!selectionInView(selection, nextRows.timeline, nextRows.candidates, nextGraph.nodes)) { clearSelection(); setStatusNote('选中项不在当前筛选内，已清除'); }
     }
     setFilter(next); setTimelinePage(0); setCandidatePage(0); setNodePage(0); setGroupPage(0); setExpandedGroup(null); setMemberPage(0);
   }
@@ -162,6 +164,7 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
   function apply(event: React.FormEvent) {
     event.preventDefault(); if ((draft.from && !Number.isFinite(Date.parse(draft.from))) || (draft.to && !Number.isFinite(Date.parse(draft.to))) || (draft.from && draft.to && Date.parse(draft.from) > Date.parse(draft.to))) { setError('请填写有效时间，且开始时间不晚于结束时间。'); return; }
     changeFilter(draft); setError(''); syncUrl({ a_kind: draft.kind, a_state: draft.state });
+    setApplied(true); window.clearTimeout(appliedTimer.current); appliedTimer.current = window.setTimeout(() => setApplied(false), 2500);
   }
   const slice = (values: Row[], page: number) => values.slice(page * LIMITS.page, (page + 1) * LIMITS.page);
   const synthetic = data ? (data.metadata.synthetic ?? data.metadata.data?.analysis?.synthetic) === true : false;
@@ -182,12 +185,14 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
       onToggleLarge={() => { setLarge(value => !value); setTimelinePage(0); setCandidatePage(0); setNodePage(0); }}
       onRefresh={() => setRefresh(value => value + 1)}
       onClearSelection={clearSelection}
+      applied={applied}
+      statusNote={statusNote}
       onReadSnapshot={event => { event.preventDefault(); if (snapshotDraft && (!/^\d+$/.test(snapshotDraft) || (data?.metadata.final_snapshot_number != null && Number(snapshotDraft) > data.metadata.final_snapshot_number))) { setError('快照编号超出历史范围。'); return; } setSnapshot(snapshotDraft); syncUrl({ a_snapshot: snapshotDraft, a_focus: '' }); }}
       verifyHref={data ? (data.replay ? `/replay/?run=${encodeURIComponent(runId)}` : `/dual-source/?backend=v3&run=${encodeURIComponent(runId)}`) : undefined}
     />
     {!data && snapshot && <button type="button" className={control} onClick={() => { setSnapshot(''); setSnapshotDraft(''); syncUrl({ a_snapshot: '', a_focus: '' }); }}>返回终态核验</button>}
-    {busy && <p role="status" className="rounded-lg bg-slate-100 p-4 text-sm">正在核验并读取当前视图…</p>}
-    {error && <p role="alert" className="break-words rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error} {!data && '可信结果已清除，请核查权限、来源与产物后重新核验。'}</p>}
+    {busy && <div className="wb-state" role="status"><span className="wb-pulse" aria-hidden="true" />{!data && <span className="wb-skeleton" />}<p>正在核验并读取当前视图…</p></div>}
+    {error && <p role="alert" className="wb-alert break-words rounded-lg border p-4 text-sm">{error} {!data && '可信结果已清除，请核查权限、来源与产物后重新核验。'}</p>}
     {data && <>
       <DataNatureBar>
         <p>{synthetic ? '合成软件验证' : '真实来源声明，适用性未验证'} · {snapshot ? `历史快照 ${snapshot}` : '终态观测'}</p>
@@ -197,8 +202,11 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
         <div className="wb-analysis-stage">
           <section className="wb-card space-y-3" aria-label="关系图">
             <div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold">观测关系图</h3><p className="text-xs tabular-nums" aria-live="polite">显示 {graph.nodes.length} / {data.totals.nodes} 个节点 · {graph.edges.length} / {data.totals.edges} 条连线</p></div>
-            <p className="text-xs text-slate-600" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
-            <Graph nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
+            <div className="wb-legend-bar">
+              <p className="wb-legend-inline"><span className="wb-legend-net"><i className="wb-dot wb-dot-net" aria-hidden="true" />网络</span><span className="wb-legend-change"><i className="wb-dot wb-dot-change" aria-hidden="true" />变化</span><span className="wb-legend-sample"><i className="wb-dot wb-dot-sample" aria-hidden="true" />过程采样</span><span className="wb-legend-select"><i className="wb-dot wb-dot-select" aria-hidden="true" />已选关联</span></p>
+              <p className="wb-clip" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
+            </div>
+            <Graph showLegend={false} nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
             <details><summary className="wb-link cursor-pointer rounded text-sm">节点列表（键盘选择）</summary><div className="mt-3 max-h-96 space-y-2 overflow-auto pr-1">{slice(graph.nodes, nodePage).map(node => <button type="button" key={node.id} className={control + ' block w-full break-all text-left'} onClick={() => void inspect(relatedSelection(node, data.operations, data.changes))}>{node.kind} · {node.event_id ?? node.id}</button>)}<Pager page={nodePage} count={graph.nodes.length} change={setNodePage} /></div></details>
           </section>
           <div className="wb-analysis-lists">

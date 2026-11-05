@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { positionGraph, Row } from '../analysisModel';
 import { control } from './widgets';
 
-export function Graph({ nodes, edges, labels, selectedIds, inspect }: { nodes: Row[]; edges: Row[]; labels: Map<string, string>; selectedIds: Set<string>; inspect: (node: Row) => void }) {
+export function Graph({ nodes, edges, labels, selectedIds, inspect, showLegend = true }: { nodes: Row[]; edges: Row[]; labels: Map<string, string>; selectedIds: Set<string>; inspect: (node: Row) => void; showLegend?: boolean }) {
   const canvas = useRef<HTMLCanvasElement>(null), wrapper = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(900), [height, setHeight] = useState(420), [drawMs, setDrawMs] = useState(0);
   const positions = useMemo(() => positionGraph(nodes), [nodes]);
@@ -28,7 +28,7 @@ export function Graph({ nodes, edges, labels, selectedIds, inspect }: { nodes: R
     if (nearest) inspect(nearest.node);
   }
   return <div ref={wrapper} className="min-w-0" data-testid="analysis-graph" data-nodes={nodes.length} data-edges={edges.length} data-draw-ms={drawMs}>
-    <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs"><p><span className="wb-legend-net">● 网络</span>　<span className="wb-legend-change">● 变化</span>　<span className="wb-legend-sample">● 过程采样</span>　<span className="wb-legend-select">● 已选关联</span></p>{nodes.length > 80 && <button className={control} type="button" onClick={() => setHeight(value => value === 420 ? Math.min(worldHeight, 2400) : 420)}>{height === 420 ? '展开图高' : '适应图高'}</button>}</div>
+    <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs">{showLegend && <p className="wb-legend-inline"><span className="wb-legend-net"><i className="wb-dot wb-dot-net" aria-hidden="true" />网络</span><span className="wb-legend-change"><i className="wb-dot wb-dot-change" aria-hidden="true" />变化</span><span className="wb-legend-sample"><i className="wb-dot wb-dot-sample" aria-hidden="true" />过程采样</span><span className="wb-legend-select"><i className="wb-dot wb-dot-select" aria-hidden="true" />已选关联</span></p>}{nodes.length > 80 && <button className={control} type="button" onClick={() => setHeight(value => value === 420 ? Math.min(worldHeight, 2400) : 420)}>{height === 420 ? '展开图高' : '适应图高'}</button>}</div>
     <div className="wb-graph-well max-h-[480px] overflow-auto rounded-lg border"><canvas ref={canvas} onClick={click} style={{ width, height: canvasHeight, display: 'block', touchAction: 'manipulation' }} role="img" aria-label={`关系图，${nodes.length} 个节点，${edges.length} 条候选连线。可通过下方节点列表键盘选择。`} /></div><p className="mt-2 text-xs text-slate-500">连线表示候选假设。点击节点或使用节点列表，联动查看时间、候选和原始记录。</p>
   </div>;
 }

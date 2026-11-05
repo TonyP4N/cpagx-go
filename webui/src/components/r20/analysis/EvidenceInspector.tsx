@@ -83,8 +83,8 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
         <h3 className="font-semibold">选中项与原始证据</h3>
         {narrow && <button type="button" className="wb-sheet-close" onClick={() => setSheetOpen(false)}>关闭证据</button>}
       </div>
-      {!selection && <p className="py-4 text-sm text-slate-500">选择图节点、时间线记录或候选，查看其原始证据。</p>}
-      {selection && <>
+      {!selection && <div className="wb-empty" key="empty"><p>在图、时间线或候选中点选一项</p><p>选择图节点、时间线记录或候选，查看其原始证据。</p></div>}
+      {selection && <div key={selection.id} className="wb-fade space-y-3">
         <div className="wb-tabs" aria-label="证据阅读">
           <button type="button" className={control} aria-current={place === 'summary' ? 'true' : undefined} onClick={() => focusPlace('summary')}>概要</button>
           <button type="button" className={control} aria-current={place === 'evidence' ? 'true' : undefined} onClick={() => focusPlace('evidence')}>证据</button>
@@ -141,7 +141,7 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
         {place === 'tech' && <div id="wb-inspector-tech">
           {evidence ? <JsonDetails value={{ selection: evidence.selection, time_configuration: evidence.time_configuration, source_ranges: evidence.source_ranges, quality: evidence.quality, config_version: evidence.config_version, config_fingerprint: evidence.config_fingerprint, limitations: evidence.limitations }} label="时间依据、配置版本与质量说明" /> : <p className="text-sm text-slate-500">选择带原始记录的操作、变化或候选后，可查看时间依据与配置指纹。</p>}
         </div>}
-      </>}
+      </div>}
     </section>
   </>;
 }

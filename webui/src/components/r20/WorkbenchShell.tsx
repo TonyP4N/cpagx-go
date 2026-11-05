@@ -52,7 +52,13 @@ export function WorkbenchShell({
 }) {
   const preferCollapsed = resultViews.has(view);
   const [manual, setManual] = useState<boolean | null>(null);
+  const [entering, setEntering] = useState(false);
   useEffect(() => { setManual(null); }, [view]);
+  useEffect(() => {
+    setEntering(true);
+    const timer = window.setTimeout(() => setEntering(false), 240);
+    return () => window.clearTimeout(timer);
+  }, [view]);
   const collapsed = manual ?? preferCollapsed;
   function openDirectory() {
     setManual(false);
@@ -78,7 +84,7 @@ export function WorkbenchShell({
       <ContextBar datasetName={datasetName} datasetDetail={datasetDetail} configLabel={configLabel} configDetail={configDetail} configTitle={configTitle} run={run} phaseLabel={phaseLabel} onOpenDirectory={openDirectory} onOpenTasks={onOpenTasks} onClearRun={onClearRun} onCopyRun={onCopyRun} onCopyLink={onCopyLink} />
       <div className={`wb-shell${collapsed ? ' is-collapsed' : ''}`}>
         <DatasetRail collapsed={collapsed} onToggle={() => setManual(!collapsed)}>{directory}</DatasetRail>
-        <main id="wb-main" tabIndex={-1} className="wb-main">
+        <main id="wb-main" tabIndex={-1} data-view={view} className={entering ? 'wb-main is-entering' : 'wb-main'}>
           {!resultViews.has(view) && <div className="wb-heading"><h2>{sections[view]}</h2></div>}
           {children}
         </main>
