@@ -519,6 +519,7 @@ export function Workspace({workbench = false}: {workbench?: boolean}) {
         <button type="submit" disabled={Boolean(busy)} className="wb-primary">登录</button>
       </form></section> : <>
         
+                        {workbench && showData && <header className="wb-page-toolbar"><h2>数据与配置</h2><button type="button" onClick={() => document.dispatchEvent(new Event('wb-open-datasets'))}>{dataset?.name || '选择数据集'} ▾</button></header>}
                         {workbench && showData && dataset && <DataStepper done={stepDone} hints={stepHints} />}
             {!dataset ? <section className="rounded-xl border bg-white p-6 text-slate-500">{loadingDataset ? <p role="status">正在读取数据集…</p> : workbench ? <><h3 className="font-semibold text-slate-800">选择工作批次</h3><p className="mt-1 text-sm">选择数据集后，可以核对输入、提交运行或打开已有证据。</p>{datasets.length > 0 && <ul className="wb-recent" aria-label="可打开的数据集">{datasets.slice(0,4).map(item => <li key={item.id}><button onClick={() => openDataset(item.id)}><strong>{item.name}</strong><span>{item.batch || '批次未声明'} · {item.source_kind === 'synthetic' ? '合成' : '真实待核验'}</span></button></li>)}</ul>}{!datasets.length && <p className="mt-3 text-sm">{canCreateDataset ? '选择“创建数据集”登记第一个批次。' : '请联系管理员授予数据集只读权限。'}</p>}</> : '选择左侧数据集查看文件、配置与运行。'}</section> : <>
               {showData && <><section className="rounded-xl border bg-white p-5 space-y-2" id="wb-step-overview" aria-label="数据集详情"><h2 className="text-xl font-semibold">{dataset.name}</h2><dl className="grid gap-2 text-sm sm:grid-cols-2"><div><dt className="text-slate-500">来源类型 / 状态</dt><dd>{dataset.source_kind} / {dataset.verification_status ?? '待核验'}</dd></div><div><dt className="text-slate-500">访问权限</dt><dd>{dataset.access ?? user.role}</dd></div><div><dt className="text-slate-500">来源 / 批次</dt><dd>{codeText(dataset.source)} / {codeText(dataset.batch)}</dd></div><div><dt className="text-slate-500">授权依据引用</dt><dd>{codeText(dataset.authorization_ref)}</dd></div></dl><p className="text-xs text-slate-500 break-all">ID {dataset.id}</p></section>
@@ -544,7 +545,7 @@ export function Workspace({workbench = false}: {workbench?: boolean}) {
               </>}
               {showTasks && <TasksPanel runs={runs} selected={selectedRun} loading={loadingDataset && runs.length === 0} error={error} canEdit={canEdit} busy={Boolean(busy)} realSource={dataset.source_kind === 'real'} onRefresh={() => void refreshRuns()} onOpenDatasets={() => navigate('datasets')} onOpen={openRun} onCancel={() => void cancelRun()} onRetry={() => void retryRun()} onOpenResult={() => { if (selectedRun) navigate(selectedRun.mode === 'dual_source_replay' ? 'replay' : 'analysis'); }} onCopy={id => void copyNotice(id, '已复制运行标识。')} />}
               {workbench && ['analysis','replay','evaluation'].includes(view) && <section className="wb-panel" aria-label="结果内容">
-                {loadingRun && !selectedRun ? <p role="status">正在读取运行…</p> : !selectedRun || selectedRun.state !== 'succeeded' ? <><h3>尚无可查看的运行结果</h3><p>在任务中心选择已完成的运行。失败或已取消的任务保留执行记录。</p><button onClick={() => navigate('tasks')}>打开任务中心</button></> : view === 'replay' ? selectedRun.mode === 'dual_source_replay'
+                {loadingRun && !selectedRun ? <p role="status">正在读取运行…</p> : !selectedRun || selectedRun.state !== 'succeeded' ? <><h3>尚无可查看的运行结果</h3><p>在任务中心选择已完成的运行。失败或已取消的任务保留执行记录。</p><button className="wb-primary" onClick={() => navigate('tasks')}>去任务中心</button></> : view === 'replay' ? selectedRun.mode === 'dual_source_replay'
                   ? <Replay key={selectedRun.id} datasetId={dataset.id} runId={selectedRun.id} onError={setError} />
                   : <p>当前为离线运行。请在任务中心选择顺序回放任务查看历史。</p>
                   : view === 'evaluation' ? <Evaluation canImport={canEdit} key={selectedRun.id} datasetId={dataset.id} runId={selectedRun.id} onError={setError} />
@@ -639,7 +640,7 @@ export function Workspace({workbench = false}: {workbench?: boolean}) {
               </section>
               }
               {workbench && ['analysis','replay','evaluation'].includes(view) && <section className="wb-panel" aria-label="结果内容">
-                {loadingRun && !selectedRun ? <p role="status">正在读取运行…</p> : !selectedRun || selectedRun.state !== 'succeeded' ? <><h3>尚无可查看的运行结果</h3><p>在任务中心选择已完成的运行。失败或已取消的任务保留执行记录。</p><button onClick={() => navigate('tasks')}>打开任务中心</button></> : view === 'replay' ? selectedRun.mode === 'dual_source_replay'
+                {loadingRun && !selectedRun ? <p role="status">正在读取运行…</p> : !selectedRun || selectedRun.state !== 'succeeded' ? <><h3>尚无可查看的运行结果</h3><p>在任务中心选择已完成的运行。失败或已取消的任务保留执行记录。</p><button className="wb-primary" onClick={() => navigate('tasks')}>去任务中心</button></> : view === 'replay' ? selectedRun.mode === 'dual_source_replay'
                   ? <Replay key={selectedRun.id} datasetId={dataset.id} runId={selectedRun.id} onError={setError} />
                   : <p>当前为离线运行。请在任务中心选择顺序回放任务查看历史。</p>
                   : view === 'evaluation' ? <Evaluation canImport={canEdit} key={selectedRun.id} datasetId={dataset.id} runId={selectedRun.id} onError={setError} />

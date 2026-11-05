@@ -218,6 +218,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   padding: .75rem 0;
   min-height: 10rem;
 }
+.workbench .wb-main .wb-login { align-self: center; }
 .workbench .wb-login {
   margin: 2rem auto;
   width: min(100%, 28rem);
@@ -442,7 +443,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-stepper button[data-state="current"] .wb-step-index { background: var(--accent); color: var(--on-accent); border-radius: var(--radius-pill); padding: 0 .35rem; }
 .workbench .wb-stepper button[data-state="done"] .wb-step-index { color: var(--muted); }
 .workbench .wb-stepper button[data-state="todo"] .wb-step-index { border: 1px solid var(--line); border-radius: var(--radius-xs); padding: 0 .35rem; color: var(--muted); }
-.workbench .wb-tasks { display: grid; grid-template-columns: minmax(0,1.38fr) minmax(16rem,1fr); gap: 12px; align-items: start; }
+.workbench .wb-tasks { display: grid; grid-template-columns: minmax(0,7fr) minmax(16rem,5fr); gap: 16px; align-items: start; }
 .workbench .wb-tasks-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 8px; padding: 8px 10px; background: var(--surface-2); border-bottom: 1px solid var(--line); border-radius: var(--radius-sm); box-shadow: var(--elev-0); }
 .workbench .wb-tasks-toolbar label { display: grid; gap: 4px; font-size: 12px; color: var(--muted); }
 .workbench .wb-budget { margin: 0 0 8px; font-size: 12px; color: var(--muted); }
@@ -485,6 +486,81 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-boundary { border-radius: 0; box-shadow: var(--elev-0); }
 .workbench .wb-empty-panel { border: 1px dashed var(--line); border-radius: var(--radius-lg); padding: 14px 16px; color: var(--muted); box-shadow: var(--elev-0); }
 .workbench pre { border-radius: var(--radius-sm); }
+
+/* Round 5 application shell. Radius and elevation stay on the R4 tokens. */
+.workbench .wb-app { min-height: 100vh; display: flex; flex-direction: column; }
+.workbench .wb-topbar { height: 48px; position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--header); color: var(--header-ink); border-bottom: 1px solid var(--accent-bright); box-shadow: var(--elev-0); }
+.workbench .wb-topbar h1 { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--header-ink); }
+.workbench .wb-topbar .wb-mark { width: 28px; height: 28px; font-size: 16px; }
+.workbench .wb-topbar button, .workbench .wb-topbar span { color: var(--header-ink); }
+.workbench .wb-context-compact { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; overflow: hidden; }
+.workbench .wb-context-compact button, .workbench .wb-top-actions button { border: 1px solid var(--header-line); border-radius: var(--radius-sm); background: transparent; padding: 2px 8px; font-size: 12px; line-height: 18px; }
+.workbench .wb-context-config, .workbench .wb-context-run { max-width: 9rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; color: var(--header-muted); }
+.workbench .wb-top-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; font-size: 12px; }
+.workbench .wb-frame { flex: 1; min-height: 0; display: grid; grid-template-columns: 220px minmax(0,1fr); }
+.workbench .wb-frame.is-nav-collapsed { grid-template-columns: 64px minmax(0,1fr); }
+.workbench .wb-navrail { display: flex; flex-direction: column; gap: 4px; padding: 8px; background: var(--surface); border-right: 1px solid var(--line); }
+.workbench .wb-navrail a { display: flex; align-items: center; gap: 8px; min-height: 40px; padding: 0 8px; border-radius: var(--radius-sm); color: var(--ink); font-size: 13px; line-height: 20px; font-weight: 500; border-left: 3px solid transparent; }
+.workbench .wb-navrail a[aria-current="page"] { background: var(--accent-soft); border-left-color: var(--accent); }
+.workbench .wb-nav-mark { width: 24px; text-align: center; color: var(--accent); font-weight: 600; }
+.workbench .wb-navrail.is-collapsed .wb-nav-label, .workbench .wb-navrail.is-collapsed .wb-nav-pin { font-size: 0; }
+.workbench .wb-navrail.is-collapsed a { justify-content: center; padding: 0; min-height: 48px; }
+.workbench .wb-nav-pin { margin-top: auto; min-height: 40px; border: 0; background: transparent; color: var(--muted); font-size: 12px; }
+.workbench .wb-main { min-width: 0; min-height: 0; height: calc(100vh - 48px); overflow: auto; display: flex; flex-direction: column; gap: 12px; padding: 24px; }
+.workbench .wb-page-toolbar { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 8px 12px; }
+.workbench .wb-page-toolbar h2 { margin: 0; font-size: 16px; line-height: 24px; font-weight: 600; }
+.workbench .wb-page-toolbar p { margin: 0; color: var(--muted); font-size: 12px; line-height: 18px; }
+.workbench .wb-drawer-mask { position: fixed; inset: 48px 0 0 0; border: 0; background: rgb(21 32 43 / 36%); z-index: 7; }
+.workbench .wb-drawer { position: fixed; top: 48px; left: 0; bottom: 0; width: 320px; z-index: 8; overflow: auto; padding: 16px; background: var(--surface); border-right: 1px solid var(--line); box-shadow: var(--elev-3); }
+.workbench .wb-drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.workbench .wb-main[data-view="datasets"] #wb-step-overview,
+.workbench .wb-main[data-view="datasets"] #wb-step-files,
+.workbench .wb-main[data-view="datasets"] #wb-step-config,
+.workbench .wb-main[data-view="datasets"] #wb-step-submit { max-width: 880px; }
+.workbench .wb-analysis, .workbench .wb-replay, .workbench .wb-panel { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 12px; }
+.workbench .wb-board { flex: 1; min-height: 0; display: grid; grid-template-columns: var(--wb-dock, 280px) minmax(0,1fr) var(--wb-insp, 360px); gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--elev-1); }
+.workbench .wb-dock, .workbench .wb-stage, .workbench .wb-insp { min-width: 0; min-height: 0; position: relative; display: flex; flex-direction: column; background: var(--surface); }
+.workbench .wb-dock { border-right: 1px solid var(--line); }
+.workbench .wb-insp { border-left: 1px solid var(--line); }
+.workbench .wb-board-tabs { display: flex; gap: 4px; padding: 8px; border-bottom: 1px solid var(--line); background: var(--surface-2); }
+.workbench .wb-board-tabs button { min-height: 28px; border: 0; border-radius: var(--radius-sm); background: transparent; padding: 0 8px; font-size: 12px; }
+.workbench .wb-board-tabs button[aria-selected="true"] { background: var(--accent-soft); box-shadow: inset 0 -2px 0 var(--accent); }
+.workbench .wb-dock-body { flex: 1; min-height: 0; overflow: auto; padding: 8px; }
+.workbench .wb-dock .wb-card { border: 0; box-shadow: var(--elev-0); border-radius: 0; padding: 0; }
+.workbench .wb-dock ol, .workbench .wb-dock ul { max-height: none; }
+.workbench .wb-stage-body { flex: 1; min-height: 0; overflow: auto; display: flex; flex-direction: column; }
+.workbench .wb-graph-card { flex: 1; min-height: 0; display: flex; flex-direction: column; border: 0; box-shadow: var(--elev-0); border-radius: 0; }
+.workbench .wb-stage .wb-graph-well { flex: 1; min-height: 180px; max-height: none; }
+.workbench .wb-resize { position: absolute; top: 0; right: 0; width: 4px; height: 100%; cursor: col-resize; }
+.workbench .wb-resize-insp { left: 0; right: auto; }
+.workbench .wb-agg { height: 32px; overflow: hidden; border-top: 1px solid var(--line); background: var(--surface-2); }
+.workbench .wb-agg.is-open { height: 30%; overflow: auto; }
+.workbench .wb-agg-toggle { height: 32px; width: 100%; border: 0; background: transparent; text-align: left; padding: 0 12px; font-size: 12px; color: var(--muted); }
+.workbench .wb-agg .wb-card { border: 0; box-shadow: var(--elev-0); border-radius: 0; }
+.workbench .wb-snapshot-row { display: flex; flex-wrap: wrap; gap: 8px 16px; margin: 0; }
+.workbench .wb-snapshot-row > dt, .workbench .wb-snapshot-row > dd { width: auto; }
+.workbench .wb-snapshot-bar { display: flex; flex-direction: column; gap: 8px; }
+.workbench .wb-backlog { display: grid; grid-template-columns: repeat(3, minmax(0,1fr)); gap: 12px; }
+.workbench .wb-backlog .wb-metric-value { font-size: 20px; line-height: 28px; }
+.workbench .wb-eval { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; }
+.workbench .wb-eval > * { grid-column: 1 / -1; }
+.workbench .wb-eval > .wb-nature, .workbench .wb-eval > section[aria-label="排除原因"] { grid-column: 1; }
+.workbench .wb-eval > section[aria-label="版本与划分"] { grid-column: 2; }
+.workbench .wb-main[data-view="access"] { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-content: start; }
+@media (max-width: 1280px) {
+  .workbench .wb-main { padding: 16px; }
+  .workbench .wb-board { grid-template-columns: var(--wb-dock, 280px) minmax(0,1fr); }
+  .workbench .wb-insp { position: fixed; top: 48px; right: 0; bottom: 0; width: min(420px, 100%); z-index: 5; background: var(--surface); box-shadow: var(--elev-3); }
+  .workbench .wb-inspector[data-open="true"] { border-radius: var(--radius-lg) 0 0 var(--radius-lg); box-shadow: var(--elev-3); }
+  .workbench .wb-eval, .workbench .wb-main[data-view="access"] { grid-template-columns: 1fr; }
+  .workbench .wb-eval > .wb-nature, .workbench .wb-eval > section[aria-label="排除原因"], .workbench .wb-eval > section[aria-label="版本与划分"] { grid-column: 1; }
+}
+@media (max-width: 1024px) {
+  .workbench .wb-board { grid-template-columns: 1fr; grid-template-rows: minmax(220px,1fr) auto; }
+  .workbench .wb-stage { order: 1; }
+  .workbench .wb-dock { order: 2; max-height: 42vh; border-right: 0; border-top: 1px solid var(--line); }
+  .workbench .wb-tasks { grid-template-columns: 1fr; }
+}
 @keyframes wb-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes wb-alert-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @keyframes wb-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
