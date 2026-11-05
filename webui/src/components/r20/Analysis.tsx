@@ -1,8 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { aggregate, boundedGraph, EMPTY_FILTER, Filter, idOf, intervalOf, kindOf, LIMITS, filterAnalysisRows, groupMembers, positionGraph, relatedSelection, Row, Selection, selectionInView, stateOf } from './analysisModel';
+import { aggregate, boundedGraph, EMPTY_FILTER, Filter, idOf, intervalOf, LIMITS, filterAnalysisRows, groupMembers, relatedSelection, Row, Selection, selectionInView, stateOf } from './analysisModel';
+import { AnalysisBoard } from './analysis/AnalysisBoard';
+import { AggregatePane } from './analysis/AggregatePane';
+import { Graph } from './analysis/AnalysisGraph';
+import { CandidateList, TimelineList } from './analysis/AnalysisLists';
+import { AnalysisToolbar } from './analysis/AnalysisToolbar';
+import { EvidenceInspector } from './analysis/EvidenceInspector';
+import { control, DataNatureBar, Pager } from './analysis/widgets';
 
-const control = 'min-h-[40px] rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-800 hover:border-slate-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700 disabled:cursor-not-allowed disabled:opacity-40';
-const panel = 'min-w-0 rounded-xl border border-slate-200 bg-white p-4 space-y-3';
 type Data = { metadata: Row; nodes: Row[]; edges: Row[]; operations: Row[]; changes: Row[]; candidates: Row[]; totals: Record<string, number>; compact: boolean; replay: boolean };
 async function read(base: string, path: string, signal: AbortSignal): Promise<Row> {
   const response = await fetch(base + path, { credentials: 'same-origin', cache: 'no-store', signal });
@@ -20,46 +25,6 @@ async function pages(base: string, root: string, path: (string | number)[], cap:
   } while (items.length < Math.min(total, cap));
   return { items, total };
 }
-const utcTime = new Intl.DateTimeFormat('zh-CN', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit', fractionalSecondDigits: 3, hourCycle: 'h23', timeZone: 'UTC' });
-function timeText(row: Row) {
-  const time = intervalOf(row);
-  return time ? time.map(value => utcTime.format(new Date(value * 1000)) + ' UTC').join(' — ') : '时间依据不足';
-}
-function Pager({ page, count, change }: { page: number; count: number; change: (page: number) => void }) {
-  return <nav aria-label="记录分页" className="flex items-center gap-2 text-xs tabular-nums"><button type="button" className={control} disabled={page <= 0} onClick={() => change(page - 1)}>上一页</button><span>{count ? page * LIMITS.page + 1 : 0}–{Math.min((page + 1) * LIMITS.page, count)} / {count}</span><button type="button" className={control} disabled={(page + 1) * LIMITS.page >= count} onClick={() => change(page + 1)}>下一页</button></nav>;
-}
-function JsonDetails({ value, label }: { value: unknown; label: string }) {
-  const [open, setOpen] = useState(false);
-  return <details onToggle={event => setOpen(event.currentTarget.open)}><summary className="cursor-pointer rounded text-sm text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-700">{label}</summary>{open && <pre className="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-all rounded bg-slate-50 p-3 text-xs">{JSON.stringify(value, null, 2)}</pre>}</details>;
-}
-function Graph({ nodes, edges, labels, selectedIds, inspect }: { nodes: Row[]; edges: Row[]; labels: Map<string, string>; selectedIds: Set<string>; inspect: (node: Row) => void }) {
-  const canvas = useRef<HTMLCanvasElement>(null), wrapper = useRef<HTMLDivElement>(null);
-  const [width, setWidth] = useState(900), [height, setHeight] = useState(420), [drawMs, setDrawMs] = useState(0);
-  const positions = useMemo(() => positionGraph(nodes), [nodes]);
-  const worldHeight = Math.max(420, ...positions.map(point => point.y + 40));
-  const canvasHeight = nodes.length <= 80 ? Math.min(worldHeight, 2400) : height;
-  useEffect(() => { if (!wrapper.current) return; const observer = new ResizeObserver(entries => setWidth(Math.max(200, Math.round(entries[0].contentRect.width)))); observer.observe(wrapper.current); return () => observer.disconnect(); }, []);
-  useEffect(() => {
-    const start = performance.now(), target = canvas.current; if (!target) return;
-    const ratio = Math.min(window.devicePixelRatio || 1, 2); target.width = width * ratio; target.height = canvasHeight * ratio;
-    const context = target.getContext('2d'); if (!context) return; context.scale(ratio, ratio); context.clearRect(0, 0, width, canvasHeight);
-    const points = new Map(positions.map(point => [point.node.id, point])); context.lineWidth = 0.7;
-    edges.forEach(edge => { const a = points.get(edge.source), b = points.get(edge.target); if (!a || !b) return; context.strokeStyle = selectedIds.has(edge.claim_id ?? edge.id) || (selectedIds.has(edge.source) && selectedIds.has(edge.target)) ? '#b45309' : '#cbd5e1'; context.beginPath(); context.moveTo(a.x * width / 1000, a.y * canvasHeight / worldHeight); context.lineTo(b.x * width / 1000, b.y * canvasHeight / worldHeight); context.stroke(); });
-    positions.forEach(({ node, x, y }) => { const selected = selectedIds.has(node.event_id ?? node.id); context.fillStyle = selected ? '#b45309' : node.kind === 'network' ? '#0f766e' : node.kind === 'process' ? '#64748b' : '#2563eb'; context.beginPath(); context.arc(x * width / 1000, y * canvasHeight / worldHeight, selected ? 5 : 3, 0, Math.PI * 2); context.fill(); if (nodes.length <= 80) { context.fillStyle = '#334155'; context.font = '11px system-ui'; const label = labels.get(node.event_id ?? node.id) ?? `${node.kind} · ${String(node.event_id ?? node.id).slice(0, 16)}`; context.fillText(label.length > 27 ? label.slice(0, 26) + '…' : label, x * width / 1000 + 9, y * canvasHeight / worldHeight + 4, Math.max(35, width * 0.28)); } });
-    setDrawMs(Number((performance.now() - start).toFixed(2)));
-  }, [positions, edges, selectedIds, width, canvasHeight, worldHeight, labels]);
-  function click(event: React.MouseEvent<HTMLCanvasElement>) {
-    const rect = event.currentTarget.getBoundingClientRect(), x = event.clientX - rect.left, y = event.clientY - rect.top;
-    let nearest: typeof positions[number] | undefined, distance = 144;
-    positions.forEach(point => { const next = (point.x * width / 1000 - x) ** 2 + (point.y * canvasHeight / worldHeight - y) ** 2; if (next < distance) { distance = next; nearest = point; } });
-    if (nearest) inspect(nearest.node);
-  }
-  return <div ref={wrapper} className="min-w-0" data-testid="analysis-graph" data-nodes={nodes.length} data-edges={edges.length} data-draw-ms={drawMs}>
-    <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs"><p><span className="text-teal-800">● 网络</span>　<span className="text-blue-700">● 变化</span>　<span className="text-slate-600">● 过程采样</span>　<span className="text-amber-800">● 已选关联</span></p>{nodes.length > 80 && <button className={control} type="button" onClick={() => setHeight(value => value === 420 ? Math.min(worldHeight, 2400) : 420)}>{height === 420 ? '展开图高' : '适应图高'}</button>}</div>
-    <div className="max-h-[600px] overflow-auto rounded-lg border border-slate-200 bg-slate-50"><canvas ref={canvas} onClick={click} style={{ width, height: canvasHeight, display: 'block', touchAction: 'manipulation' }} role="img" aria-label={`关系图，${nodes.length} 个节点，${edges.length} 条候选连线。可通过下方节点列表键盘选择。`} /></div><p className="mt-2 text-xs text-slate-500">连线表示候选假设。点击节点或使用节点列表，联动查看时间、候选和原始记录。</p>
-  </div>;
-}
-
 export default function Analysis({ runId, datasetId, onError }: { runId: string; datasetId: string; onError: (message: string) => void }) {
   const [locationSearch, setLocationSearch] = useState<string | null>(null);
   const route = useMemo(() => new URLSearchParams(locationSearch ?? ''), [locationSearch]);
@@ -79,6 +44,8 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
   const [selection, setSelection] = useState<Selection | null>(null), [evidence, setEvidence] = useState<Row | null>(null), [evidenceBusy, setEvidenceBusy] = useState(false);
   const [timelinePage, setTimelinePage] = useState(0), [candidatePage, setCandidatePage] = useState(0), [nodePage, setNodePage] = useState(0), [groupPage, setGroupPage] = useState(0);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null), [memberPage, setMemberPage] = useState(0);
+  const [statusNote, setStatusNote] = useState(''), [applied, setApplied] = useState(false);
+  const appliedTimer = useRef(0);
   const groupRegionId = React.useId();
   const generation = useRef(0), evidenceGeneration = useRef(0), errorHandler = useRef(onError), evidenceAbort = useRef<AbortController | null>(null);
   errorHandler.current = onError;
@@ -87,6 +54,11 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
     evidenceGeneration.current++; evidenceAbort.current?.abort();
     setSelection(null); setEvidence(null); setEvidenceBusy(false);
   }
+  useEffect(() => {
+    const onClear = () => clearSelection();
+    document.addEventListener('wb-clear-selection', onClear);
+    return () => document.removeEventListener('wb-clear-selection', onClear);
+  });
   function fail(reason: unknown) {
     const message = reason instanceof Error ? reason.message : String(reason);
     setData(null); setEvidence(null); setSelection(null); setError(message); setEvidenceBusy(false); evidenceGeneration.current++; evidenceAbort.current?.abort(); errorHandler.current(message);
@@ -180,7 +152,7 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
       const nextRows = filterAnalysisRows(data.operations, data.changes, data.candidates, next);
       const nextGraph = boundedGraph(data.nodes, data.edges, [...data.operations, ...data.changes, ...data.candidates], next, large ? LIMITS.nodes : 200, large ? LIMITS.edges : 600, nextRows);
       // Invalidate the request synchronously, before a late response can publish.
-      if (!selectionInView(selection, nextRows.timeline, nextRows.candidates, nextGraph.nodes)) clearSelection();
+      if (!selectionInView(selection, nextRows.timeline, nextRows.candidates, nextGraph.nodes)) { clearSelection(); setStatusNote('选中项不在当前筛选内，已清除'); }
     }
     setFilter(next); setTimelinePage(0); setCandidatePage(0); setNodePage(0); setGroupPage(0); setExpandedGroup(null); setMemberPage(0);
   }
@@ -198,37 +170,70 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
   function apply(event: React.FormEvent) {
     event.preventDefault(); if ((draft.from && !Number.isFinite(Date.parse(draft.from))) || (draft.to && !Number.isFinite(Date.parse(draft.to))) || (draft.from && draft.to && Date.parse(draft.from) > Date.parse(draft.to))) { setError('请填写有效时间，且开始时间不晚于结束时间。'); return; }
     changeFilter(draft); setError(''); syncUrl({ a_kind: draft.kind, a_state: draft.state });
+    setApplied(true); window.clearTimeout(appliedTimer.current); appliedTimer.current = window.setTimeout(() => setApplied(false), 2500);
   }
   const slice = (values: Row[], page: number) => values.slice(page * LIMITS.page, (page + 1) * LIMITS.page);
-  return <section aria-label="分析工作区" className="space-y-5" data-testid="analysis-workspace">
-    <header className="flex flex-wrap items-start justify-between gap-3"><div><h2 className="text-xl font-semibold text-slate-900">分析工作区</h2><p className="mt-1 text-sm text-slate-600">从观测关系定位时间与候选，回到可核查的原始证据。</p></div><button type="button" className={control} disabled={busy} onClick={() => setRefresh(value => value + 1)}>重新核验</button></header>
-    {!data && snapshot && <button type="button" className={control} onClick={() => { setSnapshot(''); setSnapshotDraft(''); syncUrl({ a_snapshot: '', a_focus: '' }); }}>返回终态核验</button>}{busy && <p role="status" className="rounded-lg bg-slate-100 p-4 text-sm">正在核验并读取当前视图…</p>}{error && <p role="alert" className="break-words rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">{error} {!data && '可信结果已清除，请核查权限、来源与产物后重新核验。'}</p>}
-    {data && <><div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-950"><p>{(data.metadata.synthetic ?? data.metadata.data?.analysis?.synthetic) === true ? '合成软件验证' : '真实来源声明，适用性未验证'} · {snapshot ? `历史快照 ${snapshot}` : '终态观测'}</p><p className="mt-1">协议响应不证明物理成功；候选关系不证明因果或攻击。未知原因、支持和反证保留在记录中。</p></div>
-      {data.replay && <form className="flex flex-wrap items-end gap-2" onSubmit={event => { event.preventDefault(); if (snapshotDraft && (!/^\d+$/.test(snapshotDraft) || (data.metadata.final_snapshot_number != null && Number(snapshotDraft) > data.metadata.final_snapshot_number))) { setError('快照编号超出历史范围。'); return; } setSnapshot(snapshotDraft); syncUrl({ a_snapshot: snapshotDraft, a_focus: '' }); }}><label className="text-sm">历史快照（空白查看终态）<input className={control + ' ml-2 w-28'} name="analysis-snapshot" autoComplete="off" type="number" min="0" max={data.metadata.final_snapshot_number} value={snapshotDraft} onChange={event => setSnapshotDraft(event.target.value)} /></label><button className={control} type="submit">读取快照</button><span className="text-xs text-slate-500">终态编号 {data.metadata.final_snapshot_number ?? '见历史核查'}</span></form>}
-      <a className={control + ' inline-block text-teal-800'} href={data.replay ? `/replay/?run=${encodeURIComponent(runId)}` : `/dual-source/?backend=v3&run=${encodeURIComponent(runId)}`}>完整分页核查与受控下载 →</a>
-      <form onSubmit={apply} className={panel} aria-label="分析筛选"><div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-        <label className="space-y-1 text-xs text-slate-600"><span>记录、端点、资产或标签</span><input className={control + ' w-full'} name="analysis-query" autoComplete="off" spellCheck={false} placeholder="例如 P101…" value={draft.text} onChange={event => setDraft({ ...draft, text: event.target.value })} /></label>
-        <label className="space-y-1 text-xs text-slate-600"><span>观测类型</span><select className={control + ' w-full'} value={draft.kind} onChange={event => setDraft({ ...draft, kind: event.target.value })}><option value="">全部类型</option><option value="operation">网络操作</option><option value="change">过程变化</option><option value="candidate">候选关联</option></select></label>
-        <label className="space-y-1 text-xs text-slate-600"><span>判断状态</span><select className={control + ' w-full'} value={draft.state} onChange={event => setDraft({ ...draft, state: event.target.value })}><option value="">全部状态</option>{states.map(state => <option key={state}>{state}</option>)}</select></label>
-        <label className="space-y-1 text-xs text-slate-600"><span>开始时间（浏览器本地时区）</span><input name="analysis-from" autoComplete="off" type="datetime-local" step="1" className={control + ' w-full'} value={draft.from} onChange={event => setDraft({ ...draft, from: event.target.value })} /></label>
-        <label className="space-y-1 text-xs text-slate-600"><span>结束时间（浏览器本地时区）</span><input name="analysis-to" autoComplete="off" type="datetime-local" step="1" className={control + ' w-full'} value={draft.to} onChange={event => setDraft({ ...draft, to: event.target.value })} /></label>
-      </div><div className="flex flex-wrap items-center gap-2"><button type="submit" className={control + ' border-teal-700 text-teal-900'}>应用筛选</button><button type="button" className={control} onClick={() => { setDraft(EMPTY_FILTER); changeFilter(EMPTY_FILTER); syncUrl({ a_kind: '', a_state: '' }); }}>清除筛选</button><button type="button" className={control} onClick={() => { setLarge(value => !value); setTimelinePage(0); setCandidatePage(0); setNodePage(0); }}>{large ? '恢复概览 200 / 600' : '扩展视图 1000 / 3000'}</button></div><p className="text-xs text-slate-500">筛选与聚合针对已读取范围，候选按保存ID关联操作与变化；图保留关联端点上下文，时间线仅列直接匹配的记录。未知时间不纳入有限时间筛选。自由文本与时间筛选只保存在当前页面，不写入地址。</p></form>
-      <section className={panel} aria-label="关系图"><div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold">观测关系图</h3><p className="text-xs tabular-nums" aria-live="polite">显示 {graph.nodes.length} / {data.totals.nodes} 个节点 · {graph.edges.length} / {data.totals.edges} 条连线</p></div><p className="text-xs text-slate-600" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
-        <Graph nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
-        <details><summary className="cursor-pointer rounded text-sm text-teal-800 focus-visible:outline focus-visible:outline-2 focus-visible:outline-teal-700">节点列表（键盘选择）</summary><div className="mt-3 max-h-96 space-y-2 overflow-auto pr-1">{slice(graph.nodes, nodePage).map(node => <button type="button" key={node.id} className={control + ' block w-full break-all text-left'} onClick={() => void inspect(relatedSelection(node, data.operations, data.changes))}>{node.kind} · {node.event_id ?? node.id}</button>)}<Pager page={nodePage} count={graph.nodes.length} change={setNodePage} /></div></details>
-      </section>
-      <div className="grid items-start gap-4 xl:grid-cols-2"><section className={panel} aria-label="联动时间线"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">时间线</h3><span className="text-xs">操作 {data.operations.length}/{data.totals.operations} · 变化 {data.changes.length}/{data.totals.changes}</span></div><ol className="max-h-[32rem] space-y-2 overflow-auto pr-1">{slice(timeline, timelinePage).map(row => <li key={idOf(row)}><button type="button" aria-pressed={selectedIds.has(idOf(row))} className={control + ' w-full border-l-4 text-left ' + (selectedIds.has(idOf(row)) ? 'border-amber-600 bg-amber-50' : kindOf(row) === 'operation' ? 'border-l-teal-700' : 'border-l-blue-600')} onClick={() => void inspect({ kind: kindOf(row) as Selection['kind'], id: idOf(row) })}><span className="block text-xs tabular-nums">{timeText(row)}</span><span className="mt-1 block break-words">{row.operation ?? row.result?.tag ?? '过程变化'} · {stateOf(row)}</span><span className="mt-1 block break-all font-mono text-[10px] text-slate-500">{idOf(row)}</span></button></li>)}</ol>{!timeline.length && <p className="py-6 text-sm text-slate-500">当前范围没有符合筛选的操作或变化。</p>}<Pager page={timelinePage} count={timeline.length} change={setTimelinePage} /></section>
-        <section className={panel} aria-label="联动候选"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">候选、支持与反证</h3><span className="text-xs">已读取 {data.candidates.length}/{data.totals.candidates}</span></div><ul className="max-h-[32rem] space-y-2 overflow-auto pr-1">{slice(candidates, candidatePage).map(row => <li key={idOf(row)}><button type="button" aria-pressed={selection?.id === idOf(row)} className={control + ' w-full break-words text-left ' + (selectedIds.has(idOf(row)) ? 'border-amber-600 bg-amber-50' : '')} onClick={() => void inspect({ kind: 'candidate', id: idOf(row) })}><span className="block">{stateOf(row)} · 规则 {row.rule_id ?? '未知'} / {row.rule_version ?? '未知版本'}</span><span className="mt-1 block break-all font-mono text-[10px] text-slate-500">{idOf(row)}</span><span className="mt-1 block text-xs">支持 {row.support?.length ?? 0} · 反证 {row.counterevidence?.length ?? 0} · 未知 {row.unknown_reasons?.length ?? 0}</span></button></li>)}</ul>{!candidates.length && <p className="py-6 text-sm text-slate-500">当前范围没有符合筛选的候选。</p>}<Pager page={candidatePage} count={candidates.length} change={setCandidatePage} /></section></div>
-      <section className={panel} aria-label="范围内聚合"><div className="flex flex-wrap items-center justify-between gap-2"><h3 className="font-semibold">当前筛选范围聚合</h3><label className="text-sm">聚合维度<select className={control + ' ml-2'} value={dimension} onChange={event => { const value = event.target.value as typeof dimension; setDimension(value); setGroupPage(0); syncUrl({ a_group: value }); }}><option value="state">判断状态</option><option value="asset">资产</option><option value="minute">分钟（UTC）</option></select></label></div><table className="w-full table-fixed text-sm"><caption className="pb-2 text-left text-xs text-slate-500">只统计已载入且符合筛选的操作与变化，共 {timeline.length} 项。</caption><thead><tr className="border-b text-left"><th className="py-2">分组</th><th className="w-24 py-2 text-right">数量</th></tr></thead><tbody>{slice(groups, groupPage).map((group, index) => {
-        const expanded = expandedGroup === group.key, regionId = `${groupRegionId}-${groupPage * LIMITS.page + index}`;
-        return <React.Fragment key={group.key}><tr className="border-b border-slate-100"><th scope="row" className="py-2 text-left font-normal"><button type="button" className={control + ' max-w-full break-words text-left'} aria-expanded={expanded} aria-controls={regionId} aria-label={`${expanded ? '收起' : '展开'}分组 ${group.key} · ${group.count}`} onClick={() => { setExpandedGroup(expanded ? null : group.key); setMemberPage(0); }}><span aria-hidden="true">{expanded ? '▾' : '▸'} </span>{group.key}</button></th><td className="py-2 text-right tabular-nums">{group.count}</td></tr>
-          {expanded && <tr id={regionId}><td colSpan={2} className="border-b border-slate-200 bg-slate-50 p-3"><section aria-label={`${group.key} 分组成员`} className="space-y-3"><p className="text-xs text-slate-600">当前已载入范围内 {members.length} 条成员；选择成员可定位其观测和原始证据。</p><ul className="max-h-96 space-y-2 overflow-auto">{slice(members, memberPage).map(row => {
-            const kind = kindOf(row) as 'operation' | 'change', label = kind === 'operation' ? '网络操作' : '过程变化';
-            return <li key={idOf(row)}><button type="button" className={control + ' block w-full break-words text-left'} aria-label={`定位${label} ${idOf(row)}`} aria-pressed={selection?.kind === kind && selection.id === idOf(row)} onClick={() => void inspect({ kind, id: idOf(row) })}><span className="block">定位{label} · {row.operation ?? row.result?.tag ?? '观测记录'}</span><span className="block text-xs tabular-nums">{timeText(row)}</span><span className="block break-all font-mono text-[10px] text-slate-500">{idOf(row)}</span></button></li>;
-          })}</ul><Pager page={memberPage} count={members.length} change={setMemberPage} /></section></td></tr>}
-        </React.Fragment>;
-      })}</tbody></table>{!groups.length && <p className="text-sm text-slate-500">没有可聚合的记录。</p>}<Pager page={groupPage} count={groups.length} change={page => { setGroupPage(page); setExpandedGroup(null); setMemberPage(0); }} /></section>
-      <section className={panel} aria-label="联动原始证据" aria-busy={evidenceBusy}><h3 className="font-semibold">选中项与原始证据</h3>{!selection && <p className="py-4 text-sm text-slate-500">选择图节点、时间线记录或候选，查看其原始证据。</p>}{selection && <><p className="break-all font-mono text-xs">{selection.kind} · {selection.id}</p>{selected && <><p className="text-sm break-words">状态：{stateOf(selected)} · 规则 {selected.rule_id ?? selected.mapping?.rule_ids?.join('、') ?? '不适用'} / {selected.rule_version ?? selected.mapping?.config_version ?? '未知版本'}</p><p className="text-sm">时间：{timeText(selected)}</p>{selected.candidate_id && <div className="flex flex-wrap gap-2"><button className={control} type="button" onClick={() => void inspect({ kind: 'operation', id: selected.operation_id })}>查看关联网络操作</button><button className={control} type="button" onClick={() => void inspect({ kind: 'change', id: selected.change_id })}>查看关联过程变化</button></div>}<p className="text-sm break-words">未知原因：{selected.unknown_reasons?.join('、') || '见完整记录'}；支持 {selected.support?.length ?? 0}，反证 {selected.counterevidence?.length ?? 0}。</p><JsonDetails value={selected} label="完整观测、支持、反证与未知原因" /></>}{selection.kind === 'node' && <p className="text-sm text-slate-600">当前已读取范围没有关联的操作或变化。上方记录包含来源引用；尚未核验其原始内容，请使用完整分页核查定位相关操作。</p>}{evidenceBusy && <p role="status" className="text-sm">正在核验原始记录…</p>}{evidence && <><p className="text-sm" aria-live="polite">已核验原始记录：本页 {evidence.verified_original_evidence?.length ?? 0} 条{evidence.evidence_page ? ` / 共 ${evidence.evidence_page.total} 条` : ''}</p><JsonDetails value={{ selection: evidence.selection, time_configuration: evidence.time_configuration, source_ranges: evidence.source_ranges, quality: evidence.quality, config_version: evidence.config_version, config_fingerprint: evidence.config_fingerprint, limitations: evidence.limitations }} label="时间依据、配置版本与质量说明" /><div className="space-y-2">{(evidence.verified_original_evidence ?? []).slice(0, 25).map((row: Row, index: number) => <div className="rounded border border-slate-200 p-3" key={index}><p className="mb-2 break-all text-xs">{row.source_ref?.file_sha256 ? '文件 SHA-256：' + row.source_ref.file_sha256 : '来源文件槽：' + (row.source_ref?.source_slot ?? '未提供')} · 帧 {row.source_ref?.frame_number ?? '—'} · 记录 {row.source_ref?.record_number ?? '—'} · 列 {row.source_ref?.column ?? '—'}</p><JsonDetails value={row} label={`原始记录 ${(evidence.evidence_page?.offset ?? 0) + index + 1}`} /></div>)}</div>{evidence.evidence_page && <div className="flex flex-wrap gap-2"><button className={control} type="button" disabled={!evidence.evidence_page.offset} onClick={() => void inspect(selection, Math.max(0, evidence.evidence_page.offset - 25))}>上一页原始证据</button><button className={control} type="button" disabled={!evidence.evidence_page.has_more} onClick={() => void inspect(selection, evidence.evidence_page.offset + evidence.evidence_page.returned)}>下一页原始证据</button></div>}{!evidence.evidence_page && (evidence.verified_original_evidence?.length ?? 0) > 25 && <p className="text-sm text-slate-600">旧接口返回超过 25 条原始记录，此处展示前 25 条；完整核查请使用核查入口。</p>}</>}</>}</section>
+  const synthetic = data ? (data.metadata.synthetic ?? data.metadata.data?.analysis?.synthetic) === true : false;
+  return <section aria-label="分析工作区" className="wb-analysis" data-testid="analysis-workspace">
+    <AnalysisToolbar
+      draft={draft}
+      setDraft={setDraft}
+      states={states}
+      busy={busy}
+      large={large}
+      selectionCount={selection ? 1 : 0}
+      replay={Boolean(data?.replay)}
+      snapshotDraft={snapshotDraft}
+      setSnapshotDraft={setSnapshotDraft}
+      finalSnapshot={data?.metadata.final_snapshot_number}
+      onApply={apply}
+      onClearFilter={() => { setDraft(EMPTY_FILTER); changeFilter(EMPTY_FILTER); syncUrl({ a_kind: '', a_state: '' }); }}
+      onToggleLarge={() => { setLarge(value => !value); setTimelinePage(0); setCandidatePage(0); setNodePage(0); }}
+      onRefresh={() => setRefresh(value => value + 1)}
+      onClearSelection={clearSelection}
+      applied={applied}
+      statusNote={statusNote}
+      onReadSnapshot={event => { event.preventDefault(); if (snapshotDraft && (!/^\d+$/.test(snapshotDraft) || (data?.metadata.final_snapshot_number != null && Number(snapshotDraft) > data.metadata.final_snapshot_number))) { setError('快照编号超出历史范围。'); return; } setSnapshot(snapshotDraft); syncUrl({ a_snapshot: snapshotDraft, a_focus: '' }); }}
+      verifyHref={data ? (data.replay ? `/replay/?run=${encodeURIComponent(runId)}` : `/dual-source/?backend=v3&run=${encodeURIComponent(runId)}`) : undefined}
+    />
+    {!data && snapshot && <button type="button" className={control} onClick={() => { setSnapshot(''); setSnapshotDraft(''); syncUrl({ a_snapshot: '', a_focus: '' }); }}>返回终态核验</button>}
+    {busy && <div className="wb-state" role="status"><span className="wb-pulse" aria-hidden="true" />{!data && <span className="wb-skeleton" />}<p>正在核验并读取当前视图…</p></div>}
+    {error && <p role="alert" className="wb-alert break-words rounded-lg border p-4 text-sm">{error} {!data && '可信结果已清除，请核查权限、来源与产物后重新核验。'}</p>}
+    {data && <>
+      <DataNatureBar>
+        <p>{synthetic ? '合成软件验证' : '真实来源声明，适用性未验证'} · {snapshot ? `历史快照 ${snapshot}` : '终态观测'}</p>
+        <p>协议响应不证明物理成功；候选关系不证明因果或攻击。未知原因、支持和反证保留在记录中。</p>
+      </DataNatureBar>
+      <AnalysisBoard
+        timeline={<TimelineList rows={slice(timeline, timelinePage)} page={timelinePage} count={timeline.length} meta={`操作 ${data.operations.length}/${data.totals.operations} · 变化 ${data.changes.length}/${data.totals.changes}`} selectedIds={selectedIds} onInspect={next => void inspect(next)} onPage={setTimelinePage} />}
+        candidates={<CandidateList rows={slice(candidates, candidatePage)} page={candidatePage} count={candidates.length} totalLabel={`已读取 ${data.candidates.length}/${data.totals.candidates}`} selectedIds={selectedIds} selectionId={selection?.id} onInspect={next => void inspect(next)} onPage={setCandidatePage} />}
+        stage={<section className="wb-card wb-graph-card" aria-label="关系图">
+          <div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold">观测关系图</h3><p className="text-xs tabular-nums" aria-live="polite">显示 {graph.nodes.length} / {data.totals.nodes} 个节点 · {graph.edges.length} / {data.totals.edges} 条连线</p></div>
+          <div className="wb-legend-bar">
+            <p className="wb-legend-inline"><span className="wb-legend-net"><i className="wb-dot wb-dot-net" aria-hidden="true" />网络</span><span className="wb-legend-change"><i className="wb-dot wb-dot-change" aria-hidden="true" />变化</span><span className="wb-legend-sample"><i className="wb-dot wb-dot-sample" aria-hidden="true" />过程采样</span><span className="wb-legend-select"><i className="wb-dot wb-dot-select" aria-hidden="true" />已选关联</span></p>
+            <p className="wb-clip" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
+          </div>
+          <Graph showLegend={false} nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
+          <details><summary className="wb-link cursor-pointer rounded text-sm">节点列表（键盘选择）</summary><div className="mt-3 max-h-40 space-y-2 overflow-auto pr-1">{slice(graph.nodes, nodePage).map(node => <button type="button" key={node.id} className={control + ' block w-full break-all text-left'} onClick={() => void inspect(relatedSelection(node, data.operations, data.changes))}>{node.kind} · {node.event_id ?? node.id}</button>)}<Pager page={nodePage} count={graph.nodes.length} change={setNodePage} /></div></details>
+        </section>}
+        inspector={<EvidenceInspector selection={selection} selected={selected} evidence={evidence} evidenceBusy={evidenceBusy} onInspect={(next, offset) => void inspect(next, offset)} onClear={clearSelection} />}
+        aggregate={<AggregatePane
+        groups={groups}
+        dimension={dimension}
+        timelineCount={timeline.length}
+        expandedGroup={expandedGroup}
+        members={members}
+        memberPage={memberPage}
+        groupPage={groupPage}
+        groupRegionId={groupRegionId}
+        selection={selection}
+        onDimension={value => { setDimension(value); setGroupPage(0); syncUrl({ a_group: value }); }}
+        onToggleGroup={key => { setExpandedGroup(key); setMemberPage(0); }}
+        onMemberPage={setMemberPage}
+        onGroupPage={page => { setGroupPage(page); setExpandedGroup(null); setMemberPage(0); }}
+        onInspect={next => void inspect(next)}
+      />}
+      />
       <p className="text-xs text-slate-500">当前视图的裁剪与聚合不会修改保存的观测；完整结果可通过核查入口分页读取。</p>
     </>}
   </section>;
