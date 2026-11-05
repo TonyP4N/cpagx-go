@@ -28,7 +28,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   --header-ink: var(--ink);
   --header-muted: var(--ink-muted);
   --header-line: var(--line);
-  --mark: var(--accent-bright);
+  --mark: var(--accent);
   --focus: var(--accent);
   --code-bg: var(--canvas);
   --critical: #DA1E28;
@@ -80,7 +80,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench > header {
   background: var(--header);
   color: var(--header-ink);
-  border-bottom: 3px solid var(--accent-bright);
+  border-bottom: 1px solid var(--line);
 }
 .workbench > header p { color: var(--header-muted); }
 .workbench > header button { background: transparent; color: var(--header-ink); border-color: var(--header-line); }
@@ -89,7 +89,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .wb-mark {
   display:grid; place-items:center; width:2.6rem; height:2.6rem;
   border: 1px solid var(--header-line); border-radius: var(--radius-md);
-  color:var(--mark); font-weight:750; font-size:1.6rem;
+  color:var(--accent); font-weight:750; font-size:1.6rem;
 }
 .workbench h1, .workbench h2, .workbench h3 { text-wrap: balance; }
 .workbench h1 { letter-spacing: .015em; font-size:1.25rem; }
@@ -495,7 +495,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 .workbench .wb-run-table th:nth-child(6), .workbench .wb-run-table td:nth-child(6) { width: 8rem; }
 .workbench .wb-run-table th:nth-child(7), .workbench .wb-run-table td:nth-child(7) { width: 4rem; }
 .workbench .wb-run-table tr.is-selected,
-.workbench .wb-run-table tr.is-selected:hover { background: var(--select-bg); box-shadow: var(--elev-0); }
+.workbench .wb-run-table tr.is-selected:hover { background: var(--accent-soft); box-shadow: var(--elev-0); }
 .workbench .wb-run-detail[data-open="true"] { animation: wb-alert-in var(--motion-base) var(--ease-out); }
 @media (max-width: 1024px) {
   .workbench .wb-tasks { grid-template-columns: 1fr; }
@@ -530,9 +530,9 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 
 /* Round 5 application shell. Radius and elevation stay on the R4 tokens. */
 .workbench .wb-app { min-height: 100vh; display: flex; flex-direction: column; }
-.workbench .wb-topbar { height: 48px; position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--header); color: var(--header-ink); border-bottom: 1px solid var(--accent-bright); box-shadow: var(--elev-0); }
+.workbench .wb-topbar { height: 48px; position: sticky; top: 0; z-index: 6; display: flex; align-items: center; gap: 12px; padding: 0 16px; background: var(--header); color: var(--header-ink); border-bottom: 1px solid var(--line); box-shadow: var(--elev-0); }
 .workbench .wb-topbar h1 { margin: 0; font-size: 14px; line-height: 20px; font-weight: 600; color: var(--header-ink); }
-.workbench .wb-topbar .wb-mark { width: 28px; height: 28px; font-size: 16px; }
+.workbench .wb-topbar .wb-mark { width: 28px; height: 28px; font-size: 16px; color: var(--accent); }
 .workbench .wb-topbar button, .workbench .wb-topbar span { color: var(--header-ink); }
 .workbench .wb-context-compact { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; overflow: hidden; }
 .workbench .wb-context-compact button, .workbench .wb-top-actions button { border: 1px solid var(--header-line); border-radius: var(--radius-sm); background: transparent; padding: 2px 8px; font-size: 12px; line-height: 18px; }
