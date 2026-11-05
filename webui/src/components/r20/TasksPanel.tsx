@@ -77,7 +77,10 @@ export function TasksPanel({
   useEffect(() => {
     const node = document.querySelector<HTMLElement>('[data-wb-drawer="tasks"]');
     if (!node) return;
-    const close = () => setDrawerOpen(false);
+    const close = () => {
+      setDrawerOpen(false);
+      document.querySelector<HTMLElement>('.wb-run-table tr.is-selected')?.focus();
+    };
     node.addEventListener('wb-close', close);
     return () => node.removeEventListener('wb-close', close);
   }, [selected?.id, narrow, drawerOpen]);
@@ -118,9 +121,9 @@ function Group({ title, rows, selectedId, onOpen }: { title: string; rows: TaskR
   if (!rows.length) return null;
   return <div>
     <p className="wb-group-title">{title}</p>
-    <table className="wb-run-table">
+    <div className="wb-table-wrap"><table className="wb-run-table">
       <thead><tr><th>状态</th><th>模式</th><th>创建</th><th>尝试</th><th>阶段</th><th>ID</th><th>操作</th></tr></thead>
-      <tbody>{rows.map(run => <tr key={run.id} className={run.id === selectedId ? 'is-selected' : ''} onClick={() => onOpen(run.id)}>
+      <tbody>{rows.map(run => <tr key={run.id} tabIndex={-1} className={run.id === selectedId ? 'is-selected' : ''} onClick={() => onOpen(run.id)}>
         <td><StatusChip state={run.state} label={stateLabels[run.state] || run.state} /></td>
         <td>{modeText(run.mode)}</td>
         <td>{dateText(run.created_at)}</td>
@@ -129,7 +132,7 @@ function Group({ title, rows, selectedId, onOpen }: { title: string; rows: TaskR
         <td><code title={run.id}>{shortId(run.id)}</code></td>
         <td><button type="button" aria-label={`查看运行 ${run.id}`} onClick={event => { event.stopPropagation(); onOpen(run.id); }}>详情</button></td>
       </tr>)}</tbody>
-    </table>
+    </table></div>
   </div>;
 }
 
@@ -164,7 +167,7 @@ function Detail({ run, canEdit, busy, confirmCancel, narrow, onCopy, onAskCancel
     {running && canEdit && confirmCancel && <div role="group" aria-label="确认取消"><p>取消后将等待本次执行退出。确认取消这个任务？</p><button type="button" onClick={onConfirmCancel}>确认取消任务</button><button type="button" onClick={onKeep}>保留任务</button></div>}
     {running && !canEdit && <p className="wb-cta-reason">当前账号不能取消这个任务。</p>}
     {canEdit && (run.state === 'failed' || run.state === 'cancelled') && <button type="button" className="wb-primary" disabled={busy} onClick={onRetry}>重试此运行</button>}
-    {run.state === 'succeeded' && <button type="button" className="wb-primary" onClick={onOpenResult}>查看分析结果</button>}
+    {run.state === 'succeeded' && <button type="button" className="wb-primary" onClick={onOpenResult}>{run.mode === 'dual_source_replay' ? '打开顺序回放' : '查看分析结果'}</button>}
     <details><summary>固定抓包顺序与尝试历史</summary><pre>{JSON.stringify(run, null, 2)}</pre></details>
   </div>;
 }
