@@ -9,7 +9,7 @@ rules:
     verbs: ["create", "get", "patch", "delete"]
   - apiGroups: [""]
     resources: ["pods"]
-    verbs: ["list"]
+    verbs: ["list", "patch"]
 ---
 apiVersion: rbac.authorization.k8s.io/v1
 kind: RoleBinding

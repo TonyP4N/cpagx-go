@@ -7,6 +7,30 @@ from contextlib import contextmanager
 from contextvars import ContextVar
 from dataclasses import dataclass
 import re
+import subprocess
+
+
+@dataclass(frozen=True)
+class KubernetesPostgres:
+    context: str
+    namespace: str
+    pod: str
+    pod_uid: str
+    container: str = 'postgres'
+
+    def __post_init__(self):
+        for value in (self.context,self.namespace,self.pod,self.container):
+            if not isinstance(value,str) or not re.fullmatch('[A-Za-z0-9][A-Za-z0-9_.:-]{0,127}',value):
+                raise ValueError('explicit Kubernetes endpoint required')
+        if not re.fullmatch('[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}',self.pod_uid):
+            raise ValueError('immutable PostgreSQL Pod UID required')
+
+    def command(self, arguments, interactive):
+        prefix=['kubectl','--context',self.context,'-n',self.namespace]
+        observed=subprocess.run([*prefix,'get','pod',self.pod,'-o','jsonpath={.metadata.uid}'],
+                                check=True,capture_output=True,text=True,timeout=15).stdout
+        if observed!=self.pod_uid:raise ValueError('PostgreSQL Pod replaced')
+        return [*prefix,'exec',*(['-i'] if interactive else []),self.pod,'-c',self.container,'--',*arguments]
 
 _ACTIVE = ContextVar('cpag_backup_deployment_databases', default=None)
 
@@ -22,6 +46,7 @@ class DeploymentDatabases:
     container: str
     source: str
     restore: str
+    kubernetes: KubernetesPostgres | None = None
 
     def __post_init__(self):
         if not isinstance(self.container, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9_.-]{0,127}', self.container):
@@ -29,6 +54,16 @@ class DeploymentDatabases:
         _name(self.source); _name(self.restore)
         if self.source == self.restore:
             raise ValueError('new restore database must differ from source database')
+        if self.kubernetes is not None and (not isinstance(self.kubernetes,KubernetesPostgres) or self.container!=self.kubernetes.pod):
+            raise ValueError('Kubernetes endpoint must match database policy')
+
+
+def database_command(container, arguments, interactive=True):
+    policy=_ACTIVE.get()
+    if policy is not None and policy.kubernetes is not None:
+        if container!=policy.container:raise ValueError('database endpoint outside explicit deployment policy')
+        return policy.kubernetes.command(arguments,interactive)
+    return ['docker','exec',*(['-i'] if interactive else []),container,*arguments]
 
 
 @contextmanager

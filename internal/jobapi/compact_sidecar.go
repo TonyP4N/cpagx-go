@@ -74,7 +74,7 @@ func (s *Server) compactSidecarVerify(ctx context.Context, base, sha string, req
 	if err != nil || len(result) > 8<<20 {
 		return nil, errors.New("invalid verifier response")
 	}
-	receipt := map[string]any{"version": "service-sidecar-verification-1", "run_id": job, "attempt_id": attempt, "publication_sha256": sha, "status": resp.StatusCode, "ended_at": time.Now().UTC(), "cleanup_completed": true}
+	receipt := map[string]any{"version": "service-sidecar-verification-2", "verification_id": id, "run_id": job, "attempt_id": attempt, "publication_sha256": sha, "status": resp.StatusCode, "ended_at": time.Now().UTC(), "cleanup_completed": true}
 	if err = s.saveCompactReceipt(job, attempt, id, receipt); err != nil {
 		return nil, err
 	}

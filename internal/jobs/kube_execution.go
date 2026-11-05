@@ -25,11 +25,19 @@ type KubeTermination struct {
 	Container string    `json:"container_id"`
 	Finished  time.Time `json:"finished_at"`
 	ExitCode  *int      `json:"exit_code"`
+	Removed   bool      `json:"removed,omitempty"`
+	Suspended bool      `json:"suspended,omitempty"`
 }
 
 func validKubeExit(c Claim, p ExitProof) bool {
 	k := p.Kubernetes
-	if k == nil || !kubeLocation(p.Location) || p.Scope != "kubernetes-job" || !p.Exited || k.Version != "kubernetes-termination-1" || k.Run != c.ID || k.Attempt != c.Attempt || k.Worker != c.Worker || k.Namespace != "cpag" || k.JobUID != p.ContainerID || !kubeUID.MatchString(k.JobUID) || !kubeUID.MatchString(k.PodUID) || k.JobUID == k.PodUID || k.Finished.IsZero() || k.ExitCode == nil {
+	if k == nil || !kubeLocation(p.Location) || p.Scope != "kubernetes-job" || !p.Exited || k.Run != c.ID || k.Attempt != c.Attempt || k.Worker != c.Worker || k.Namespace != "cpag" || k.JobUID != p.ContainerID || !kubeUID.MatchString(k.JobUID) || k.Finished.IsZero() {
+		return false
+	}
+	if k.Version == "kubernetes-not-started-1" {
+		return k.Removed && k.Suspended && k.PodUID == "" && k.Container == "" && k.ExitCode == nil
+	}
+	if k.Version != "kubernetes-termination-1" || !kubeUID.MatchString(k.PodUID) || k.JobUID == k.PodUID || k.ExitCode == nil || k.Removed || k.Suspended {
 		return false
 	}
 	raw, ok := strings.CutPrefix(k.Container, "containerd://")

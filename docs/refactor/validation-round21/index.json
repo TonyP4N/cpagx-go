@@ -1620,5 +1620,10 @@
         "path": "outputs/cpag-r21-linux-private-20261104/strict-curl-sandbox-denied.txt"
       }
     ]
+  },
+  "eu_kubernetes_fixes_20261105": {
+    "report": "eu-kubernetes-fixes-20261105.json",
+    "acceptance": "../round21-kubernetes-fixes-20261105.md",
+    "scope": "EU synthetic replay, cancellation and terminal format7 backup/restore; Windows and wider R21 gates remain pending"
   }
 }

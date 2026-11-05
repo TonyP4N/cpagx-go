@@ -1,5 +1,7 @@
 # R21 单机 Linux 部署操作说明
 
+EU k3s 部署使用独立的 [Kubernetes 终态备份恢复入口](round21-kubernetes-fixes-20261105.md#k3s-运维入口)，含宿主卷与容器路径映射；本文件的 Docker/process/systemd 操作仍按其原环境使用。
+
 本入口独立于冻结 RC1 和旧 compose。统一 Go API、Worker、共享原件/结果、控制回执和 PostgreSQL 必须属于同一明确部署；外部只经 HTTPS 代理访问公共 API。Go 公共及内部监听仍分别为 `127.0.0.1:8095`、`127.0.0.1:8094`，PostgreSQL 本机端口为 `127.0.0.1:15432`。代理不能连接内部监听。
 
 ## 交付身份与支持边界

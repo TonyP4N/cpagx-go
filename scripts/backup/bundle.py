@@ -19,7 +19,7 @@ REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO/'services/analysis/src'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import terminal_shared
-from postgres_target import require_database
+from postgres_target import require_database, database_command
 from cpag_core.contracts import validate
 from cpag_core.evidence import EvidenceIndex
 from cpag_core.packet_pipeline import PacketEvidence
@@ -973,7 +973,7 @@ def include_catalog_references(task_audit, catalog_audit):
 
 def pg(container, db, command, *args, **kwargs):
     require_database(container, db)
-    return subprocess.run(['docker','exec','-i',container,command,'-U','postgres','-d',db,*args],check=True,**kwargs)
+    return subprocess.run(database_command(container,[command,'-U','postgres','-d',db,*args]),check=True,**kwargs)
 
 
 def rows_now(container,db):
@@ -1008,7 +1008,7 @@ def _backup(container, db, root, destination, *, control=None):
     # Hold SHARE locks across dump and copy. Writers cannot change the M4 task
     # history or V3 directory metadata while the exported snapshot is in use.
     created_destination=False;phase='database_snapshot';preparation_cache={};preparations=None;copied_preparations=None
-    conn=subprocess.Popen(['docker','exec','-i',container,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    conn=subprocess.Popen(database_command(container,['psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db]),stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
     try:
         conn.stdin.write("BEGIN; SET LOCAL lock_timeout='5s'; "
                          "LOCK TABLE m4_jobs, m4_job_attempts IN SHARE MODE; "
@@ -1125,18 +1125,21 @@ def write_report(path, value):
         if temporary is not None and temporary.exists():temporary.unlink()
 
 
-def restore(container, bundle_dir, destination, *, control_destination=None, database='m4_restore_validation'):
+def restore(container, bundle_dir, destination, *, control_destination=None, database='m4_restore_validation',runtime_root=None):
     require_database(container, database, 'restore')
+    if runtime_root is not None and (control_destination is None or not isinstance(runtime_root,str) or not Path(runtime_root).is_absolute() or '..' in Path(runtime_root).parts):
+        raise ValueError('explicit format7 runtime storage mapping required')
     if control_destination is None:return _restore(container,bundle_dir,destination,database=database)
     control=Path(control_destination).resolve()
     if control.exists() or control==Path(destination).resolve() or control.is_relative_to(Path(destination).resolve()) or Path(destination).resolve().is_relative_to(control) or control.is_relative_to(Path(bundle_dir).resolve()):
         raise ValueError('new separate control destination required')
     control.mkdir(mode=0o700,parents=True)
     with terminal_shared.maintenance(control):
-        return _restore(container,bundle_dir,destination,control_destination=control,_reserved_control=True,database=database)
+        return _restore(container,bundle_dir,destination,control_destination=control,_reserved_control=True,database=database,
+                        **({'runtime_root':runtime_root} if runtime_root is not None else {}))
 
 
-def _restore(container, bundle_dir, destination, *, control_destination=None,_reserved_control=False,database='m4_restore_validation'):
+def _restore(container, bundle_dir, destination, *, control_destination=None,_reserved_control=False,database='m4_restore_validation',runtime_root=None):
     require_database(container, database, 'restore')
     bundle_dir=Path(bundle_dir).resolve();destination=Path(destination).resolve()
     report=destination.parent/(destination.name+'-audit.json')
@@ -1177,7 +1180,7 @@ def _restore(container, bundle_dir, destination, *, control_destination=None,_re
                 raise ValueError('bundle catalog invalid: '+json.dumps(directory['errors']))
         phase='create_new_database'
         # createdb refuses an existing target: never overwrite a current database.
-        subprocess.run(['docker','exec',container,'createdb','-U','postgres',database],check=True)
+        subprocess.run(database_command(container,['createdb','-U','postgres',database],interactive=False),check=True)
         phase='restore_database'
         with (bundle_dir/'database.dump').open('rb') as dump:
             pg(container,database,'pg_restore','--exit-on-error','--no-owner',stdin=dump)
@@ -1222,7 +1225,8 @@ def _restore(container, bundle_dir, destination, *, control_destination=None,_re
                           session_restore_policy='revoke_all_sessions_before_restored_service_start')
         if bundle['format_version']==7:
             result.update(control_inventory_equal_before_rebase=True,verifier_history_equal=True,
-                capacity_rebase=terminal_shared.rebase_capacity(control_destination,bundle['original_root'],destination),
+                capacity_rebase=terminal_shared.rebase_capacity(control_destination,
+                    terminal_shared.capacity_source_root(bundle_dir/'control',bundle['original_root'],runtime_root is not None),runtime_root or destination),
                 source_trust='pending_formal_service_reverification',restored_authority_credentials=False)
         write_report(report,result)
         return result

@@ -25,3 +25,21 @@ func TestKubeExitBinding(t *testing.T) {
 		}
 	}
 }
+
+func TestKubeNeverStartedBinding(t *testing.T) {
+	c := Claim{ID: "run", Worker: "worker", Attempt: 1}
+	k := KubeTermination{Version: "kubernetes-not-started-1", Run: c.ID, Worker: c.Worker, Attempt: 1, Namespace: "cpag", JobUID: "ea28a1ad-8246-4420-8993-ddcee4256df1", Finished: time.Now(), Removed: true, Suspended: true}
+	p := ExitProof{Scope: "kubernetes-job", Exited: true, Location: "kubernetes:0c3a6291-1ec0-4550-9220-62c135c8cedc", ContainerID: k.JobUID, Kubernetes: &k}
+	if !validKubeExit(c, p) {
+		t.Fatal("rejected fenced non-start")
+	}
+	zero := 0
+	for _, mutate := range []func(*KubeTermination){func(v *KubeTermination) { v.Removed = false }, func(v *KubeTermination) { v.Suspended = false }, func(v *KubeTermination) { v.ExitCode = &zero }, func(v *KubeTermination) { v.PodUID = k.JobUID }, func(v *KubeTermination) { v.Attempt++ }} {
+		bad := k
+		mutate(&bad)
+		p.Kubernetes = &bad
+		if validKubeExit(c, p) {
+			t.Fatal("accepted incomplete non-start evidence")
+		}
+	}
+}

@@ -1,6 +1,7 @@
 """Kubernetes control plane for a claimed CPAG attempt. No host runtime socket."""
 import json
 from pathlib import Path
+from urllib.error import HTTPError
 import ssl
 from urllib.request import HTTPSHandler, ProxyHandler, Request, build_opener
 
@@ -29,6 +30,43 @@ class JobControl:
 
     jobs = '/apis/batch/v1/namespaces/cpag/jobs'
 
+    def get(self, name):
+        try:
+            return self.request('GET', self.jobs+'/'+name)
+        except HTTPError as error:
+            if error.code == 404:
+                return None
+            raise
+
+    def pods(self, uid):
+        value = self.request('GET', '/api/v1/namespaces/cpag/pods?labelSelector=batch.kubernetes.io%2Fcontroller-uid%3D'+uid)
+        if value['metadata'].get('continue'):
+            raise ValueError('incomplete pod inventory')
+        return value['items']
+
+    def stop(self, job):
+        # Keep the Job and Pod until kubelet termination is durably recorded.
+        # Deleting them here would destroy the evidence needed by cancellation.
+        if job['spec'].get('activeDeadlineSeconds') == 1:
+            return
+        return self.request('PATCH', self.jobs+'/'+job['metadata']['name'], [
+            {'op':'test', 'path':'/metadata/uid', 'value':job['metadata']['uid']},
+            {'op':'add', 'path':'/spec/activeDeadlineSeconds', 'value':1}], patch=True)
+
+    def release_exit(self, uid):
+        # Called only after the private receipt and coordinator acknowledgement.
+        for pod in self.pods(uid):
+            meta=pod['metadata'];finalizers=meta.get('finalizers',[])
+            if 'cpag.montp3.pro/exit-evidence' not in finalizers:
+                continue
+            owners=[r for r in meta.get('ownerReferences',[]) if r.get('controller')]
+            if len(owners)!=1 or owners[0]['uid']!=uid or owners[0]['kind']!='Job':
+                raise ValueError('pod owner mismatch during release')
+            self.request('PATCH','/api/v1/namespaces/cpag/pods/'+meta['name'],[
+                {'op':'test','path':'/metadata/uid','value':meta['uid']},
+                {'op':'test','path':'/metadata/finalizers','value':finalizers},
+                {'op':'replace','path':'/metadata/finalizers','value':[v for v in finalizers if v!='cpag.montp3.pro/exit-evidence']}],patch=True)
+
     def create_suspended(self, manifest):
         if manifest['spec']['suspend'] is not True:
             raise ValueError('job must start suspended')
@@ -46,10 +84,7 @@ class JobControl:
         job = self.request('GET', self.jobs+'/'+name)
         if job['metadata']['uid'] != uid:
             raise ValueError('replacement job cannot prove termination')
-        pods = self.request('GET', '/api/v1/namespaces/cpag/pods?labelSelector=batch.kubernetes.io%2Fcontroller-uid%3D'+uid)
-        if pods['metadata'].get('continue'):
-            raise ValueError('incomplete pod inventory')
-        return termination(job, pods['items'], job_uid=uid, run_id=claim['id'],
+        return termination(job, self.pods(uid), job_uid=uid, run_id=claim['id'],
                            attempt=claim['attempt'], worker=claim['worker'])
 
     def remove(self, name, uid):

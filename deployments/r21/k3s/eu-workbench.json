@@ -62,7 +62,7 @@
                 "value": "kube-sidecar-v1"
               }
             ],
-            "image": "cpag-eu-suite:v2",
+            "image": "docker.io/library/cpag-eu-suite@sha256:7185ad3d8c44270530ac988a9387455320740c94cbdd786cfbaf1e822a849217",
             "imagePullPolicy": "Never",
             "name": "api",
             "readinessProbe": {
@@ -129,7 +129,7 @@
                 "value": "/opt/cpag/services/analysis/src"
               }
             ],
-            "image": "cpag-eu-suite:v2",
+            "image": "docker.io/library/cpag-eu-suite@sha256:7185ad3d8c44270530ac988a9387455320740c94cbdd786cfbaf1e822a849217",
             "imagePullPolicy": "Never",
             "name": "source-verifier",
             "resources": {
@@ -182,7 +182,7 @@
                 "value": "7953c811-8adc-468b-a6c1-ec03c9b47d73"
               }
             ],
-            "image": "cpag-eu-suite:v2",
+            "image": "docker.io/library/cpag-eu-suite@sha256:7185ad3d8c44270530ac988a9387455320740c94cbdd786cfbaf1e822a849217",
             "imagePullPolicy": "Never",
             "name": "worker",
             "resources": {

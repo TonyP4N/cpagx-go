@@ -1,5 +1,7 @@
 # R21 单机部署与运维验收
 
+2026-11-05 EU k3s 定向修复与公网实测另见 [Kubernetes 补充验收](round21-kubernetes-fixes-20261105.md)。下文历史环境的结论按原范围保留，独立 Windows 客户端仍待验。
+
 基线 `9b213a0df88bd0019e2ff7ed04c8b692e3ad4880` 与远端一致，[R20 CI 17/17](https://github.com/TonyP4N/cpagx-go/actions/runs/41771812399)。按收尾路线图第 21 轮和首版支持矩阵，选择一台 Linux 主机承载正式服务。Windows 客户端只需浏览器。操作步骤见[部署操作说明](round21-operations.md)，检查结果见[证据索引](validation-round21/index.json)。
 
 | 条件 | 验收口径 |

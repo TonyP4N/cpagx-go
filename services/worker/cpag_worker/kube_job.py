@@ -15,12 +15,13 @@ def compute_job(claim, worker, image):
     if not re.fullmatch(r'[a-z0-9./:-]+@sha256:[0-9a-f]{64}', image):
         raise ValueError('immutable compute image required')
     payload = claim['payload']
-    if payload['kind'] != 'dual-source' or not compact_payload(payload):
-        raise ValueError('this executor requires a compact offline task')
+    if payload['kind'] not in ('dual-source', 'dual-source-replay') or not compact_payload(payload):
+        raise ValueError('this executor requires a compact offline or replay task')
     limits = resolve(payload['resource_profile'])
     labels = {'cpag-role': 'compute', 'cpag.job': run, 'cpag.attempt': str(attempt), 'cpag.worker': worker}
     base = f'kube-staging/{run}/{attempt}'
-    args = ['python', '-m', 'cpag_core.shared_cli', '--action', 'export', '--mode', 'offline',
+    mode = 'replay' if payload['kind'] == 'dual-source-replay' else 'offline'
+    args = ['python', '-m', 'cpag_core.shared_cli', '--action', 'export', '--mode', mode,
             '--seconds', str(limits['timeout'])]
     for index, ref in enumerate(network_refs(payload)):
         ext = ref['path'].rsplit('.', 1)[-1].lower()
@@ -47,7 +48,7 @@ def compute_job(claim, worker, image):
     return {'apiVersion': 'batch/v1', 'kind': 'Job',
             'metadata': {'namespace': 'cpag', 'name': f'cpag-{run}-{attempt}', 'labels': labels},
             'spec': {'suspend': True, 'backoffLimit': 0, 'activeDeadlineSeconds': limits['timeout'],
-                     'template': {'metadata': {'labels': labels}, 'spec': pod}}}
+                     'template': {'metadata': {'labels': labels, 'finalizers':['cpag.montp3.pro/exit-evidence']}, 'spec': pod}}}
 
 
 def stage_attempt(root, claim, image):
