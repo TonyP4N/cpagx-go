@@ -48,7 +48,7 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
   const [sheetOpen, setSheetOpen] = useState(true);
   const drawer = React.useRef<HTMLElement>(null);
   useEffect(() => {
-    const media = window.matchMedia('(max-width: 1024px)');
+    const media = window.matchMedia('(max-width: 1280px)');
     const sync = () => setNarrow(media.matches);
     sync();
     media.addEventListener('change', sync);

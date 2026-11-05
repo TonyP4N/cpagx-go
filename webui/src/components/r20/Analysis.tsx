@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { aggregate, boundedGraph, EMPTY_FILTER, Filter, idOf, intervalOf, LIMITS, filterAnalysisRows, groupMembers, relatedSelection, Row, Selection, selectionInView, stateOf } from './analysisModel';
+import { AnalysisBoard } from './analysis/AnalysisBoard';
 import { AggregatePane } from './analysis/AggregatePane';
 import { Graph } from './analysis/AnalysisGraph';
 import { CandidateList, TimelineList } from './analysis/AnalysisLists';
@@ -203,25 +204,20 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
         <p>{synthetic ? '合成软件验证' : '真实来源声明，适用性未验证'} · {snapshot ? `历史快照 ${snapshot}` : '终态观测'}</p>
         <p>协议响应不证明物理成功；候选关系不证明因果或攻击。未知原因、支持和反证保留在记录中。</p>
       </DataNatureBar>
-      <div className="wb-analysis-grid">
-        <div className="wb-analysis-stage">
-          <section className="wb-card space-y-3" aria-label="关系图">
-            <div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold">观测关系图</h3><p className="text-xs tabular-nums" aria-live="polite">显示 {graph.nodes.length} / {data.totals.nodes} 个节点 · {graph.edges.length} / {data.totals.edges} 条连线</p></div>
-            <div className="wb-legend-bar">
-              <p className="wb-legend-inline"><span className="wb-legend-net"><i className="wb-dot wb-dot-net" aria-hidden="true" />网络</span><span className="wb-legend-change"><i className="wb-dot wb-dot-change" aria-hidden="true" />变化</span><span className="wb-legend-sample"><i className="wb-dot wb-dot-sample" aria-hidden="true" />过程采样</span><span className="wb-legend-select"><i className="wb-dot wb-dot-select" aria-hidden="true" />已选关联</span></p>
-              <p className="wb-clip" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
-            </div>
-            <Graph showLegend={false} nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
-            <details><summary className="wb-link cursor-pointer rounded text-sm">节点列表（键盘选择）</summary><div className="mt-3 max-h-96 space-y-2 overflow-auto pr-1">{slice(graph.nodes, nodePage).map(node => <button type="button" key={node.id} className={control + ' block w-full break-all text-left'} onClick={() => void inspect(relatedSelection(node, data.operations, data.changes))}>{node.kind} · {node.event_id ?? node.id}</button>)}<Pager page={nodePage} count={graph.nodes.length} change={setNodePage} /></div></details>
-          </section>
-          <div className="wb-analysis-lists">
-            <TimelineList rows={slice(timeline, timelinePage)} page={timelinePage} count={timeline.length} meta={`操作 ${data.operations.length}/${data.totals.operations} · 变化 ${data.changes.length}/${data.totals.changes}`} selectedIds={selectedIds} onInspect={next => void inspect(next)} onPage={setTimelinePage} />
-            <CandidateList rows={slice(candidates, candidatePage)} page={candidatePage} count={candidates.length} totalLabel={`已读取 ${data.candidates.length}/${data.totals.candidates}`} selectedIds={selectedIds} selectionId={selection?.id} onInspect={next => void inspect(next)} onPage={setCandidatePage} />
+      <AnalysisBoard
+        timeline={<TimelineList rows={slice(timeline, timelinePage)} page={timelinePage} count={timeline.length} meta={`操作 ${data.operations.length}/${data.totals.operations} · 变化 ${data.changes.length}/${data.totals.changes}`} selectedIds={selectedIds} onInspect={next => void inspect(next)} onPage={setTimelinePage} />}
+        candidates={<CandidateList rows={slice(candidates, candidatePage)} page={candidatePage} count={candidates.length} totalLabel={`已读取 ${data.candidates.length}/${data.totals.candidates}`} selectedIds={selectedIds} selectionId={selection?.id} onInspect={next => void inspect(next)} onPage={setCandidatePage} />}
+        stage={<section className="wb-card wb-graph-card" aria-label="关系图">
+          <div className="flex flex-wrap justify-between gap-2"><h3 className="font-semibold">观测关系图</h3><p className="text-xs tabular-nums" aria-live="polite">显示 {graph.nodes.length} / {data.totals.nodes} 个节点 · {graph.edges.length} / {data.totals.edges} 条连线</p></div>
+          <div className="wb-legend-bar">
+            <p className="wb-legend-inline"><span className="wb-legend-net"><i className="wb-dot wb-dot-net" aria-hidden="true" />网络</span><span className="wb-legend-change"><i className="wb-dot wb-dot-change" aria-hidden="true" />变化</span><span className="wb-legend-sample"><i className="wb-dot wb-dot-sample" aria-hidden="true" />过程采样</span><span className="wb-legend-select"><i className="wb-dot wb-dot-select" aria-hidden="true" />已选关联</span></p>
+            <p className="wb-clip" data-testid="analysis-clipping">已读取节点 {data.nodes.length} / {data.totals.nodes}、连线 {data.edges.length} / {data.totals.edges}；图外或因筛选隐藏的连线不会显示。{(['nodes', 'edges', 'operations', 'changes', 'candidates'] as const).some(key => data[key].length < data.totals[key]) ? '当前为局部视图，不代表完整结果；可扩展视图，更多记录请使用完整核查入口。' : '本次读取范围内的记录已完整载入。'}</p>
           </div>
-        </div>
-        <EvidenceInspector selection={selection} selected={selected} evidence={evidence} evidenceBusy={evidenceBusy} onInspect={(next, offset) => void inspect(next, offset)} onClear={clearSelection} />
-      </div>
-      <AggregatePane
+          <Graph showLegend={false} nodes={graph.nodes} edges={graph.edges} labels={nodeLabels} selectedIds={selectedIds} inspect={node => void inspect(relatedSelection(node, data.operations, data.changes))} />
+          <details><summary className="wb-link cursor-pointer rounded text-sm">节点列表（键盘选择）</summary><div className="mt-3 max-h-40 space-y-2 overflow-auto pr-1">{slice(graph.nodes, nodePage).map(node => <button type="button" key={node.id} className={control + ' block w-full break-all text-left'} onClick={() => void inspect(relatedSelection(node, data.operations, data.changes))}>{node.kind} · {node.event_id ?? node.id}</button>)}<Pager page={nodePage} count={graph.nodes.length} change={setNodePage} /></div></details>
+        </section>}
+        inspector={<EvidenceInspector selection={selection} selected={selected} evidence={evidence} evidenceBusy={evidenceBusy} onInspect={(next, offset) => void inspect(next, offset)} onClear={clearSelection} />}
+        aggregate={<AggregatePane
         groups={groups}
         dimension={dimension}
         timelineCount={timeline.length}
@@ -236,6 +232,7 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
         onMemberPage={setMemberPage}
         onGroupPage={page => { setGroupPage(page); setExpandedGroup(null); setMemberPage(0); }}
         onInspect={next => void inspect(next)}
+      />}
       />
       <p className="text-xs text-slate-500">当前视图的裁剪与聚合不会修改保存的观测；完整结果可通过核查入口分页读取。</p>
     </>}

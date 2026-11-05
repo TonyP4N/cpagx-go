@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { PageToolbar } from './PageToolbar';
 import { stateLabels } from './navigation';
 import { StatusChip } from './StatusChip';
 
@@ -89,12 +90,14 @@ export function TasksPanel({
   const history = filtered.filter(run => !active.has(run.state)).sort((a, b) => Date.parse(b.created_at || '') - Date.parse(a.created_at || ''));
   const detailOpen = Boolean(selected) && (!narrow || drawerOpen);
   return <section className="wb-tasks-wrap" aria-label="运行与历史">
+    <PageToolbar title="任务中心">
     <div className="wb-tasks-toolbar">
       <button type="button" onClick={onRefresh} disabled={busy}>刷新历史</button>
       <label>状态<select aria-label="按状态筛选" value={stateFilter} onChange={event => setStateFilter(event.target.value)}><option value="">全部状态</option>{Object.entries(stateLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label>模式<select aria-label="按模式筛选" value={modeFilter} onChange={event => setModeFilter(event.target.value)}><option value="">全部模式</option><option value="dual_source">离线分析</option><option value="dual_source_replay">顺序回放</option></select></label>
       <button type="button" onClick={onOpenDatasets}>选择输入与配置</button>
     </div>
+    </PageToolbar>
     <details className="wb-budget">
       <summary>执行预算摘要 · 默认最多 4 个抓包、合计 16 MiB</summary>
       <p>默认预算：最多4个抓包、合计16 MiB/10000帧，CSV 2 MiB/1000逻辑记录；显式工程版本按服务端绑定的资源与配置预算执行，目前仅承诺已验S100范围，M/L未完成、不承诺支持。上传接收限额不等于执行限额。</p>

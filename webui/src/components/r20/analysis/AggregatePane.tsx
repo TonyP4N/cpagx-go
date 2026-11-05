@@ -40,7 +40,7 @@ export function AggregatePane({
   const hiddenGroups = Math.max(0, groups.length - preview.length);
   return <section className="wb-card space-y-3" aria-label="范围内聚合">
     <div className="flex flex-wrap items-center justify-between gap-2">
-      <h3 className="font-semibold">当前筛选范围聚合</h3>
+      <h3 className="font-semibold">当前筛选范围聚合 <span className="wb-aggregate-keys">{preview.map(group => <span key={group.key}>{group.key}</span>)}</span></h3>
       <label className="text-sm">聚合维度<select className={control + ' ml-2'} value={dimension} onChange={event => onDimension(event.target.value as 'state' | 'asset' | 'minute')}><option value="state">判断状态</option><option value="asset">资产</option><option value="minute">分钟（UTC）</option></select></label>
     </div>
     <details>
