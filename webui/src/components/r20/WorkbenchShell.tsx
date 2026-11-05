@@ -59,6 +59,27 @@ export function WorkbenchShell({
     const timer = window.setTimeout(() => setEntering(false), 240);
     return () => window.clearTimeout(timer);
   }, [view]);
+  useEffect(() => {
+    const editable = (target: EventTarget | null) => Boolean((target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]'));
+    const onKey = (event: KeyboardEvent) => {
+      if (editable(event.target)) return;
+      if (event.key === '/') {
+        const field = view === 'analysis' ? document.querySelector<HTMLElement>('input[name="analysis-query"]') : view === 'replay' ? document.querySelector<HTMLElement>('input[name="replay-snapshot"]') : null;
+        if (!field) return;
+        event.preventDefault();
+        field.focus();
+        return;
+      }
+      if (event.key !== 'Escape') return;
+      const drawer = document.querySelector<HTMLElement>('[data-wb-drawer][data-open="true"]');
+      if (drawer) { event.preventDefault(); drawer.dispatchEvent(new Event('wb-close')); return; }
+      const boundary = document.querySelector<HTMLDetailsElement>('.wb-boundary');
+      if (boundary?.open) { event.preventDefault(); boundary.open = false; boundary.querySelector('summary')?.focus(); return; }
+      document.dispatchEvent(new Event('wb-clear-selection'));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [view]);
   const collapsed = manual ?? preferCollapsed;
   function openDirectory() {
     setManual(false);

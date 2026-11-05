@@ -46,6 +46,7 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
   const [hashNote, setHashNote] = useState('');
   const [narrow, setNarrow] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(true);
+  const drawer = React.useRef<HTMLElement>(null);
   useEffect(() => {
     const media = window.matchMedia('(max-width: 1024px)');
     const sync = () => setNarrow(media.matches);
@@ -54,11 +55,12 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
     return () => media.removeEventListener('change', sync);
   }, []);
   useEffect(() => {
-    if (!narrow) return;
-    const onKey = (event: KeyboardEvent) => { if (event.key === 'Escape') setSheetOpen(false); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [narrow]);
+    const node = drawer.current;
+    if (!node) return;
+    const close = () => setSheetOpen(false);
+    node.addEventListener('wb-close', close);
+    return () => node.removeEventListener('wb-close', close);
+  });
   async function copyHash(sha: string) {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard_unavailable');
@@ -78,7 +80,7 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
   const counter = selected?.counterevidence ?? [];
   return <>
     {narrow && !sheetOpen && <button type="button" className="wb-sheet-reopen wb-card" onClick={() => setSheetOpen(true)}>打开证据</button>}
-    <section className="wb-card wb-inspector space-y-3" aria-label="联动原始证据" aria-busy={evidenceBusy} hidden={narrow && !sheetOpen}>
+    <section ref={drawer} className="wb-card wb-inspector space-y-3" aria-label="联动原始证据" aria-busy={evidenceBusy} data-wb-drawer="inspector" data-open={narrow && sheetOpen ? 'true' : 'false'} hidden={narrow && !sheetOpen}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold">选中项与原始证据</h3>
         {narrow && <button type="button" className="wb-sheet-close" onClick={() => setSheetOpen(false)}>关闭证据</button>}

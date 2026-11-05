@@ -53,6 +53,11 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
     evidenceGeneration.current++; evidenceAbort.current?.abort();
     setSelection(null); setEvidence(null); setEvidenceBusy(false);
   }
+  useEffect(() => {
+    const onClear = () => clearSelection();
+    document.addEventListener('wb-clear-selection', onClear);
+    return () => document.removeEventListener('wb-clear-selection', onClear);
+  });
   function fail(reason: unknown) {
     const message = reason instanceof Error ? reason.message : String(reason);
     setData(null); setEvidence(null); setSelection(null); setError(message); setEvidenceBusy(false); evidenceGeneration.current++; evidenceAbort.current?.abort(); errorHandler.current(message);
