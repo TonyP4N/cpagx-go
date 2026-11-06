@@ -274,7 +274,7 @@ export default function DualSourcePage() {
   return <div className="min-h-screen bg-gradient-to-br from-slate-50 via-emerald-50 to-teal-50 text-slate-800">
     <header className="bg-white/90 border-b border-slate-200 shadow-sm"><div className="max-w-7xl mx-auto px-6 py-4 flex flex-wrap items-center justify-between gap-3">
       <div><h1 className="text-2xl font-bold">{(analysis?.synthetic ?? result?.manifest?.synthetic) === false ? '双源离线分析（真实适用性未验证）' : '合成双源验证'}</h1><p className="text-sm text-slate-500">网络报文与过程采样的可核查关联候选</p></div>
-      <Link href={v3 ? '/workspace' : '/'} className="rounded-xl px-4 py-2 bg-emerald-100 text-emerald-900 hover:bg-emerald-200">{v3 ? '返回工作台' : '返回 CPAG 首页'}</Link>
+      <Link href="/workbench/" className="rounded-xl px-4 py-2 bg-emerald-100 text-emerald-900 hover:bg-emerald-200">返回工作台</Link>
     </div></header>
     <main className="max-w-7xl mx-auto p-6 space-y-6">
       <section className="rounded-2xl border border-amber-300 bg-amber-50 p-5 text-amber-950" aria-label="合成验证范围">

@@ -72,7 +72,7 @@ export default function ReplayPage() {
   const analysis = snapshot?.analysis ?? snapshot?.result ?? snapshot?.snapshot?.analysis;
   const synthetic = result?.manifest?.synthetic ?? result?.synthetic ?? result?.data?.analysis?.synthetic;
   return <main className="max-w-6xl mx-auto p-6 space-y-5 text-slate-800">
-    <header className="flex flex-wrap justify-between gap-4"><h1 className="text-2xl font-bold">双源顺序回放 · 历史证据核查</h1><Link href="/workspace" className="underline">返回工作台</Link></header>
+    <header className="flex flex-wrap justify-between gap-4"><h1 className="text-2xl font-bold">双源顺序回放 · 历史证据核查</h1><Link href="/workbench/" className="underline">返回工作台</Link></header>
     <p className="rounded border border-amber-300 bg-amber-50 p-4" aria-label="回放范围">{synthetic === false ? '真实来源声明，适用性未验证。' : synthetic === true ? '合成软件验证。' : '来源标记加载中，尚未核验。'} 此处查看已校验终态产物中的历史版本；pending、窗口关闭和协议响应都不表示物理成功、因果成立或攻击确认。</p>
     <p className="text-sm break-all">运行：{run || '未选择'}</p>
     {busy && <p role="status">正在校验回放产物…</p>}
