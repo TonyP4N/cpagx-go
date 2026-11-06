@@ -244,7 +244,7 @@ export function Workspace({workbench = false}: {workbench?: boolean}) {
       let value;
       try { value = await request<{runs: Run[]}>(`/runs?dataset_id=${encodeURIComponent(id)}`); }
       catch (cause) {
-        if (selectedDataset.current === id && !workbench) { ++runVersion.current; selectedRunId.current = ''; setRuns([]); setSelectedRun(null); }
+        if (selectedDataset.current === id && (!workbench || (cause instanceof RequestError && [401, 403].includes(cause.status)))) { ++runVersion.current; selectedRunId.current = ''; setRuns([]); setSelectedRun(null); }
         throw cause;
       }
       if (selectedDataset.current !== id) return;

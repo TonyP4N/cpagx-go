@@ -26,6 +26,10 @@ jobs:
           path: webui/out
       - run: npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
       - run: "$RUNNER_TEMP/browser/node_modules/.bin/playwright install --with-deps chromium"
+      - name: Workbench overlays, keyboard, original summaries and rejection states
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: node scripts/validation/ui_release_controls.cjs
       - name: Normal Go entry, isolated Worker, role boundaries and catalog restore
         env:
           PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright

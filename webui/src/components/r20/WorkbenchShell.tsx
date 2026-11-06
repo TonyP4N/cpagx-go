@@ -63,7 +63,7 @@ export function WorkbenchShell({
     const timer = window.setTimeout(() => setEntering(false), 240);
     return () => window.clearTimeout(timer);
   }, [view]);
-  useEffect(() => { if (view === 'datasets' && user) setDrawerOpen(true); }, [view, user]);
+  useEffect(() => { setDrawerOpen(false); }, [view, user?.username]);
   useEffect(() => {
     const open = () => setDrawerOpen(true);
     document.addEventListener('wb-open-datasets', open);
@@ -72,7 +72,7 @@ export function WorkbenchShell({
   useEffect(() => {
     const editable = (target: EventTarget | null) => Boolean((target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable="true"]'));
     const onKey = (event: KeyboardEvent) => {
-      if (editable(event.target)) return;
+      if (editable(event.target) && event.key !== 'Escape') return;
       if (event.key === '/') {
         const field = view === 'analysis' ? document.querySelector<HTMLElement>('input[name="analysis-query"]') : view === 'replay' ? document.querySelector<HTMLElement>('input[name="replay-snapshot"]') : null;
         if (!field) return;
@@ -106,7 +106,7 @@ export function WorkbenchShell({
     {boundaryOpen && <div className="wb-boundary" role="region" aria-label="研究范围说明" data-wb-boundary="true" data-open="true">
       <p>研究判读边界 · 任务完成表示软件执行成功。协议响应与工艺观测分别取证。协议响应不证明物理成功；时间接近不证明因果；候选关系保留支持、反证与未知，不证明攻击。物理效果需独立核验。</p>
     </div>}
-    <div className={navCollapsed ? 'wb-frame is-nav-collapsed' : 'wb-frame'}>
+    <div className={!user ? 'wb-frame is-login' : navCollapsed ? 'wb-frame is-nav-collapsed' : 'wb-frame'}>
       {user && <NavRail view={view} collapsed={navCollapsed} admin={user.role === 'admin'} datasetId={linkDataset || datasetId} runId={linkRun || run?.id} onNavigate={onNavigate} onToggle={toggleNav} />}
       <main id="wb-main" tabIndex={-1} data-view={view} className={entering ? 'wb-main is-entering' : 'wb-main'}>{children}</main>
     </div>

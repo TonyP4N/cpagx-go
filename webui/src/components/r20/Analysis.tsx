@@ -204,7 +204,7 @@ export default function Analysis({ runId, datasetId, onError }: { runId: string;
         <p>{synthetic ? '合成软件验证' : '真实来源声明，适用性未验证'} · {snapshot ? `历史快照 ${snapshot}` : '终态观测'}</p>
         <p>协议响应不证明物理成功；候选关系不证明因果或攻击。未知原因、支持和反证保留在记录中。</p>
       </DataNatureBar>
-      <AnalysisBoard
+      <AnalysisBoard inspectorKey={selection?.id}
         timeline={<TimelineList rows={slice(timeline, timelinePage)} page={timelinePage} count={timeline.length} meta={`操作 ${data.operations.length}/${data.totals.operations} · 变化 ${data.changes.length}/${data.totals.changes}`} selectedIds={selectedIds} onInspect={next => void inspect(next)} onPage={setTimelinePage} />}
         candidates={<CandidateList rows={slice(candidates, candidatePage)} page={candidatePage} count={candidates.length} totalLabel={`已读取 ${data.candidates.length}/${data.totals.candidates}`} selectedIds={selectedIds} selectionId={selection?.id} onInspect={next => void inspect(next)} onPage={setCandidatePage} />}
         stage={<section className="wb-card wb-graph-card" aria-label="关系图">

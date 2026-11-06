@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Row, Selection, stateOf } from '../analysisModel';
 import { control, JsonDetails, timeText } from './widgets';
 
@@ -24,7 +24,7 @@ function humanPairs(row: Row): [string, string][] {
   if (ref.frame_number != null) pairs.push(['帧', String(ref.frame_number)]);
   if (ref.record_number != null) pairs.push(['记录', String(ref.record_number)]);
   if (ref.column) pairs.push(['列', String(ref.column)]);
-  const body = row.record ?? row.values ?? row.fields;
+  const body = row.original ?? row.record ?? row.values ?? row.fields;
   if (body && typeof body === 'object' && !Array.isArray(body)) {
     Object.entries(body).slice(0, 8).forEach(([key, value]) => {
       if (value == null || typeof value === 'object') return;
@@ -44,23 +44,6 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
 }) {
   const [place, setPlace] = useState<'summary' | 'evidence' | 'tech'>('summary');
   const [hashNote, setHashNote] = useState('');
-  const [narrow, setNarrow] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(true);
-  const drawer = React.useRef<HTMLElement>(null);
-  useEffect(() => {
-    const media = window.matchMedia('(max-width: 1280px)');
-    const sync = () => setNarrow(media.matches);
-    sync();
-    media.addEventListener('change', sync);
-    return () => media.removeEventListener('change', sync);
-  }, []);
-  useEffect(() => {
-    const node = drawer.current;
-    if (!node) return;
-    const close = () => setSheetOpen(false);
-    node.addEventListener('wb-close', close);
-    return () => node.removeEventListener('wb-close', close);
-  });
   async function copyHash(sha: string) {
     try {
       if (!navigator.clipboard?.writeText) throw new Error('clipboard_unavailable');
@@ -79,11 +62,9 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
   const support = selected?.support ?? [];
   const counter = selected?.counterevidence ?? [];
   return <>
-    {narrow && !sheetOpen && <button type="button" className="wb-sheet-reopen wb-card" onClick={() => setSheetOpen(true)}>打开证据</button>}
-    <section ref={drawer} className="wb-card wb-inspector space-y-3" aria-label="联动原始证据" aria-busy={evidenceBusy} data-wb-drawer="inspector" data-open={narrow && sheetOpen ? 'true' : 'false'} hidden={narrow && !sheetOpen}>
+    <section className="wb-card wb-inspector space-y-3" aria-label="联动原始证据" aria-busy={evidenceBusy}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="font-semibold">选中项与原始证据</h3>
-        {narrow && <button type="button" className="wb-sheet-close" onClick={() => setSheetOpen(false)}>关闭证据</button>}
       </div>
       {!selection && <div className="wb-empty" key="empty"><p>在图、时间线或候选中点选一项</p><p>选择图节点、时间线记录或候选，查看其原始证据。</p></div>}
       {selection && <div key={selection.id} className="wb-fade space-y-3">
@@ -108,8 +89,6 @@ export function EvidenceInspector({ selection, selected, evidence, evidenceBusy,
             {!!reasons.length && <div className="wb-chip-row">{reasons.map(reason => <span className="wb-chip wb-chip-muted" key={reason}>{reason}</span>)}</div>}
             {!!support.length && <div><p className="text-xs text-slate-500">支持</p><ul className="mt-1 space-y-1 text-sm">{support.slice(0, 8).map((item: unknown, index: number) => <li key={index}>{brief(item)}</li>)}</ul></div>}
             {!!counter.length && <div><p className="text-xs text-slate-500">反证</p><ul className="mt-1 space-y-1 text-sm">{counter.slice(0, 8).map((item: unknown, index: number) => <li key={index}>{brief(item)}</li>)}</ul></div>}
-            <p className="text-sm break-words">状态：{stateOf(selected)} · 规则 {selected.rule_id ?? selected.mapping?.rule_ids?.join('、') ?? '不适用'} / {selected.rule_version ?? selected.mapping?.config_version ?? '未知版本'}</p>
-            <p className="text-sm">时间：{timeText(selected)}</p>
           </>}
           <div className="flex flex-wrap gap-2">
             {selected?.candidate_id && <>

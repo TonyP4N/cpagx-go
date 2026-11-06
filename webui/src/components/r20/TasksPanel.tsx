@@ -63,6 +63,7 @@ export function TasksPanel({
   onCopy: (id: string) => void;
 }) {
   const [stateFilter, setStateFilter] = useState('');
+  const [phaseFilter, setPhaseFilter] = useState('');
   const [modeFilter, setModeFilter] = useState('');
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [narrow, setNarrow] = useState(false);
@@ -85,7 +86,7 @@ export function TasksPanel({
     node.addEventListener('wb-close', close);
     return () => node.removeEventListener('wb-close', close);
   }, [selected?.id, narrow, drawerOpen]);
-  const filtered = useMemo(() => runs.filter(run => (!stateFilter || run.state === stateFilter) && (!modeFilter || (run.mode || 'dual_source') === modeFilter)), [runs, stateFilter, modeFilter]);
+  const filtered = useMemo(() => runs.filter(run => (!stateFilter || run.state === stateFilter) && (!phaseFilter || run.progress?.phase === phaseFilter) && (!modeFilter || (run.mode || 'dual_source') === modeFilter)), [runs, stateFilter, phaseFilter, modeFilter]);
   const live = filtered.filter(run => active.has(run.state));
   const history = filtered.filter(run => !active.has(run.state)).sort((a, b) => Date.parse(b.created_at || '') - Date.parse(a.created_at || ''));
   const detailOpen = Boolean(selected) && (!narrow || drawerOpen);
@@ -93,7 +94,8 @@ export function TasksPanel({
     <PageToolbar title="任务中心">
     <div className="wb-tasks-toolbar">
       <button type="button" onClick={onRefresh} disabled={busy}>刷新历史</button>
-      <label>状态<select aria-label="按状态筛选" value={stateFilter} onChange={event => setStateFilter(event.target.value)}><option value="">全部状态</option>{Object.entries(stateLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+      <label>状态<select aria-label="按状态筛选" value={stateFilter} onChange={event => setStateFilter(event.target.value)}><option value="">全部状态</option>{Object.entries(stateLabels).filter(([value]) => ['queued', 'running', 'cancelling', 'cancelled', 'failed', 'succeeded'].includes(value)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+      <label>阶段<select aria-label="按阶段筛选" value={phaseFilter} onChange={event => setPhaseFilter(event.target.value)}><option value="">全部阶段</option>{Object.entries(stateLabels).filter(([value]) => ['claimed', 'compute_registered', 'awaiting_publication', 'source_verification'].includes(value)).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
       <label>模式<select aria-label="按模式筛选" value={modeFilter} onChange={event => setModeFilter(event.target.value)}><option value="">全部模式</option><option value="dual_source">离线分析</option><option value="dual_source_replay">顺序回放</option></select></label>
       <button type="button" onClick={onOpenDatasets}>选择输入与配置</button>
     </div>
@@ -103,7 +105,7 @@ export function TasksPanel({
       <p>默认预算：最多4个抓包、合计16 MiB/10000帧，CSV 2 MiB/1000逻辑记录；显式工程版本按服务端绑定的资源与配置预算执行，目前仅承诺已验S100范围，M/L未完成、不承诺支持。上传接收限额不等于执行限额。</p>
     </details>
     {realSource && <p className="wb-nature">真实来源保持待核验。仅在来源、授权、时间和映射材料齐全，且选择明确支持真实来源的软件配置时可运行；完成计算不表示真实适用性通过。</p>}
-    {error && <p role="alert" className="wb-alert">刷新或读取失败。{error} 已保留当前列表。</p>}
+    {error && <p role="alert" className="wb-alert">刷新或读取失败。{error} 请重新核验访问权限；临时网络失败时保留的列表不代表最新状态。</p>}
     <div className="wb-tasks">
       <div>
         {loading ? <div className="wb-state" role="status"><span className="wb-pulse" aria-hidden="true" />{Array.from({ length: 5 }, (_, index) => <span key={index} className="wb-skeleton" />)}<p>正在读取运行…</p></div> : !filtered.length ? <div className="wb-empty"><p>{runs.length ? '当前筛选没有运行。' : '尚无运行。'}</p><button type="button" className="wb-primary" onClick={onOpenDatasets}>选择输入与配置</button></div> : <>
@@ -131,7 +133,7 @@ function Group({ title, rows, selectedId, onOpen }: { title: string; rows: TaskR
         <td>{modeText(run.mode)}</td>
         <td>{dateText(run.created_at)}</td>
         <td className="tabular-nums">{run.attempt ?? 0}</td>
-        <td>{phaseText(run)}</td>
+        <td className="wb-phase-cell">{run.progress?.phase && run.progress.phase !== run.state ? phaseText(run) : "—"}</td>
         <td><code title={run.id}>{shortId(run.id)}</code></td>
         <td><button type="button" aria-label={`查看运行 ${run.id}`} onClick={event => { event.stopPropagation(); onOpen(run.id); }}>详情</button></td>
       </tr>)}</tbody>
