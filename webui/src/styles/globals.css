@@ -610,9 +610,9 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
 /* The board owns evidence visibility, including the overlay shell. */
 .workbench .wb-board { position: relative; min-height: 360px; }
 .workbench .wb-insp[hidden], .workbench .wb-dock-body[hidden] { display: none; }
-.workbench .wb-board.inspector-closed { grid-template-columns: var(--wb-dock, 280px) minmax(0,1fr); }
+.workbench .wb-board.inspector-closed { grid-template-columns: var(--wb-dock, 280px) minmax(0,1fr); grid-template-rows: auto minmax(0,1fr); }
 .workbench .wb-evidence-close { align-self: flex-end; margin: 8px; }
-.workbench .wb-evidence-reopen { position: absolute; right: 12px; top: 8px; z-index: 3; background: var(--surface); }
+.workbench .wb-evidence-reopen { grid-column: 1 / -1; grid-row: 1; justify-self: end; align-self: start; max-width: calc(100% - 24px); margin: 8px 12px; white-space: normal; background: var(--surface); }
 .workbench .wb-evidence-reopen[hidden] { display: none; }
 .workbench .wb-insp .wb-inspector { position: static; max-height: none; min-height: 0; overflow: auto; box-shadow: none; }
 .workbench .wb-insp > div:last-child { overflow: auto; }
@@ -633,6 +633,7 @@ body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, U
   .workbench .wb-insp .wb-resize { display: none; }
 }
 @media (max-width: 1024px) {
-  .workbench .wb-board.inspector-closed { grid-template-columns: minmax(0, 1fr); }
+  .workbench .wb-board.inspector-closed { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(220px,1fr) auto; }
+  .workbench .content-first.inspector-closed { grid-template-rows: auto minmax(0,1fr); }
   .workbench .content-first .wb-dock { max-height: none; }
 }
