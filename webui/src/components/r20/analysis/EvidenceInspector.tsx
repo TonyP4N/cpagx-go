@@ -20,11 +20,14 @@ function brief(item: unknown) {
 function humanPairs(row: Row): [string, string][] {
   const pairs: [string, string][] = [];
   const ref = row.source_ref ?? {};
+  if (ref.raw_time != null) pairs.push(['原始时间', String(ref.raw_time)]);
   if (ref.source_slot) pairs.push(['来源槽', String(ref.source_slot)]);
   if (ref.frame_number != null) pairs.push(['帧', String(ref.frame_number)]);
   if (ref.record_number != null) pairs.push(['记录', String(ref.record_number)]);
   if (ref.column) pairs.push(['列', String(ref.column)]);
   const body = row.original ?? row.record ?? row.values ?? row.fields;
+  if (body?.quality?.includes('protocol_semantics_unsupported')) pairs.push(['协议含义', '未解析；不据原始字节推断执行效果']);
+  if (body?.ticks_per_second != null) pairs.push(['时钟刻度/秒', String(body.ticks_per_second)]);
   if (body && typeof body === 'object' && !Array.isArray(body)) {
     Object.entries(body).slice(0, 8).forEach(([key, value]) => {
       if (value == null || typeof value === 'object') return;
