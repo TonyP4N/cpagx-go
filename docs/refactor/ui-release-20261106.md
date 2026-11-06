@@ -27,10 +27,25 @@
 - 隔离浏览器回归通过：五种宽度证据关闭/重开、登录失败/退出、目录 Esc/搜索保留/焦点范围、键盘页签、403 清空与网络失败区分、running + source_verification 独立筛选、409 完整性拒绝清空可信图。此项明确使用注入合成接口，不是正式服务权限验收。
 - 回放正式域名 result/快照请求及只读预览 0/15 均返回 200，末快照修订 11，返回初始快照后原件详情撤销。旧 Failed to fetch 未复现，历史根因未确认；不改无证据后端，不以重试宣称修复。
 - 新测试自身首次遗漏 manifest.synthetic/证据 synthetic、DELETE 会话成功契约与异步等待，均保留失败日志并修正夹具，没有放宽产品门禁。
-- 共享 PostgreSQL 17 → 16 的独立新库逻辑恢复已通过。去掉且仅去掉 `SET transaction_timeout = 0`；原始 SQL、适配摘要及凭据保留服务器 0700 目录。正式停写迁移与发布后验证仍待执行。
+- 共享 PostgreSQL 17 → 16 的独立新库逻辑恢复已通过。去掉且仅去掉 `SET transaction_timeout = 0`；原始 SQL、适配摘要及凭据保留服务器 0700 目录。正式停写迁移随后完成：19 张表全行 JSONB 指纹一致，5 个任务和 6 次 attempt 保留，停写约 40.458 秒；正式域名读取及下载通过。
 
-最终域名、镜像、CI 状态以交付回复及同目录证据索引为准；本记录不将候选测试等同已发布。Windows/125% 缩放、完整评估包、真实材料、M/L 与参考环境不在本次通过结论内。
+首轮实际发布源码为 `1b6de92ef3ce985e03402438cac39e236de67b08`，CI [42151944462](https://github.com/TonyP4N/cpagx-go/actions/runs/42151944462) 17/17 成功；镜像 `cpag-eu-ui@sha256:5182c7a2e1e56645d6229fb0133439e5fb266a9e3556ef3b306dc2a0c11350ca`。正式域名普通点击完成登录、四条原件、下载哈希与回放 0/15，页面异常为零。此镜像为下述局部修复的回滚依据。Windows/125% 缩放、完整评估包、真实材料、M/L 与参考环境不在本次通过结论内。
 
 补充原件实查：网络帧 `raw_timestamp` 位于原件字段末尾，原先前八字段摘要会漏掉时钟。改为从 `source_ref.raw_time` 显式展示原始时间与 ticks/second，并保留 `protocol_semantics_unsupported` 的未解析说明；不把未经解码的字节解释成协议成功。工艺原件仍保留原始字符串 0/1。
 
-最终候选 CI 首次失败保留：4335027 的新增交互检查遇到 Next 的隐藏路由播报器也带 role=alert，导致宽泛定位器严格匹配两个节点。仅将测试定位收窄到产品 `.wb-alert`，不移除应用错误检查或改变运行代码。部署前仍要求修正后完整 CI 通过。
+最终候选 CI 首次失败保留：4335027 的新增交互检查遇到 Next 的隐藏路由播报器也带 role=alert，导致宽泛定位器严格匹配两个节点。仅将测试定位收窄到产品 `.wb-alert`，不移除应用错误检查或改变运行代码。修正后的 1b6de92 完整 CI 已通过，并完成正式部署。
+
+## 图统计遮挡收尾（同日）
+
+- 根因：`.wb-evidence-reopen` 绝对定位、不占布局空间，覆盖图统计；新增几何断言在旧构建 1366px 复现失败（`graph-overlap-before.log`）。
+- 修改：仅 CSS 将按钮放入跨列的正常网格行，窄屏配置独立行；保留原 AnalysisBoard 开关、选择与焦点逻辑，不改变分析或后端。
+- 本地构建和现有 UI 检查通过；实际合成任务在 1024/1280/1366px 的完整 `8 / 8` 节点、`1 / 1` 连线文字无重叠、裁切或超界，图点击、列表页签、开关、焦点和回放共用开关通过。
+- 原始定向记录：`graph-layout-controls.log`、`graph-layout-preview-2.log`、`graph-layout-preview.json`，均在上述受控目录。首次普通点击脚本重复选中同一节点却期待再次触发选择改变，等待超时；补足清除旧选择的前置步骤后通过，未改变产品逻辑。
+- 本轮没有重新执行容量、S100 或数据库恢复实验；仓库原有 CI 门禁保持不变。没有重启服务器，只发布 API 静态资源镜像。
+- 本轮源码提交 `08c39c5fd773819dfa12cb935206a9dba176419c` 的 CI [42173512794](https://github.com/TonyP4N/cpagx-go/actions/runs/42173512794) 首轮 16 项通过；最后的旧 DAG6 成套恢复检查中，`dag6-replay` 进入 attempt 2，触发 `first_attempt_failed_or_expired_extra_attempt_cleanup_recorded`。公开白名单报告保留在 `graph-layout-ci-public-failure.zip`；公开摘要不足以确认首次执行失效根因，不将其认定为环境故障。只补跑失败 job，不改后端或降低门禁。
+- 上述失败 job 单独补验通过后，同一源码提交完整 CI 达到 17/17；保留首轮失败，不把重跑通过解释为已修复其根因。发布推送曾因完整 CI 尚未结束被自动审批拒绝，未绕过门禁，随后才经 `eu-apps` 发布。
+- 本次实际运行源码：`08c39c5fd773819dfa12cb935206a9dba176419c`；GitOps 发布：`2fd5a753b034212149c63470c2e5a575a000c4ff`；正式镜像：`cpag-eu-ui@sha256:8650955992cb2fafe8598a2ff662c778ee257f1d6d93b625c278ed0d6952c081`。Go、Worker、核验程序、数据库及存储配置不变。
+- 正式域名 macOS Chrome 156.0.8078.80 普通点击复查通过，三个宽度完整统计均为“显示 8 / 8 个节点 · 1 / 1 条连线”；按钮与统计包围框不相交，均在容器内，图点击、列表页签、焦点返回和回放面板开关通过，页面异常为零。证据：`graph-layout-production.json`、`graph-layout-production-2.log`、`graph-layout-production.png`。
+- 首次域名复查在页面载入前出现连接关闭，Python 资源读取出现 TLS EOF；随后本机和服务器 HTTPS 均为 200，实例 4/4 就绪，再次普通浏览器操作通过。原失败日志 `graph-layout-production.log`、`graph-layout-domain-assets.log`、`graph-layout-domain-assets-2.log` 保留；未改证书或重启服务器。
+- 回滚仅将 GitOps API 镜像与前端版本注释退回上一版 `5182c7a2…` / `1b6de92…`，保留当前数据库、`/srv/cpag` 数据及 eu-apps 管理关系，不回滚历史数据。此次未执行回滚。
+- 线上资源核对：26 件静态资源（含工作台 HTML、样式及脚本）字节指纹与已固定镜像一致，旧入口与就绪端点均为 200。`graph-layout-domain-assets.json` 保存全部指纹；改用正常的 curl TLS 通道完成检查，未跳过证书或字节校验。记录性提交不改变上述运行代码、构建产物或镜像。
