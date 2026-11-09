@@ -70,7 +70,7 @@ def frozen(source,job):
 def identity(r): return {'attempt':r['attempt'],'worker':r['worker'],'token':r['attempt_token']}
 
 def snapshot(r):
-    return {k:r[k] for k in ('id','state','attempt','container_id','location','exited_at','artifact_path','artifact_sha256')}
+    return {k:r[k] for k in ('id','state','attempt','container_id','location','lease_until','exited_at','artifact_path','artifact_sha256')}
 
 def main():
     p=argparse.ArgumentParser();p.add_argument('--baseline',required=True);p.add_argument('--execute',action='store_true');args=p.parse_args()
