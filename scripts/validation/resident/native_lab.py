@@ -45,10 +45,12 @@ def worker_identity():
 
 
 def start_watch(resource):
-    initial = json.loads(output(K+['-n', 'cpag', 'get', resource, '-o', 'json']))
-    rv = initial['metadata']['resourceVersion']
     prefix = '/api/v1' if resource == 'pods' else '/apis/batch/v1'
-    endpoint = prefix+'/namespaces/cpag/'+resource+'?watch=true&allowWatchBookmarks=true&resourceVersion='+rv
+    collection = prefix+'/namespaces/cpag/'+resource
+    initial = json.loads(output(K+['get', '--raw', collection]))
+    rv = initial['metadata']['resourceVersion']
+    assert rv, 'raw Kubernetes collection must expose resourceVersion'
+    endpoint = collection+'?watch=true&allowWatchBookmarks=true&resourceVersion='+rv
     process = subprocess.Popen(K+['get', '--raw', endpoint, '--request-timeout=0'],
                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     events = []
