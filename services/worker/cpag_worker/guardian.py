@@ -22,7 +22,10 @@ def supervise(config):
                 continue  # macOS rejects effective address-space caps; use Linux for this limit.
             if hasattr(resource, name) and value:
                 resource.setrlimit(getattr(resource, name), (value, value))
-    child = subprocess.Popen(config['command'], stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        if config.get('resident_sandbox'):
+            from .resident_sandbox import enter
+            enter(config['resident_sandbox'])
+    child = subprocess.Popen(config['command'], stdin=subprocess.DEVNULL, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                              start_new_session=True, preexec_fn=limits if os.name == 'posix' else None,
                              env=config['env'])
     threading.Thread(target=parent_pipe, daemon=True).start()
@@ -45,6 +48,15 @@ def supervise(config):
         if stop.is_set() or time.monotonic() >= deadline:
             reason = 'parent_disconnected' if stop.is_set() else 'timeout'
             break
+        if config.get('output_root'):
+            try:
+                used = sum(p.stat().st_size for p in Path(config['output_root']).rglob('*') if p.is_file() and not p.is_symlink())
+                if used > config['file_bytes']:
+                    reason = 'output_limit'
+                    break
+            except OSError:
+                reason = 'output_unreadable'
+                break
         time.sleep(.05)
     # Always kill the group, including descendants surviving a clean core exit.
     try:
@@ -82,6 +94,12 @@ def supervise(config):
     else: return  # No proof: recovery must retain cancelling.
     proof = {**config['identity'], 'returncode':child.returncode,'reason':reason,
              'group_exited':True,'child_pid':child.pid,'guardian_pid':os.getpid()}
+    if config.get('resident_receipt'):
+        resident = {**config['resident_receipt'], 'version': 'resident-guardian-1',
+                    **{k: proof[k] for k in ('returncode', 'reason', 'group_exited', 'child_pid', 'guardian_pid')}}
+        proof = {**config['identity'], 'location': config['location'],
+                 'container_id': resident['container_id'], 'scope': 'resident-process-group',
+                 'exited': True, 'resident': resident}
     target = Path(config['exit_file'])
     temporary = target.with_suffix('.tmp')
     with temporary.open('x') as stream:

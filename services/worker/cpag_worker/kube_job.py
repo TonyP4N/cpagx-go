@@ -5,21 +5,10 @@ from .resources import resolve
 from .worker import compact_payload, network_refs
 
 
-def compute_job(claim, worker, image):
-    run = claim['id']
-    attempt = claim['attempt']
-    if not re.fullmatch(r'[0-9a-f]{32}', run) or type(attempt) is not int or not 1 <= attempt <= 100:
-        raise ValueError('invalid run or attempt')
-    if worker != claim['worker'] or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,61}[a-z0-9]', worker):
-        raise ValueError('invalid worker identity')
-    if not re.fullmatch(r'[a-z0-9./:-]+@sha256:[0-9a-f]{64}', image):
-        raise ValueError('immutable compute image required')
-    payload = claim['payload']
+def compact_command(payload, run, attempt):
     if payload['kind'] not in ('dual-source', 'dual-source-replay') or not compact_payload(payload):
         raise ValueError('this executor requires a compact offline or replay task')
     limits = resolve(payload['resource_profile'])
-    labels = {'cpag-role': 'compute', 'cpag.job': run, 'cpag.attempt': str(attempt), 'cpag.worker': worker}
-    base = f'kube-staging/{run}/{attempt}'
     mode = 'replay' if payload['kind'] == 'dual-source-replay' else 'offline'
     args = ['python', '-m', 'cpag_core.shared_cli', '--action', 'export', '--mode', mode,
             '--seconds', str(limits['timeout'])]
@@ -30,6 +19,23 @@ def compute_job(claim, worker, image):
         args.extend(['--network', f'/inputs/network-{index}.{ext}'])
     args.extend(['--process', '/inputs/process.csv', '--profile', '/inputs/profile.json',
                  '--root', '/output/run', '--run-id', run, '--attempt-id', str(attempt)])
+    return args
+
+
+def compute_job(claim, worker, image):
+    run = claim['id']
+    attempt = claim['attempt']
+    if not re.fullmatch(r'[0-9a-f]{32}', run) or type(attempt) is not int or not 1 <= attempt <= 100:
+        raise ValueError('invalid run or attempt')
+    if worker != claim['worker'] or not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,61}[a-z0-9]', worker):
+        raise ValueError('invalid worker identity')
+    if not re.fullmatch(r'[a-z0-9./:-]+@sha256:[0-9a-f]{64}', image):
+        raise ValueError('immutable compute image required')
+    payload = claim['payload']
+    limits = resolve(payload['resource_profile'])
+    args = compact_command(payload, run, attempt)
+    labels = {'cpag-role': 'compute', 'cpag.job': run, 'cpag.attempt': str(attempt), 'cpag.worker': worker}
+    base = f'kube-staging/{run}/{attempt}'
     container = {
         'name': 'compute', 'image': image, 'imagePullPolicy': 'Never', 'command': args,
         'securityContext': {'readOnlyRootFilesystem': True, 'allowPrivilegeEscalation': False,
