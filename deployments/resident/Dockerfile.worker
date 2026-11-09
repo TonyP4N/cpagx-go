@@ -1,0 +1,11 @@
+# Pin the multi-platform base; build --platform linux/amd64 for EU review.
+FROM mirror.gcr.io/library/python@sha256:848ba4413eb897e225159b8fc1b02094576cbae4aa73fc13142608ae2c8c0e32
+RUN apk add --no-cache libseccomp=2.6.1-r0
+COPY services/worker /opt/cpag/services/worker
+COPY services/analysis /opt/cpag/services/analysis
+COPY schemas /opt/cpag/schemas
+ENV PYTHONPATH=/opt/cpag/services/worker:/opt/cpag/services/analysis/src PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1
+WORKDIR /opt/cpag
+# Guardian alone remains root; it drops uid/caps and sets seccomp for every child.
+ENTRYPOINT ["python3", "-m", "cpag_worker.resident_service"]
+CMD ["--config", "/private/config.json", "--work-root", "/resident-work"]
