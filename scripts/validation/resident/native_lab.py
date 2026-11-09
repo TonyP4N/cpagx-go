@@ -47,7 +47,7 @@ def worker_identity():
 def start_watch(resource):
     initial = json.loads(output(K+['-n', 'cpag', 'get', resource, '-o', 'json']))
     rv = initial['metadata']['resourceVersion']
-    fmt = '{.type} { .object.metadata.name} {.object.metadata.uid}{"\\n"}'
+    fmt = r'{.type} {.object.metadata.name} {.object.metadata.uid}{"\n"}'
     process = subprocess.Popen(K+['-n', 'cpag', 'get', resource, '--watch-only', '--resource-version='+rv,
                                  '--output-watch-events', '-o=jsonpath='+fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     events = []
