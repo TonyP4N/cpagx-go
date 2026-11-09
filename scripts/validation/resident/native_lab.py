@@ -47,15 +47,30 @@ def worker_identity():
 def start_watch(resource):
     initial = json.loads(output(K+['-n', 'cpag', 'get', resource, '-o', 'json']))
     rv = initial['metadata']['resourceVersion']
-    fmt = r'{.type} {.object.metadata.name} {.object.metadata.uid}{"\n"}'
-    process = subprocess.Popen(K+['-n', 'cpag', 'get', resource, '--watch-only', '--resource-version='+rv,
-                                 '--output-watch-events', '-o=jsonpath='+fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    prefix = '/api/v1' if resource == 'pods' else '/apis/batch/v1'
+    endpoint = prefix+'/namespaces/cpag/'+resource+'?watch=true&allowWatchBookmarks=true&resourceVersion='+rv
+    process = subprocess.Popen(K+['get', '--raw', endpoint, '--request-timeout=0'],
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     events = []
+    watch = {'resource': resource, 'resource_version': rv, 'initial_count': len(initial['items']), 'events': events}
     def read():
-        for line in process.stdout:
-            events.append(line.strip())
+        try:
+            for line in process.stdout:
+                event = json.loads(line)
+                obj = event.get('object', {}); metadata = obj.get('metadata', {})
+                events.append({'type': event['type'], 'name': metadata.get('name'), 'uid': metadata.get('uid'),
+                               'resource_version': metadata.get('resourceVersion'),
+                               'container_ids': [c.get('containerID') for c in obj.get('status', {}).get('containerStatuses', [])]})
+        except Exception as error:
+            watch['reader_error'] = type(error).__name__
     reader = threading.Thread(target=read, daemon=True); reader.start()
-    return process, reader, {'resource': resource, 'resource_version': rv, 'initial_count': len(initial['items']), 'events': events}
+    time.sleep(.3)
+    if process.poll() is not None:
+        watch['exit_code'] = process.returncode
+        watch['error'] = process.stderr.read()[-1000:]
+        (OUT/'watch-evidence.json').write_text(json.dumps([watch], indent=2)+'\n')
+        raise RuntimeError('Kubernetes watch exited immediately: '+json.dumps(watch))
+    return process, reader, watch
 
 
 def memory_bytes(value):
@@ -179,6 +194,7 @@ print(json.dumps(checks))
     sandbox = json.loads(output(K+['-n', 'cpag', 'exec', 'deploy/cpag-worker', '-c', 'worker', '--', 'python3', '-c', probe]))
     service_port = next(r['spec']['ports'][0]['port'] for r in resources if r['kind'] == 'Service' and r['metadata']['name'] == 'cpag-workbench')
     port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:'+str(service_port)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    watches = []
     try:
         sys.path.insert(0, str(REPO/'scripts/validation'))
         from round19_core_small import inputs
@@ -195,7 +211,11 @@ print(json.dumps(checks))
         for process, reader, watch in watches:
             assert process.poll() is None, 'Kubernetes watch ended before acceptance'
             process.terminate(); process.wait(timeout=10); reader.join(timeout=5)
-            assert watch['resource'] != 'jobs' or (watch['initial_count'] == 0 and not watch['events']), 'per-attempt Job observed'
+            assert not watch.get('reader_error'), 'Kubernetes watch parse failed'
+            assert not any(e['type'] == 'ADDED' for e in watch['events']), 'Pod or per-attempt Job created during baseline'
+            assert not any(e['type'] == 'ERROR' for e in watch['events']), 'Kubernetes watch error event'
+            assert watch['resource'] != 'jobs' or watch['initial_count'] == 0, 'pre-existing compute Job'
+        (OUT/'watch-evidence.json').write_text(json.dumps([w[2] for w in watches], indent=2)+'\n')
         assert json.loads(output(K+['-n', 'cpag', 'get', 'jobs', '-o', 'json']))['items'] == [], 'resident path created per-attempt Jobs'
         browser = json.loads((OUT/'workbench.json').read_text())
         receipts = []
@@ -204,6 +224,8 @@ print(json.dumps(checks))
             receipt = json.loads(output(K+['-n', 'cpag', 'exec', 'deploy/cpag-api', '-c', 'api', '--', 'cat', file]))
             receipt.pop('token', None)
             assert receipt['resident']['group_exited'] and receipt['resident']['returncode'] == 0
+            assert receipt['container_id'] == before_identity['container_id'], 'receipt changed baseline container'
+            assert receipt['resident']['pod_uid'] == before_identity['pod_uid'], 'receipt changed baseline Pod'
             receipts.append(receipt)
         drill_env = {**os.environ, 'CPAG_LAB_NODE': 'cpag-resident-native', 'CPAG_DRILL_OUTPUT': str(OUT/'drills')}
         run([sys.executable, str(HERE/'drills.py'), '--baseline', browser['runs'][0]['id'], '--execute'], env=drill_env)
@@ -212,6 +234,14 @@ print(json.dumps(checks))
                   'synthetic_only': True, 'baseline_worker_identity': before_identity, 'kubernetes_watches': [w[2] for w in watches], 'sandbox_denials': sandbox, 'workbench': browser}
         (OUT/'acceptance.json').write_text(json.dumps(report, indent=2)+'\n')
     finally:
+        for process, reader, watch in watches:
+            if process.poll() is None:
+                process.terminate(); process.wait(timeout=10)
+            else:
+                watch['exit_code'] = process.returncode
+                if process.returncode: watch['error'] = process.stderr.read()[-1000:]
+            reader.join(timeout=5)
+        if watches: (OUT/'watch-evidence.json').write_text(json.dumps([w[2] for w in watches], indent=2)+'\n')
         port.terminate(); port.wait(timeout=10)
 
 

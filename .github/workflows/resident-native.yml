@@ -56,6 +56,7 @@ jobs:
             outputs/resident-native/acceptance.json
             outputs/resident-native/capacity.json
             outputs/resident-native/workbench.json
+            outputs/resident-native/watch-evidence.json
             outputs/resident-native/diagnostics/
             outputs/resident-native/drills/
           retention-days: 14
