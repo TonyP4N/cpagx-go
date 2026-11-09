@@ -390,17 +390,23 @@
         "namespace": "cpag"
       },
       "spec": {
-        "type": "ClusterIP",
+        "internalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+          "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "ports": [
+          {
+            "port": 80,
+            "protocol": "TCP",
+            "targetPort": 8080
+          }
+        ],
         "selector": {
           "app": "cpag-api"
         },
-        "ports": [
-          {
-            "name": "http",
-            "port": 8080,
-            "targetPort": 8080
-          }
-        ]
+        "sessionAffinity": "None",
+        "type": "ClusterIP"
       }
     },
     {
