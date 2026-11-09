@@ -8,6 +8,7 @@ import secrets
 import subprocess
 import sys
 import time
+import threading
 
 REPO = Path(__file__).resolve().parents[3]
 HERE = Path(__file__).resolve().parent
@@ -34,6 +35,28 @@ def wait_until(function, seconds=180):
         except subprocess.CalledProcessError: pass
         if time.monotonic() >= end: raise TimeoutError('native lab readiness')
         time.sleep(2)
+
+def worker_identity():
+    pods = json.loads(output(K+['-n', 'cpag', 'get', 'pods', '-l', 'app=cpag-worker', '-o', 'json']))['items']
+    assert len(pods) == 1
+    pod = pods[0]
+    status = next(row for row in pod['status']['containerStatuses'] if row['name'] == 'worker')
+    return {'pod_uid': pod['metadata']['uid'], 'container_id': status['containerID'], 'restart_count': status['restartCount']}
+
+
+def start_watch(resource):
+    initial = json.loads(output(K+['-n', 'cpag', 'get', resource, '-o', 'json']))
+    rv = initial['metadata']['resourceVersion']
+    fmt = '{.type} { .object.metadata.name} {.object.metadata.uid}{"\\n"}'
+    process = subprocess.Popen(K+['-n', 'cpag', 'get', resource, '--watch-only', '--resource-version='+rv,
+                                 '--output-watch-events', '-o=jsonpath='+fmt], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    events = []
+    def read():
+        for line in process.stdout:
+            events.append(line.strip())
+    reader = threading.Thread(target=read, daemon=True); reader.start()
+    return process, reader, {'resource': resource, 'resource_version': rv, 'initial_count': len(initial['items']), 'events': events}
+
 
 def main():
     assert output(['uname', '-m']) == 'x86_64', 'requires native AMD64 Linux runner'
@@ -133,7 +156,15 @@ print(json.dumps(checks))
         _, _, replay_profile, _ = inputs(replay, 'normal', 'replay')
         env = {**os.environ, 'CPAG_URL': 'http://127.0.0.1:8095', 'CPAG_TEST_PASSWORD': credentials['admin']}
         wait_until(lambda: subprocess.call(['curl', '-fsS', 'http://127.0.0.1:8095/health/ready'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0)
+        before_identity = worker_identity()
+        watches = [start_watch(resource) for resource in ('pods', 'jobs')]
         run(['node', str(HERE/'workbench.cjs'), str(replay), str(off_profile), str(replay_profile), str(OUT/'workbench.json')], env=env)
+        after_identity = worker_identity()
+        assert before_identity == after_identity, 'offline/replay changed resident container'
+        for process, reader, watch in watches:
+            assert process.poll() is None, 'Kubernetes watch ended before acceptance'
+            process.terminate(); process.wait(timeout=10); reader.join(timeout=5)
+            assert watch['resource'] != 'jobs' or (watch['initial_count'] == 0 and not watch['events']), 'per-attempt Job observed'
         assert json.loads(output(K+['-n', 'cpag', 'get', 'jobs', '-o', 'json']))['items'] == [], 'resident path created per-attempt Jobs'
         browser = json.loads((OUT/'workbench.json').read_text())
         receipts = []
@@ -143,9 +174,11 @@ print(json.dumps(checks))
             receipt.pop('token', None)
             assert receipt['resident']['group_exited'] and receipt['resident']['returncode'] == 0
             receipts.append(receipt)
+        drill_env = {**os.environ, 'CPAG_LAB_NODE': 'cpag-resident-native', 'CPAG_DRILL_OUTPUT': str(OUT/'drills')}
+        run([sys.executable, str(HERE/'drills.py'), '--baseline', browser['runs'][0]['id'], '--execute'], env=drill_env)
         report = {'source_commit': output(['git', 'rev-parse', 'HEAD']), 'platform': 'native-linux-amd64',
                   'archive_sha256': sha, 'images': images, 'no_compute_jobs': True, 'guardian_receipts': receipts,
-                  'synthetic_only': True, 'sandbox_denials': sandbox, 'workbench': browser}
+                  'synthetic_only': True, 'baseline_worker_identity': before_identity, 'kubernetes_watches': [w[2] for w in watches], 'sandbox_denials': sandbox, 'workbench': browser}
         (OUT/'acceptance.json').write_text(json.dumps(report, indent=2)+'\n')
     finally:
         port.terminate(); port.wait(timeout=10)

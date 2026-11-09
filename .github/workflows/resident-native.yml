@@ -42,7 +42,6 @@ jobs:
         if: always()
         run: |
           mkdir -p outputs/resident-native/diagnostics
-          docker logs cpag-resident-native > outputs/resident-native/diagnostics/k3s.log 2>&1 || true
           docker exec cpag-resident-native kubectl -n cpag get pods,deployments,events -o json > outputs/resident-native/diagnostics/kubernetes.json 2>&1 || true
           for component in api source-verifier private-relay; do
             docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-api -c "$component" --tail=300 > "outputs/resident-native/diagnostics/$component.log" 2>&1 || true
@@ -57,6 +56,7 @@ jobs:
             outputs/resident-native/acceptance.json
             outputs/resident-native/workbench.json
             outputs/resident-native/diagnostics/
+            outputs/resident-native/drills/
           retention-days: 14
       - name: Preserve tested EU candidate bytes
         if: success()
