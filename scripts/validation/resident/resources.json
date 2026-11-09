@@ -438,7 +438,7 @@
                 "command": [
                   "sh",
                   "-ec",
-                  "umask 077; mkdir -p /private; cp /config/worker.json /private/config.json; exec python3 -m cpag_worker.resident_service --config /private/config.json --work-root /resident-work"
+                  "umask 077; mkdir -p /private; chmod 0700 /private; cp /config/worker.json /private/config.json; exec python3 -m cpag_worker.resident_service --config /private/config.json --work-root /resident-work"
                 ],
                 "env": [
                   {

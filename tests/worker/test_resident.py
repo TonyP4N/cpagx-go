@@ -35,6 +35,9 @@ class ResidentTests(unittest.TestCase):
         path.chmod(0o644)
         with self.assertRaises(ValueError): read_config(path)
         path.chmod(0o600)
+        self.base.chmod(0o755)
+        with self.assertRaises(ValueError): read_config(path)
+        self.base.chmod(0o700)
         for key, value in [('api_url', 'http://example.com'), ('resource_profile', 'engineering-capacity-1')]:
             atomic_json(path, {**self.config, key: value})
             with self.assertRaises(ValueError): read_config(path)

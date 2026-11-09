@@ -26,8 +26,10 @@ from .worker import API, beneath, digest, network_refs
 
 def read_config(path):
     path = Path(path)
-    if not stat.S_ISREG(path.lstat().st_mode) or path.stat().st_mode & 0o077:
-        raise ValueError('private regular worker config required')
+    info, parent = path.lstat(), path.parent.lstat()
+    if (not stat.S_ISREG(info.st_mode) or info.st_mode & 0o077 or info.st_uid != os.geteuid()
+            or not stat.S_ISDIR(parent.st_mode) or parent.st_mode & 0o077 or parent.st_uid != os.geteuid()):
+        raise ValueError('private owner-only config file and parent directory required')
     config = json.loads(path.read_text())
     required = {'api_url', 'shared_root', 'control_root', 'worker_id', 'worker_token', 'coordinator_token', 'resource_profile'}
     if not isinstance(config, dict) or not required <= config.keys() or config.keys() - required - {'image', 'poll_seconds', 'recovery_seconds'}:
