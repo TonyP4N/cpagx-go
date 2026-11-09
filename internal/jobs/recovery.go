@@ -86,7 +86,11 @@ func VerifyExit(root string, c Claim) error {
 // RefreshExitEvidence imports only receipts bound to the persisted execution.
 func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) error {
 	r.ControlRoot = root
-	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,attempt_token,location,resident_execution FROM m4_job_attempts WHERE job_id=$1 AND exited_at IS NULL ORDER BY attempt`, id)
+	rows, err := r.DB.QueryContext(ctx, `SELECT a.attempt,a.worker,a.attempt_token,a.location,a.resident_execution,
+        (a.executor_kind='resident-v1' AND a.container_id='' AND
+         (j.attempt<>a.attempt OR j.state<>'running' OR j.lease_until<=clock_timestamp()))
+        FROM m4_job_attempts a JOIN m4_jobs j ON j.id=a.job_id
+        WHERE a.job_id=$1 AND a.exited_at IS NULL ORDER BY a.attempt`, id)
 	if err != nil {
 		return err
 	}
@@ -94,12 +98,13 @@ func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) er
 		c        Claim
 		location string
 		resident []byte
+		revoke   bool
 	}
 	items := []pending{}
 	for rows.Next() {
 		a := pending{}
 		a.c.ID = id
-		if err = rows.Scan(&a.c.Attempt, &a.c.Worker, &a.c.Token, &a.location, &a.resident); err != nil {
+		if err = rows.Scan(&a.c.Attempt, &a.c.Worker, &a.c.Token, &a.location, &a.resident, &a.revoke); err != nil {
 			rows.Close()
 			return err
 		}
@@ -114,6 +119,14 @@ func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) er
 	// read-only recovery from exact runtime termination; it never permits publish.
 	remaining := items[:0]
 	for _, a := range items {
+		if a.revoke {
+			// The claim or registration request can be lost before the owner
+			// writes its journal. Close the same DB gate required before fork.
+			if e := r.RevokeUnstarted(ctx, a.c, a.location); e != nil && !errors.Is(e, ErrStale) {
+				return e
+			}
+			continue
+		}
 		if residentLocation(a.location) && len(a.resident) > 0 {
 			proof, e := readExit(root, a.c)
 			if e == nil {
