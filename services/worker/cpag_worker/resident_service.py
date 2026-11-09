@@ -216,7 +216,10 @@ class ResidentWorker:
                     if output.parent.stat().st_uid == 65532 or output.parent.stat().st_mode & 0o022:
                         raise ValueError('publication parent permits compute writes')
                     stage = output.with_name('.resident-handoff-'+str(claim['attempt']))
-                    sha = self.helper.read_archive(['tar', '-C', str(work/'output/run'), '-cf', '-', '.'], stage, claim['payload'], claim['id'], claim['attempt'])
+                    source = work/'output/run'
+                    if source.is_symlink() or not source.is_dir():
+                        raise ValueError('invalid resident output directory')
+                    sha = self.helper.read_archive(['tar', '-C', str(source), '-cf', '-', '.'], stage, claim['payload'], claim['id'], claim['attempt'])
                     seal_handoff(stage, compact=True)
                     os.rename(stage, output); sync_dir(output.parent)
                     self.helper.complete(claim, sha, lease_health=health)

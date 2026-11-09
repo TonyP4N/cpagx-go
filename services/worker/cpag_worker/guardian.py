@@ -3,10 +3,25 @@ import json
 import os
 from pathlib import Path
 import signal
+import stat
 import subprocess
 import sys
 import threading
 import time
+
+
+def output_size(root):
+    """Measure regular files by descriptor, tolerating SQLite temp-file renames."""
+    total = 0
+    for _, _, files, descriptor in os.fwalk(root, follow_symlinks=False):
+        for name in files:
+            try:
+                entry = os.stat(name, dir_fd=descriptor, follow_symlinks=False)
+            except FileNotFoundError:
+                continue
+            if stat.S_ISREG(entry.st_mode):
+                total += entry.st_size
+    return total
 
 
 def supervise(config):
@@ -50,7 +65,7 @@ def supervise(config):
             break
         if config.get('output_root'):
             try:
-                used = sum(p.stat().st_size for p in Path(config['output_root']).rglob('*') if p.is_file() and not p.is_symlink())
+                used = output_size(config['output_root'])
                 if used > config['file_bytes']:
                     reason = 'output_limit'
                     break
