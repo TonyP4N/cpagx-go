@@ -58,9 +58,11 @@ def start_watch(resource):
             for line in process.stdout:
                 event = json.loads(line)
                 obj = event.get('object', {}); metadata = obj.get('metadata', {})
+                status = obj.get('status', {})
+                if not isinstance(status, dict): status = {}
                 events.append({'type': event['type'], 'name': metadata.get('name'), 'uid': metadata.get('uid'),
                                'resource_version': metadata.get('resourceVersion'),
-                               'container_ids': [c.get('containerID') for c in obj.get('status', {}).get('containerStatuses', [])]})
+                               'container_ids': [c.get('containerID') for c in status.get('containerStatuses', [])]})
         except Exception as error:
             watch['reader_error'] = type(error).__name__
     reader = threading.Thread(target=read, daemon=True); reader.start()
@@ -210,6 +212,7 @@ print(json.dumps(checks))
         assert before_identity == after_identity, 'offline/replay changed resident container'
         for process, reader, watch in watches:
             assert process.poll() is None, 'Kubernetes watch ended before acceptance'
+            watch['closed_by_harness'] = True
             process.terminate(); process.wait(timeout=10); reader.join(timeout=5)
             assert not watch.get('reader_error'), 'Kubernetes watch parse failed'
             assert not any(e['type'] == 'ADDED' for e in watch['events']), 'Pod or per-attempt Job created during baseline'
@@ -236,10 +239,11 @@ print(json.dumps(checks))
     finally:
         for process, reader, watch in watches:
             if process.poll() is None:
+                watch['closed_by_harness'] = True
                 process.terminate(); process.wait(timeout=10)
             else:
                 watch['exit_code'] = process.returncode
-                if process.returncode: watch['error'] = process.stderr.read()[-1000:]
+                if process.returncode and not watch.get('closed_by_harness'): watch['error'] = process.stderr.read()[-1000:]
             reader.join(timeout=5)
         if watches: (OUT/'watch-evidence.json').write_text(json.dumps([w[2] for w in watches], indent=2)+'\n')
         port.terminate(); port.wait(timeout=10)
