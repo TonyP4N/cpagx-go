@@ -177,7 +177,8 @@ denied('regain_root', lambda: os.setuid(0))
 print(json.dumps(checks))
 """
     sandbox = json.loads(output(K+['-n', 'cpag', 'exec', 'deploy/cpag-worker', '-c', 'worker', '--', 'python3', '-c', probe]))
-    port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:8080'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    service_port = next(r['spec']['ports'][0]['port'] for r in resources if r['kind'] == 'Service' and r['metadata']['name'] == 'cpag-workbench')
+    port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:'+str(service_port)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         sys.path.insert(0, str(REPO/'scripts/validation'))
         from round19_core_small import inputs
