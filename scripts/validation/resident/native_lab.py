@@ -66,10 +66,13 @@ def main():
     state = OUT/'state'; state.mkdir(exist_ok=True)
     for name in ('cpag-shared/jobs', 'cpag-control', 'cpag-postgres'):
         (state/name).mkdir(parents=True, exist_ok=True)
+    (state/'cpag-shared').chmod(0o700)
     run(['docker', 'run', '-d', '--privileged', '--name', 'cpag-resident-native',
          '-p', '127.0.0.1:8095:8095', '-v', str(state)+':/cpag-resident-lab',
          '-v', str(archive)+':/candidate.tar:ro', 'rancher/k3s:v1.32.5-k3s1',
          'server', '--disable', 'traefik', '--disable', 'servicelb', '--node-name', 'resident-native'])
+    run(['docker','exec','cpag-resident-native','chown','0:0','/cpag-resident-lab/cpag-shared',
+         '/cpag-resident-lab/cpag-shared/jobs','/cpag-resident-lab/cpag-control'])
     wait_until(lambda: 'Ready' in output(K+['get', 'nodes', '--no-headers']))
     run(['docker', 'exec', 'cpag-resident-native', 'ctr', 'images', 'import', '--digests', '/candidate.tar'])
     image_rows = output(['docker', 'exec', 'cpag-resident-native', 'ctr', 'images', 'ls']).splitlines()[1:]

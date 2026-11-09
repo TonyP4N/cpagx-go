@@ -249,8 +249,8 @@ def main():
     control = Path(config['control_root']); control.mkdir(mode=0o700, parents=True, exist_ok=True); control.chmod(0o700)
     work = Path(args.work_root); work.mkdir(mode=0o711, parents=True, exist_ok=True); work.chmod(0o711)
     shared = Path(config['shared_root'])
-    if shared.stat().st_uid == 65532 or shared.stat().st_mode & 0o022:
-        parser.error('shared root must deny compute UID writes')
+    if shared.is_symlink() or not shared.is_dir() or shared.stat().st_uid == 65532 or shared.stat().st_mode & 0o077:
+        parser.error('shared root must be an owner-only directory inaccessible to compute')
     owner = ResidentWorker(config, work)
     stopped = threading.Event()
     def stop(*_): stopped.set(); owner.helper.stop()
