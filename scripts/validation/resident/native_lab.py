@@ -103,7 +103,7 @@ def main():
     apply(resources)
     for name in ('cpag-api', 'cpag-worker'):
         run(K+['-n', 'cpag', 'rollout', 'status', 'deploy/'+name, '--timeout=180s'])
-    port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:80'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:8080'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         sys.path.insert(0, str(REPO/'scripts/validation'))
         from round19_core_small import inputs
