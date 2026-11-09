@@ -58,6 +58,32 @@ def start_watch(resource):
     return process, reader, {'resource': resource, 'resource_version': rv, 'initial_count': len(initial['items']), 'events': events}
 
 
+def memory_bytes(value):
+    from decimal import Decimal
+    for suffix, scale in (('Ti', 1024**4), ('Gi', 1024**3), ('Mi', 1024**2), ('Ki', 1024), ('G', 10**9), ('M', 10**6), ('K', 1000)):
+        if value.endswith(suffix): return int(Decimal(value[:-len(suffix)])*scale)
+    return int(Decimal(value))
+
+
+def capacity_preflight():
+    node = json.loads(output(K+['get', 'node', 'resident-native', '-o', 'json']))
+    available = memory_bytes(node['status']['allocatable']['memory'])
+    requested = 0
+    for name in ('resources.json', 'storage.json'):
+        for resource in json.loads((HERE/name).read_text())['items']:
+            if resource['kind'] != 'Deployment': continue
+            for container in resource['spec']['template']['spec']['containers']:
+                requested += memory_bytes(container.get('resources', {}).get('requests', {}).get('memory', '0'))
+    system = json.loads(output(K+['-n', 'kube-system', 'get', 'pods', '-o', 'json']))
+    system_requested = sum(memory_bytes(c.get('resources', {}).get('requests', {}).get('memory', '0'))
+                           for pod in system['items'] for c in pod['spec']['containers'])
+    capacity = {'scope': 'scheduler requests only; no capacity acceptance', 'allocatable_bytes': available, 'candidate_requested_bytes': requested,
+                'system_requested_bytes': system_requested, 'fits': available >= requested+system_requested}
+    (OUT/'capacity.json').write_text(json.dumps(capacity, indent=2)+'\n')
+    assert capacity['fits'], 'native node lacks scheduler memory requests: '+json.dumps(capacity)
+    return capacity
+
+
 def main():
     assert output(['uname', '-m']) == 'x86_64', 'requires native AMD64 Linux runner'
     OUT.mkdir(parents=True, exist_ok=True)
@@ -73,7 +99,8 @@ def main():
          'server', '--disable', 'traefik', '--disable', 'servicelb', '--node-name', 'resident-native'])
     run(['docker','exec','cpag-resident-native','chown','0:0','/cpag-resident-lab/cpag-shared',
          '/cpag-resident-lab/cpag-shared/jobs','/cpag-resident-lab/cpag-control'])
-    wait_until(lambda: 'Ready' in output(K+['get', 'nodes', '--no-headers']))
+    wait_until(lambda: output(K+['get', 'node', 'resident-native', '-o', 'jsonpath={.status.conditions[?(@.type=="Ready")].status}']) == 'True')
+    capacity = capacity_preflight()
     run(['docker', 'exec', 'cpag-resident-native', 'ctr', 'images', 'import', '--digests', '/candidate.tar'])
     image_rows = output(['docker', 'exec', 'cpag-resident-native', 'ctr', 'images', 'ls']).splitlines()[1:]
     images = {}
@@ -179,7 +206,7 @@ print(json.dumps(checks))
             receipts.append(receipt)
         drill_env = {**os.environ, 'CPAG_LAB_NODE': 'cpag-resident-native', 'CPAG_DRILL_OUTPUT': str(OUT/'drills')}
         run([sys.executable, str(HERE/'drills.py'), '--baseline', browser['runs'][0]['id'], '--execute'], env=drill_env)
-        report = {'source_commit': output(['git', 'rev-parse', 'HEAD']), 'platform': 'native-linux-amd64',
+        report = {'source_commit': output(['git', 'rev-parse', 'HEAD']), 'platform': 'native-linux-amd64', 'capacity': capacity,
                   'archive_sha256': sha, 'images': images, 'no_compute_jobs': True, 'guardian_receipts': receipts,
                   'synthetic_only': True, 'baseline_worker_identity': before_identity, 'kubernetes_watches': [w[2] for w in watches], 'sandbox_denials': sandbox, 'workbench': browser}
         (OUT/'acceptance.json').write_text(json.dumps(report, indent=2)+'\n')
