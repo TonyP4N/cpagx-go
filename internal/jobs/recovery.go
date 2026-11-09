@@ -14,23 +14,24 @@ import (
 // ExitProof is written by the trusted guardian only after the entire computation
 // process group has exited. No remote PID is interpreted on the recovery host.
 type ExitProof struct {
-	Kubernetes  *KubeTermination  `json:"kubernetes,omitempty"`
-	Removed     bool              `json:"removed,omitempty"`
-	InspectedID string            `json:"inspected_id,omitempty"`
-	Running     *bool             `json:"running,omitempty"`
-	PID         *int              `json:"pid,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty"`
-	Scope       string            `json:"scope,omitempty"`
-	Location    string            `json:"location,omitempty"`
-	ContainerID string            `json:"container_id,omitempty"`
-	Exited      bool              `json:"exited,omitempty"`
-	ID          string            `json:"id"`
-	Attempt     int               `json:"attempt"`
-	Worker      string            `json:"worker"`
-	Token       string            `json:"token"`
-	GroupExited bool              `json:"group_exited"`
-	ChildPID    int               `json:"child_pid"`
-	GuardianPID int               `json:"guardian_pid"`
+	Resident    *ResidentExecution `json:"resident,omitempty"`
+	Kubernetes  *KubeTermination   `json:"kubernetes,omitempty"`
+	Removed     bool               `json:"removed,omitempty"`
+	InspectedID string             `json:"inspected_id,omitempty"`
+	Running     *bool              `json:"running,omitempty"`
+	PID         *int               `json:"pid,omitempty"`
+	Labels      map[string]string  `json:"labels,omitempty"`
+	Scope       string             `json:"scope,omitempty"`
+	Location    string             `json:"location,omitempty"`
+	ContainerID string             `json:"container_id,omitempty"`
+	Exited      bool               `json:"exited,omitempty"`
+	ID          string             `json:"id"`
+	Attempt     int                `json:"attempt"`
+	Worker      string             `json:"worker"`
+	Token       string             `json:"token"`
+	GroupExited bool               `json:"group_exited"`
+	ChildPID    int                `json:"child_pid"`
+	GuardianPID int                `json:"guardian_pid"`
 }
 
 func readExit(root string, c Claim) (ExitProof, error) {
@@ -84,19 +85,21 @@ func VerifyExit(root string, c Claim) error {
 
 // RefreshExitEvidence imports only receipts bound to the persisted execution.
 func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) error {
-	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,attempt_token,location FROM m4_job_attempts WHERE job_id=$1 AND exited_at IS NULL ORDER BY attempt`, id)
+	r.ControlRoot = root
+	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,attempt_token,location,resident_execution FROM m4_job_attempts WHERE job_id=$1 AND exited_at IS NULL ORDER BY attempt`, id)
 	if err != nil {
 		return err
 	}
 	type pending struct {
 		c        Claim
 		location string
+		resident []byte
 	}
 	items := []pending{}
 	for rows.Next() {
 		a := pending{}
 		a.c.ID = id
-		if err = rows.Scan(&a.c.Attempt, &a.c.Worker, &a.c.Token, &a.location); err != nil {
+		if err = rows.Scan(&a.c.Attempt, &a.c.Worker, &a.c.Token, &a.location, &a.resident); err != nil {
 			rows.Close()
 			return err
 		}
@@ -107,6 +110,31 @@ func (r Repository) RefreshExitEvidence(ctx context.Context, root, id string) er
 	if err != nil {
 		return err
 	}
+	// Prefer a complete trusted guardian receipt. Only absence/invalidity permits
+	// read-only recovery from exact runtime termination; it never permits publish.
+	remaining := items[:0]
+	for _, a := range items {
+		if residentLocation(a.location) && len(a.resident) > 0 {
+			proof, e := readExit(root, a.c)
+			if e == nil {
+				e = r.RecordExit(ctx, a.c, proof)
+			}
+			if e != nil {
+				var identity ResidentExecution
+				if json.Unmarshal(a.resident, &identity) == nil {
+					e = r.recoverResident(ctx, a.c, a.location, identity)
+				}
+			}
+			if e != nil {
+				if err = r.noteExitCheck(ctx, a.c, e); err != nil {
+					return err
+				}
+			}
+		} else {
+			remaining = append(remaining, a)
+		}
+	}
+	items = remaining
 	if len(items) == 0 {
 		return nil
 	}

@@ -18,7 +18,12 @@ import (
 var ErrStale = errors.New("job attempt is stale, expired or cancelled")
 var digest = regexp.MustCompile(`^[0-9a-f]{64}$`)
 
-type Repository struct{ DB *sql.DB }
+type Repository struct {
+	DB          *sql.DB
+	ControlRoot string
+	// PodGet is an optional read-only Kubernetes Pod reader; nil uses in-cluster credentials.
+	PodGet func(context.Context, string, string) ([]byte, error)
+}
 type Claim struct {
 	ID      string
 	Attempt int
@@ -40,7 +45,7 @@ func (r Repository) Claim(ctx context.Context, worker string, lease time.Duratio
 	return r.claim(ctx, worker, lease, "", "")
 }
 func (r Repository) ClaimExecution(ctx context.Context, worker string, lease time.Duration, executor, location string) (Claim, error) {
-	if !((executor == "isolated-v2" && strings.HasPrefix(location, "docker:") && len(location) <= 512) || (executor == "kubernetes-job-v1" && kubeLocation(location))) {
+	if !((executor == "isolated-v2" && strings.HasPrefix(location, "docker:") && len(location) <= 512) || (executor == "kubernetes-job-v1" && kubeLocation(location)) || (executor == "resident-v1" && residentLocation(location))) {
 		return Claim{}, errors.New("invalid gated executor or location")
 	}
 	return r.claim(ctx, worker, lease, executor, location)
@@ -137,6 +142,9 @@ func ArtifactKey(c Claim, sha string) (string, error) {
 // with exclusive creation and verify the bytes before calling; this records metadata
 // atomically but does not implement a filesystem/database transaction.
 func (r Repository) Complete(ctx context.Context, c Claim, key, sha string) error {
+	if err := r.checkResidentReceipt(ctx, c); err != nil {
+		return err
+	}
 	expected, err := ArtifactKey(c, sha)
 	if err != nil {
 		return err
@@ -153,7 +161,7 @@ func (r Repository) Complete(ctx context.Context, c Claim, key, sha string) erro
 	if err = tx.QueryRowContext(ctx, `SELECT id FROM m4_jobs WHERE id=$1 FOR UPDATE`, c.ID).Scan(&locked); err != nil {
 		return err
 	}
-	result, err := tx.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND (a.start_revoked_at IS NOT NULL OR (a.executor_kind IN ('isolated-v2','kubernetes-job-v1') AND a.container_id='') OR (a.container_id!='' AND a.exited_at IS NULL) OR (a.executor_kind='kubernetes-job-v1' AND (a.exit_receipt->'kubernetes'->>'exit_code') IS DISTINCT FROM '0')))`, c.ID, c.Attempt, c.Worker, key, sha, c.Token)
+	result, err := tx.ExecContext(ctx, `UPDATE m4_jobs SET state='succeeded',lease_until=NULL,artifact_path=$4,artifact_sha256=$5 WHERE id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$6 AND state='running' AND lease_until>clock_timestamp() AND NOT EXISTS(SELECT 1 FROM m4_job_attempts a WHERE a.job_id=m4_jobs.id AND a.attempt=m4_jobs.attempt AND (a.start_revoked_at IS NOT NULL OR (a.executor_kind IN ('isolated-v2','kubernetes-job-v1','resident-v1') AND a.container_id='') OR (a.container_id!='' AND a.exited_at IS NULL) OR (a.executor_kind='resident-v1' AND ((a.exit_receipt->'resident'->>'version') IS DISTINCT FROM 'resident-guardian-1' OR (a.exit_receipt->'resident'->>'returncode') IS DISTINCT FROM '0' OR (a.exit_receipt->'resident'->>'reason') IS DISTINCT FROM 'exited')) OR (a.executor_kind='kubernetes-job-v1' AND (a.exit_receipt->'kubernetes'->>'exit_code') IS DISTINCT FROM '0')))`, c.ID, c.Attempt, c.Worker, key, sha, c.Token)
 	if err = affected(result, err); err != nil {
 		return err
 	}
@@ -227,11 +235,14 @@ func (r Repository) IsCompleted(ctx context.Context, c Claim, sha string) (bool,
 // CheckPublication prevents any container attempt publication before its external
 // coordinator has durably recorded irreversible container removal.
 func (r Repository) CheckPublication(ctx context.Context, c Claim) error {
+	if err := r.checkResidentReceipt(ctx, c); err != nil {
+		return err
+	}
 	if err := r.CheckClaim(ctx, c); err != nil {
 		return err
 	}
 	var pending bool
-	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE job_id=$1 AND attempt=$2 AND (start_revoked_at IS NOT NULL OR (executor_kind IN ('isolated-v2','kubernetes-job-v1') AND container_id='') OR (container_id!='' AND exited_at IS NULL) OR (executor_kind='kubernetes-job-v1' AND (exit_receipt->'kubernetes'->>'exit_code') IS DISTINCT FROM '0')))`, c.ID, c.Attempt).Scan(&pending)
+	err := r.DB.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_job_attempts WHERE job_id=$1 AND attempt=$2 AND (start_revoked_at IS NOT NULL OR (executor_kind IN ('isolated-v2','kubernetes-job-v1','resident-v1') AND container_id='') OR (container_id!='' AND exited_at IS NULL) OR (executor_kind='resident-v1' AND ((exit_receipt->'resident'->>'version') IS DISTINCT FROM 'resident-guardian-1' OR (exit_receipt->'resident'->>'returncode') IS DISTINCT FROM '0' OR (exit_receipt->'resident'->>'reason') IS DISTINCT FROM 'exited')) OR (executor_kind='kubernetes-job-v1' AND (exit_receipt->'kubernetes'->>'exit_code') IS DISTINCT FROM '0')))`, c.ID, c.Attempt).Scan(&pending)
 	if err != nil {
 		return err
 	}

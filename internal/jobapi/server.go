@@ -81,6 +81,7 @@ func New(repo jobs.Repository, root, secret string) (http.Handler, error) {
 			return nil, errors.New("shared directories must not be symlinks")
 		}
 	}
+	repo.ControlRoot = real
 	return &Server{Repo: repo, Root: real, Secret: secret, ControlRoot: real}, nil
 }
 
@@ -100,6 +101,7 @@ func NewWithCoordinator(repo jobs.Repository, root, secret, coordinator, control
 	}
 	if controlRoot != "" {
 		server.ControlRoot, err = filepath.Abs(controlRoot)
+		server.Repo.ControlRoot = server.ControlRoot
 		if err != nil {
 			return nil, err
 		}
@@ -474,14 +476,22 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/v1/claim" && r.Method == "POST" {
 		var q struct {
-			Worker   string `json:"worker"`
-			Lease    int    `json:"lease_seconds"`
-			Executor string `json:"executor"`
-			Location string `json:"location"`
+			Worker        string `json:"worker"`
+			Lease         int    `json:"lease_seconds"`
+			Executor      string `json:"executor"`
+			ExecutionType string `json:"execution_type"`
+			Location      string `json:"location"`
 		}
 		if err := decode(w, r, &q); err != nil {
 			fail(err)
 			return
+		}
+		if q.ExecutionType != "" {
+			if q.Executor != "" && q.Executor != q.ExecutionType {
+				fail(errors.New("conflicting execution type"))
+				return
+			}
+			q.Executor = q.ExecutionType
 		}
 		if !identity.MatchString(q.Worker) {
 			fail(errors.New("invalid worker"))
@@ -519,7 +529,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fail(err)
 			return
 		}
-		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease, "executor": q.Executor, "location": q.Location})
+		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease, "executor": q.Executor, "execution_type": q.Executor, "location": q.Location})
 		return
 	}
 	if len(parts) < 3 || parts[0] != "v1" || parts[1] != "jobs" || !identity.MatchString(parts[2]) {
@@ -599,23 +609,24 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	var q struct {
-		Attempt     int                   `json:"attempt"`
-		Worker      string                `json:"worker"`
-		Token       string                `json:"token"`
-		Lease       int                   `json:"lease_seconds"`
-		Message     string                `json:"message"`
-		Retryable   bool                  `json:"retryable"`
-		ManifestSHA string                `json:"manifest_sha256"`
-		Location    string                `json:"location"`
-		Kubernetes  *jobs.KubeTermination `json:"kubernetes,omitempty"`
-		ContainerID string                `json:"container_id"`
-		Scope       string                `json:"scope"`
-		Removed     bool                  `json:"removed"`
-		Exited      bool                  `json:"exited"`
-		InspectedID string                `json:"inspected_id"`
-		Running     *bool                 `json:"running"`
-		PID         *int                  `json:"pid"`
-		Labels      map[string]string     `json:"labels"`
+		Attempt     int                     `json:"attempt"`
+		Worker      string                  `json:"worker"`
+		Token       string                  `json:"token"`
+		Lease       int                     `json:"lease_seconds"`
+		Message     string                  `json:"message"`
+		Retryable   bool                    `json:"retryable"`
+		ManifestSHA string                  `json:"manifest_sha256"`
+		Location    string                  `json:"location"`
+		Resident    *jobs.ResidentExecution `json:"resident,omitempty"`
+		Kubernetes  *jobs.KubeTermination   `json:"kubernetes,omitempty"`
+		ContainerID string                  `json:"container_id"`
+		Scope       string                  `json:"scope"`
+		Removed     bool                    `json:"removed"`
+		Exited      bool                    `json:"exited"`
+		InspectedID string                  `json:"inspected_id"`
+		Running     *bool                   `json:"running"`
+		PID         *int                    `json:"pid"`
+		Labels      map[string]string       `json:"labels"`
 	}
 	if err := decode(w, r, &q); err != nil {
 		fail(err)
@@ -627,9 +638,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "not-started":
 		err = s.Repo.RevokeUnstarted(r.Context(), c, q.Location)
 	case "execution":
-		err = s.Repo.RegisterExecution(r.Context(), c, q.Location, q.ContainerID)
+		if q.Resident != nil {
+			err = s.Repo.RegisterResidentExecution(r.Context(), c, q.Location, q.ContainerID, *q.Resident)
+		} else {
+			err = s.Repo.RegisterExecution(r.Context(), c, q.Location, q.ContainerID)
+		}
 	case "exit":
-		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{Kubernetes: q.Kubernetes, ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
+		err = s.Repo.RecordExit(r.Context(), c, jobs.ExitProof{Resident: q.Resident, Kubernetes: q.Kubernetes, ID: id, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: q.Location, ContainerID: q.ContainerID, Scope: q.Scope, Exited: q.Exited, Removed: q.Removed, InspectedID: q.InspectedID, Running: q.Running, PID: q.PID, Labels: q.Labels})
 	case "heartbeat":
 		err = s.Repo.Heartbeat(r.Context(), c, time.Duration(q.Lease)*time.Second)
 		if err == nil {

@@ -56,7 +56,11 @@ func (r Repository) History(ctx context.Context, id string) ([]AttemptStatus, er
 // RegisterExecution is serialized with cancellation/claim and precedes container
 // start. A lost registration response can be retried with exactly the same ID.
 func (r Repository) RegisterExecution(ctx context.Context, c Claim, location, containerID string) error {
-	if !((kubeLocation(location) && kubeUID.MatchString(containerID)) || (strings.HasPrefix(location, "docker:") && digest.MatchString(containerID) && len(location) <= 512)) {
+	return r.registerExecution(ctx, c, location, containerID, nil)
+}
+
+func (r Repository) registerExecution(ctx context.Context, c Claim, location, containerID string, resident *ResidentExecution) error {
+	if !((resident != nil && residentLocation(location) && validResidentIdentity(*resident) && resident.Version == "resident-registration-1" && resident.ContainerID == containerID) || (kubeLocation(location) && kubeUID.MatchString(containerID)) || (strings.HasPrefix(location, "docker:") && digest.MatchString(containerID) && len(location) <= 512)) {
 		return fmt.Errorf("execution location and container identity required")
 	}
 	tx, err := r.DB.BeginTx(ctx, nil)
@@ -72,7 +76,12 @@ func (r Repository) RegisterExecution(ctx context.Context, c Claim, location, co
 	if !ok {
 		return ErrStale
 	}
-	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET location=$5,container_id=$6 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND exited_at IS NULL AND start_revoked_at IS NULL AND (executor_kind='legacy' OR location=$5) AND (container_id='' OR (location=$5 AND container_id=$6))`, c.ID, c.Attempt, c.Worker, c.Token, location, containerID)
+	var raw any
+	if resident != nil {
+		b, _ := json.Marshal(resident)
+		raw = string(b)
+	}
+	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET location=$5,container_id=$6,resident_execution=$7::jsonb WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND exited_at IS NULL AND start_revoked_at IS NULL AND ((executor_kind='resident-v1' AND $7::jsonb IS NOT NULL AND location=$5) OR (executor_kind!='resident-v1' AND $7::jsonb IS NULL AND (executor_kind='legacy' OR location=$5))) AND (container_id='' OR (location=$5 AND container_id=$6 AND resident_execution IS NOT DISTINCT FROM $7::jsonb))`, c.ID, c.Attempt, c.Worker, c.Token, location, containerID, raw)
 	if err = affected(result, err); err != nil {
 		return err
 	}
@@ -84,6 +93,12 @@ func (r Repository) RegisterExecution(ctx context.Context, c Claim, location, co
 func (r Repository) RecordExit(ctx context.Context, c Claim, proof ExitProof) error {
 	if proof.ID != c.ID || proof.Attempt != c.Attempt || proof.Worker != c.Worker || proof.Token != c.Token || !proof.Exited {
 		return fmt.Errorf("%w: external container receipt identity", ErrInvalidProof)
+	}
+	if residentLocation(proof.Location) {
+		return r.recordResidentExit(ctx, c, proof, false)
+	}
+	if proof.Resident != nil {
+		return ErrInvalidProof
 	}
 	if kubeLocation(proof.Location) {
 		if !validKubeExit(c, proof) {
@@ -105,7 +120,7 @@ func (r Repository) RecordExit(ctx context.Context, c Claim, proof ExitProof) er
 	if err = tx.QueryRowContext(ctx, `SELECT id FROM m4_jobs WHERE id=$1 FOR UPDATE`, c.ID).Scan(&locked); err != nil {
 		return err
 	}
-	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET start_revoked_at=CASE WHEN container_id='' THEN coalesce(start_revoked_at,clock_timestamp()) ELSE start_revoked_at END,exit_checked_at=clock_timestamp(),exit_error=NULL,location=$5,container_id=$6,exited_at=coalesce(exited_at,clock_timestamp()),exit_receipt=CASE WHEN exit_receipt->>'scope'='not-started' THEN $7::jsonb ELSE coalesce(exit_receipt,$7::jsonb) END WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND ((location=$5 AND container_id=$6) OR (container_id='' AND publication_state!='published' AND ((location='legacy-process-group' AND exited_at IS NULL) OR (executor_kind IN ('isolated-v2','kubernetes-job-v1') AND location=$5 AND (exited_at IS NULL OR start_revoked_at IS NOT NULL))))) AND (exit_receipt IS NULL OR exit_receipt=$7::jsonb OR (exit_receipt->>'scope'='not-started' AND start_revoked_at IS NOT NULL))`, c.ID, c.Attempt, c.Worker, c.Token, proof.Location, proof.ContainerID, string(raw))
+	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET start_revoked_at=CASE WHEN container_id='' THEN coalesce(start_revoked_at,clock_timestamp()) ELSE start_revoked_at END,exit_checked_at=clock_timestamp(),exit_error=NULL,location=$5,container_id=$6,exited_at=coalesce(exited_at,clock_timestamp()),exit_receipt=CASE WHEN exit_receipt->>'scope'='not-started' THEN $7::jsonb ELSE coalesce(exit_receipt,$7::jsonb) END WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND ((location=$5 AND container_id=$6) OR (container_id='' AND publication_state!='published' AND ((location='legacy-process-group' AND exited_at IS NULL) OR (executor_kind IN ('isolated-v2','kubernetes-job-v1','resident-v1') AND location=$5 AND (exited_at IS NULL OR start_revoked_at IS NOT NULL))))) AND (exit_receipt IS NULL OR exit_receipt=$7::jsonb OR (exit_receipt->>'scope'='not-started' AND start_revoked_at IS NOT NULL))`, c.ID, c.Attempt, c.Worker, c.Token, proof.Location, proof.ContainerID, string(raw))
 	if err = affected(result, err); err != nil {
 		return err
 	}
@@ -151,10 +166,10 @@ func (r Repository) allExited(ctx context.Context, id string, attempt int) (stri
 // DiscoverExecutions is coordinator-only: private tokens never enter public status.
 // Location is an exact daemon identity; lease inspection never renews a lease.
 func (r Repository) DiscoverExecutions(ctx context.Context, location string) ([]map[string]any, error) {
-	if (!strings.HasPrefix(location, "docker:") && !kubeLocation(location)) || len(location) > 512 {
+	if (!strings.HasPrefix(location, "docker:") && !kubeLocation(location) && !residentLocation(location)) || len(location) > 512 {
 		return nil, fmt.Errorf("docker location required")
 	}
-	rows, err := r.DB.QueryContext(ctx, `SELECT a.job_id,a.attempt,a.worker,a.attempt_token,a.location,a.container_id,a.exited_at,j.state,j.attempt,a.executor_kind,a.start_revoked_at,(j.state='running' AND j.lease_until>clock_timestamp()) FROM m4_job_attempts a JOIN m4_jobs j ON j.id=a.job_id WHERE a.location=$1 AND (a.container_id!='' OR a.executor_kind IN ('isolated-v2','kubernetes-job-v1')) AND (a.exited_at IS NULL OR (a.attempt=j.attempt AND j.state='running' AND a.publication_state!='published')) ORDER BY a.job_id,a.attempt`, location)
+	rows, err := r.DB.QueryContext(ctx, `SELECT a.job_id,a.attempt,a.worker,a.attempt_token,a.location,a.container_id,a.exited_at,j.state,j.attempt,a.executor_kind,a.start_revoked_at,(j.state='running' AND j.lease_until>clock_timestamp()) FROM m4_job_attempts a JOIN m4_jobs j ON j.id=a.job_id WHERE a.location=$1 AND (a.container_id!='' OR a.executor_kind IN ('isolated-v2','kubernetes-job-v1','resident-v1')) AND (a.exited_at IS NULL OR (a.attempt=j.attempt AND j.state='running' AND a.publication_state!='published')) ORDER BY a.job_id,a.attempt`, location)
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +212,7 @@ func (r Repository) RevokeUnstarted(ctx context.Context, c Claim, location strin
 	if err = tx.QueryRowContext(ctx, `SELECT id FROM m4_jobs WHERE id=$1 FOR UPDATE`, c.ID).Scan(&locked); err != nil {
 		return err
 	}
-	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET start_revoked_at=coalesce(start_revoked_at,clock_timestamp()),exited_at=coalesce(exited_at,clock_timestamp()),exit_receipt=coalesce(exit_receipt,$6::jsonb),exit_checked_at=clock_timestamp(),exit_error=NULL,publication_state='fenced' WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND publication_state!='published' AND executor_kind IN ('isolated-v2','kubernetes-job-v1') AND location=$5 AND container_id='' AND (exit_receipt IS NULL OR exit_receipt=$6::jsonb)`, c.ID, c.Attempt, c.Worker, c.Token, location, string(receipt))
+	result, err := tx.ExecContext(ctx, `UPDATE m4_job_attempts SET start_revoked_at=coalesce(start_revoked_at,clock_timestamp()),exited_at=coalesce(exited_at,clock_timestamp()),exit_receipt=coalesce(exit_receipt,$6::jsonb),exit_checked_at=clock_timestamp(),exit_error=NULL,publication_state='fenced' WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4 AND publication_state!='published' AND executor_kind IN ('isolated-v2','kubernetes-job-v1','resident-v1') AND location=$5 AND container_id='' AND (exit_receipt IS NULL OR exit_receipt=$6::jsonb)`, c.ID, c.Attempt, c.Worker, c.Token, location, string(receipt))
 	if err = affected(result, err); err != nil {
 		return err
 	}
