@@ -1,0 +1,71 @@
+name: Resident native AMD64 acceptance
+on:
+  push:
+    branches: ['review/resident-native-20261109']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  acceptance:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.24'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Build static workbench
+        working-directory: webui
+        run: |
+          npm ci
+          npm run build:static
+      - name: Install browser harness
+        run: |
+          npm install --prefix /tmp/resident-playwright playwright@1.56.1
+          /tmp/resident-playwright/node_modules/.bin/playwright install --with-deps chrome
+      - name: Build and export immutable candidate once
+        run: |
+          ARCH=amd64 sh deployments/resident/build-images.sh
+          cd deployments/resident/build
+          sha256sum cpag-resident-amd64.tar > cpag-resident-amd64.tar.sha256
+      - name: Exercise exported bytes on native k3s
+        env:
+          PLAYWRIGHT_MODULE: /tmp/resident-playwright/node_modules/playwright
+        run: python scripts/validation/resident/native_lab.py
+      - name: Collect sanitized diagnostics
+        if: always()
+        run: |
+          mkdir -p outputs/resident-native/diagnostics
+          docker logs cpag-resident-native > outputs/resident-native/diagnostics/k3s.log 2>&1 || true
+          docker exec cpag-resident-native kubectl -n cpag get pods,deployments,events -o json > outputs/resident-native/diagnostics/kubernetes.json 2>&1 || true
+          for component in api source-verifier private-relay; do
+            docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-api -c "$component" --tail=300 > "outputs/resident-native/diagnostics/$component.log" 2>&1 || true
+          done
+          docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-worker -c worker --tail=300 > outputs/resident-native/diagnostics/worker.log 2>&1 || true
+      - name: Preserve acceptance evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resident-native-evidence
+          path: |
+            outputs/resident-native/acceptance.json
+            outputs/resident-native/workbench.json
+            outputs/resident-native/diagnostics/
+          retention-days: 14
+      - name: Preserve tested EU candidate bytes
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: resident-amd64-tested-candidate
+          path: |
+            deployments/resident/build/cpag-resident-amd64.tar
+            deployments/resident/build/cpag-resident-amd64.tar.sha256
+            outputs/resident-native/acceptance.json
+          compression-level: 0
+          retention-days: 14
