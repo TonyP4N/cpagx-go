@@ -47,11 +47,13 @@ async function main() {
       const record = {id:run.id,mode};
       report.runs.push(record); save();
       const runPath = base+'/api/v3/runs/'+run.id;
-      await page.waitForFunction(async url => {
-        const r=await fetch(url); if (!r.ok) return false;
-        return ['succeeded','failed','cancelled'].includes((await r.json()).run.state);
-      },runPath,{timeout:240000,polling:1000});
-      const current=(await (await api.get(runPath)).json()).run;
+      let current;
+      const deadline = Date.now() + 240000;
+      do {
+        current = (await (await api.get(runPath)).json()).run;
+        if (['succeeded','failed','cancelled'].includes(current.state)) break;
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } while (Date.now() < deadline);
       assert.equal(current.state,'succeeded',JSON.stringify(current)); record.attempt=current.attempt;
       await page.goto(base+'/workbench/?view='+(mode==='dual_source'?'analysis':'replay')+'&dataset='+dataset.id+'&run='+run.id);
       const ready = mode==='dual_source' ? page.getByRole('tab',{name:'候选',exact:true}) : page.locator('input[name=replay-snapshot]');

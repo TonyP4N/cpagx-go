@@ -113,7 +113,8 @@ class ResidentWorker:
                 raise ValueError('foreign resident staging entry')
             shutil.rmtree(stale)
         work = self.work_root/(claim['id']+'-'+str(claim['attempt']))
-        work.mkdir(mode=0o755)
+        work.mkdir(mode=0o700)
+        work.chmod(0o711)  # deployment umask is 077; compute must traverse its own attempt
         inputs = work/'inputs'; inputs.mkdir(mode=0o755)
         payload = claim['payload']
         refs = [(f'network-{i}.'+ref['path'].rsplit('.', 1)[-1].lower(), ref) for i, ref in enumerate(network_refs(payload))]
