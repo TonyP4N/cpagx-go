@@ -103,6 +103,27 @@ def main():
     apply(resources)
     for name in ('cpag-api', 'cpag-worker'):
         run(K+['-n', 'cpag', 'rollout', 'status', 'deploy/'+name, '--timeout=180s'])
+    probe = r"""
+import json, os, socket
+from cpag_worker.resident_sandbox import enter
+enter({'cwd':'/resident-work'})
+assert os.geteuid() == 65532
+checks = {}
+def denied(name, action):
+    try: action()
+    except PermissionError: checks[name] = True
+    else: raise AssertionError('sandbox boundary writable/readable: '+name)
+denied('worker_config', lambda: open('/private/config.json','rb').read(1))
+denied('serviceaccount', lambda: open('/var/run/secrets/kubernetes.io/serviceaccount/token','rb').read(1))
+denied('parent_environment', lambda: open('/proc/1/environ','rb').read(1))
+denied('publication', lambda: open('/state/shared/jobs/resident-probe','x'))
+denied('control', lambda: open('/state/control/resident-probe','x'))
+denied('network', lambda: socket.socket())
+denied('session_escape', lambda: os.setsid())
+denied('regain_root', lambda: os.setuid(0))
+print(json.dumps(checks))
+"""
+    sandbox = json.loads(output(K+['-n', 'cpag', 'exec', 'deploy/cpag-worker', '-c', 'worker', '--', 'python3', '-c', probe]))
     port = subprocess.Popen(K+['-n', 'cpag', 'port-forward', '--address=0.0.0.0', 'svc/cpag-workbench', '8095:8080'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     try:
         sys.path.insert(0, str(REPO/'scripts/validation'))
@@ -124,7 +145,7 @@ def main():
             receipts.append(receipt)
         report = {'source_commit': output(['git', 'rev-parse', 'HEAD']), 'platform': 'native-linux-amd64',
                   'archive_sha256': sha, 'images': images, 'no_compute_jobs': True, 'guardian_receipts': receipts,
-                  'synthetic_only': True, 'workbench': browser}
+                  'synthetic_only': True, 'sandbox_denials': sandbox, 'workbench': browser}
         (OUT/'acceptance.json').write_text(json.dumps(report, indent=2)+'\n')
     finally:
         port.terminate(); port.wait(timeout=10)
