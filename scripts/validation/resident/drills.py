@@ -118,10 +118,11 @@ print(json.dumps(live))
     stale_fail=api('/v1/jobs/'+crash+'/fail',{**identity(before),'message':'stale-drill','retryable':True});assert stale_fail==409
     final=wait(crash,lambda r:r['state'] in ('succeeded','failed','cancelled'),180);assert final['state']=='succeeded',snapshot(final)
     assert final['attempt']==2 and final['container_id']!=old and final['artifact_path']
+    stale_complete=api('/v1/jobs/'+crash+'/complete',{**identity(before),'manifest_sha256':final['artifact_sha256']});assert stale_complete in (400,409),stale_complete
     history=json.loads(sql("SELECT json_agg(t ORDER BY attempt) FROM (SELECT attempt,executor_kind,container_id,publication_state,exited_at,exit_receipt-'token' AS exit_receipt FROM m4_job_attempts WHERE job_id='"+crash+"') t"))
     assert len(history)==2 and sum(a['publication_state']=='published' for a in history)==1
     assert history[0]['exit_receipt']['resident']['version']=='resident-container-terminated-1'
     assert history[1]['exit_receipt']['resident']['version']=='resident-guardian-1'
-    results['sigkill']={'before':snapshot(before),'after':snapshot(final),'attempts':history,'natural_expiry_and_retry_seconds':round(time.monotonic()-started,3),'stale_heartbeat_status':stale_heartbeat,'stale_fail_status':stale_fail,'published_attempt_count':1};save()
+    results['sigkill']={'before':snapshot(before),'after':snapshot(final),'attempts':history,'natural_expiry_and_retry_seconds':round(time.monotonic()-started,3),'stale_heartbeat_status':stale_heartbeat,'stale_fail_status':stale_fail,'stale_complete_status':stale_complete,'published_attempt_count':1};save()
     print(json.dumps({'result_file':str(target),'cancel_id':cancel,'sigkill_id':crash,'status':'passed'}))
 if __name__=='__main__':main()

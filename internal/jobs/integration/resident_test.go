@@ -111,6 +111,16 @@ func TestResidentRegistrationGuardianAndInterruptedRecovery(t *testing.T) {
 		t.Fatal("cached proof replaced deleted file")
 	}
 	must(os.WriteFile(file, raw, 0600))
+	// A tampered file cannot be replaced by a previously valid serialized body.
+	tampered := []byte(strings.Replace(string(raw), `"guardian_pid":3`, `"guardian_pid":99`, 1))
+	must(os.WriteFile(file, tampered, 0600))
+	if err = repo.RecordExit(ctx, c, proof); err == nil {
+		t.Fatal("tampered trusted file accepted caller body")
+	}
+	if err = repo.CheckPublication(ctx, c); err == nil {
+		t.Fatal("tampered trusted file published")
+	}
+	must(os.WriteFile(file, raw, 0600))
 	k.Reason = "timeout"
 	raw, _ = json.Marshal(proof)
 	_, err = db.Exec("UPDATE m4_job_attempts SET exit_receipt=$2::jsonb WHERE job_id=$1", c.ID, string(raw))
