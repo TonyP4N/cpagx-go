@@ -1,7 +1,7 @@
 """Isolated k3s resident fault drills. No task mutation without --execute.
 Requires a succeeded immutable baseline run; clones only its stored payload.
 """
-import argparse, datetime, json, os, pathlib, subprocess, time
+import argparse, datetime, json, os, pathlib, secrets, subprocess, time
 ROOT = pathlib.Path(os.environ.get('CPAG_DRILL_OUTPUT', '.')).resolve()
 NODE = os.environ.get('CPAG_LAB_NODE', 'cpag-resident-k3s')
 K = ['docker','exec','-i',NODE,'kubectl','-n','cpag']
@@ -83,7 +83,7 @@ def main():
     results={'scope':'isolated local k3s synthetic resident fault validation','baseline':args.baseline,'started_at':stamp}
     target=ROOT/('drill-results-'+stamp+'.json')
     def save(): target.write_text(json.dumps(results,indent=2))
-    cancel='resident-cancel-'+stamp
+    cancel=secrets.token_hex(16)
     print(json.dumps({'phase':'cancel_start','id':cancel}),flush=True)
     before,seen=frozen(args.baseline,cancel)
     assert api('/v1/jobs/'+cancel+'/cancel',{})==200
@@ -103,7 +103,7 @@ print(json.dumps(live))
 '''
     live=json.loads(run(K+['exec','-i','deploy/cpag-worker','-c','worker','--','python3','-c',code,str(group)]));assert not live
     results['cancel']={'before':snapshot(before),'after':snapshot(settled),'group_exited':True,'live_group_members':live,'stale_heartbeat_status':409};save()
-    crash='resident-sigkill-'+stamp
+    crash=secrets.token_hex(16)
     print(json.dumps({'phase':'sigkill_start','id':crash}),flush=True)
     before,seen=frozen(args.baseline,crash)
     old=before['container_id'];assert old.startswith('containerd://')
