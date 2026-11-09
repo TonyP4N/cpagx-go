@@ -49,7 +49,7 @@ def read_config(path):
     return config
 
 
-def registration():
+def registration(previous=None):
     name = os.environ['CPAG_POD_NAME']
     uid = os.environ['CPAG_POD_UID']
     container = os.environ.get('CPAG_CONTAINER_NAME', 'worker')
@@ -58,11 +58,21 @@ def registration():
         service = Path('/var/run/secrets/kubernetes.io/serviceaccount')
         request = Request('https://kubernetes.default.svc/api/v1/namespaces/cpag/pods/'+name,
                           headers={'Authorization': 'Bearer '+(service/'token').read_text().strip()})
-        with urlopen(request, context=ssl.create_default_context(cafile=str(service/'ca.crt')), timeout=5) as response:
-            pod = json.load(response)
-        if pod['metadata']['uid'] != uid:
-            raise ValueError('resident Pod replacement')
-        runtime = next(row['containerID'] for row in pod['status']['containerStatuses'] if row['name'] == container and 'running' in row['state'])
+        deadline = time.monotonic() + 60
+        while time.monotonic() < deadline:
+            with urlopen(request, context=ssl.create_default_context(cafile=str(service/'ca.crt')), timeout=5) as response:
+                pod = json.load(response)
+            if pod['metadata']['uid'] != uid:
+                raise ValueError('resident Pod replacement')
+            for row in pod.get('status', {}).get('containerStatuses', []):
+                if row['name'] == container and 'running' in row['state'] and row.get('containerID') != previous:
+                    runtime = row.get('containerID')
+                    break
+            if runtime:
+                break
+            time.sleep(.5)
+        if not runtime:
+            raise RuntimeError('current resident container status unavailable')
     if not re.fullmatch(r'containerd://[0-9a-f]{64}', runtime):
         raise ValueError('invalid resident container identity')
     return {'version': 'resident-registration-1', 'namespace': 'cpag', 'pod_name': name,
@@ -74,7 +84,12 @@ class ResidentWorker:
         self.config = config
         self.root, self.control = Path(config['shared_root']).resolve(), Path(config['control_root']).resolve()
         self.work_root = Path(work_root)
-        self.resident = resident if resident is not None else registration()
+        if resident is None:
+            instance_file = self.control / 'resident-instance.json'
+            previous = json.loads(instance_file.read_text()) if instance_file.exists() else {}
+            resident = registration(previous.get('container_id'))
+            atomic_json(instance_file, resident)
+        self.resident = resident
         self.location = 'resident:'+os.environ['CPAG_NAMESPACE_UID']
         self.api = API(config['api_url'], config['worker_token'])
         self.coord = API(config['api_url'], config['coordinator_token'])
