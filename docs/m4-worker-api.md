@@ -66,3 +66,35 @@ Round5 replaces the round4 `attempt>1` blanket rejection with persistent
 identities remain pending. See `docs/refactor/round5-attempt-history.md` for the
 coordinator-only execution/exit API, immutable removed-container requirement,
 host-only control root, read-only lease status and cancellation/publication gates.
+
+### Optional resident v3 RabbitMQ dispatch
+
+The submitted run's dataset determines its dispatch partition. With
+`dispatch_mode: "rabbit-canary"`, only IDs in the operator's
+`rabbit_canary_dataset_ids` use `rabbit-v3`. The default selection is
+`poll`. Catalog submission writes the job, its run binding and the pending
+dispatch in one PostgreSQL transaction. The public request cannot choose a
+partition, dispatch ID, attempt, lease or worker.
+
+The publisher sends `POST /v1/dispatch/lease` with its scoped dispatcher
+Bearer token and a JSON object such as
+`{"publisher":"resident-publisher","lease_seconds":30,"limit":1}`. Each
+returned row contains `job_id`, `dispatch_id`, `partition` and
+`lease_token`. The Celery task arguments are just the two IDs. After RabbitMQ
+confirms persistent delivery to the dedicated queue, the publisher posts
+`{"publisher":"resident-publisher","dispatch_id":"…","lease_token":"…"}`
+to `/v1/dispatch/confirm`. A stale lease returns 409. If the publisher stops
+between those acknowledgements, another publisher can resend the same dispatch.
+
+For a Rabbit delivery, the supervisor adds `job_id`, `dispatch_id` and
+`partition: "rabbit-v3"` to its authenticated resident claim. A successful
+claim issues the usual attempt token and lease to the supervisor. An obsolete
+delivery receives 204; transient contention can be retried. A poll worker
+continues calling the original claim shape. Cancellation, process supervision,
+exit evidence verification and publication use the existing resident APIs.
+
+The coordinator can post `{"job_ids":["…"]}` to `/v1/dispatch/rollback`.
+The `rolled_back` array identifies queued jobs actually converted to poll.
+An active attempt continues under its existing lease. To keep *new* work on
+poll, also change the API routing configuration. See the
+[EU fallback and rollout procedure](../deployments/resident/rabbit-rollout.md).

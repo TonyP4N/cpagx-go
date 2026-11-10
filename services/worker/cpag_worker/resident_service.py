@@ -150,7 +150,7 @@ class ResidentWorker:
         atomic_json(base/'guardian.json', config)
         return work
 
-    def once(self):
+    def reconcile(self):
         # A journal means an ambiguous prior supervisor lifetime. Do not restart
         # compute or clear it: container restart/termination is coordinator proof.
         if self.journal.exists():
@@ -164,8 +164,17 @@ class ResidentWorker:
             os.replace(self.journal, base/'resident-recovered.json')
             sync_dir(self.control)
             shutil.rmtree(self.work_root/(claim['id']+'-'+str(claim['attempt'])), ignore_errors=True)
-        claim = self.api.post('/v1/claim', {'worker': self.config['worker_id'], 'lease_seconds': 90,
-                              'execution_type': 'resident-v1', 'location': self.location})
+        return None
+
+    def once(self, dispatch=None):
+        recovery = self.reconcile()
+        if recovery is not None: return recovery
+        body = {'worker': self.config['worker_id'], 'lease_seconds': 90,
+                'execution_type': 'resident-v1', 'location': self.location}
+        if dispatch is not None:
+            from .resident_dispatch import dispatch_request
+            body.update(dispatch_request({k: dispatch[k] for k in ('job_id', 'dispatch_id')}))
+        claim = self.api.post('/v1/claim', body)
         if not claim:
             return 'idle'
         base = self.control/'jobs'/claim['id']/f"attempt-{claim['attempt']}.worker"
@@ -242,6 +251,8 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--config', required=True)
     parser.add_argument('--work-root', default='/resident-work')
+    parser.add_argument('--dispatch-mode', choices=('poll', 'queue', 'hybrid'), default='poll')
+    parser.add_argument('--dispatch-socket', default='/dispatch/supervisor.sock')
     args = parser.parse_args()
     config = read_config(args.config)
     if sys.platform != 'linux' or os.getuid() != 0:
@@ -258,16 +269,29 @@ def main():
     with (control/'.maintenance.lock').open('a+') as maintenance, (control/'.resident-owner.lock').open('a+') as lock:
         fcntl.flock(maintenance, fcntl.LOCK_SH | fcntl.LOCK_NB)
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-        while not stopped.is_set():
-            try:
-                result = owner.once()
-                if result == 'recovery_required':
-                    # Exit PID1: coordinator fences old container before retry.
-                    raise SystemExit(1)
-            except Exception as error:
-                print(json.dumps({'event': 'resident_recovery_pending', 'error_type': type(error).__name__}), flush=True)
-                if owner.journal.exists(): raise SystemExit(1)
-            stopped.wait(config.get('poll_seconds', 1))
+        engine = threading.Lock(); fatal = threading.Event(); dispatcher = None
+        if args.dispatch_mode != 'poll':
+            from .resident_dispatch import DispatchServer
+            dispatcher = DispatchServer(args.dispatch_socket, owner, engine, fatal)
+            dispatcher.start()
+        try:
+            while not stopped.is_set():
+                if fatal.is_set(): raise SystemExit(1)
+                if engine.acquire(blocking=False):
+                    try:
+                        result = owner.reconcile() if args.dispatch_mode == 'queue' or (dispatcher and dispatcher.queue_pending()) else owner.once()
+                        if result == 'recovery_required':
+                            raise SystemExit(1)
+                    except Exception as error:
+                        print(json.dumps({'event': 'resident_recovery_pending', 'error_type': type(error).__name__}), flush=True)
+                        if owner.journal.exists(): raise SystemExit(1)
+                    finally:
+                        engine.release()
+                stopped.wait(config.get('poll_seconds', 1))
+        finally:
+            owner.helper.stop()
+            if dispatcher: dispatcher.close()
+
 
 
 if __name__ == '__main__':

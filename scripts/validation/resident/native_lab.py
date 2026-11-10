@@ -130,7 +130,12 @@ def main():
         run(['docker', 'exec', 'cpag-resident-native', 'ctr', 'images', 'tag', tag, pin])
         images[role] = pin
     credentials = {key: secrets.token_hex(24) for key in ('pg', 'worker', 'coord', 'admin')}
+    canary = None
+    if os.environ.get('CPAG_RABBIT_CANARY') == '1':
+        from rabbit_canary import Canary
+        canary = Canary(sys.modules[__name__], credentials)
     apply([{'apiVersion': 'v1', 'kind': 'Namespace', 'metadata': {'name': 'cpag'}}])
+    if canary: canary.setup()
     apply([obj('Secret', 'cpag-postgres', stringData={'POSTGRES_PASSWORD': credentials['pg']})])
     storage = json.loads((HERE/'storage.json').read_text())['items']
     volumes = []
@@ -161,20 +166,28 @@ def main():
         'capacity_policy': 'engineering-core-capacity-3', 'compact_verifier_image': api_id}
     worker = {key: app[key] for key in ('shared_root', 'control_root', 'worker_token', 'coordinator_token', 'resource_profile')}
     worker.update(api_url='http://cpag-resident-internal:8096', worker_id='resident-native', poll_seconds=.2)
+    resources = json.loads((HERE/'resources.json').read_text())['items']
+    if canary:
+        canary.configure(app, resources, images)
+        capacity['canary_fixture_requested_bytes'] = 256*1024**2  # broker128Mi + consumer64Mi + publisher64Mi
+        capacity['candidate_requested_bytes'] += capacity['canary_fixture_requested_bytes']
+        capacity['fits'] = capacity['allocatable_bytes'] >= capacity['candidate_requested_bytes']+capacity['system_requested_bytes']
+        (OUT/'capacity.json').write_text(json.dumps(capacity,indent=2)+'\n')
+        assert capacity['fits'], 'canary fixture scheduler requests do not fit'
     apply([obj('Secret', 'cpag-app-config', stringData={'app.json': json.dumps(app)}),
            obj('Secret', 'cpag-worker-config', stringData={'worker.json': json.dumps(worker)})])
-    resources = json.loads((HERE/'resources.json').read_text())['items']
     for resource in resources:
         if resource['kind'] != 'Deployment': continue
         resource['spec']['replicas'] = 1
         for container in resource['spec']['template']['spec']['containers']:
             if container['name'] == 'public-relay': continue
-            container['image'] = images['worker' if container['name'] == 'worker' else 'api']
+            container['image'] = images['worker' if container['name'] in ('worker','celery-consumer','publisher') else 'api']
             for env in container.get('env', []):
                 if env['name'] == 'CPAG_NAMESPACE_UID': env['value'] = uid
     apply(resources)
-    for name in ('cpag-api', 'cpag-worker'):
+    for name in (('cpag-api', 'cpag-worker','cpag-celery-publisher') if canary else ('cpag-api', 'cpag-worker')):
         run(K+['-n', 'cpag', 'rollout', 'status', 'deploy/'+name, '--timeout=180s'])
+    canary_datasets = canary.activate(app) if canary else None
     probe = r"""
 import json, os, socket
 from cpag_worker.resident_sandbox import enter
@@ -207,6 +220,7 @@ print(json.dumps(checks))
         _, _, replay_profile, _ = inputs(replay, 'normal', 'replay')
         env = {**os.environ, 'CPAG_URL': 'http://127.0.0.1:8095', 'CPAG_TEST_PASSWORD': credentials['admin']}
         wait_until(lambda: subprocess.call(['curl', '-fsS', 'http://127.0.0.1:8095/health/ready'], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL) == 0)
+        if canary: env['CPAG_TEST_DATASET'] = canary_datasets[0]
         before_identity = worker_identity()
         watches = [start_watch(resource) for resource in ('pods', 'jobs')]
         run(['node', str(HERE/'workbench.cjs'), str(replay), str(off_profile), str(replay_profile), str(OUT/'workbench.json')], env=env)
@@ -232,10 +246,12 @@ print(json.dumps(checks))
             assert receipt['container_id'] == before_identity['container_id'], 'receipt changed baseline container'
             assert receipt['resident']['pod_uid'] == before_identity['pod_uid'], 'receipt changed baseline Pod'
             receipts.append(receipt)
+        if canary:
+            canary.exercise(browser, canary_datasets[1], env, replay, off_profile, replay_profile, output_sql)
         drill_env = {**os.environ, 'CPAG_LAB_NODE': 'cpag-resident-native', 'CPAG_DRILL_OUTPUT': str(OUT/'drills')}
         run([sys.executable, str(HERE/'drills.py'), '--baseline', browser['runs'][0]['id'], '--execute'], env=drill_env)
         report = {'source_commit': output(['git', 'rev-parse', 'HEAD']), 'platform': 'native-linux-amd64', 'capacity': capacity,
-                  'archive_sha256': sha, 'images': images, 'no_compute_jobs': True, 'guardian_receipts': receipts,
+                  'archive_sha256': sha, 'images': images, 'rabbit_canary': canary.report if canary else None, 'no_compute_jobs': True, 'guardian_receipts': receipts,
                   'synthetic_only': True, 'baseline_worker_identity': before_identity, 'kubernetes_watches': [w[2] for w in watches], 'sandbox_denials': sandbox, 'workbench': browser}
         (OUT/'acceptance.json').write_text(json.dumps(report, indent=2)+'\n')
     finally:

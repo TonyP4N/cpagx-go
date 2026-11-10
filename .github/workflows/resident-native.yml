@@ -1,7 +1,7 @@
 name: Resident native AMD64 acceptance
 on:
   push:
-    branches: ['review/resident-native-20261109']
+    branches: ['review/resident-native-20261109', 'review/v3-rabbit-dispatch']
   workflow_dispatch:
 permissions:
   contents: read
@@ -20,6 +20,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Exercise Celery delivery and outbox confirmation boundaries
+        run: |
+          python -m pip install -r services/worker/requirements-resident.txt
+          python -m unittest discover -s tests/worker -p 'test_celery_v3.py' -v
       - name: Build static workbench
         working-directory: webui
         run: |
@@ -37,16 +41,20 @@ jobs:
       - name: Exercise exported bytes on native k3s
         env:
           PLAYWRIGHT_MODULE: /tmp/resident-playwright/node_modules/playwright
+          CPAG_RABBIT_CANARY: ${{ github.ref_name == 'review/v3-rabbit-dispatch' && '1' || '0' }}
         run: python scripts/validation/resident/native_lab.py
       - name: Collect sanitized diagnostics
         if: always()
         run: |
           mkdir -p outputs/resident-native/diagnostics
-          docker exec cpag-resident-native kubectl -n cpag get pods,deployments,events -o json > outputs/resident-native/diagnostics/kubernetes.json 2>&1 || true
+          docker exec cpag-resident-native kubectl -n cpag get pods,deployments,statefulsets,events -o json > outputs/resident-native/diagnostics/kubernetes.json 2>&1 || true
           for component in api source-verifier private-relay; do
             docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-api -c "$component" --tail=300 > "outputs/resident-native/diagnostics/$component.log" 2>&1 || true
           done
           docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-worker -c worker --tail=300 > outputs/resident-native/diagnostics/worker.log 2>&1 || true
+          docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-worker -c celery-consumer --tail=300 > outputs/resident-native/diagnostics/celery-consumer.log 2>&1 || true
+          docker exec cpag-resident-native kubectl -n cpag logs deploy/cpag-celery-publisher --tail=300 > outputs/resident-native/diagnostics/celery-publisher.log 2>&1 || true
+          docker exec cpag-resident-native kubectl -n cpag logs statefulset/cpag-rabbitmq --tail=300 > outputs/resident-native/diagnostics/rabbitmq.log 2>&1 || true
       - name: Preserve acceptance evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -54,6 +62,8 @@ jobs:
           name: resident-native-evidence
           path: |
             outputs/resident-native/acceptance.json
+            outputs/resident-native/rabbit-canary.json
+            outputs/resident-native/rabbit-outage-workbench.json
             outputs/resident-native/capacity.json
             outputs/resident-native/workbench.json
             outputs/resident-native/watch-evidence.json

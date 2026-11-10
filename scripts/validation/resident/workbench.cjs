@@ -20,7 +20,7 @@ async function main() {
       return response.json();
     }
     await post('/session', {username:'lab-admin',password:process.env.CPAG_TEST_PASSWORD});
-    const {dataset} = await post('/datasets', {name:'Resident worker acceptance', source_kind:'synthetic', source:'R21 synthetic sample',batch:'r21-https-browser',authorization_ref:'repository generated synthetic material'});
+    const dataset = process.env.CPAG_TEST_DATASET ? {id:process.env.CPAG_TEST_DATASET} : (await post('/datasets', {name:'Resident worker acceptance', source_kind:'synthetic', source:'R21 synthetic sample',batch:'r21-https-browser',authorization_ref:'repository generated synthetic material'})).dataset;
     const ds = '/datasets/' + dataset.id;
     const sha = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
     for (const name of ['network.pcap','response.pcap','process.csv']) {

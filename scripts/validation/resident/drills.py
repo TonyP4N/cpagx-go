@@ -53,7 +53,8 @@ else: raise RuntimeError('compute group not observed')
     return subprocess.Popen(K+['exec','-i','deploy/cpag-worker','-c','worker','--','python3','-c',code,job],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
 
 def clone(source,job):
-    inserted=sql("INSERT INTO m4_jobs(id,max_attempts,payload) SELECT '"+job+"',2,payload FROM m4_jobs WHERE id='"+source+"' AND state='succeeded' RETURNING id")
+    partition='rabbit-v3' if os.environ.get('CPAG_RABBIT_CANARY')=='1' else 'poll'
+    inserted=sql("INSERT INTO m4_jobs(id,max_attempts,payload,dispatch_partition) SELECT '"+job+"',2,payload,'"+partition+"' FROM m4_jobs WHERE id='"+source+"' AND state='succeeded' RETURNING id")
     assert job in inserted, 'baseline not succeeded'
 
 def frozen(source,job):

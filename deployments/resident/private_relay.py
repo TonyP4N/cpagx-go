@@ -3,17 +3,28 @@ import hmac
 import http.client
 import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from pathlib import Path
 
 config=json.load(open('/etc/cpag/worker.json'))
 tokens=[config['worker_token'],config['coordinator_token']]
 if any(not isinstance(t,str) or len(t)<24 for t in tokens) or tokens[0]==tokens[1]:
     raise ValueError('distinct private credentials required')
 
+try:
+    dispatcher_token = Path('/etc/cpag-dispatch/token').read_text().strip()
+except FileNotFoundError:
+    dispatcher_token = None
+if dispatcher_token is not None and (len(dispatcher_token) < 24 or dispatcher_token in tokens):
+    raise ValueError('distinct dispatcher credential required')
+
 class Relay(BaseHTTPRequestHandler):
     def log_message(self,*args): pass
     def relay(self):
         auth=self.headers.get('Authorization','')
-        if not any(hmac.compare_digest(auth,'Bearer '+t) for t in tokens):
+        allowed = tokens
+        if self.command == 'POST' and self.path in ('/v1/dispatch/lease', '/v1/dispatch/confirm'):
+            allowed = [dispatcher_token] if dispatcher_token else []
+        if not any(hmac.compare_digest(auth,'Bearer '+t) for t in allowed):
             self.send_error(401);return
         if not self.path.startswith('/v1/'):
             self.send_error(404);return

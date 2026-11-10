@@ -44,6 +44,7 @@ type Server struct {
 	Repo                            jobs.Repository
 	Root, Secret                    string
 	CoordinatorSecret, ControlRoot  string
+	DispatcherSecret                string
 	CapacityPolicy, ResourceProfile string
 	PythonBin, PythonPath           string
 	CompactVerifierImage            string
@@ -356,9 +357,16 @@ func (s *Server) validatePayload(p Payload, historical bool) error {
 func (s *Server) ValidatePayload(p Payload) error { return s.validPayload(p) }
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	coordinatorOp := r.URL.Path == "/v1/executions" || strings.HasSuffix(r.URL.Path, "/execution") || strings.HasSuffix(r.URL.Path, "/exit") || strings.HasSuffix(r.URL.Path, "/attempts") || strings.HasSuffix(r.URL.Path, "/not-started")
+	publisherOp := r.URL.Path == "/v1/dispatch/lease" || r.URL.Path == "/v1/dispatch/confirm"
 	expected := s.Secret
 	if coordinatorOp {
 		expected = s.CoordinatorSecret
+	}
+	if r.URL.Path == "/v1/dispatch/rollback" {
+		expected = s.CoordinatorSecret
+	}
+	if publisherOp {
+		expected = s.DispatcherSecret
 	}
 	credential := []byte(r.Header.Get("Authorization"))
 	dualRead := strings.HasSuffix(r.URL.Path, "/shared-query") || strings.HasSuffix(r.URL.Path, "/dual-result") || strings.HasSuffix(r.URL.Path, "/dual-evidence") || (len(strings.Split(strings.Trim(r.URL.Path, "/"), "/")) == 4 && strings.Contains(r.URL.Path, "/replay-"))
@@ -372,7 +380,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	fail := func(err error) {
 		status := 400
-		if errors.Is(err, jobs.ErrStale) {
+		if errors.Is(err, jobs.ErrStale) || errors.Is(err, jobs.ErrDispatchBusy) {
 			status = 409
 		}
 		if errors.Is(err, sql.ErrNoRows) {
@@ -474,12 +482,75 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		reply(w, 201, map[string]string{"id": q.ID})
 		return
 	}
+	if strings.HasPrefix(r.URL.Path, "/v1/dispatch/") {
+		if r.Method != "POST" {
+			http.NotFound(w, r)
+			return
+		}
+		switch r.URL.Path {
+		case "/v1/dispatch/lease":
+			var q struct {
+				Publisher string `json:"publisher"`
+				Lease     int    `json:"lease_seconds"`
+				Limit     int    `json:"limit"`
+			}
+			if err := decode(w, r, &q); err != nil {
+				fail(err)
+				return
+			}
+			if !identity.MatchString(q.Publisher) {
+				fail(errors.New("invalid publisher"))
+				return
+			}
+			rows, err := s.Repo.LeaseDispatches(r.Context(), q.Publisher, time.Duration(q.Lease)*time.Second, q.Limit)
+			if err != nil {
+				fail(err)
+				return
+			}
+			reply(w, 200, rows)
+		case "/v1/dispatch/confirm":
+			var q struct {
+				Publisher  string `json:"publisher"`
+				DispatchID string `json:"dispatch_id"`
+				Token      string `json:"lease_token"`
+			}
+			if err := decode(w, r, &q); err != nil {
+				fail(err)
+				return
+			}
+			if err := s.Repo.ConfirmDispatch(r.Context(), q.DispatchID, q.Publisher, q.Token); err != nil {
+				fail(err)
+				return
+			}
+			reply(w, 200, map[string]bool{"confirmed": true})
+		case "/v1/dispatch/rollback":
+			var q struct {
+				IDs []string `json:"job_ids"`
+			}
+			if err := decode(w, r, &q); err != nil {
+				fail(err)
+				return
+			}
+			ids, err := s.Repo.RollbackDispatch(r.Context(), q.IDs)
+			if err != nil {
+				fail(err)
+				return
+			}
+			reply(w, 200, map[string]any{"rolled_back": ids})
+		default:
+			http.NotFound(w, r)
+		}
+		return
+	}
 	if r.URL.Path == "/v1/claim" && r.Method == "POST" {
 		var q struct {
 			Worker        string `json:"worker"`
 			Lease         int    `json:"lease_seconds"`
 			Executor      string `json:"executor"`
 			ExecutionType string `json:"execution_type"`
+			JobID         string `json:"job_id"`
+			DispatchID    string `json:"dispatch_id"`
+			Partition     string `json:"partition"`
 			Location      string `json:"location"`
 		}
 		if err := decode(w, r, &q); err != nil {
@@ -499,7 +570,9 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 		var c jobs.Claim
 		var err error
-		if q.Executor == "" && q.Location == "" {
+		if q.JobID != "" || q.DispatchID != "" || q.Partition != "" {
+			c, err = s.Repo.ClaimDispatched(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second, q.Executor, q.Location, q.JobID, q.DispatchID, q.Partition)
+		} else if q.Executor == "" && q.Location == "" {
 			c, err = s.Repo.Claim(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second)
 		} else {
 			c, err = s.Repo.ClaimExecution(r.Context(), q.Worker, time.Duration(q.Lease)*time.Second, q.Executor, q.Location)
@@ -529,7 +602,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			fail(err)
 			return
 		}
-		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease, "executor": q.Executor, "execution_type": q.Executor, "location": q.Location})
+		reply(w, 200, map[string]any{"id": c.ID, "attempt": c.Attempt, "worker": c.Worker, "token": c.Token, "payload": st.Payload, "output_dir": out, "lease_seconds": q.Lease, "executor": q.Executor, "execution_type": q.Executor, "location": q.Location, "dispatch_id": q.DispatchID, "partition": q.Partition})
 		return
 	}
 	if len(parts) < 3 || parts[0] != "v1" || parts[1] != "jobs" || !identity.MatchString(parts[2]) {

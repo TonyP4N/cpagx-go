@@ -12,6 +12,7 @@ import (
 var ErrInvalidProof = errors.New("invalid exit proof")
 
 type AttemptStatus struct {
+	DispatchID       *string         `json:"dispatch_id,omitempty"`
 	Executor         string          `json:"executor"`
 	StartRevokedAt   *time.Time      `json:"start_revoked_at"`
 	ExitCheckedAt    *time.Time      `json:"exit_checked_at"`
@@ -29,7 +30,7 @@ type AttemptStatus struct {
 }
 
 func (r Repository) History(ctx context.Context, id string) ([]AttemptStatus, error) {
-	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,location,container_id,exited_at,publication_state,artifact_path,claimed_at,artifact_sha256,exit_receipt,exit_checked_at,exit_error,executor_kind,start_revoked_at FROM m4_job_attempts WHERE job_id=$1 ORDER BY attempt`, id)
+	rows, err := r.DB.QueryContext(ctx, `SELECT attempt,worker,location,container_id,exited_at,publication_state,artifact_path,claimed_at,artifact_sha256,exit_receipt,exit_checked_at,exit_error,executor_kind,start_revoked_at,dispatch_id FROM m4_job_attempts WHERE job_id=$1 ORDER BY attempt`, id)
 	if err != nil {
 		return nil, err
 	}
@@ -38,7 +39,7 @@ func (r Repository) History(ctx context.Context, id string) ([]AttemptStatus, er
 	for rows.Next() {
 		var a AttemptStatus
 		var receipt []byte
-		if err = rows.Scan(&a.Attempt, &a.Worker, &a.Location, &a.ContainerID, &a.ExitedAt, &a.PublicationState, &a.ArtifactPath, &a.ClaimedAt, &a.ArtifactSHA256, &receipt, &a.ExitCheckedAt, &a.ExitError, &a.Executor, &a.StartRevokedAt); err != nil {
+		if err = rows.Scan(&a.Attempt, &a.Worker, &a.Location, &a.ContainerID, &a.ExitedAt, &a.PublicationState, &a.ArtifactPath, &a.ClaimedAt, &a.ArtifactSHA256, &receipt, &a.ExitCheckedAt, &a.ExitError, &a.Executor, &a.StartRevokedAt, &a.DispatchID); err != nil {
 			return nil, err
 		}
 		if len(receipt) > 0 {
