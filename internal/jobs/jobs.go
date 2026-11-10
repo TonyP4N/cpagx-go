@@ -51,6 +51,15 @@ func (r Repository) ClaimExecution(ctx context.Context, worker string, lease tim
 	return r.claim(ctx, worker, lease, executor, location)
 }
 func (r Repository) claim(ctx context.Context, worker string, lease time.Duration, executor, location string) (Claim, error) {
+	return r.claimSelected(ctx, worker, lease, executor, location, "", "", "")
+}
+func (r Repository) ClaimDispatched(ctx context.Context, worker string, lease time.Duration, executor, location, jobID, dispatchID, partition string) (Claim, error) {
+	if executor != "resident-v1" || !residentLocation(location) || !dispatchIdentity.MatchString(jobID) || !dispatchIdentity.MatchString(dispatchID) || partition != "rabbit-v3" {
+		return Claim{}, errors.New("invalid exact dispatch identity")
+	}
+	return r.claimSelected(ctx, worker, lease, executor, location, jobID, dispatchID, partition)
+}
+func (r Repository) claimSelected(ctx context.Context, worker string, lease time.Duration, executor, location, jobID, dispatchID, partition string) (Claim, error) {
 	if worker == "" || lease < time.Second || lease > time.Hour {
 		return Claim{}, errors.New("invalid worker or lease")
 	}
@@ -70,18 +79,30 @@ func (r Repository) claim(ctx context.Context, worker string, lease time.Duratio
 	}
 	defer tx.Rollback()
 	if err = claimCapacity(ctx, tx); err != nil {
+		if jobID != "" && errors.Is(err, sql.ErrNoRows) {
+			return c, ErrDispatchBusy
+		}
 		return c, err
 	}
 	err = tx.QueryRowContext(ctx, `WITH candidate AS (
- SELECT id FROM m4_jobs WHERE attempt<max_attempts AND
+ SELECT id FROM m4_jobs WHERE attempt<max_attempts AND (($4='' AND dispatch_partition='poll') OR ($4!='' AND id=$4 AND dispatch_id=$5 AND dispatch_partition=$6 AND state='queued')) AND
  ((state='queued' AND available_at<=clock_timestamp()) OR (state='running' AND lease_until<=clock_timestamp()))
  ORDER BY available_at,id FOR UPDATE SKIP LOCKED LIMIT 1)
  UPDATE m4_jobs j SET state='running',attempt=j.attempt+1,worker=$1,attempt_token=$3,
  lease_until=clock_timestamp()+($2 * interval '1 millisecond') FROM candidate c WHERE j.id=c.id
- RETURNING j.id,j.attempt,j.worker,j.attempt_token`, worker, lease.Milliseconds(), token).Scan(&c.ID, &c.Attempt, &c.Worker, &c.Token)
+ RETURNING j.id,j.attempt,j.worker,j.attempt_token`, worker, lease.Milliseconds(), token, jobID, dispatchID, partition).Scan(&c.ID, &c.Attempt, &c.Worker, &c.Token)
+	if errors.Is(err, sql.ErrNoRows) && jobID != "" {
+		var pending bool
+		if e := tx.QueryRowContext(ctx, `SELECT EXISTS(SELECT 1 FROM m4_jobs WHERE id=$1 AND dispatch_id=$2 AND dispatch_partition=$3 AND state='queued' AND attempt<max_attempts)`, jobID, dispatchID, partition).Scan(&pending); e != nil {
+			return c, e
+		}
+		if pending {
+			return c, ErrDispatchBusy
+		}
+	}
 	if err == nil && executor != "" {
 		var result sql.Result
-		result, err = tx.ExecContext(ctx, `UPDATE m4_job_attempts SET executor_kind=$5,location=$6 WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4`, c.ID, c.Attempt, c.Worker, c.Token, executor, location)
+		result, err = tx.ExecContext(ctx, `UPDATE m4_job_attempts SET executor_kind=$5,location=$6,dispatch_id=nullif($7,'') WHERE job_id=$1 AND attempt=$2 AND worker=$3 AND attempt_token=$4`, c.ID, c.Attempt, c.Worker, c.Token, executor, location, dispatchID)
 		err = affected(result, err)
 	}
 	if err == nil {

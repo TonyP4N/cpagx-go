@@ -26,22 +26,25 @@ import (
 )
 
 type Config struct {
-	ExternalOrigin         string `json:"external_origin,omitempty"`
-	DatabaseURL            string `json:"database_url"`
-	SharedRoot             string `json:"shared_root"`
-	ControlRoot            string `json:"control_root"`
-	PublicAddr             string `json:"public_addr"`
-	InternalAddr           string `json:"internal_addr"`
-	WorkerToken            string `json:"worker_token"`
-	CoordinatorToken       string `json:"coordinator_token"`
-	BootstrapAdminUsername string `json:"bootstrap_admin_username"`
-	BootstrapAdminPassword string `json:"bootstrap_admin_password"`
-	StaticRoot             string `json:"static_root"`
-	PythonBin              string `json:"python_bin"`
-	PythonPath             string `json:"python_path"`
-	CapacityPolicy         string `json:"capacity_policy,omitempty"`
-	ResourceProfile        string `json:"resource_profile,omitempty"`
-	CompactVerifierImage   string `json:"compact_verifier_image,omitempty"`
+	DispatchMode           string   `json:"dispatch_mode,omitempty"`
+	RabbitCanaryDatasetIDs []string `json:"rabbit_canary_dataset_ids,omitempty"`
+	DispatcherToken        string   `json:"dispatcher_token,omitempty"`
+	ExternalOrigin         string   `json:"external_origin,omitempty"`
+	DatabaseURL            string   `json:"database_url"`
+	SharedRoot             string   `json:"shared_root"`
+	ControlRoot            string   `json:"control_root"`
+	PublicAddr             string   `json:"public_addr"`
+	InternalAddr           string   `json:"internal_addr"`
+	WorkerToken            string   `json:"worker_token"`
+	CoordinatorToken       string   `json:"coordinator_token"`
+	BootstrapAdminUsername string   `json:"bootstrap_admin_username"`
+	BootstrapAdminPassword string   `json:"bootstrap_admin_password"`
+	StaticRoot             string   `json:"static_root"`
+	PythonBin              string   `json:"python_bin"`
+	PythonPath             string   `json:"python_path"`
+	CapacityPolicy         string   `json:"capacity_policy,omitempty"`
+	ResourceProfile        string   `json:"resource_profile,omitempty"`
+	CompactVerifierImage   string   `json:"compact_verifier_image,omitempty"`
 }
 type Server struct {
 	DB                      *sql.DB
@@ -107,6 +110,9 @@ func LoadConfig(path string) (Config, error) {
 	if d.Decode(new(any)) != io.EOF {
 		return c, errors.New("one config object required")
 	}
+	if err := validateDispatchConfig(c); err != nil {
+		return c, err
+	}
 	if err := validateExternalOrigin(c.ExternalOrigin); err != nil {
 		return c, err
 	}
@@ -151,6 +157,9 @@ func LoopbackAddr(addr string) bool {
 	return host == "127.0.0.1" || host == "[::1]" || host == "::1" || host == "localhost"
 }
 func New(db *sql.DB, c Config) (*Server, error) {
+	if err := validateDispatchConfig(c); err != nil {
+		return nil, err
+	}
 	if err := validateExternalOrigin(c.ExternalOrigin); err != nil {
 		return nil, err
 	}
@@ -211,6 +220,7 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	if e != nil {
 		return nil, e
 	}
+	internal.(*jobapi.Server).DispatcherSecret = c.DispatcherToken
 	internal.(*jobapi.Server).CapacityPolicy = c.CapacityPolicy
 	internal.(*jobapi.Server).ResourceProfile = c.ResourceProfile
 	internal.(*jobapi.Server).CompactVerifierImage = c.CompactVerifierImage

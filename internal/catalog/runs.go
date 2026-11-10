@@ -281,7 +281,7 @@ func (s *Server) createRun(w http.ResponseWriter, r *http.Request, p *principal)
 		fail(w, 409, "catalog_changed", "input or version changed during submission")
 		return
 	}
-	_, e = tx.ExecContext(r.Context(), "INSERT INTO m4_jobs(id,max_attempts,payload) VALUES($1,3,$2)", id, string(rawPayload))
+	_, e = tx.ExecContext(r.Context(), "INSERT INTO m4_jobs(id,max_attempts,payload,dispatch_partition) VALUES($1,3,$2,$3)", id, string(rawPayload), s.dispatchPartition(q.DatasetID))
 	if e == nil {
 		_, e = tx.ExecContext(r.Context(), "INSERT INTO v3_run_bindings(job_id,dataset_id,network_file_id,process_file_id,config_version_id,mode,created_by,preflight_id,preflight_link_origin,preflight_link_reason,network_file_ids,replay_version) VALUES($1,$2,$3,$4,$5,$9,$6,$7,'native_gate',NULL,$8,$10)", id, q.DatasetID, networks[0].ID, process.ID, q.ConfigID, p.ID, q.PreflightID, networkIDsJSON(networks), q.Mode, optionalString(payload.ReplayVersion))
 	}
