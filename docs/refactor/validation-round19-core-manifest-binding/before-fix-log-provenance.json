@@ -1,0 +1,6 @@
+{
+  "original_sha256": "648ee0752f5c303b7fe1f5773d6ddf93023a260d32b0c1aca9f9cc4d450cbb02",
+  "public_sha256": "221b69693162a3958fd6a53604a56c05e8fe53b0d7f4e9b971a2f2324feace5b",
+  "normalization": "replace absolute repository prefix with <workspace>; strip ASCII line-end spaces/tabs only",
+  "original_relative_path": "outputs/cpag-r19-manifest-binding-reproduction-20261028T145336Z/unit-before-fix.raw.log"
+}

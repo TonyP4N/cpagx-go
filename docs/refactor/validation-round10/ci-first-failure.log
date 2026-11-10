@@ -1,0 +1,97 @@
+linux-isolation	Real container resource and double-crash probes	﻿2026-10-26T04:10:07.3500834Z ##[group]Run python scripts/m4/linux-isolation/validate.py
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3501353Z ^[[36;1mpython scripts/m4/linux-isolation/validate.py^[[0m
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3561939Z shell: /usr/bin/bash -e {0}
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3562246Z env:
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3562538Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3562999Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3563455Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3563861Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3564263Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3564675Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:07.3565016Z ##[endgroup]
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8887760Z #0 building with "default" instance using docker driver
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8888390Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8888611Z #1 [internal] load build definition from Dockerfile
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8889642Z #1 transferring dockerfile: 400B 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8890019Z #1 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8890251Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:10.8890562Z #2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:12.9247155Z #2 DONE 2.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1402922Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1403604Z #3 [internal] load .dockerignore
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1404037Z #3 transferring context: 2B done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1404416Z #3 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1404802Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1405239Z #4 [internal] load build context
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1406302Z #4 transferring context: 92.63kB done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1407054Z #4 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1407495Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1408657Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1410105Z #5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.1456219Z #5 sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 0B / 247B 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.2956028Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 0B / 13.78MB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.2957392Z #5 sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 0B / 412.02kB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.2959192Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0B / 3.85MB 0.2s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.5609654Z #5 sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 247B / 247B 0.6s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.6997692Z #5 sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 412.02kB / 412.02kB 0.7s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.7000634Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 3.85MB / 3.85MB 0.7s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.8098649Z #5 sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 13.78MB / 13.78MB 0.7s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9153850Z #5 extracting sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0.1s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9154761Z #5 DONE 0.9s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9154997Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9155930Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9157251Z #5 extracting sha256:6505b46c81c2f2e17de7ef7fcfe645c68e055dc0a7573a3a5e610b1e2e4a299f 0.1s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:13.9158140Z #5 DONE 1.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.0655611Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.0657641Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.0659061Z #5 extracting sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.2690738Z #5 extracting sha256:37737182bc17ec146b765dac3e7b5796ff774014fd61ac969bf177241d04a819 0.4s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.2692929Z #5 DONE 1.3s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3843675Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3845519Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3847153Z #5 extracting sha256:39a526054cd95b7ad4bb7cce9c5c6d27dcc22e8e82e6b71d96e4d7093e776af3 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3848041Z #5 DONE 1.3s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3848246Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3848389Z #6 [2/4] WORKDIR /app
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3848718Z #6 DONE 0.1s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3848914Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3849152Z #7 [3/4] COPY services/worker/cpag_worker /app/cpag_worker
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3849658Z #7 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3849839Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3850065Z #8 [4/4] COPY scripts/m4/linux-isolation /app/isolation
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.3850543Z #8 DONE 0.0s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4930558Z 
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4931308Z #9 exporting to image
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4931909Z #9 exporting layers 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4932736Z #9 exporting manifest sha256:e1a0d01bb473326de65ed3f3d550afb47f464b08b7d71d4bb1fc7197343d6793 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4934447Z #9 exporting config sha256:037bc61bf9522b9a3b91188ff3d10b19c7efbd1c321c3ffb41aa998888d48fe3 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4935470Z #9 exporting attestation manifest sha256:f4dda2791c7c529728ab1083547144e51754364272e88025927186ec3c398e70 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4937001Z #9 exporting manifest list sha256:0f374f1763c916a8d589f4f77e1745c0a2f087cdfa0d5ef54a2b4bd18c5f110d done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4937608Z #9 naming to docker.io/library/cpag-linux-isolation:round10 done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.4938467Z #9 unpacking to docker.io/library/cpag-linux-isolation:round10 0.0s done
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:14.5554691Z #9 DONE 0.1s
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:17.1874282Z PASS memory 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:19.1459551Z PASS disk 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:21.0657194Z PASS output 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:23.0479250Z PASS pids 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:44.2485151Z PASS cpu 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:10:54.3058187Z PASS timeout 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:04.4605049Z PASS timeout 2
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:14.6126013Z PASS timeout 3
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:24.9492370Z PASS late-observer 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:35.2999657Z PASS late-observer 2
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:45.6710968Z PASS late-observer 3
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:51.8571779Z PASS slow-start 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:11:58.0296406Z PASS slow-start 2
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:04.0798597Z PASS slow-start 3
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:13.3703324Z PASS doublekill 1
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:22.5429194Z PASS doublekill 2
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8656250Z FAIL doublekill 3
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8656823Z Traceback (most recent call last):
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8666778Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/m4/linux-isolation/validate.py", line 124, in <module>
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8667515Z     main()
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8668124Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/m4/linux-isolation/validate.py", line 120, in main
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8668914Z     assert all(r['pass'] for r in results), 'Probe failure: inspect ' + str(args.output)
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8669444Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8670167Z AssertionError: Probe failure: inspect /home/runner/work/cpagx-go/cpagx-go/docs/refactor/validation-round10/linux-results.json
+linux-isolation	Real container resource and double-crash probes	2026-10-26T04:12:31.8748364Z ##[error]Process completed with exit code 1.

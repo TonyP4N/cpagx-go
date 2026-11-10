@@ -1,0 +1,66 @@
+{
+  "version": "r19-core-parser-publication-receipt-1",
+  "raw_evidence": "controlled outputs/cpag-r19-core-prefix-parser-evidence-20261028 and original per-attempt parser directories",
+  "files": [
+    {
+      "path": "inputs-old-regression.log",
+      "original_sha256": "7d050234717c96500de09e3b40c87a20f5d45a5cad81356742d1990f9f58bd77",
+      "public_sha256": "7d050234717c96500de09e3b40c87a20f5d45a5cad81356742d1990f9f58bd77",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "inputs-compact-first.log",
+      "original_sha256": "9ec297280b0a32825027359c71064aa4b14d971b43a7ea31f7610dfe92484996",
+      "public_sha256": "9ec297280b0a32825027359c71064aa4b14d971b43a7ea31f7610dfe92484996",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "full-profile-cache-before.log",
+      "original_sha256": "172109746a11b62022534d501128601f52c437ea489b250fac0d2b6b1d3eb7bf",
+      "public_sha256": "d36fbf37960ee3c9b57ea992670d1d96efeaa8e8b3a2b61a7c6be6ee6670c612",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "inputs-all-final.log",
+      "original_sha256": "e76821a15b1eb96246927e433c1b88a2efa3b73a4b10dff4512181db9c676f42",
+      "public_sha256": "e76821a15b1eb96246927e433c1b88a2efa3b73a4b10dff4512181db9c676f42",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "generator-old-final.log",
+      "original_sha256": "13bdb7273b0f428a48cd3e760d4fe4827e8b6f7b87609b94eec52afa105ca35b",
+      "public_sha256": "13bdb7273b0f428a48cd3e760d4fe4827e8b6f7b87609b94eec52afa105ca35b",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "generator-core4-final.log",
+      "original_sha256": "c6d6e9669ec5f2e6dd6cdaf9a974857f84e891a4cef8a901f699e10719fee0bc",
+      "public_sha256": "c6d6e9669ec5f2e6dd6cdaf9a974857f84e891a4cef8a901f699e10719fee0bc",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "parser-baseline.json",
+      "original_sha256": "166475336d40df53b71bd3ea5082006231da2e252f0176a510d337047f096a37",
+      "public_sha256": "166475336d40df53b71bd3ea5082006231da2e252f0176a510d337047f096a37",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "parser-first-probe-failure.json",
+      "original_sha256": "7cd795b09e2872f8d1d72c24e65684a3401ab68e2bef728b7ea18aa08cd0b3b5",
+      "public_sha256": "7cd795b09e2872f8d1d72c24e65684a3401ab68e2bef728b7ea18aa08cd0b3b5",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "parser-first-probe-failure.stderr",
+      "original_sha256": "c636102269c5ff51b765ec996dfc01f3ac55c6f279adc47365d9ecad758f10bf",
+      "public_sha256": "48478f53b38c00b86e27fbe38151746999fe70422475698f345fe358bf60f122",
+      "redactions": "personal filesystem prefixes only"
+    },
+    {
+      "path": "parser-first-success-before-final-binding-hardening.json",
+      "original_sha256": "3a37ce9615e91b7d2140904f2e841d3c607c5a77f4a41f11728734865c7ea50a",
+      "public_sha256": "3a37ce9615e91b7d2140904f2e841d3c607c5a77f4a41f11728734865c7ea50a",
+      "redactions": "personal filesystem prefixes only"
+    }
+  ]
+}

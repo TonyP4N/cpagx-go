@@ -1,0 +1,46 @@
+Traceback (most recent call last):
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 49, in main
+    descriptor=stage('store_'+name,lambda name=name,value=value:writer.add(name,value))
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 35, in stage
+    value=call();row.update(event='completed',wall_seconds=time.perf_counter()-before,cpu_seconds=time.process_time()-cpu);persist();return value
+          ^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 49, in <lambda>
+    descriptor=stage('store_'+name,lambda name=name,value=value:writer.add(name,value))
+                                                                ^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store_compressed.py", line 203, in add
+    node = self._encode(value,0,set())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 151, in _encode
+    child=self._encode(value[key],depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 146, in _encode
+    if type(value) in (list,tuple):node=self._array(value,depth,active)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store_compressed.py", line 157, in _array
+    return super()._array(values,depth,active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 114, in _array
+    child=self._encode(value,depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 151, in _encode
+    child=self._encode(value[key],depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 146, in _encode
+    if type(value) in (list,tuple):node=self._array(value,depth,active)
+                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store_compressed.py", line 157, in _array
+    return super()._array(values,depth,active)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 114, in _array
+    child=self._encode(value,depth+1,active)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 135, in _encode
+    return self._put('scalar',value,len(payload),0,0)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store_compressed.py", line 133, in _put
+    legacy._deadline(self.deadline)
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 54, in _deadline
+    if deadline is not None and time.monotonic()>=deadline:raise ValueError('shared_store_deadline_exceeded')
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: shared_store_deadline_exceeded

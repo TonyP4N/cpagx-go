@@ -1,0 +1,120 @@
+{
+  "scope": "generated explicit spool software lifecycle checks only; no scale or industrial validation",
+  "checks": {
+    "migration009_applied_twice": true,
+    "queued_cancel_no_publication": true,
+    "running_cancel_after_replay_prefix_exit_confirmed": true,
+    "invalid_input_failed_no_trusted_partial_history": true,
+    "worker_kill_actual_lease_expiry": true,
+    "retry_from_initial_snapshot": true,
+    "old_attempt_complete_refused": true,
+    "idempotent_complete_one_publication": true
+  },
+  "jobs": {
+    "queued_cancel": {
+      "id": "13737427578f2bf4dc34e8c6753bb927",
+      "state": "cancelled",
+      "attempt": 0,
+      "exit_proof": "not applicable; never claimed"
+    },
+    "running_cancel": {
+      "id": "7cd2cf2e6fc6c2f82de1253d2dabf19e",
+      "state": "cancelled",
+      "prefix": {
+        "arrival_seq": 3,
+        "snapshot_id": "snapshot-fb8867b96ac1bccfb64006278d0e52a13d47c9407a2e3c09d4a7f168e4fb762c",
+        "state_fingerprint": "440c869f6a010486191da3204e2947281507ca80b1cf5c1ef74e9480af52cf7f",
+        "operation_statuses": [
+          "pending_response"
+        ]
+      },
+      "exit": {
+        "attempt": 1,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "a0ace341a68df39ea28c29667f758e1cb3cf481168711f952f4ea8d90ad4e343"
+      }
+    },
+    "invalid_input": {
+      "id": "03ac25ef73d88beba0ff728e91bfc4cd",
+      "state": "failed",
+      "attempts": [
+        {
+          "attempt": 1,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "4ee6e938649f23d1bdd32584a3664a9e66f4b9cf8b5cbd6ef49edd6b836ff055"
+        },
+        {
+          "attempt": 2,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "193743266cc3c394f9d3fb98888e413ddb585463e8fe6c2686774f12ab0945d3"
+        },
+        {
+          "attempt": 3,
+          "exited": true,
+          "removed": true,
+          "running": false,
+          "pid": 0,
+          "container_id": "58cb2ad954338abcd714c2dfbcb8a135a39fe893f899d60f4a6409493134c04a"
+        }
+      ],
+      "last_error": "calculation_exit (compute returncode=2): unsupported_capture_magic\n"
+    },
+    "worker_kill_retry": {
+      "id": "b91b79f4d74cee5ac38de4dbcfa97778",
+      "prefix": {
+        "arrival_seq": 3,
+        "snapshot_id": "snapshot-fb8867b96ac1bccfb64006278d0e52a13d47c9407a2e3c09d4a7f168e4fb762c",
+        "state_fingerprint": "440c869f6a010486191da3204e2947281507ca80b1cf5c1ef74e9480af52cf7f",
+        "operation_statuses": [
+          "pending_response"
+        ]
+      },
+      "old_exit": {
+        "attempt": 1,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "f9340fa24eb31ae09281a15a507fd129b332006c6c25f3b16685eb37354b8bd2"
+      },
+      "retry_exit": {
+        "attempt": 2,
+        "exited": true,
+        "removed": true,
+        "running": false,
+        "pid": 0,
+        "container_id": "eb7fb0471f90dfb05e9caa4495eae88fe9d6099201eca373a8862e07b543e1ce"
+      },
+      "state": "succeeded",
+      "attempt": 2,
+      "artifact_sha256": "d87c07e76ca51f65ae29980c875b368638a3a9151ca8d1f869ef9ceb23f7ae98",
+      "snapshots": 16,
+      "revisions": 11,
+      "normalized_analysis_sha256": "4b6f6a7a9f3588493400b1309031fb509bb1234abd288abdbf2b9652654ee10e"
+    }
+  },
+  "status": "passed",
+  "fault_window": "after arrival 3 while actual replay is pending response",
+  "source_commit": "52711e3497d0d23e4b926941b58b9ffefab9528d",
+  "history_format": "replay-history-checkpoint-delta-2",
+  "go_build_identity": {
+    "raw": "/private/tmp/cpag-r19-spool-lifecycle-final-20261028-run1/cpagx-v3: go1.26.5\n\tpath\tgithub.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/cpagx-v3\n\tmod\tgithub.com/TonyP4N/cpagx-go/internal/jobs/integration\tv0.0.0-20261028041316-52711e3497d0+dirty\t\n\tdep\tgithub.com/TonyP4N/cpagx-go\tv0.0.0\n\t=>\t../../..\t(devel)\t\n\t\n\tdep\tgithub.com/jackc/pgpassfile\tv1.0.0\th1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=\n\tdep\tgithub.com/jackc/pgservicefile\tv0.0.0-20240606120523-5a60cdf6a761\th1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=\n\tdep\tgithub.com/jackc/pgx/v5\tv5.7.6\th1:rWQc5FwZSPX58r1OQmkuaNicxdmExaEz5A2DO2hUuTk=\n\tdep\tgithub.com/jackc/puddle/v2\tv2.2.2\th1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=\n\tdep\tgolang.org/x/crypto\tv0.45.0\th1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=\n\tdep\tgolang.org/x/sync\tv0.18.0\th1:kr88TuHDroi+UVf+0hZnirlk8o8T+4MrK6mr60WkH/I=\n\tdep\tgolang.org/x/text\tv0.31.0\th1:aC8ghyu4JhP8VojJ2lEHBnochRno1sgL6nEi9WGFGMM=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,tlssecpmlkem=0,tlssha1=1,updatemaxprocs=0,urlstrictcolons=0,x509sha256skid=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=52711e3497d0d23e4b926941b58b9ffefab9528d\n\tbuild\tvcs.time=2026-10-28T04:13:16Z\n\tbuild\tvcs.modified=true\n",
+    "binary_sha256": "dd1151637d4313e478cfe6faaab9dd0361db04c3d207433dd3928d8f6709a150",
+    "vcs_revision": "52711e3497d0d23e4b926941b58b9ffefab9528d",
+    "vcs_modified": true
+  },
+  "vcs_modified": true,
+  "source_fingerprint": "7f35a6532c76cc4baf5bf9cfcd91714128c1160891eeb1714f6d330909be6aad",
+  "go_binary_sha256": "dd1151637d4313e478cfe6faaab9dd0361db04c3d207433dd3928d8f6709a150",
+  "worker_image_id": "sha256:5979b0d9e5ad655c2340cfc1aa33148dd83085b153459eb91e34c788f644ab25",
+  "image_source_fingerprint": "94a048dda0b3978836837e2b72d4138b0293ddd9d3c8ca71c752daa727bd2203"
+}

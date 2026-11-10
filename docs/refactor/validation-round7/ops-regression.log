@@ -1,0 +1,16 @@
+test_missing_and_corrupt_rebuild_backup (test_capacity_rebuild.CapacityTests.test_missing_and_corrupt_rebuild_backup) ... ok
+test_missing_ledger_active_and_api_unknown_block (test_capacity_rebuild.CapacityTests.test_missing_ledger_active_and_api_unknown_block) ... ok
+test_owner_and_capacity_lock_contention (test_capacity_rebuild.CapacityTests.test_owner_and_capacity_lock_contention) ... ok
+test_stale_files_and_confirmation (test_capacity_rebuild.CapacityTests.test_stale_files_and_confirmation) ... ok
+test_symlinks_and_foreign_ledger_rejected (test_capacity_rebuild.CapacityTests.test_symlinks_and_foreign_ledger_rejected) ... ok
+test_terminal_release_and_active_never_release (test_capacity_rebuild.CapacityTests.test_terminal_release_and_active_never_release) ... ok
+test_unknown_attempt_reservation_not_freed (test_capacity_rebuild.CapacityTests.test_unknown_attempt_reservation_not_freed) ... ok
+test_database_only_active_attempt_is_not_omitted (test_capacity_rebuild.DiscoveryRegressions.test_database_only_active_attempt_is_not_omitted) ... ok
+test_executor_compatible_identifier (test_capacity_rebuild.DiscoveryRegressions.test_executor_compatible_identifier) ... ok
+test_safe_non_inputs_source_reference (test_capacity_rebuild.DiscoveryRegressions.test_safe_non_inputs_source_reference) ... ok
+test_scan_walk_errors_are_not_silently_ignored (test_capacity_rebuild.DiscoveryRegressions.test_scan_walk_errors_are_not_silently_ignored) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.064s
+
+OK

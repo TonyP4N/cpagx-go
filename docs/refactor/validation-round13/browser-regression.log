@@ -1,0 +1,16 @@
+node:internal/process/promises:332
+    triggerUncaughtException(err, true /* fromPromise */);
+    ^
+
+locator.scrollIntoViewIfNeeded: Error: strict mode violation: getByRole('alert') resolved to 2 elements:
+    1) <p role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-red-700 break-words">409：Dual-source publication integrity verificatio…</p> aka getByText('409：Dual-source publication')
+    2) <p role="alert" aria-live="assertive" id="__next-route-announcer__"></p> aka locator('[id="__next-route-announcer__"]')
+
+Call log:
+[2m  - waiting for getByRole('alert')[22m
+
+    at /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/validation/round13_browser.cjs:57:87 {
+  log: [ "  - waiting for getByRole('alert')" ]
+}
+
+Node.js v25.2.1

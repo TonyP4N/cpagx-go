@@ -1,0 +1,8 @@
+[Unit]
+Description=Renew CPAG certificate and reload only after successful renewal
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot renew --quiet --deploy-hook /opt/cpag/current/deployments/r21/cert-renew-hook

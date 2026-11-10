@@ -1,0 +1,92 @@
+[
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/pause-source-freeze.json",
+    "original_sha256": "fd222046db1e3caf78c9281b345c2215bdc3bd6144936434f81c94339c60aa08",
+    "public_sha256": "4d5ea5fa4134931d4d52c039369d31dc1c1be4c531a88fba14a9ebe1cbfbfe98",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/compressed-unit-attempt1-failure.log",
+    "original_sha256": "7abd257c28fe41a2821dc07584b5aeebf5eefed4541f5af7d98a455fc49c8f9d",
+    "public_sha256": "3078e37d17db3f17b59b6422cb57de66fdb5bc22b01534cb6197ac81be96ec56",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/retained-S100-projection-fields.json",
+    "original_sha256": "eac12c7fcd6224a44a0fa5c5277653887f2a0d34c2f2b9038514ca221eed1383",
+    "public_sha256": "88e3920416bbccd3f11a6127008e6c62a959a9e452b7bd9627c99a4452a5fa74",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag5-attempt3/measurement.json",
+    "original_sha256": "d26c350c5040df9b30bb60020c91016829fd9431942188bc844d6bd02bfe8a09",
+    "public_sha256": "90a1377691a1f513b0d69d9d6c9d8131641115a97772e47b6e8d1902b4588291",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag5-attempt3/stdout.log",
+    "original_sha256": "d26c350c5040df9b30bb60020c91016829fd9431942188bc844d6bd02bfe8a09",
+    "public_sha256": "90a1377691a1f513b0d69d9d6c9d8131641115a97772e47b6e8d1902b4588291",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag5-attempt3/driver.json",
+    "original_sha256": "4f8fb6f584a435c7b0e4dada472f7a55947372e48fb29dc4850a9e250166068e",
+    "public_sha256": "81b4425b07f3f2105ecb7d79b662f941d5ed33e4feee04d615c2e88c094a6e99",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag5-attempt3/failure-traceback.log",
+    "original_sha256": "81f0db9af9791fd7d9eceafd6cc9ff8fdfd96d3f09eceb54540999bd5bae95ce",
+    "public_sha256": "332c917b46ff25b09ad23b4e88f6e3bfed6fce4613ca452d3e769665390fee06",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag4-attempt2/measurement.json",
+    "original_sha256": "5b32895ef4872492e99cde01711987a81c90b3e9e1883cb7dfd6f8b2f8233798",
+    "public_sha256": "9ab80e991e7ecc2a81dd246e2d7c75eef974c90acc3bd92f0023ad66c10c55f7",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag4-attempt2/stdout.log",
+    "original_sha256": "5b32895ef4872492e99cde01711987a81c90b3e9e1883cb7dfd6f8b2f8233798",
+    "public_sha256": "9ab80e991e7ecc2a81dd246e2d7c75eef974c90acc3bd92f0023ad66c10c55f7",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag4-attempt2/driver.json",
+    "original_sha256": "edfab6e68c70fcc1d6793e78ea20131a2a90d6bf79067be438c1033af81ed7c5",
+    "public_sha256": "254c88da6facaa544e4fd6c8f50f3b77c6317123929e5c1d65e9a7a761470098",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag4-attempt2/failure-traceback.log",
+    "original_sha256": "6823ceaa30b732512553867d8b3f288768930842591eca77d6032b6705b80a25",
+    "public_sha256": "6d2bdd9cf4a17f834dc91e6f9ef3998853a66e31732c36dee36b97c1d246eadc",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag3-attempt1/measurement.json",
+    "original_sha256": "dc7b36904d18168cb0349f479f6da877deb357e166af0a9e65a21d5b22df440f",
+    "public_sha256": "a79fb1ee5d89c540c6d29e34e0daa29938c548d691cbc740e5dfe22d3b9532bc",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag3-attempt1/stdout.log",
+    "original_sha256": "dc7b36904d18168cb0349f479f6da877deb357e166af0a9e65a21d5b22df440f",
+    "public_sha256": "a79fb1ee5d89c540c6d29e34e0daa29938c548d691cbc740e5dfe22d3b9532bc",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-shared-dag/actual-M-dag3-attempt1/failure-traceback.log",
+    "original_sha256": "72b5975d258396d261ddb5132593d796d1a31df47f6d24975b1aed5d27ab2025",
+    "public_sha256": "03921ccb2dd8a3b889e479ba062350a77fd0c110d56d68ff585453ea939e2144",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  },
+  {
+    "file": "docs/refactor/validation-round19-core-compact-unit/snapshot-projection-gap-before.log",
+    "original_sha256": "ddeae8aec63bef466bd162b3bfd2ce27b1c15aae814000ee8507fc224cd6f926",
+    "public_sha256": "94677ff78fa4c88af954caeb468c0810e81dd060e473a494160b00a86114fe51",
+    "redaction": "local absolute path prefixes only; raw retained controlled outputs"
+  }
+]

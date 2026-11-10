@@ -1,0 +1,9 @@
+ok  	github.com/TonyP4N/cpagx-go/api	(cached)
+ok  	github.com/TonyP4N/cpagx-go/cmd/cpagctl	(cached)
+?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	0.324s
+?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+ok  	github.com/TonyP4N/cpagx-go/internal/contracts	0.162s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	0.316s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs	(cached)
+?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]

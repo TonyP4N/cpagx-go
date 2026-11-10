@@ -1,0 +1,5 @@
+ok  	github.com/TonyP4N/cpagx-go/api	0.621s
+?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+ok  	github.com/TonyP4N/cpagx-go/internal/contracts	(cached)
+?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]

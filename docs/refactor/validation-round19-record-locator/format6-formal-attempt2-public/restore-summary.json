@@ -1,0 +1,176 @@
+{
+  "valid": true,
+  "phase": "completed",
+  "metadata_equal": true,
+  "file_inventory_equal": true,
+  "attempt_history_equal": true,
+  "catalog_equal": true,
+  "sessions_revoked": 5,
+  "session_restore_policy": "revoke_all_sessions_before_restored_service_start",
+  "preparation_audit": {
+    "valid": true,
+    "ready_bytes": 36832,
+    "documents": [
+      {
+        "id": "04e7283ebd44337bb00dc94767b98290a8fda0e0216aae7e4b82ca4d4218551d",
+        "document_sha256": "8f21e8ed2317c8e7b804c68e314ab31f64d504a86b6279f99a0e7fa87431ccc4",
+        "size_bytes": 5432,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.082881
+      },
+      {
+        "id": "0790bf1ad2f94a42582842e5daa775da6ad7e831fa93265833ad019c32483b5c",
+        "document_sha256": "0a7c3b9a2e0b8754ca05e72d4eb19b1f1ec7ad8f35a40c4758d930f00f96f02f",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.21671
+      },
+      {
+        "id": "33092f8b93088f386959ea3493d148bdc2d1d15314a79477e8a5bb0ad678bae3",
+        "document_sha256": "d2dbb9347648688f7b9402ce74e9a03d7afbd176eaac905fe3cf1435508e3d80",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.214728
+      },
+      {
+        "id": "43d23f6c6ceb72397d7cb42450082042b6b6af44b0275a9140296405e5a94ec7",
+        "document_sha256": "e1de2162bdc5bc5d24a0be097aeca30ec778c91d164f697893261d5a924ccc77",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.227488
+      },
+      {
+        "id": "7a7a8f6083b0b7d8d733115ec4e1814a5175d1f80490f7f831c10d3b7ea1a8e4",
+        "document_sha256": "6af0de86a12deabfa909c71d703f8221993a992bcc8b743da0e0ca5cbb6ba141",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.220815
+      },
+      {
+        "id": "90203402e28ab4fd8bbbd14b74f67d268b1d49a5bee5280744fdd28ef0dfeb75",
+        "document_sha256": "48c599309ff52bd11ec5160686c80149c81c07e32665252a45666a8603982f3e",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.2312
+      }
+    ],
+    "scope": "actual database bytea and independent offline source projection; not HTTP latency acceptance"
+  },
+  "backup_format": 6,
+  "source_preparation_audit": {
+    "valid": true,
+    "ready_bytes": 36832,
+    "documents": [
+      {
+        "id": "04e7283ebd44337bb00dc94767b98290a8fda0e0216aae7e4b82ca4d4218551d",
+        "document_sha256": "8f21e8ed2317c8e7b804c68e314ab31f64d504a86b6279f99a0e7fa87431ccc4",
+        "size_bytes": 5432,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.098046
+      },
+      {
+        "id": "0790bf1ad2f94a42582842e5daa775da6ad7e831fa93265833ad019c32483b5c",
+        "document_sha256": "0a7c3b9a2e0b8754ca05e72d4eb19b1f1ec7ad8f35a40c4758d930f00f96f02f",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.234541
+      },
+      {
+        "id": "33092f8b93088f386959ea3493d148bdc2d1d15314a79477e8a5bb0ad678bae3",
+        "document_sha256": "d2dbb9347648688f7b9402ce74e9a03d7afbd176eaac905fe3cf1435508e3d80",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.227366
+      },
+      {
+        "id": "43d23f6c6ceb72397d7cb42450082042b6b6af44b0275a9140296405e5a94ec7",
+        "document_sha256": "e1de2162bdc5bc5d24a0be097aeca30ec778c91d164f697893261d5a924ccc77",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.222886
+      },
+      {
+        "id": "7a7a8f6083b0b7d8d733115ec4e1814a5175d1f80490f7f831c10d3b7ea1a8e4",
+        "document_sha256": "6af0de86a12deabfa909c71d703f8221993a992bcc8b743da0e0ca5cbb6ba141",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.220847
+      },
+      {
+        "id": "90203402e28ab4fd8bbbd14b74f67d268b1d49a5bee5280744fdd28ef0dfeb75",
+        "document_sha256": "48c599309ff52bd11ec5160686c80149c81c07e32665252a45666a8603982f3e",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": true,
+        "elapsed_seconds": 0.224058
+      }
+    ],
+    "scope": "actual database bytea and independent offline source projection; not HTTP latency acceptance"
+  },
+  "copied_preparation_audit": {
+    "valid": true,
+    "ready_bytes": 36832,
+    "documents": [
+      {
+        "id": "04e7283ebd44337bb00dc94767b98290a8fda0e0216aae7e4b82ca4d4218551d",
+        "document_sha256": "8f21e8ed2317c8e7b804c68e314ab31f64d504a86b6279f99a0e7fa87431ccc4",
+        "size_bytes": 5432,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.069678
+      },
+      {
+        "id": "0790bf1ad2f94a42582842e5daa775da6ad7e831fa93265833ad019c32483b5c",
+        "document_sha256": "0a7c3b9a2e0b8754ca05e72d4eb19b1f1ec7ad8f35a40c4758d930f00f96f02f",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.063476
+      },
+      {
+        "id": "33092f8b93088f386959ea3493d148bdc2d1d15314a79477e8a5bb0ad678bae3",
+        "document_sha256": "d2dbb9347648688f7b9402ce74e9a03d7afbd176eaac905fe3cf1435508e3d80",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.058457
+      },
+      {
+        "id": "43d23f6c6ceb72397d7cb42450082042b6b6af44b0275a9140296405e5a94ec7",
+        "document_sha256": "e1de2162bdc5bc5d24a0be097aeca30ec778c91d164f697893261d5a924ccc77",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.066111
+      },
+      {
+        "id": "7a7a8f6083b0b7d8d733115ec4e1814a5175d1f80490f7f831c10d3b7ea1a8e4",
+        "document_sha256": "6af0de86a12deabfa909c71d703f8221993a992bcc8b743da0e0ca5cbb6ba141",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.067857
+      },
+      {
+        "id": "90203402e28ab4fd8bbbd14b74f67d268b1d49a5bee5280744fdd28ef0dfeb75",
+        "document_sha256": "48c599309ff52bd11ec5160686c80149c81c07e32665252a45666a8603982f3e",
+        "size_bytes": 6280,
+        "source_projection_equal": true,
+        "semantic_verification_executed": false,
+        "elapsed_seconds": 0.066652
+      }
+    ],
+    "scope": "actual database bytea and independent offline source projection; not HTTP latency acceptance"
+  }
+}

@@ -1,0 +1,260 @@
+{
+  "complete_copy_bytes": 86357510,
+  "handoff_inventory_exact": true,
+  "phases": [
+    {
+      "container_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2026-10-28T15:03:27.764212967Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-10-28T14:44:01.820078135Z",
+        "Status": "exited"
+      },
+      "phase": "export",
+      "status": "passed",
+      "terminal_summary": {
+        "all_observed_calls": 5233,
+        "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+        "kind": "terminal_measurement_summary",
+        "last_progress_error_type": null,
+        "phases": {
+          "association_and_evidence": {
+            "calls": 305,
+            "cpu_seconds": 261.4966249999991,
+            "failed": 0,
+            "returned": 305,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 261.6323760780019
+          },
+          "compact_node_verification": {
+            "calls": 1,
+            "cpu_seconds": 35.98400199999992,
+            "failed": 0,
+            "returned": 1,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 36.40984034999997
+          },
+          "compact_store_write": {
+            "calls": 2178,
+            "cpu_seconds": 484.39424799999847,
+            "failed": 0,
+            "returned": 2178,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 627.0543163929998
+          },
+          "complete_export": {
+            "calls": 1,
+            "cpu_seconds": 1022.078374,
+            "failed": 0,
+            "returned": 1,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 1165.5641594459998
+          },
+          "history_generation": {
+            "calls": 310,
+            "cpu_seconds": 658.0992259999997,
+            "failed": 0,
+            "returned": 310,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 796.6804513689985
+          },
+          "network_parse": {
+            "calls": 202,
+            "cpu_seconds": 1.4720589999999665,
+            "failed": 0,
+            "returned": 202,
+            "rss_high_water_bytes": 97574912,
+            "wall_seconds": 1.4851028320002797
+          },
+          "process_parse": {
+            "calls": 101,
+            "cpu_seconds": 0.006490000000028459,
+            "failed": 0,
+            "returned": 101,
+            "rss_high_water_bytes": 80556032,
+            "wall_seconds": 0.006854378000411998
+          },
+          "replay_input_snapshot": {
+            "calls": 608,
+            "cpu_seconds": 9.091496999999865,
+            "failed": 0,
+            "returned": 608,
+            "rss_high_water_bytes": 97574912,
+            "wall_seconds": 9.134287958001096
+          },
+          "replay_network_prefix": {
+            "calls": 608,
+            "cpu_seconds": 2.6946120000005567,
+            "failed": 0,
+            "returned": 608,
+            "rss_high_water_bytes": 97574912,
+            "wall_seconds": 2.714252000999977
+          },
+          "replay_process_prefix": {
+            "calls": 608,
+            "cpu_seconds": 0.1279990000000399,
+            "failed": 0,
+            "returned": 608,
+            "rss_high_water_bytes": 97574912,
+            "wall_seconds": 0.13183647000073506
+          },
+          "standard_projection": {
+            "calls": 311,
+            "cpu_seconds": 148.24202900000012,
+            "failed": 0,
+            "returned": 311,
+            "rss_high_water_bytes": 108933120,
+            "wall_seconds": 148.33401027399964
+          }
+        },
+        "progress_file": "progress.json",
+        "progress_last_snapshot_calls": 5233,
+        "progress_write_failures": 0,
+        "progress_writes": 235,
+        "raw_rows_not_retained": 4977,
+        "raw_rows_retained": 256,
+        "version": "phase-resources-3"
+      },
+      "whole_phase_seconds": 1166.0371197919885
+    },
+    {
+      "container_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 1,
+        "FinishedAt": "2026-10-28T15:14:02.020208302Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-10-28T15:03:27.971044009Z",
+        "Status": "exited"
+      },
+      "phase": "verify",
+      "status": "failed",
+      "terminal_summary": {
+        "all_observed_calls": 4833,
+        "definition": "all completed decorator calls including failures; nested durations overlap; RSS is cumulative process high water; no compute success or container exit assertion",
+        "kind": "terminal_measurement_summary",
+        "last_progress_error_type": null,
+        "phases": {
+          "artifact_verification": {
+            "calls": 1,
+            "cpu_seconds": 632.859872,
+            "failed": 1,
+            "returned": 0,
+            "rss_high_water_bytes": 73715712,
+            "wall_seconds": 633.656815956
+          },
+          "association_and_evidence": {
+            "calls": 285,
+            "cpu_seconds": 182.40472300000027,
+            "failed": 0,
+            "returned": 285,
+            "rss_high_water_bytes": 73715712,
+            "wall_seconds": 182.50088983500018
+          },
+          "compact_node_verification": {
+            "calls": 1,
+            "cpu_seconds": 34.719205,
+            "failed": 0,
+            "returned": 1,
+            "rss_high_water_bytes": 27131904,
+            "wall_seconds": 35.15442684899995
+          },
+          "compact_store_write": {
+            "calls": 1987,
+            "cpu_seconds": 272.40409700000043,
+            "failed": 1,
+            "returned": 1986,
+            "rss_high_water_bytes": 73715712,
+            "wall_seconds": 272.5657773600003
+          },
+          "complete_export": {
+            "calls": 1,
+            "cpu_seconds": 597.906956,
+            "failed": 1,
+            "returned": 0,
+            "rss_high_water_bytes": 73715712,
+            "wall_seconds": 598.241299773
+          },
+          "history_generation": {
+            "calls": 285,
+            "cpu_seconds": 379.9536899999998,
+            "failed": 1,
+            "returned": 284,
+            "rss_high_water_bytes": 73715712,
+            "wall_seconds": 380.1660177700012
+          },
+          "network_parse": {
+            "calls": 201,
+            "cpu_seconds": 1.615427000000171,
+            "failed": 0,
+            "returned": 201,
+            "rss_high_water_bytes": 67514368,
+            "wall_seconds": 1.617397876997984
+          },
+          "process_parse": {
+            "calls": 84,
+            "cpu_seconds": 0.005524000000131757,
+            "failed": 0,
+            "returned": 84,
+            "rss_high_water_bytes": 73003008,
+            "wall_seconds": 0.005800584999178682
+          },
+          "replay_input_snapshot": {
+            "calls": 568,
+            "cpu_seconds": 8.118538000000145,
+            "failed": 0,
+            "returned": 568,
+            "rss_high_water_bytes": 73003008,
+            "wall_seconds": 8.132784582001022
+          },
+          "replay_network_prefix": {
+            "calls": 568,
+            "cpu_seconds": 2.8222380000004774,
+            "failed": 0,
+            "returned": 568,
+            "rss_high_water_bytes": 73003008,
+            "wall_seconds": 2.826068883998005
+          },
+          "replay_process_prefix": {
+            "calls": 568,
+            "cpu_seconds": 0.11351499999963632,
+            "failed": 0,
+            "returned": 568,
+            "rss_high_water_bytes": 73003008,
+            "wall_seconds": 0.11652380099758375
+          },
+          "standard_projection": {
+            "calls": 284,
+            "cpu_seconds": 80.84026999999988,
+            "failed": 0,
+            "returned": 284,
+            "rss_high_water_bytes": 73003008,
+            "wall_seconds": 80.88789803500367
+          }
+        },
+        "progress_file": "progress.json",
+        "progress_last_snapshot_calls": 4833,
+        "progress_write_failures": 0,
+        "progress_writes": 129,
+        "raw_rows_not_retained": 4577,
+        "raw_rows_retained": 256,
+        "version": "phase-resources-3"
+      },
+      "whole_phase_seconds": 634.1311061249871
+    }
+  ],
+  "reason": "verify:ValueError:shared_store_deadline_exceeded",
+  "scope": "historical dev3 whole-chain failure; not final strict acceptance",
+  "status": "failed",
+  "whole_chain_seconds": 1800.6258668750233
+}

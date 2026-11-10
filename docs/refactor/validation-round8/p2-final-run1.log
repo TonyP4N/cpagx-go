@@ -1,0 +1,41 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 374B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+#2 DONE 0.5s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 30.74kB 0.0s done
+#4 DONE 0.0s
+
+#5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+#5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+#5 CACHED
+
+#6 [2/4] COPY services/analysis/src /app/services/analysis/src
+#6 DONE 0.0s
+
+#7 [3/4] COPY schemas /app/schemas
+#7 DONE 0.0s
+
+#8 [4/4] COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:2902d2516eae880a96170a4c5001eea9ffb9573025fc449d6f55a1d22be0b8fb done
+#9 exporting config sha256:14c00fcf0aa656da1add1c5d968d4efedc099da22da979ada636843dfd5f4e10 done
+#9 exporting attestation manifest sha256:39a443eb9b2f729e051e10b451206ee16565737028e6d8acc9486fe1c023e8cb done
+#9 exporting manifest list sha256:f1b3ed0a2199beb397fce8b9d2851895ab37082f99f4f4009187827d387183ae done
+#9 naming to docker.io/library/cpag-consistency:round8 done
+#9 unpacking to docker.io/library/cpag-consistency:round8 0.0s done
+#9 DONE 0.1s
+{"event_count": 8, "events_graph_quality_byte_equal": true, "evidence_equal": true, "packet_separate_contract_valid": true, "valid": true}

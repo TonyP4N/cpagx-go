@@ -1,0 +1,29 @@
+{"pid": 30755, "profiling_overhead": "Python call/return hook; not production timing", "rss_definition": "process cumulative high-water bytes; nested phase durations overlap", "schema_version": "r19-development-phase-probe-1"}
+{"profiling_mode": "coarse phase wrappers; nested durations overlap"}
+{"event": "enter", "phase": "complete_export", "rss_high_water_bytes": 26853376}
+{"event": "enter", "phase": "retained_export", "rss_high_water_bytes": 26853376}
+{"event": "enter", "phase": "offline_analysis", "rss_high_water_bytes": 27049984}
+{"event": "enter", "phase": "network_parse", "rss_high_water_bytes": 27049984}
+{"cpu_seconds": 0.22184700000000002, "event": "return", "phase": "network_parse", "rss_high_water_bytes": 29900800, "wall_seconds": 0.22507062499062158}
+{"event": "enter", "phase": "process_parse", "rss_high_water_bytes": 29933568}
+{"cpu_seconds": 0.002090999999999954, "event": "return", "phase": "process_parse", "rss_high_water_bytes": 29949952, "wall_seconds": 0.0021013329969719052}
+{"event": "enter", "phase": "association_and_evidence", "rss_high_water_bytes": 29999104}
+{"cpu_seconds": 8.509815999999999, "event": "return", "phase": "association_and_evidence", "rss_high_water_bytes": 47775744, "wall_seconds": 13.658109750016592}
+{"cpu_seconds": 8.740901999999998, "event": "return", "phase": "offline_analysis", "rss_high_water_bytes": 47775744, "wall_seconds": 13.892738374997862}
+{"cpu_seconds": 16.456141, "event": "return", "phase": "retained_export", "rss_high_water_bytes": 54689792, "wall_seconds": 29.551839499996277}
+{"event": "enter", "phase": "standard_projection", "rss_high_water_bytes": 54788096}
+{"cpu_seconds": 4.01117, "event": "return", "phase": "standard_projection", "rss_high_water_bytes": 61227008, "wall_seconds": 20.359338375012157}
+{"event": "enter", "phase": "artifact_verification", "rss_high_water_bytes": 61227008}
+{"event": "enter", "phase": "offline_analysis", "rss_high_water_bytes": 61227008}
+{"event": "enter", "phase": "network_parse", "rss_high_water_bytes": 61227008}
+{"cpu_seconds": 0.3019859999999994, "event": "return", "phase": "network_parse", "rss_high_water_bytes": 61227008, "wall_seconds": 1.2536797089851461}
+{"event": "enter", "phase": "process_parse", "rss_high_water_bytes": 61227008}
+{"cpu_seconds": 0.0031419999999968695, "event": "return", "phase": "process_parse", "rss_high_water_bytes": 61227008, "wall_seconds": 0.008445917017525062}
+{"event": "enter", "phase": "association_and_evidence", "rss_high_water_bytes": 61227008}
+{"cpu_seconds": 9.89772, "event": "return", "phase": "association_and_evidence", "rss_high_water_bytes": 61227008, "wall_seconds": 55.81146208298742}
+{"cpu_seconds": 10.214250999999997, "event": "return", "phase": "offline_analysis", "rss_high_water_bytes": 61227008, "wall_seconds": 57.09794808301376}
+{"event": "enter", "phase": "standard_projection", "rss_high_water_bytes": 61227008}
+{"cpu_seconds": 3.705955000000003, "event": "return", "phase": "standard_projection", "rss_high_water_bytes": 70631424, "wall_seconds": 47.81615291701746}
+{"cpu_seconds": 26.840953000000006, "event": "return", "phase": "artifact_verification", "rss_high_water_bytes": 70631424, "wall_seconds": 207.85330225000507}
+{"cpu_seconds": 60.784254999999995, "event": "return", "phase": "complete_export", "rss_high_water_bytes": 72237056, "wall_seconds": 416.0810418750043}
+{"aggregates": {}, "output_bytes": 398584971, "status": "succeeded"}

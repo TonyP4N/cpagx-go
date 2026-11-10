@@ -1,0 +1,6 @@
+=== RUN   TestReplayExportProjectionAndHistoricalEvidence
+--- PASS: TestReplayExportProjectionAndHistoricalEvidence (0.92s)
+=== RUN   TestReplayTriggerEvidenceIncludesDiscardedRecordAndRejectsFuture
+--- PASS: TestReplayTriggerEvidenceIncludesDiscardedRecordAndRejectsFuture (0.50s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	1.756s

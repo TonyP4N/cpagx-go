@@ -1,0 +1,11 @@
+{
+  "status": "failed",
+  "scope": "synthetic replay history only; no industrial validation",
+  "checks": {},
+  "page_errors": [],
+  "screenshot_files": [
+    "source-failure.png"
+  ],
+  "ui_submitted_run_id": "e36fc1bdfdcf915334c77cb270cb26b4",
+  "error": "Error: locator.waitFor: Error: strict mode violation: getByRole('region', { name: '当前历史状态', exact: true }).getByText(/pending_response/) resolved to 2 elements:\n    1) <p>操作：write_attribute · pending_response</p> aka getByText('操作：write_attribute ·')\n    2) <pre class=\"text-xs overflow-auto\">{↵  \"analysis\": {↵    \"analysis_mode\": \"bounded-r…</pre> aka getByText('{ \"analysis\": { \"')\n\nCall log:\n\u001b[2m  - waiting for getByRole('region', { name: '当前历史状态', exact: true }).getByText(/pending_response/) to be visible\u001b[22m\n"
+}

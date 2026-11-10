@@ -1,0 +1,17 @@
+test_all_calls_survive_raw_limit_without_invented_allocation (test_measurement_v2.PhaseV2Tests.test_all_calls_survive_raw_limit_without_invented_allocation) ... ok
+test_summary_absent_before_normal_flush (test_measurement_v2.PhaseV2Tests.test_summary_absent_before_normal_flush) ... ok
+test_actual_kill_keeps_periodic_progress_but_no_terminal (test_measurement_v3.PhaseV3AbruptExitTests.test_actual_kill_keeps_periodic_progress_but_no_terminal) ... ok
+test_aggregate_overflow_is_rejected_before_mutating_counts (test_measurement_v3.PhaseV3Tests.test_aggregate_overflow_is_rejected_before_mutating_counts) ... ok
+test_concurrent_ended_calls_do_not_lose_aggregates (test_measurement_v3.PhaseV3Tests.test_concurrent_ended_calls_do_not_lose_aggregates) ... ok
+test_exception_is_ended_failure_without_invented_success (test_measurement_v3.PhaseV3Tests.test_exception_is_ended_failure_without_invented_success) ... ok
+test_failed_atomic_replace_preserves_previous_complete_document (test_measurement_v3.PhaseV3Tests.test_failed_atomic_replace_preserves_previous_complete_document) ... ok
+test_phase_target_and_numeric_bounds_fail_without_increment (test_measurement_v3.PhaseV3Tests.test_phase_target_and_numeric_bounds_fail_without_increment) ... ok
+test_progress_byte_limit_keeps_previous_atomic_snapshot (test_measurement_v3.PhaseV3Tests.test_progress_byte_limit_keeps_previous_atomic_snapshot) ... ok
+test_raw_limit_and_exactly_one_normal_terminal (test_measurement_v3.PhaseV3Tests.test_raw_limit_and_exactly_one_normal_terminal) ... ok
+test_time_gating_and_only_ended_calls (test_measurement_v3.PhaseV3Tests.test_time_gating_and_only_ended_calls) ... ok
+test_unchanged_cpu_counters_do_not_create_negative_rounding (test_measurement_v3.PhaseV3Tests.test_unchanged_cpu_counters_do_not_create_negative_rounding) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 5.253s
+
+OK

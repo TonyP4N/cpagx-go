@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "profile_id": "dual-source-demo",
+  "config_version": "synthetic-map-v1",
+  "rule_version": "bounded-transition-v1",
+  "clocks": {
+    "network": {
+      "offset_seconds": 0,
+      "uncertainty_seconds": 0,
+      "basis": "independent synthetic UTC fixture clock"
+    },
+    "process": {
+      "offset_seconds": 0,
+      "uncertainty_seconds": 0,
+      "basis": "independent synthetic UTC fixture clock"
+    }
+  },
+  "window_seconds": 5,
+  "max_sample_gap_seconds": 3,
+  "change_epsilon": 0,
+  "process": {
+    "timestamp_column": "time",
+    "columns": {
+      "pump": {
+        "tag": "pump_state",
+        "asset_id": "synthetic-pump",
+        "value_type": "analog",
+        "unit": "synthetic_boolean"
+      }
+    }
+  },
+  "mappings": [
+    {
+      "rule_id": "set-pump-one",
+      "destination_ip": "192.0.2.2",
+      "service": 16,
+      "path": {
+        "class": 1,
+        "instance": 1,
+        "attribute": 1
+      },
+      "data_hex": "0100",
+      "asset_id": "synthetic-pump",
+      "tag": "pump_state",
+      "expected_value": 1,
+      "tolerance": 0
+    }
+  ]
+}

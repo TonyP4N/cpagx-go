@@ -1,0 +1,37 @@
+{
+  "version": "r19-outer-extent-contract-repair-1",
+  "scope": "runtime/schema only; no large content expansion; not included in frozen56 matrix",
+  "same_before_manifest_now_accepted": true,
+  "tests": {
+    "contracts": {
+      "count": 17,
+      "seconds": 0.356,
+      "exit_code": 0
+    },
+    "stores": {
+      "count": 21,
+      "seconds": 5.301,
+      "exit_code": 0
+    },
+    "publish_read_source": {
+      "count": 6,
+      "seconds": 0.739,
+      "exit_code": 0
+    },
+    "source_sink": {
+      "count": 5,
+      "seconds": 0.703,
+      "exit_code": 0
+    },
+    "logical_budget": {
+      "count": 3,
+      "seconds": 2.289,
+      "exit_code": 0
+    }
+  },
+  "sources": {
+    "schemas/CompactStoreRunManifest.schema.json": "eca17890b8494b9e6b29a7d4f1c5b10f58afe7ad82a70b1d108b4be1d1590fa6",
+    "services/analysis/src/cpag_core/contracts.py": "611c22510c2824b8ede5b24c48279b50e98352ec450fb5ba5fc9c48320110484",
+    "tests/contracts/test_compact_extent_contract.py": "c92b388221c3b57d411c32c47f09be2e5305b397260ac79baa42a2f515bf1ef5"
+  }
+}

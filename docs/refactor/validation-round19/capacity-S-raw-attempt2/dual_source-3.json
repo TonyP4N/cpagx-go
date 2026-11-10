@@ -1,0 +1,13 @@
+{
+  "schema_version": "r19-capacity-case-1",
+  "id": "S-dual_source-3",
+  "scale": "S",
+  "mode": "dual_source",
+  "networks": [
+    "network.pcap"
+  ],
+  "process": "process.csv",
+  "profile": "offline-profile.json",
+  "repetition": 3,
+  "cache_condition": "warm"
+}

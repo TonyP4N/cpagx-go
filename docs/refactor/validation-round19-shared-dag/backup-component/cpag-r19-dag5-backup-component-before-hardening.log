@@ -1,0 +1,46 @@
+test_added_source_inventory_during_copy_is_not_ignored (test_shared_storage.SharedStorageBackupTests.test_added_source_inventory_during_copy_is_not_ignored) ... FAIL
+test_new_directory_copy_preserves_all_fields_aliases_order_and_bounded_pages (test_shared_storage.SharedStorageBackupTests.test_new_directory_copy_preserves_all_fields_aliases_order_and_bounded_pages) ... ok
+test_non_object_and_unknown_manifest_versions_refused (test_shared_storage.SharedStorageBackupTests.test_non_object_and_unknown_manifest_versions_refused) ... ERROR
+test_old_or_unknown_format_wrong_run_and_unsealed_are_refused (test_shared_storage.SharedStorageBackupTests.test_old_or_unknown_format_wrong_run_and_unsealed_are_refused) ... ok
+test_query_and_deadline_budgets_and_failed_copy_remain_explicit (test_shared_storage.SharedStorageBackupTests.test_query_and_deadline_budgets_and_failed_copy_remain_explicit) ... ok
+test_rehashed_sqlite_and_manifest_do_not_hide_changed_merkle_node (test_shared_storage.SharedStorageBackupTests.test_rehashed_sqlite_and_manifest_do_not_hide_changed_merkle_node) ... ok
+test_resolved_destination_cannot_be_inside_source_through_parent_alias (test_shared_storage.SharedStorageBackupTests.test_resolved_destination_cannot_be_inside_source_through_parent_alias) ... FAIL
+test_same_size_database_tamper_missing_and_extra_inventory_refused (test_shared_storage.SharedStorageBackupTests.test_same_size_database_tamper_missing_and_extra_inventory_refused) ... ok
+
+======================================================================
+ERROR: test_non_object_and_unknown_manifest_versions_refused (test_shared_storage.SharedStorageBackupTests.test_non_object_and_unknown_manifest_versions_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$WORKSPACE/cpagx-go/tests/backup/test_shared_storage.py", line 103, in test_non_object_and_unknown_manifest_versions_refused
+    with self.assertRaises(ValueError):backup.audit_container(root/'source',expected_manifest_sha256=file_hash(root/'source/manifest.json'),expected_context=CONTEXT)
+                                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/backup/shared_storage.py", line 115, in audit_container
+    return _audit(root,expected_manifest_sha256,expected_context,_queries(queries),deadline)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/backup/shared_storage.py", line 87, in _audit
+    _manifest(root,expected_manifest_sha256)
+  File "$WORKSPACE/cpagx-go/scripts/backup/shared_storage.py", line 70, in _manifest
+    if manifest.get('version')!=CONTENT_FORMAT:
+       ^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'get'
+
+======================================================================
+FAIL: test_added_source_inventory_during_copy_is_not_ignored (test_shared_storage.SharedStorageBackupTests.test_added_source_inventory_during_copy_is_not_ignored)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$WORKSPACE/cpagx-go/tests/backup/test_shared_storage.py", line 95, in test_added_source_inventory_during_copy_is_not_ignored
+    with patch.object(backup.shutil,'copyfile',side_effect=add_extra),self.assertRaisesRegex(ValueError,'inventory'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_resolved_destination_cannot_be_inside_source_through_parent_alias (test_shared_storage.SharedStorageBackupTests.test_resolved_destination_cannot_be_inside_source_through_parent_alias)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$WORKSPACE/cpagx-go/tests/backup/test_shared_storage.py", line 83, in test_resolved_destination_cannot_be_inside_source_through_parent_alias
+    with self.assertRaisesRegex(ValueError,'outside_source'):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.057s
+
+FAILED (failures=2, errors=1)

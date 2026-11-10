@@ -1,0 +1,154 @@
+[
+  {
+    "name": "core",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/core",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.244
+  },
+  {
+    "name": "contracts",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/contracts",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.221
+  },
+  {
+    "name": "parsers",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/parsers",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.079
+  },
+  {
+    "name": "packets",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/packets",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.378
+  },
+  {
+    "name": "integration",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/integration",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.665
+  },
+  {
+    "name": "legacy",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/legacy",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.352
+  },
+  {
+    "name": "service",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/service",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 2.069
+  },
+  {
+    "name": "worker",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/worker",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 3.801
+  },
+  {
+    "name": "go-test",
+    "command": [
+      "go",
+      "test",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 2.542
+  },
+  {
+    "name": "go-build",
+    "command": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 3.308
+  },
+  {
+    "name": "go-vet",
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.795
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.024
+  }
+]

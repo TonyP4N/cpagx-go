@@ -1,0 +1,103 @@
+{
+  "synthetic": true,
+  "operation": {
+    "operation_id": "packet-db932ec0fe9c4def6d153b4602c39215a52f65a12f5cd5ec5184b0024e021344",
+    "source_endpoint": "192.0.2.1:1234",
+    "destination_endpoint": "192.0.2.2:44818",
+    "identity_scope": "captured_endpoint_only",
+    "operation": "write_attribute",
+    "protocol": "ENIP/CPF/CIP",
+    "path": {
+      "class": 1,
+      "instance": 1,
+      "attribute": 1
+    },
+    "request_data_hex": "0100",
+    "time": {
+      "raw": [
+        {
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "offset_seconds": 0,
+      "uncertainty_seconds": 0,
+      "basis": "independent synthetic UTC fixture clock",
+      "status": "configured",
+      "interval": [
+        1767225610.0,
+        1767225610.0
+      ]
+    },
+    "response": {
+      "state": "success",
+      "general_status": 0,
+      "additional_status": [],
+      "meaning": "protocol_service_success_only",
+      "event_id": "packet-e6e8ed7f3b878e4e407c26d23dd42b1062982f51d241d6663675c9577fade8ae",
+      "time": {
+        "raw": [
+          {
+            "frame_number": 2,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000
+          }
+        ],
+        "offset_seconds": 0,
+        "uncertainty_seconds": 0,
+        "basis": "independent synthetic UTC fixture clock",
+        "status": "configured",
+        "interval": [
+          1767225611.0,
+          1767225611.0
+        ]
+      },
+      "evidence_refs": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 2,
+          "record_number": null,
+          "column": null,
+          "raw_time": "1767225611000000"
+        }
+      ]
+    },
+    "mapping": {
+      "status": "matched",
+      "rule_ids": [
+        "set-pump-one"
+      ],
+      "config_version": "synthetic-map-v1",
+      "asset_id": "synthetic-pump",
+      "tag": "pump_state",
+      "expected_value": 1
+    },
+    "request_evidence": [
+      {
+        "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+        "frame_number": 1,
+        "record_number": null,
+        "column": null,
+        "raw_time": "1767225610000000"
+      }
+    ],
+    "assessment": "expected_change_observed",
+    "candidates": [
+      "candidate-4e408b8887e73e3645f7a2982423f13b9ef1a8a259c2a29c6d82e30e54012c73"
+    ],
+    "support": [
+      "expected_sample_transition"
+    ],
+    "counterevidence": [],
+    "unknown_reasons": [],
+    "observation_evidence": [],
+    "window": [
+      1767225610.0,
+      1767225615.0
+    ]
+  },
+  "candidate_state": "supported_candidate",
+  "claim_status": "hypothetical",
+  "evidence_file": "docs/refactor/validation-round12/example/evidence.json"
+}

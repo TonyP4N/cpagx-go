@@ -1,0 +1,279 @@
+{
+  "checks": [
+    {
+      "job": "54df96e865b9a046f78edc7469e1fa09",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "8fc3b84338f1f59d2b6df41469102609",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "5835b2eb9aa1d833cde9328f8ff54c8d",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "43117ea5d94aec8ce3f3d8a3ceece549",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "487c5eebe2f1b9d7631c139f312892ab",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "85f1ec58b88f71f2d3f1c1d0a6e5c4c5",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "b8dce56e273022d59cc05199b7cf5bba",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "fc0f5692f1faf0829be973c74d54d437",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "4950ff33fdab106643eb0e8a4f0287e9",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "cac3727efd34c75ed49239b610f81147",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "391ec13e24c011f61fd3ae17e61cae7e",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "819d1464f914d73d95444e7128f35701",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "54df96e865b9a046f78edc7469e1fa09",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "8fc3b84338f1f59d2b6df41469102609",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "5835b2eb9aa1d833cde9328f8ff54c8d",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "43117ea5d94aec8ce3f3d8a3ceece549",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "487c5eebe2f1b9d7631c139f312892ab",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "85f1ec58b88f71f2d3f1c1d0a6e5c4c5",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "b8dce56e273022d59cc05199b7cf5bba",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "fc0f5692f1faf0829be973c74d54d437",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "4950ff33fdab106643eb0e8a4f0287e9",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "cac3727efd34c75ed49239b610f81147",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    },
+    {
+      "job": "391ec13e24c011f61fd3ae17e61cae7e",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "819d1464f914d73d95444e7128f35701",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-2",
+      "reference_original_sha256": "86d278e9791545002e479e09802edf112cbaa28cefa27ae24e9ca3e930dba5b3",
+      "reference_original_status": "reference_original_bytes_sha256_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409
+      }
+    }
+  ],
+  "roles": [
+    {
+      "ungranted_read": 404,
+      "ungranted_reference_original": 404,
+      "granted_reference_original": 200,
+      "granted_read": 200,
+      "viewer_write": 403,
+      "duplicate_same_id": true
+    }
+  ],
+  "scope": "formal synthetic task plus terminal PG/file restore; not capacity or industrial validation"
+}

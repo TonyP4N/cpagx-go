@@ -1,0 +1,11 @@
+test_capacity_requires_explicit_new_history_and_old_budget_stays_clamped (test_replay_spool_export.SpoolExportTests.test_capacity_requires_explicit_new_history_and_old_budget_stays_clamped) ... ok
+test_cli_evidence_pages_preserve_selection_and_verify_only_page_originals (test_replay_spool_export.SpoolExportTests.test_cli_evidence_pages_preserve_selection_and_verify_only_page_originals) ... ok
+test_cli_verified_identity_bounded_queries_and_restore (test_replay_spool_export.SpoolExportTests.test_cli_verified_identity_bounded_queries_and_restore) ... ok
+test_new_inventory_and_full_json_business_equivalence_with_legacy (test_replay_spool_export.SpoolExportTests.test_new_inventory_and_full_json_business_equivalence_with_legacy) ... ok
+test_prefix_is_unchanged_when_future_bytes_change (test_replay_spool_export.SpoolExportTests.test_prefix_is_unchanged_when_future_bytes_change) ... ok
+test_tamper_missing_old_attempt_and_self_rehashed_business_rejected (test_replay_spool_export.SpoolExportTests.test_tamper_missing_old_attempt_and_self_rehashed_business_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 20.975s
+
+OK

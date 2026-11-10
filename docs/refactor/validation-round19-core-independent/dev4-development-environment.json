@@ -1,0 +1,25 @@
+{
+  "container_requested_limit_bytes": 8589934592,
+  "controlled_output_disk_free_bytes": 31723630592,
+  "disk_kind": "not independently verified; no SSD reference claim",
+  "docker": {
+    "Architecture": "aarch64",
+    "CgroupDriver": "cgroupfs",
+    "CgroupVersion": "2",
+    "Driver": "overlayfs",
+    "KernelVersion": "6.12.54-linuxkit",
+    "MemTotal": 8217448448,
+    "NCPU": 10,
+    "OSType": "linux",
+    "OperatingSystem": "Docker Desktop",
+    "ServerVersion": "29.1.3"
+  },
+  "host": {
+    "machine": "arm64",
+    "release": "27.0.0",
+    "system": "Darwin"
+  },
+  "scope": "local development; not Ubuntu reference qualification",
+  "scratch_disk_free_bytes": 31723630592,
+  "vm_memory_is_smaller_than_container_limit": true
+}

@@ -1,0 +1,31 @@
+         431701 function calls (398251 primitive calls) in 0.137 seconds
+
+   Ordered by: cumulative time
+   List reduced from 135 to 25 due to restriction <25>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+       30    0.000    0.000    0.138    0.005 /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/contextlib.py:78(inner)
+       30    0.000    0.000    0.138    0.005 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/measurement.py:19(measured)
+       30    0.000    0.000    0.137    0.005 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/dual_source_export.py:28(event_graph)
+       30    0.000    0.000    0.076    0.003 <WORKSPACE>/cpagx-go/../outputs/cpag-r19-core-projection-microbaseline-attempt1/probe.py:17(digest)
+       30    0.000    0.000    0.076    0.003 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compact.py:168(digest)
+  3960/30    0.001    0.000    0.076    0.003 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compact.py:163(_encode)
+  3960/30    0.004    0.000    0.076    0.003 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compact.py:111(_encode)
+  3780/30    0.007    0.000    0.076    0.003 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store.py:130(_encode)
+   420/90    0.001    0.000    0.068    0.001 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compressed.py:175(_array)
+  810/180    0.001    0.000    0.067    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compressed.py:183(chunks)
+ 1200/390    0.000    0.000    0.067    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compressed.py:193(<genexpr>)
+      270    0.000    0.000    0.060    0.000 <WORKSPACE>/cpagx-go/../outputs/cpag-r19-core-projection-microbaseline-attempt1/probe.py:22(validate)
+      270    0.000    0.000    0.060    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py:35(validate)
+ 9690/270    0.010    0.000    0.052    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py:40(_validate)
+ 9420/270    0.021    0.000    0.051    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py:50(_validate_impl)
+     3780    0.006    0.000    0.039    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compact.py:154(_put)
+    12870    0.005    0.000    0.033    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/pipeline.py:14(canonical)
+    12870    0.009    0.000    0.027    0.000 /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/__init__.py:183(dumps)
+     3780    0.004    0.000    0.019    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compact.py:28(_hash)
+    12870    0.006    0.000    0.014    0.000 /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/encoder.py:183(encode)
+     3780    0.004    0.000    0.012    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/shared_artifact_store_compressed.py:43(_pack)
+      900    0.001    0.000    0.010    0.000 <WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py:26(_schema)
+      180    0.000    0.000    0.007    0.000 /Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/pathlib.py:1053(read_text)
+     8700    0.002    0.000    0.006    0.000 {built-in method builtins.any}
+     3000    0.002    0.000    0.006    0.000 {built-in method builtins.all}

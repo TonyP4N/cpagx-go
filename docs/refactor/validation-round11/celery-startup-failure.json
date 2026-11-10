@@ -1,0 +1,24 @@
+{
+  "synthetic_only": true,
+  "runtime": "real uvicorn + Celery prefork + RabbitMQ + Redis",
+  "project": "cpag-r9-582e00d8",
+  "checks": {},
+  "artifacts": {},
+  "limitations": [
+    "No mid-compute worker kill/recovery claim",
+    "No real industrial data or production validation"
+  ],
+  "status": "failed",
+  "error": "CalledProcessError: Command '['docker', 'compose', '-p', 'cpag-r9-582e00d8', '-f', '/home/runner/work/cpagx-go/cpagx-go/deployments/compose.round9-celery-validation.yml', 'up', '-d', '--wait', 'rabbitmq', 'redis']' returned non-zero exit status 1.",
+  "cleanup": {
+    "compose_down_with_volumes": true,
+    "status": "passed",
+    "api_exit_code": null,
+    "worker_exit_code": null
+  },
+  "source_sha256": {
+    "network": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+    "process": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+    "profile": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+  }
+}

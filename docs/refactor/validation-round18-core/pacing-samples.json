@@ -1,0 +1,374 @@
+{
+  "scope": "synthetic replay pacing and metric mechanism only; not performance acceptance",
+  "expected": {
+    "speed_1_schedule_seconds": 10,
+    "speed_10_schedule_seconds": 1,
+    "semantic_hashes_equal": true,
+    "all_samples_retained": true
+  },
+  "runs": [
+    {
+      "speed": 1,
+      "export_verify_wall_seconds": 10.17825975001324,
+      "runtime": {
+        "clock": "monotonic_wall_seconds",
+        "core_samples": [
+          {
+            "arrival_seq": 1,
+            "operation": "consume",
+            "wall_seconds": 0.0014434169861488044
+          },
+          {
+            "arrival_seq": 2,
+            "operation": "consume",
+            "wall_seconds": 0.0022195419878698885
+          },
+          {
+            "arrival_seq": 3,
+            "operation": "consume",
+            "wall_seconds": 0.007563999999547377
+          },
+          {
+            "arrival_seq": 4,
+            "operation": "consume",
+            "wall_seconds": 0.007292541995411739
+          },
+          {
+            "arrival_seq": 5,
+            "operation": "consume",
+            "wall_seconds": 0.009843042003922164
+          },
+          {
+            "arrival_seq": 6,
+            "operation": "consume",
+            "wall_seconds": 0.009518750011920929
+          },
+          {
+            "arrival_seq": 7,
+            "operation": "consume",
+            "wall_seconds": 0.010114708013134077
+          },
+          {
+            "arrival_seq": 8,
+            "operation": "consume",
+            "wall_seconds": 0.006929791998118162
+          },
+          {
+            "arrival_seq": 9,
+            "operation": "consume",
+            "wall_seconds": 0.004824375006137416
+          },
+          {
+            "arrival_seq": 10,
+            "operation": "consume",
+            "wall_seconds": 0.004430458007846028
+          },
+          {
+            "arrival_seq": 11,
+            "operation": "consume",
+            "wall_seconds": 0.004895082995062694
+          },
+          {
+            "arrival_seq": 12,
+            "operation": "advance",
+            "wall_seconds": 0.01527941701351665
+          },
+          {
+            "arrival_seq": 13,
+            "operation": "consume",
+            "wall_seconds": 0.0050540000083856285
+          },
+          {
+            "arrival_seq": 13,
+            "operation": "advance",
+            "wall_seconds": 0.0060465419956017286
+          }
+        ],
+        "elapsed_seconds": 10.058481040992774,
+        "limitations": [
+          "Engineering mechanism samples, not production throughput or R19 acceptance."
+        ],
+        "paced": true,
+        "samples": [
+          {
+            "actual_elapsed_seconds": 0.0020035409834235907,
+            "arrival_seq": 1,
+            "available_at": "2026-01-01T00:00:08.000000Z",
+            "processing_seconds": 0.001998958003241569,
+            "scheduled_elapsed_seconds": 0.0
+          },
+          {
+            "actual_elapsed_seconds": 1.0035522499820217,
+            "arrival_seq": 2,
+            "available_at": "2026-01-01T00:00:09.000000Z",
+            "processing_seconds": 0.0026177499967161566,
+            "scheduled_elapsed_seconds": 1.0
+          },
+          {
+            "actual_elapsed_seconds": 2.009700791008072,
+            "arrival_seq": 3,
+            "available_at": "2026-01-01T00:00:10.000000Z",
+            "processing_seconds": 0.00884562497958541,
+            "scheduled_elapsed_seconds": 2.0
+          },
+          {
+            "actual_elapsed_seconds": 2.508446833002381,
+            "arrival_seq": 4,
+            "available_at": "2026-01-01T00:00:10.500000Z",
+            "processing_seconds": 0.008289833000162616,
+            "scheduled_elapsed_seconds": 2.5
+          },
+          {
+            "actual_elapsed_seconds": 3.012822832999518,
+            "arrival_seq": 5,
+            "available_at": "2026-01-01T00:00:11.000000Z",
+            "processing_seconds": 0.01141983299748972,
+            "scheduled_elapsed_seconds": 3.0
+          },
+          {
+            "actual_elapsed_seconds": 4.013768582983175,
+            "arrival_seq": 6,
+            "available_at": "2026-01-01T00:00:12.000000Z",
+            "processing_seconds": 0.010815207991981879,
+            "scheduled_elapsed_seconds": 4.0
+          },
+          {
+            "actual_elapsed_seconds": 7.011991125007626,
+            "arrival_seq": 7,
+            "available_at": "2026-01-01T00:00:15.000000Z",
+            "processing_seconds": 0.011856625002110377,
+            "scheduled_elapsed_seconds": 7.0
+          },
+          {
+            "actual_elapsed_seconds": 8.013253290991997,
+            "arrival_seq": 8,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.008226292004110292,
+            "scheduled_elapsed_seconds": 8.0
+          },
+          {
+            "actual_elapsed_seconds": 8.01856654099538,
+            "arrival_seq": 9,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.005306584003847092,
+            "scheduled_elapsed_seconds": 8.0
+          },
+          {
+            "actual_elapsed_seconds": 8.023512540996308,
+            "arrival_seq": 10,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.004940957995131612,
+            "scheduled_elapsed_seconds": 8.0
+          },
+          {
+            "actual_elapsed_seconds": 8.028869000001578,
+            "arrival_seq": 11,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.005353665997972712,
+            "scheduled_elapsed_seconds": 8.0
+          },
+          {
+            "actual_elapsed_seconds": 10.019963957980508,
+            "arrival_seq": 12,
+            "available_at": "2026-01-01T00:00:18.000000Z",
+            "processing_seconds": 0.015304582979297265,
+            "scheduled_elapsed_seconds": 10.0
+          }
+        ],
+        "schema_version": "1.0.0",
+        "speed": 1
+      },
+      "semantic_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8"
+      },
+      "metric_artifact": "speed-1/run/metrics.json"
+    },
+    {
+      "speed": 10,
+      "export_verify_wall_seconds": 1.16692604200216,
+      "runtime": {
+        "clock": "monotonic_wall_seconds",
+        "core_samples": [
+          {
+            "arrival_seq": 1,
+            "operation": "consume",
+            "wall_seconds": 0.0007743749883957207
+          },
+          {
+            "arrival_seq": 2,
+            "operation": "consume",
+            "wall_seconds": 0.001544416998513043
+          },
+          {
+            "arrival_seq": 3,
+            "operation": "consume",
+            "wall_seconds": 0.004451833985513076
+          },
+          {
+            "arrival_seq": 4,
+            "operation": "consume",
+            "wall_seconds": 0.0065329589997418225
+          },
+          {
+            "arrival_seq": 5,
+            "operation": "consume",
+            "wall_seconds": 0.009308874985435978
+          },
+          {
+            "arrival_seq": 6,
+            "operation": "consume",
+            "wall_seconds": 0.01099875001818873
+          },
+          {
+            "arrival_seq": 7,
+            "operation": "consume",
+            "wall_seconds": 0.005116709013236687
+          },
+          {
+            "arrival_seq": 8,
+            "operation": "consume",
+            "wall_seconds": 0.0067248750128783286
+          },
+          {
+            "arrival_seq": 9,
+            "operation": "consume",
+            "wall_seconds": 0.004272916994523257
+          },
+          {
+            "arrival_seq": 10,
+            "operation": "consume",
+            "wall_seconds": 0.005695333995390683
+          },
+          {
+            "arrival_seq": 11,
+            "operation": "consume",
+            "wall_seconds": 0.004322666994994506
+          },
+          {
+            "arrival_seq": 12,
+            "operation": "advance",
+            "wall_seconds": 0.008171416004188359
+          },
+          {
+            "arrival_seq": 13,
+            "operation": "consume",
+            "wall_seconds": 0.006495083012850955
+          },
+          {
+            "arrival_seq": 13,
+            "operation": "advance",
+            "wall_seconds": 0.006129874993348494
+          }
+        ],
+        "elapsed_seconds": 1.0542647920083255,
+        "limitations": [
+          "Engineering mechanism samples, not production throughput or R19 acceptance."
+        ],
+        "paced": true,
+        "samples": [
+          {
+            "actual_elapsed_seconds": 0.000894791999598965,
+            "arrival_seq": 1,
+            "available_at": "2026-01-01T00:00:08.000000Z",
+            "processing_seconds": 0.0008909589960239828,
+            "scheduled_elapsed_seconds": 0.0
+          },
+          {
+            "actual_elapsed_seconds": 0.10190733399940655,
+            "arrival_seq": 2,
+            "available_at": "2026-01-01T00:00:09.000000Z",
+            "processing_seconds": 0.0018222500220872462,
+            "scheduled_elapsed_seconds": 0.1
+          },
+          {
+            "actual_elapsed_seconds": 0.2085717919981107,
+            "arrival_seq": 3,
+            "available_at": "2026-01-01T00:00:10.000000Z",
+            "processing_seconds": 0.004972750000888482,
+            "scheduled_elapsed_seconds": 0.2
+          },
+          {
+            "actual_elapsed_seconds": 0.2588817089854274,
+            "arrival_seq": 4,
+            "available_at": "2026-01-01T00:00:10.500000Z",
+            "processing_seconds": 0.007511624979088083,
+            "scheduled_elapsed_seconds": 0.25
+          },
+          {
+            "actual_elapsed_seconds": 0.3163209589838516,
+            "arrival_seq": 5,
+            "available_at": "2026-01-01T00:00:11.000000Z",
+            "processing_seconds": 0.011732041981304064,
+            "scheduled_elapsed_seconds": 0.3
+          },
+          {
+            "actual_elapsed_seconds": 0.41519391699694097,
+            "arrival_seq": 6,
+            "available_at": "2026-01-01T00:00:12.000000Z",
+            "processing_seconds": 0.012300917005632073,
+            "scheduled_elapsed_seconds": 0.4
+          },
+          {
+            "actual_elapsed_seconds": 0.7108251669851597,
+            "arrival_seq": 7,
+            "available_at": "2026-01-01T00:00:15.000000Z",
+            "processing_seconds": 0.0057975420204456896,
+            "scheduled_elapsed_seconds": 0.7
+          },
+          {
+            "actual_elapsed_seconds": 0.8075369170110207,
+            "arrival_seq": 8,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.007468292023986578,
+            "scheduled_elapsed_seconds": 0.8
+          },
+          {
+            "actual_elapsed_seconds": 0.8122508339874912,
+            "arrival_seq": 9,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.004708916007075459,
+            "scheduled_elapsed_seconds": 0.8
+          },
+          {
+            "actual_elapsed_seconds": 0.8185745000082534,
+            "arrival_seq": 10,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.006319709005765617,
+            "scheduled_elapsed_seconds": 0.8
+          },
+          {
+            "actual_elapsed_seconds": 0.8233225420117378,
+            "arrival_seq": 11,
+            "available_at": "2026-01-01T00:00:16.000000Z",
+            "processing_seconds": 0.0047438339970540255,
+            "scheduled_elapsed_seconds": 0.8
+          },
+          {
+            "actual_elapsed_seconds": 1.0131475419912022,
+            "arrival_seq": 12,
+            "available_at": "2026-01-01T00:00:18.000000Z",
+            "processing_seconds": 0.0081912080058828,
+            "scheduled_elapsed_seconds": 1.0
+          }
+        ],
+        "schema_version": "1.0.0",
+        "speed": 10
+      },
+      "semantic_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "snapshots.jsonl": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "revisions.jsonl": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b",
+        "metrics.json": "599c36681f30a90b49925c17604ecc0e2e2d1f086810953ac007db83a7e061d8"
+      },
+      "metric_artifact": "speed-10/run/metrics.json"
+    }
+  ],
+  "status": "passed"
+}

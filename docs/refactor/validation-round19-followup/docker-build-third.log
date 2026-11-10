@@ -1,0 +1,39 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 374B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+#2 DONE 3.5s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 190.05kB 0.0s done
+#4 DONE 0.0s
+
+#5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:5789aa194f757888f41fa3d48e14b6feaa1b57c0af0b56fcb1372d6474d3bff0
+#5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:5789aa194f757888f41fa3d48e14b6feaa1b57c0af0b56fcb1372d6474d3bff0 0.0s done
+#5 CACHED
+
+#6 [2/4] COPY services/analysis/src /app/services/analysis/src
+#6 DONE 0.0s
+
+#7 [3/4] COPY schemas /app/schemas
+#7 DONE 0.0s
+
+#8 [4/4] COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.1s done
+#9 exporting manifest sha256:5491f3be47068ef1dd50dd20ae9eb35b6c1c5453fff9bb206eca1e1cb8bf0842 done
+#9 exporting config sha256:5407dd63de895ae512df3d8abd25cf1d4730e3ce2c57ac465635bb024ba7283c done
+#9 exporting attestation manifest sha256:718835fa9f5565ddfb9cbee042557c6efcbf94e4f7071be3262f275606d48622 0.0s done
+#9 exporting manifest list sha256:a2dfa3af7bfbc78054d0d4e8bbcc6867b85a4f7a9f72656a4211790b05c808ed done
+#9 naming to docker.io/library/cpag-isolated:r19-s100-dev2 done
+#9 unpacking to docker.io/library/cpag-isolated:r19-s100-dev2 0.0s done
+#9 DONE 0.2s

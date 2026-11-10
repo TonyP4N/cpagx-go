@@ -1,0 +1,13 @@
+{
+  "valid": false,
+  "errors": [
+    {
+      "row_index": 0,
+      "job_id": null,
+      "attempt": null,
+      "reason": "invalid history job/attempt"
+    }
+  ],
+  "attempt_count": 5,
+  "verified_attempt_count": 4
+}

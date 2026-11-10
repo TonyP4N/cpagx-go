@@ -1,0 +1,176 @@
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	﻿2026-10-27T02:36:21.3674245Z ##[group]Run bash scripts/m4/isolated/validate-isolated-dual.sh
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3674644Z ^[[36;1mbash scripts/m4/isolated/validate-isolated-dual.sh^[[0m
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3730753Z shell: /usr/bin/bash -e {0}
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3730975Z env:
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3731213Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3731571Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3731914Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3732221Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3732526Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3732838Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:21.3733101Z ##[endgroup]
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:22.0016531Z  Image mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulling 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8600639Z  5b6f078adbb9 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8603083Z  ac28590ba464 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8603530Z  11e80b5eea53 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8603828Z  a5bd5a0b8636 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8604160Z  2d35ebdb57d9 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8604585Z  aabce23918dc Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8604968Z  82e3b18698cd Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8605343Z  3cecdd37f6f2 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8605718Z  1d12e864e19a Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:23.8606129Z  10c02ef94427 Pulling fs layer 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4042743Z  11e80b5eea53 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4043650Z  a5bd5a0b8636 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4045889Z  aabce23918dc Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4048058Z  82e3b18698cd Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4049662Z  3cecdd37f6f2 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4051825Z  10c02ef94427 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4053595Z  5b6f078adbb9 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.4055588Z  0077bac36ee7 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.5042320Z  ac28590ba464 Downloading 17.83MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.6046272Z  2d35ebdb57d9 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.6050088Z  1d12e864e19a Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.6050537Z  ac28590ba464 Downloading 44.04MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.6063386Z  9a2b4c80ac9f Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.6157712Z  2d35ebdb57d9 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.7041232Z  ac28590ba464 Downloading 74.45MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.7068476Z  82e3b18698cd Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.7087355Z  10c02ef94427 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.7112885Z  2d35ebdb57d9 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.7135085Z  1d12e864e19a Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.8040222Z  ac28590ba464 Downloading 98.57MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:24.9049009Z  ac28590ba464 Downloading 105.9MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.0043965Z  ac28590ba464 Downloading 105.9MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.1044521Z  ac28590ba464 Downloading 105.9MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.2050261Z  ac28590ba464 Downloading 105.9MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.3042838Z  ac28590ba464 Downloading 105.9MB
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.4045652Z  ac28590ba464 Download complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.4088165Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.5099336Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.6110043Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.7102735Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.8105031Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:25.9103883Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.0090071Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.1100531Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.2116831Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.3106996Z  ac28590ba464 Extracting 1B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.4108001Z  ac28590ba464 Extracting 2B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.5103949Z  ac28590ba464 Extracting 2B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.6109086Z  ac28590ba464 Extracting 2B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7048702Z  11e80b5eea53 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7054472Z  a5bd5a0b8636 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7063998Z  aabce23918dc Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7073443Z  3cecdd37f6f2 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7109894Z  11e80b5eea53 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7118450Z  a5bd5a0b8636 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7126304Z  aabce23918dc Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7133832Z  3cecdd37f6f2 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7140567Z  5b6f078adbb9 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7150812Z  ac28590ba464 Pull complete 0B
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7155427Z  Image mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulled 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7513225Z  Network cpag-r14-dual_default Creating 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7769081Z  Network cpag-r14-dual_default Created 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7778396Z  Volume cpag-r14-dual_validation_data Creating 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7788204Z  Volume cpag-r14-dual_validation_data Created 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:26.7796914Z  Container cpag-r14-dual-postgres-1 Creating 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:31.4602659Z  Container cpag-r14-dual-postgres-1 Created 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:31.4708492Z  Container cpag-r14-dual-postgres-1 Starting 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:31.6455558Z  Container cpag-r14-dual-postgres-1 Started 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:31.6456184Z  Container cpag-r14-dual-postgres-1 Waiting 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.1471234Z  Container cpag-r14-dual-postgres-1 Healthy 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.5388432Z CREATE TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.5403001Z CREATE INDEX
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.6259869Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.6267612Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.7108894Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.7112927Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.7120506Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.7135311Z UPDATE 0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8263387Z CREATE TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8273160Z INSERT 0 0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8285063Z CREATE FUNCTION
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8286833Z NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8287391Z DROP TRIGGER
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.8289997Z CREATE TRIGGER
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.9118911Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.9123447Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.9135377Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.9140623Z ALTER TABLE
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:34.9249290Z go: downloading github.com/jackc/pgx/v5 v5.7.6
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.0771078Z go: downloading github.com/jackc/puddle/v2 v2.2.2
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.0773956Z go: downloading github.com/jackc/pgpassfile v1.0.0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.0774457Z go: downloading github.com/jackc/pgservicefile v0.0.0-20240606120523-5a60cdf6a761
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.0774865Z go: downloading golang.org/x/crypto v0.45.0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.1180958Z go: downloading golang.org/x/text v0.31.0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:35.1191540Z go: downloading golang.org/x/sync v0.18.0
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4416140Z #0 building with "default" instance using docker driver
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4416434Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4416625Z #1 [internal] load build definition from Dockerfile
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4416969Z #1 transferring dockerfile: 374B done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4417567Z #1 DONE 0.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4417687Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:48.4418124Z #2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.4501914Z #2 DONE 2.2s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6427084Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6427603Z #3 [internal] load .dockerignore
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6428243Z #3 transferring context: 2B done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6428486Z #3 DONE 0.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6428602Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6428724Z #4 [internal] load build context
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6429012Z #4 transferring context: 189.39kB done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6429243Z #4 DONE 0.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6429348Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6429780Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:dcc0e21003470826202b4bbb3ac8404eb3076b8a5d22119175f4b69edc55bee4
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6430577Z #5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:dcc0e21003470826202b4bbb3ac8404eb3076b8a5d22119175f4b69edc55bee4 0.0s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.6484328Z #5 sha256:8dc6b13ab3d074815591c961cc941d68cee3799c33a40277efa1f212ad729ff0 0B / 249B 0.2s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.7986708Z #5 sha256:c03751883ae5022b5c8ea81f4cb15dd941523f0ffd40ffa49581ebef04496e74 0B / 13.78MB 0.3s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.7987753Z #5 sha256:44f1f4ea94679845e46980407242f9a70a6578ccf3d07230a02533f41d78dfc9 0B / 412.04kB 0.2s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:50.7988834Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0B / 3.85MB 0.2s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.0978965Z #5 sha256:8dc6b13ab3d074815591c961cc941d68cee3799c33a40277efa1f212ad729ff0 249B / 249B 0.5s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.0979698Z #5 sha256:c03751883ae5022b5c8ea81f4cb15dd941523f0ffd40ffa49581ebef04496e74 13.78MB / 13.78MB 0.6s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.2113029Z #5 sha256:c03751883ae5022b5c8ea81f4cb15dd941523f0ffd40ffa49581ebef04496e74 13.78MB / 13.78MB 0.6s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.2114149Z #5 sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 3.85MB / 3.85MB 0.7s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.3377315Z #5 sha256:44f1f4ea94679845e46980407242f9a70a6578ccf3d07230a02533f41d78dfc9 412.04kB / 412.04kB 0.8s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.3378620Z #5 extracting sha256:7b229517ed222597277036d94892173207d01a731ab3a88eeb1de2e963a2c788 0.1s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.4683907Z #5 extracting sha256:44f1f4ea94679845e46980407242f9a70a6578ccf3d07230a02533f41d78dfc9 0.1s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.4684608Z #5 DONE 1.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.6189120Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.6190394Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:dcc0e21003470826202b4bbb3ac8404eb3076b8a5d22119175f4b69edc55bee4
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.6191507Z #5 extracting sha256:c03751883ae5022b5c8ea81f4cb15dd941523f0ffd40ffa49581ebef04496e74
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.7429844Z #5 extracting sha256:c03751883ae5022b5c8ea81f4cb15dd941523f0ffd40ffa49581ebef04496e74 0.3s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.7430331Z #5 DONE 1.3s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8991360Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8992440Z #5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:dcc0e21003470826202b4bbb3ac8404eb3076b8a5d22119175f4b69edc55bee4
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8994880Z #5 extracting sha256:8dc6b13ab3d074815591c961cc941d68cee3799c33a40277efa1f212ad729ff0 done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8995501Z #5 DONE 1.3s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8995667Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:51.8995974Z #6 [2/4] COPY services/analysis/src /app/services/analysis/src
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.0982385Z #6 DONE 0.3s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2158332Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2159011Z #7 [3/4] COPY schemas /app/schemas
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2159404Z #7 DONE 0.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2159561Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2159917Z #8 [4/4] COPY services/worker/cpag_worker/container_entry.py /app/entry.py
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2160356Z #8 DONE 0.0s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2160509Z 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2160650Z #9 exporting to image
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2160958Z #9 exporting layers 0.0s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2161703Z #9 exporting manifest sha256:4cd04c99d674be2974bc2ae0c8ffb74b81ee475f3be3a428bb7fd3cf85c5a159 done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.2162739Z #9 exporting config sha256:1a60db79882c7876f813ac0d2217db17c05e2b3bdce67a2d98b058ec354716bf 0.1s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.3584051Z #9 exporting attestation manifest sha256:b108a0f6b80132f1edbe04a3b239bf77b054b103fbe34a5cba5a56542ca3d5b9 done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.3585257Z #9 exporting manifest list sha256:cb0ae4bdc97af18129455a13cd080f145646049fd2b353a54660c7979219fd72 done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.3585902Z #9 naming to docker.io/library/cpag-isolated:round5 done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.3586352Z #9 unpacking to docker.io/library/cpag-isolated:round5 0.0s done
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.3586714Z #9 DONE 0.1s
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.4099451Z scripts/m4/isolated/validate-isolated-dual.sh: line 31: /home/runner/work/cpagx-go/cpagx-go/.venv/bin/python: No such file or directory
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.4628632Z  Container cpag-r14-dual-postgres-1 Stopping 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.5675137Z  Container cpag-r14-dual-postgres-1 Stopped 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.5675905Z  Container cpag-r14-dual-postgres-1 Removing 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.5737375Z  Container cpag-r14-dual-postgres-1 Removed 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.5744204Z  Volume cpag-r14-dual_validation_data Removing 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.5744673Z  Network cpag-r14-dual_default Removing 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.6269039Z  Network cpag-r14-dual_default Removed 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.7161264Z  Volume cpag-r14-dual_validation_data Removed 
+dual-source-persistent	Dual isolated cancellation, retry and publication faults	2026-10-27T02:36:52.7210066Z ##[error]Process completed with exit code 127.

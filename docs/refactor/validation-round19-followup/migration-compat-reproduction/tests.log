@@ -1,0 +1,8 @@
+=== RUN   TestSiteCapacityPolicySerializesAllUnexitedAttempts
+--- PASS: TestSiteCapacityPolicySerializesAllUnexitedAttempts (0.24s)
+=== RUN   TestMigrationPreservesPublishedHistory
+    history_test.go:535: ERROR: relation "m4_job_attempts" does not exist (SQLSTATE 42P01)
+--- FAIL: TestMigrationPreservesPublishedHistory (0.02s)
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobs/integration	0.661s
+FAIL

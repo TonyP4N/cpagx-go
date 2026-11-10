@@ -1,0 +1,125 @@
+test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) ...
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='success') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='ambiguous') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='error') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='missing_response') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='no_change') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='missing_value') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='sampling_gap') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='clock_unknown') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='uncertain_time') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='mapping_missing') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='mapping_conflict') ... ERROR
+  test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='out_of_order') ... ERROR
+test_callback_is_explicit_and_receives_every_complete_graph_field (test_compact_projection.CompactProjectionTests.test_callback_is_explicit_and_receives_every_complete_graph_field) ... ok
+test_mutated_nested_values_are_recomputed_and_previous_values_remain (test_compact_projection.CompactProjectionTests.test_mutated_nested_values_are_recomputed_and_previous_values_remain) ... ERROR
+test_sink_and_schema_failures_do_not_return_or_seal_partial_projection (test_compact_projection.CompactProjectionTests.test_sink_and_schema_failures_do_not_return_or_seal_partial_projection) ... ok
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='success')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='ambiguous')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='error')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='missing_response')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='no_change')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='missing_value')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='sampling_gap')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='clock_unknown')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='uncertain_time')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='mapping_missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='mapping_conflict')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_all_complete_fields_and_root_digests_match_independent_projection (test_compact_projection.CompactProjectionTests.test_all_complete_fields_and_root_digests_match_independent_projection) (case='out_of_order')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 42, in test_all_complete_fields_and_root_digests_match_independent_projection
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+======================================================================
+ERROR: test_mutated_nested_values_are_recomputed_and_previous_values_remain (test_compact_projection.CompactProjectionTests.test_mutated_nested_values_are_recomputed_and_previous_values_remain)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/core/test_compact_projection.py", line 60, in test_mutated_nested_values_are_recomputed_and_previous_values_remain
+    with SharedArtifactReader(root/'store',expected_manifest_sha256=sealed['manifest_sha256']) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.292s
+
+FAILED (errors=13)

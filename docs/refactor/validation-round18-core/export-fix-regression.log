@@ -1,0 +1,9 @@
+test_expired_response_keeps_history_and_originals_without_candidate (test_replay_export.ReplayExportTests.test_expired_response_keeps_history_and_originals_without_candidate) ... ok
+test_explicit_source_end_and_output_limits_fail_without_publication (test_replay_export.ReplayExportTests.test_explicit_source_end_and_output_limits_fail_without_publication) ... ok
+test_restore_copy_and_historical_tamper_rejected_even_rehashed (test_replay_export.ReplayExportTests.test_restore_copy_and_historical_tamper_rejected_even_rehashed) ... ok
+test_three_runs_cli_history_and_independent_pending_expected (test_replay_export.ReplayExportTests.test_three_runs_cli_history_and_independent_pending_expected) ... ok
+
+----------------------------------------------------------------------
+Ran 4 tests in 2.936s
+
+OK

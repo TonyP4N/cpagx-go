@@ -1,0 +1,8 @@
+test_compact_inventory_copy_and_historical_original_queries (test_replay_spool_bundle.ReplaySpoolBackupTests.test_compact_inventory_copy_and_historical_original_queries) ... ok
+test_missing_or_extra_history_or_mismatched_format_is_rejected (test_replay_spool_bundle.ReplaySpoolBackupTests.test_missing_or_extra_history_or_mismatched_format_is_rejected) ... ok
+test_rehashed_storage_cannot_borrow_another_run_identity (test_replay_spool_bundle.ReplaySpoolBackupTests.test_rehashed_storage_cannot_borrow_another_run_identity) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 4.162s
+
+OK

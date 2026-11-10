@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "ReplayClaim.schema.json",
+  "title": "ReplayClaim",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "relation_type": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "$ref": "ReplaySourceRef.schema.json"
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "counterevidence": {
+      "type": "array",
+      "items": {
+        "$ref": "ReplaySourceRef.schema.json"
+      }
+    },
+    "rule_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "observed",
+        "inferred",
+        "hypothetical"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "claim_id",
+    "relation_type",
+    "evidence_refs",
+    "assumptions",
+    "counterevidence",
+    "rule_id",
+    "status"
+  ],
+  "additionalProperties": false
+}

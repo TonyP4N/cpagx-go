@@ -196,7 +196,7 @@ const GraphPage: React.FC = () => {
               {/* Navigation Links */}
               <div className="mt-6 flex justify-center space-x-4">
                 <a
-                  href="/"
+                  href="/workbench/"
                   className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
                 >
                   ← Back to Home

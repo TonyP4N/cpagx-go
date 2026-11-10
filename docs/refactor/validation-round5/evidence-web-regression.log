@@ -1,0 +1,7 @@
+test_graph_node_field_raw_frame_chain (test_evidence_web.WebEvidenceTests.test_graph_node_field_raw_frame_chain) ... ok
+test_tamper_and_arbitrary_path_rejected (test_evidence_web.WebEvidenceTests.test_tamper_and_arbitrary_path_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.051s
+
+OK

@@ -1,0 +1,26 @@
+[
+  {
+    "file": "cpag-r19-core-extent-first-failure.log",
+    "original_sha256": "b4cc59ad0d282dc47804c0baf795998667dbf4095b742f856f7823269b0d6ed5",
+    "public_sha256": "215ced49c93e73cf0038a366a174be39fe1b381e99f00ac0e8697ae5acb40302",
+    "redaction": "repository absolute path only"
+  },
+  {
+    "file": "cpag-r19-flat-memo-first-tests.log",
+    "original_sha256": "6a71e33ab6390abb068f438d7c48714238f9c6e5966a42ae1b8bc9cac6d1de77",
+    "public_sha256": "6a71e33ab6390abb068f438d7c48714238f9c6e5966a42ae1b8bc9cac6d1de77",
+    "redaction": "repository absolute path only"
+  },
+  {
+    "file": "cpag-r19-flat-memo-tests.log",
+    "original_sha256": "509186161b5a66ade3827c7b66e0561bf7a85d9d17cfcdbe9b03fbdce225d569",
+    "public_sha256": "509186161b5a66ade3827c7b66e0561bf7a85d9d17cfcdbe9b03fbdce225d569",
+    "redaction": "repository absolute path only"
+  },
+  {
+    "file": "cpag-r19-compact-after-value-memo.log",
+    "original_sha256": "8aece9d903d33be06886c505a5106e480286e5cc976ad4d0b2e9d88f107a89a4",
+    "public_sha256": "8aece9d903d33be06886c505a5106e480286e5cc976ad4d0b2e9d88f107a89a4",
+    "redaction": "repository absolute path only"
+  }
+]

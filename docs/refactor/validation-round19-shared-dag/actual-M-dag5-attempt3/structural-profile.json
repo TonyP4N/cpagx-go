@@ -1,0 +1,37 @@
+{
+  "scope": "actual M DAG5 read-only structural profile after timed component ended; not L extrapolation or formal runtime measurement",
+  "file_bytes": 574586880,
+  "page_size": 4096,
+  "node_kinds": [
+    {
+      "kind": "array_branch",
+      "count": 114754,
+      "stored_payload_bytes": 13885578,
+      "average_stored_payload_bytes": 121.00299771685519,
+      "maximum_stored_payload_bytes": 2053
+    },
+    {
+      "kind": "array_leaf",
+      "count": 182921,
+      "stored_payload_bytes": 150027325,
+      "average_stored_payload_bytes": 820.1755129263453,
+      "maximum_stored_payload_bytes": 2053
+    },
+    {
+      "kind": "dict",
+      "count": 186563,
+      "stored_payload_bytes": 65498540,
+      "average_stored_payload_bytes": 351.0800105058345,
+      "maximum_stored_payload_bytes": 937
+    },
+    {
+      "kind": "scalar",
+      "count": 55328,
+      "stored_payload_bytes": 3168803,
+      "average_stored_payload_bytes": 57.273044389820704,
+      "maximum_stored_payload_bytes": 78
+    }
+  ],
+  "page_profile_unavailable": "no such table: dbstat",
+  "wall_seconds": 3.7961810000124387
+}

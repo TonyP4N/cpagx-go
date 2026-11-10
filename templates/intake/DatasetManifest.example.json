@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "dataset_id": "example-batch-001",
+  "source": "locally supplied synthetic example",
+  "release": "example-1",
+  "files": [
+    {
+      "name": "network.pcap",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size_bytes": 0,
+      "kind": "network"
+    },
+    {
+      "name": "process.csv",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size_bytes": 0,
+      "kind": "process"
+    }
+  ],
+  "collection_range": {"start": null, "end": null},
+  "timezone_basis": null,
+  "authorization_ref": "synthetic example only; replace with reviewed permission evidence"
+}

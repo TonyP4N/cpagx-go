@@ -1,0 +1,41 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 400B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.12-alpine
+#2 DONE 0.6s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [internal] load build context
+#4 transferring context: 14.48kB done
+#4 DONE 0.0s
+
+#5 [1/4] FROM mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d
+#5 resolve mirror.gcr.io/library/python:3.12-alpine@sha256:b658b05ce9c4eb97ec6fc19424818a1f31993659c2b505a532f470e83807815d 0.0s done
+#5 DONE 0.0s
+
+#6 [2/4] WORKDIR /app
+#6 CACHED
+
+#7 [3/4] COPY services/worker/cpag_worker /app/cpag_worker
+#7 CACHED
+
+#8 [4/4] COPY scripts/m4/linux-isolation /app/isolation
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.0s done
+#9 exporting manifest sha256:b4db9237fba9667e4a8d29c258e2b36734161fa213bc7b4d3e9c120f64577fa3 done
+#9 exporting config sha256:e8402cc5b98bc8b5d9fec8b2c4cc318725cbc19632efec8b895adbffef9b8336 done
+#9 exporting attestation manifest sha256:70887649f9a46034e114fe1eebe5d0be2e2923cce5a2323831a3ad2834d4f2d4 done
+#9 exporting manifest list sha256:b1b2fd4e4bb2db49e518a32612dedc2b52b1176b0a2b5b75d754e3b8ae889121 done
+#9 naming to docker.io/library/cpag-linux-isolation:round10
+#9 naming to docker.io/library/cpag-linux-isolation:round10 done
+#9 unpacking to docker.io/library/cpag-linux-isolation:round10 done
+#9 DONE 0.1s
+PASS doublekill 1

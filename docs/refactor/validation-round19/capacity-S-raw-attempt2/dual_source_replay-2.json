@@ -1,0 +1,13 @@
+{
+  "schema_version": "r19-capacity-case-1",
+  "id": "S-dual_source_replay-2",
+  "scale": "S",
+  "mode": "dual_source_replay",
+  "networks": [
+    "network.pcap"
+  ],
+  "process": "process.csv",
+  "profile": "replay-profile.json",
+  "repetition": 2,
+  "cache_condition": "warm"
+}

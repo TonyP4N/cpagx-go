@@ -1,0 +1,518 @@
+name: M1 synthetic contracts and builds
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  unified-catalog:
+    needs: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m pip install -r services/analysis/requirements-test.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+      - run: npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
+      - run: "$RUNNER_TEMP/browser/node_modules/.bin/playwright install --with-deps chromium"
+      - name: Workbench overlays, keyboard, original summaries and rejection states
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: node scripts/validation/ui_release_controls.cjs
+      - name: Normal Go entry, isolated Worker, role boundaries and catalog restore
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round16_acceptance.sh "$RUNNER_TEMP/round16"
+      - name: R17 cross-file repeated offline analysis, rules, real branch and restore
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round17_acceptance.sh "$RUNNER_TEMP/round17"
+      - name: R17 response clock rejection through Worker, restore and browser
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round17_response_acceptance.sh "$RUNNER_TEMP/round17-response"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: unified-catalog-evidence
+          path: |
+            ${{ runner.temp }}/round16/public
+            ${{ runner.temp }}/round16/environment/public
+            ${{ runner.temp }}/round16/supplement/public
+            ${{ runner.temp }}/round17/public
+            ${{ runner.temp }}/round17/environment/public
+            ${{ runner.temp }}/round17-response/public
+            ${{ runner.temp }}/round17-response/environment/public
+  core:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/analysis/requirements-test.txt
+      - name: Synthetic unit and independent schema tests
+        env:
+          PYTHONPATH: services/analysis/src
+        run: |
+          python -m unittest discover -s tests/core -v
+          python -m unittest discover -s tests/contracts -v
+          python -m unittest discover -s tests/integration -v
+      - name: Parser boundary tests
+        env:
+          PYTHONPATH: services/analysis/src
+        run: python -m unittest discover -s tests/parsers -v
+      - name: Synthetic packet envelope tests
+        env:
+          PYTHONPATH: services/analysis/src
+        run: python -m unittest discover -s tests/packets -v
+      - name: Worker process supervision tests
+        run: python -m unittest discover -s tests/worker -v
+      - name: Isolated recovery and capacity regression
+        env:
+          PYTHONPATH: services/worker:services/analysis/src
+        run: python -m unittest discover -s tests/isolated -v
+      - name: Evidence web and bounded arrival replay
+        env:
+          PYTHONPATH: services/analysis/src
+        run: |
+          python -m unittest discover -s tests/evidence_web -v
+          python -m unittest discover -s tests/replay -v
+          python -m unittest discover -s tests/replay_inputs -v
+          python -m unittest discover -s tests/validation -p test_round18_acceptance.py -v
+          python -m unittest discover -s tests/validation -p "test_round19*.py" -v
+      - name: Backup reference validation
+        env:
+          PYTHONPATH: services/analysis/src
+        run: python -m unittest discover -s tests/backup -v
+      - name: Strict executor content comparison regression
+        env:
+          PYTHONPATH: services/analysis/src:services/worker
+        run: |
+          python -m unittest discover -s tests/consistency -v
+          python -m unittest discover -s tests/ops -v
+      - name: Intake, compatibility and isolated evaluation contracts
+        env:
+          PYTHONPATH: services/analysis/src:services/worker
+        run: |
+          python -m unittest discover -s tests/intake -v
+          python -m unittest discover -s tests/evaluation -v
+          python -m unittest discover -s tests/compatibility -v
+          python scripts/validation/round8_evaluation_audit.py
+      - name: Legacy unsupported-path regression
+        run: python -m unittest discover -s tests/legacy -v
+  go:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+      - run: go build ./...
+      - run: go vet ./...
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: webui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: webui/package-lock.json
+      - run: npm ci
+      - name: Bounded workbench projections and historical selection
+        run: |
+          node ../scripts/validation/round20_analysis_model.cjs
+          node scripts/check-history-model.cjs
+      - run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: '1'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+
+  service-regression:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt
+      - run: python -m unittest discover -s tests/service -v
+
+  m4-postgres-prototype:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17.6
+        env:
+          POSTGRES_DB: m4_validation
+          POSTGRES_PASSWORD: m4-disposable-only
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d m4_validation"
+          --health-interval 2s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - name: Isolated repository fault tests (not production executor)
+        working-directory: internal/jobs/integration
+        env:
+          M4_TEST_DATABASE_URL: postgres://postgres:m4-disposable-only@localhost:5432/m4_validation?sslmode=disable
+        run: go test -race -count=1 -v ./...
+
+  m4-worker-integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Isolated Worker, PostgreSQL and real-process fault matrix
+        run: scripts/m4/validate-worker.sh
+      - name: Database outage and independent recovery restart
+        run: bash scripts/m4/validate-round6-recovery.sh
+
+  linux-isolation:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Strict timeout evidence negative regressions
+        run: python -m unittest discover -s tests/isolation -v
+      - name: Real container resource and double-crash probes
+        run: python scripts/m4/linux-isolation/validate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: linux-isolation-evidence
+          path: docs/refactor/validation-round10/linux-results.json
+
+  backup-restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/analysis/requirements-test.txt
+      - name: Independent PostgreSQL and artifact bundle restore
+        run: python scripts/backup/validate.py
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: backup-restore-evidence
+          path: docs/refactor/validation-round6/backup-integration-summary.json
+
+  isolated-executor:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Real isolated task publication and historical-attempt recovery
+        run: bash scripts/m4/isolated/validate-isolated.sh
+
+  engineering-acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Actual shared-core legacy and isolated execution
+        run: python scripts/validation/round7-consistency.py
+      - name: Capacity repair and resumed real Docker admission
+        run: bash scripts/ops/validate-capacity-rebuild.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: engineering-native-ci-evidence
+          path: |
+            docs/refactor/validation-round7/consistency-summary.json
+            docs/refactor/validation-round7/consistency-result.json
+            docs/refactor/validation-round7/capacity-live-summary.json
+
+  celery-live-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - name: Real RabbitMQ Celery Redis synthetic HTTP chain
+        run: python scripts/validation/round9_celery.py --evidence docs/refactor/validation-round9/celery-live.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: celery-live-compatibility-evidence
+          path: |
+            docs/refactor/validation-round9/celery-live.json
+            docs/refactor/validation-round9/celery-api.log
+            docs/refactor/validation-round9/celery-worker.log
+
+  synthetic-scaling:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Benchmark measurement and failure regressions
+        run: python -m unittest discover -s tests/benchmarks -v
+      - name: Registered bounded Linux synthetic scaling
+        run: python scripts/benchmarks/run_scaling.py --output docs/refactor/validation-round11/linux-ci.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-scaling-evidence
+          path: docs/refactor/validation-round11/linux-ci.json
+
+  dual-source-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/analysis/requirements-test.txt
+      - name: Independently specified dual-source scenarios and evidence boundaries
+        run: |
+          python -m unittest discover -s tests/dual_source -v
+          python -m unittest discover -s tests/validation -p test_round17_response_acceptance.py -v
+      - name: Full synthetic dual-source CLI and original-evidence example
+        run: python scripts/validation/round12_dual_source.py --output "$RUNNER_TEMP/dual-source-example"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dual-source-analysis-evidence
+          path: ${{ runner.temp }}/dual-source-example
+
+  dual-source-celery:
+    needs: frontend
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+      - name: Browser acceptance runtime
+        run: |
+          npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
+          "$RUNNER_TEMP/browser/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Actual Celery task and full browser evidence flow
+        run: |
+          python scripts/validation/round13_celery.py --output "$RUNNER_TEMP/dual-source-celery" --serve --ui-port 18300 > "$RUNNER_TEMP/dual-source-startup.log" 2>&1 &
+          validation_pid=$!
+          trap 'kill -TERM "$validation_pid" 2>/dev/null || true; wait "$validation_pid" || true' EXIT
+          for attempt in $(seq 1 180); do
+            if test -f "$RUNNER_TEMP/dual-source-celery/results.json"; then break; fi
+            if ! kill -0 "$validation_pid" 2>/dev/null; then cat "$RUNNER_TEMP/dual-source-startup.log"; exit 1; fi
+            sleep 2
+          done
+          python -c 'import json,os; from pathlib import Path; assert json.loads((Path(os.environ["RUNNER_TEMP"])/"dual-source-celery/results.json").read_text())["status"] == "passed"'
+          PLAYWRIGHT_MODULE="$RUNNER_TEMP/browser/node_modules/playwright" node scripts/validation/round13_browser.cjs "$RUNNER_TEMP/dual-source-celery" "$RUNNER_TEMP/dual-source-browser"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dual-source-celery-evidence
+          path: |
+            ${{ runner.temp }}/dual-source-celery
+            ${{ runner.temp }}/dual-source-browser
+            ${{ runner.temp }}/dual-source-startup.log
+
+  dual-source-persistent:
+    runs-on: ubuntu-latest
+    needs: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+      - run: npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
+      - run: "$RUNNER_TEMP/browser/node_modules/.bin/playwright install --with-deps chromium"
+      - name: Dual isolated cancellation, retry and publication faults
+        run: bash scripts/m4/isolated/validate-isolated-dual.sh
+      - name: Celery parity, empty database restore and existing UI evidence
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round14_acceptance.sh "$RUNNER_TEMP/round14"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dual-source-persistent-evidence
+          path: |
+            ${{ runner.temp }}/round14/public
+            ${{ runner.temp }}/round14/*.log
+            ${{ runner.temp }}/round14/celery/api.log
+            ${{ runner.temp }}/round14/celery/worker.log
+            ${{ runner.temp }}/round14/browser
+
+  replay-persistent:
+    runs-on: ubuntu-latest
+    needs: frontend
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: python -m pip install -r services/python-cpag-generator/requirements-test.txt -r services/analysis/requirements-test.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: frontend-static
+          path: webui/out
+      - run: npm install --prefix "$RUNNER_TEMP/browser" playwright@1.61.0
+      - run: "$RUNNER_TEMP/browser/node_modules/.bin/playwright install --with-deps chromium"
+      - name: Actual 1x and 10x replay pacing with complete samples
+        run: python scripts/validation/round18_metrics.py --output "$RUNNER_TEMP/round18-pacing"
+      - name: Replay formal Worker, prefix history and empty database restore browser
+        env:
+          PLAYWRIGHT_MODULE: ${{ runner.temp }}/browser/node_modules/playwright
+        run: bash scripts/validation/round18_acceptance.sh "$RUNNER_TEMP/round18"
+      - name: R19 independent final artifact evaluation and PostgreSQL restore
+        run: python scripts/validation/round19_evaluation_acceptance.py --output "$RUNNER_TEMP/round19-evaluation"
+      - name: R19 explicit disk replay history and empty database restore
+        # The R18 step already built this checkout's complete Worker source.
+        # Local small-case full-chain observation was about 287 seconds; keep
+        # the existing 30 minute job budget pending measured CI evidence.
+        run: python scripts/validation/round19_replay_spool_acceptance.py --image cpag-isolated:r18-acceptance --output "$RUNNER_TEMP/round19-spool"
+      - name: Replay cancellation, failure, interrupted Worker and new attempt
+        run: python scripts/validation/round18_lifecycle.py --output "$RUNNER_TEMP/round18-lifecycle"
+      - name: Explicit disk history cancellation, interrupted Worker and stale attempt
+        run: python scripts/validation/round18_lifecycle.py --history-format replay-history-checkpoint-delta-2 --skip-image-build --image cpag-isolated:r18-acceptance --output "$RUNNER_TEMP/round19-spool-lifecycle"
+      - name: R19 DAG6 formal service small-case integration
+        # Reuse this checkout's R18-built image, pin its immutable local ID, and
+        # run only small fixtures. S100 remains an explicitly bounded local cell.
+        run: |
+          r19_work="/private/tmp/cpag-r19-formal-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_FORMAL_OUTPUT=$r19_work" >> "$GITHUB_ENV"
+          sudo install -d -m 1777 /private/tmp
+          r19_image="$(docker image inspect cpag-isolated:r18-acceptance --format '{{.Id}}')"
+          echo "R19_DAG6_IMAGE=$r19_image" >> "$GITHUB_ENV"
+          python scripts/validation/round19_linux_permissions.py --image "$r19_image" --output "${r19_work}-permissions"
+          python scripts/validation/round19_formal_service_acceptance.py --mode small --image "$r19_image" --output "$r19_work"
+      - name: R19 actual DAG6 short faults and two-Worker slot checks
+        run: |
+          r19_fault_work="/private/tmp/cpag-r19-short-faults-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_SHORT_FAULT_OUTPUT=$r19_fault_work" >> "$GITHUB_ENV"
+          python scripts/validation/round19_short_formal_faults.py --image "$R19_DAG6_IMAGE" --output "$r19_fault_work" --seconds 240
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r19-short-formal-fault-public-evidence
+          path: ${{ env.R19_SHORT_FAULT_OUTPUT }}/public/report.json
+      - name: R19 DAG6 terminal backup and fresh restore small-case integration
+        # One bounded recovery drill, reusing the exact formal-smoke image.
+        # All DB dumps, credentials, source/control bytes and raw receipts stay
+        # private to the runner; only the explicit report allowlist is uploaded.
+        run: |
+          r19_backup_work="/private/tmp/cpag-r19-backup-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          echo "R19_BACKUP_OUTPUT=$r19_backup_work" >> "$GITHUB_ENV"
+          python scripts/validation/round19_shared_backup_acceptance.py --image "$R19_DAG6_IMAGE" --output "$r19_backup_work"
+          r19_replay_artifact="$(python - "$r19_backup_work" <<'PY'
+          import json
+          from pathlib import Path
+          import sys
+          work = Path(sys.argv[1])
+          report = json.loads((work / 'public/report.json').read_text())
+          assert report['status'] == 'passed' and report['valid'] is True
+          runs = [row for row in report['runs'] if row['label'] == 'dag6-replay']
+          assert len(runs) == 1 and runs[0]['state'] == 'succeeded' and runs[0]['attempt'] == 1
+          run = runs[0]
+          print(work / 'restored-new-root' / 'jobs' / run['id'] / f"attempt-{run['attempt']}")
+          PY
+          )"
+          python scripts/validation/round19_linux_permissions.py --image "$R19_DAG6_IMAGE" --artifact "$r19_replay_artifact" --output "${r19_backup_work}-restored-permissions"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: r19-shared-backup-public-evidence
+          path: |
+            ${{ env.R19_BACKUP_OUTPUT }}/public/report.json
+            ${{ env.R19_BACKUP_OUTPUT }}/restore-mutants/report.json
+            ${{ env.R19_BACKUP_OUTPUT }}-restored-permissions/report.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: replay-persistent-evidence
+          path: |
+            ${{ runner.temp }}/round18/public
+            ${{ runner.temp }}/round18/environment/public
+            ${{ runner.temp }}/round18/*.log
+            ${{ runner.temp }}/round18/browser
+            ${{ runner.temp }}/round18-pacing
+            ${{ runner.temp }}/round19-evaluation/public
+            ${{ runner.temp }}/round19-spool/public
+            ${{ runner.temp }}/round19-spool-lifecycle/public
+            ${{ runner.temp }}/round18-lifecycle/public
+            ${{ runner.temp }}/round18-lifecycle/*.log
+            ${{ env.R19_FORMAL_OUTPUT }}/report.json
+            ${{ env.R19_FORMAL_OUTPUT }}/http-timings.json
+            ${{ env.R19_FORMAL_OUTPUT }}/*-resource-proof.json
+            ${{ env.R19_FORMAL_OUTPUT }}-permissions/report.json

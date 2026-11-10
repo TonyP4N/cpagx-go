@@ -1,0 +1,10 @@
+{
+  "backup_root_prior_uid": 1001,
+  "backup_root_uid": 0,
+  "backup_root_mode": "0o700",
+  "business_owner_uids_unchanged": {
+    "/var/lib/cpag/shared": 1001,
+    "/var/lib/cpag/control": 1001
+  },
+  "recursive_chown": false
+}

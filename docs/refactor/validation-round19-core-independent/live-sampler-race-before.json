@@ -1,0 +1,8 @@
+{
+  "error_type": "FileNotFoundError",
+  "original_core_unchanged": true,
+  "path_kind": "temporary SQLite rollback journal",
+  "source_commit": "56e106b",
+  "source_script_sha256": "eaaf06e3dbe5d447bf849bc593506a15f06702a3dabb723ef5364306f04c96a4",
+  "status": "old_sampler_race_reproduced"
+}

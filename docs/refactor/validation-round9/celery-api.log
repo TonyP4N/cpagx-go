@@ -1,0 +1,86 @@
+InfluxDB client initialized successfully: http://127.0.0.1:1
+INFO:     Started server process [60011]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:61566 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61574 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61575 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:61578 - "GET /cpag/status/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61579 - "GET /cpag/artifacts/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61600 - "GET /cpag/status/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61602 - "GET /cpag/status/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61603 - "GET /cpag/artifacts/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61604 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/dataset.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61605 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/events.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61606 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/graph.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61607 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/quality.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61608 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/run_manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61609 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61610 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61611 - "GET /cpag/status/batch?task_ids=62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61612 - "GET /cpag/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61613 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:61614 - "GET /cpag/status/8c255de2-bab1-40c7-b92a-185d34b4c8b8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61616 - "GET /cpag/status/8c255de2-bab1-40c7-b92a-185d34b4c8b8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61617 - "GET /cpag/artifacts/8c255de2-bab1-40c7-b92a-185d34b4c8b8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61618 - "GET /cpag/result/8c255de2-bab1-40c7-b92a-185d34b4c8b8/json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61619 - "GET /cpag/download/8c255de2-bab1-40c7-b92a-185d34b4c8b8/graph.json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61620 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:61621 - "GET /cpag/status/bddd336f-c2eb-4fb1-88fa-2539ad6f8998 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61624 - "GET /cpag/status/bddd336f-c2eb-4fb1-88fa-2539ad6f8998 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61625 - "GET /cpag/artifacts/bddd336f-c2eb-4fb1-88fa-2539ad6f8998 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61626 - "GET /cpag/result/bddd336f-c2eb-4fb1-88fa-2539ad6f8998/json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61627 - "GET /cpag/download/bddd336f-c2eb-4fb1-88fa-2539ad6f8998/graph.json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61639 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:61640 - "GET /cpag/status/12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61645 - "GET /cpag/status/12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61646 - "GET /cpag/status/12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61647 - "GET /cpag/artifacts/12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61648 - "GET /cpag/download/12a0db71-2c62-479e-90ff-26e1f996ba39/dataset.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61649 - "GET /cpag/download/12a0db71-2c62-479e-90ff-26e1f996ba39/events.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61650 - "GET /cpag/download/12a0db71-2c62-479e-90ff-26e1f996ba39/graph.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61651 - "GET /cpag/download/12a0db71-2c62-479e-90ff-26e1f996ba39/quality.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61652 - "GET /cpag/download/12a0db71-2c62-479e-90ff-26e1f996ba39/run_manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61653 - "GET /cpag/result/12a0db71-2c62-479e-90ff-26e1f996ba39/json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61654 - "GET /cpag/result/12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61655 - "GET /cpag/status/batch?task_ids=12a0db71-2c62-479e-90ff-26e1f996ba39 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61656 - "GET /cpag/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61673 - "POST /cpag/synthetic HTTP/1.1" 503 Service Unavailable
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [60011]
+InfluxDB client initialized successfully: http://127.0.0.1:1
+INFO:     Started server process [60044]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:61566 (Press CTRL+C to quit)
+INFO:     127.0.0.1:61700 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61705 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:61708 - "GET /cpag/status/e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61713 - "GET /cpag/status/e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61714 - "GET /cpag/status/e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61715 - "GET /cpag/artifacts/e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61716 - "GET /cpag/download/e10f0458-3f4b-42bd-9428-3a51ec280375/dataset.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61717 - "GET /cpag/download/e10f0458-3f4b-42bd-9428-3a51ec280375/events.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61718 - "GET /cpag/download/e10f0458-3f4b-42bd-9428-3a51ec280375/graph.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61719 - "GET /cpag/download/e10f0458-3f4b-42bd-9428-3a51ec280375/quality.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61720 - "GET /cpag/download/e10f0458-3f4b-42bd-9428-3a51ec280375/run_manifest.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61721 - "GET /cpag/result/e10f0458-3f4b-42bd-9428-3a51ec280375/json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61722 - "GET /cpag/result/e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61724 - "GET /cpag/status/batch?task_ids=e10f0458-3f4b-42bd-9428-3a51ec280375 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61725 - "GET /cpag/tasks HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61726 - "GET /cpag/artifacts/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61727 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61728 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61729 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/graph.json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61730 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/graph.json HTTP/1.1" 200 OK
+INFO:     127.0.0.1:61731 - "GET /cpag/artifacts/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61732 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7 HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61733 - "GET /cpag/result/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61734 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/graph.json HTTP/1.1" 409 Conflict
+INFO:     127.0.0.1:61735 - "GET /cpag/download/62f95efe-ab2d-474b-b4ef-2d214fc3f6b7/graph.json HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [60044]

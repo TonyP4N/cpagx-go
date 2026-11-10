@@ -1,0 +1,44 @@
+{
+  "headSha": "06984b81f85b6ea64f8e510740547bb2875ff137",
+  "status": "completed",
+  "conclusion": "success",
+  "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810",
+  "jobs": [
+    {
+      "name": "m4-postgres-prototype",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049236"
+    },
+    {
+      "name": "core",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049325"
+    },
+    {
+      "name": "go",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049348"
+    },
+    {
+      "name": "m4-worker-integration",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049392"
+    },
+    {
+      "name": "service-regression",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049412"
+    },
+    {
+      "name": "frontend",
+      "conclusion": "success",
+      "status": "completed",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40081915810/job/120837049423"
+    }
+  ]
+}

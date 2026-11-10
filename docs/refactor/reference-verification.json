@@ -1,0 +1,118 @@
+{
+  "checked_on": "2026-10-24",
+  "reference_root": "../references/SWaT_collection_20261024",
+  "archive_sha256": "f9564a174632bb50b9b83884cc0033f8f504a41559f55608a1c31f5286eba706",
+  "downloaded_files_verified": 18,
+  "sha256sums_verified": true,
+  "raw_data_acquired": false,
+  "files": [
+    {
+      "path": "official_pages/datasets.html",
+      "sha256": "2e668896535653227dbe9590d465bd02d26a2bc40d5b33eeca7f0ff95626b25e",
+      "size_bytes": 215751,
+      "verified": true
+    },
+    {
+      "path": "official_pages/swat_versions.html",
+      "sha256": "00798abba196ee7c03d9b4414de930f3e06f494753ad0c1a615c5986e8e93cb5",
+      "size_bytes": 223076,
+      "verified": true
+    },
+    {
+      "path": "official_pages/dataset_summary.html",
+      "sha256": "42bd784fe135463964b999a701ef718a64ff7d2bf16b7535c3058373d7f02632",
+      "size_bytes": 218804,
+      "verified": true
+    },
+    {
+      "path": "official_pages/terms.html",
+      "sha256": "bf773139e40dd25ab4dc79eb78bee8cb15ca2196b58e93750f2721544b50d531",
+      "size_bytes": 218903,
+      "verified": true
+    },
+    {
+      "path": "official_pages/request_form.html",
+      "sha256": "ca65a2c8725f9b9fb5e74c5448d1471ae38c5a6795c730b65f38f8643935f0f5",
+      "size_bytes": 250805,
+      "verified": true
+    },
+    {
+      "path": "official_pages/testbed.html",
+      "sha256": "5d447e3587d47466a6b33aa308462b340fdc569c82eb34bfee209b2ba561d903",
+      "size_bytes": 198738,
+      "verified": true
+    },
+    {
+      "path": "technical_documents/SWaT_Testbed_Mathur_Tippenhauer_2016.pdf",
+      "sha256": "d796fc5a4dd5d15c319222d34e909d9ecf5b656ca3098685d6d3d9fa224a55d3",
+      "size_bytes": 2578641,
+      "verified": true
+    },
+    {
+      "path": "technical_documents/CI_AI_Challenge_2024_Briefing.pdf",
+      "sha256": "6d521e7a180ea3569daab3d58b670b2ab68ef8e6058eb653c506d5663da38a8a",
+      "size_bytes": 804526,
+      "verified": true
+    },
+    {
+      "path": "architecture/physical_process.png",
+      "sha256": "d5020eb5ed58c309e08c3b7ad109b14a2e2b00e692da172fa7289b3a0210eef3",
+      "size_bytes": 891252,
+      "verified": true
+    },
+    {
+      "path": "architecture/network_architecture.jpg",
+      "sha256": "83cba2dfe3724cc249929402b978e69d880d56d508f99ba7bd6a2afdc93c5f57",
+      "size_bytes": 170741,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size1.pdf",
+      "sha256": "19dd2fe9286e4e9a8aaac52bd3ae5a090d45a7009ca2fcc5548c77665f06e493",
+      "size_bytes": 339519,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size2.pdf",
+      "sha256": "e961f7c58a3518afa8f601494dc94458f5083ef54cc792ff923cf1953b903835",
+      "size_bytes": 330209,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size3.pdf",
+      "sha256": "d2b233285b88d2f8e29c9a5696b746fe1ab237efaf3aa8503f7d86702f8854e0",
+      "size_bytes": 328362,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size4.pdf",
+      "sha256": "f08e48ffe6329d4416020cc35bfdad1a5f0b3351da0eaf06f023d6b053bcf5a5",
+      "size_bytes": 327245,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size5.pdf",
+      "sha256": "1d8df1849cc7b14e23adc7bda7499fe4752b370f914688c2d91f2c1e49ad9aca",
+      "size_bytes": 326476,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size6.pdf",
+      "sha256": "b0b38eae69cd7d480cafbeafb9104856e2dc0882804c10837ba88ae585e9ad61",
+      "size_bytes": 325421,
+      "verified": true
+    },
+    {
+      "path": "rules/SetOfRuleswith_Size7.pdf",
+      "sha256": "0433c06117a994eba04e61d4e616e9d2dc0b38f5c08d4a89f1ec1b4f142b238e",
+      "size_bytes": 316978,
+      "verified": true
+    },
+    {
+      "path": "rules/comparison.pdf",
+      "sha256": "364f641923c5cb1f14980f5393e602c419c3fc7acc5938f59e67bc568dacab4a",
+      "size_bytes": 426233,
+      "verified": true
+    }
+  ]
+}

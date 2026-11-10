@@ -1,0 +1,10 @@
+{
+  "ci_run": 40287532425,
+  "head_sha": "ad51ceb2312098e97b54b88f001cf7aa00704611",
+  "query_matches_saved_evidence": true,
+  "analysis_bytes_match_local": true,
+  "original_references": 4,
+  "network_events_with_fields": 2,
+  "candidate_state": "supported_candidate",
+  "claim_status": "hypothetical"
+}

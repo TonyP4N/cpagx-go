@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 57, in main
+    actual=stage('full_logical_hash_'+name,lambda name=name:reader.canonical_sha256(name,max_bytes=record['roots'][name]['logical_bytes']))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 35, in stage
+    value=call();row.update(event='completed',wall_seconds=time.perf_counter()-before,cpu_seconds=time.process_time()-cpu);persist();return value
+          ^^^^^^
+  File "<repository>/docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py", line 57, in <lambda>
+    actual=stage('full_logical_hash_'+name,lambda name=name:reader.canonical_sha256(name,max_bytes=record['roots'][name]['logical_bytes']))
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 341, in canonical_sha256
+    for chunk in self.iter_canonical(name,path=path,max_bytes=max_bytes):digest.update(chunk)
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 333, in iter_canonical
+    for chunk in self._chunks(ref):
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 319, in _chunks
+    yield canonical(key);yield b':';yield from self._chunks(child)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 325, in _chunks
+    yield from self._chunks(child)
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 319, in _chunks
+    yield canonical(key);yield b':';yield from self._chunks(child)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 325, in _chunks
+    yield from self._chunks(child)
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 319, in _chunks
+    yield canonical(key);yield b':';yield from self._chunks(child)
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 313, in _chunks
+    kind,value,_,_,payload,_=self._node(ref)
+                             ^^^^^^^^^^^^^^^
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store_compressed.py", line 412, in _node
+    legacy._deadline(self.deadline)
+  File "<repository>/services/analysis/src/cpag_core/shared_artifact_store.py", line 54, in _deadline
+    if deadline is not None and time.monotonic()>=deadline:raise ValueError('shared_store_deadline_exceeded')
+                                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: shared_store_deadline_exceeded

@@ -1,0 +1,48 @@
+{
+  "baseline_revision": "75a9e92",
+  "memory_metric": "tracemalloc peak Python allocations; not process RSS",
+  "samples": [
+    {
+      "variant": "baseline",
+      "records_per_source": 100,
+      "events": 300,
+      "elapsed_seconds": 0.425,
+      "peak_python_mib": 2.19
+    },
+    {
+      "variant": "indexed",
+      "records_per_source": 100,
+      "events": 300,
+      "elapsed_seconds": 0.422,
+      "peak_python_mib": 2.382
+    },
+    {
+      "variant": "baseline",
+      "records_per_source": 500,
+      "events": 1500,
+      "elapsed_seconds": 4.034,
+      "peak_python_mib": 8.899
+    },
+    {
+      "variant": "indexed",
+      "records_per_source": 500,
+      "events": 1500,
+      "elapsed_seconds": 1.474,
+      "peak_python_mib": 9.835
+    },
+    {
+      "variant": "baseline",
+      "records_per_source": 1000,
+      "events": 3000,
+      "elapsed_seconds": 13.082,
+      "peak_python_mib": 14.594
+    },
+    {
+      "variant": "indexed",
+      "records_per_source": 1000,
+      "events": 3000,
+      "elapsed_seconds": 2.983,
+      "peak_python_mib": 16.475
+    }
+  ]
+}

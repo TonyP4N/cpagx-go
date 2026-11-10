@@ -1,0 +1,102 @@
+INSTALL.txt: OK
+OPERATIONS.zh-CN.md: OK
+baseline-release.json: OK
+config.env.example: OK
+cpag.sh: OK
+dependencies.lock.json: OK
+images.tar: OK
+lab-engine.tar: OK
+release.json: OK
+validate-upgrade-rollback.sh: OK
+Loaded image: cpag-isolated:baseline-1386a4f
+Loaded image: mirror.gcr.io/library/postgres:17.6-alpine
+Loaded image: cpag-engineering:rc1
+Loaded image: cpag-isolated:round7
+Loaded image: cpag-engineering:baseline-1386a4f
+initialized /round7-drill/data
+started cpag-round7-old
+PASS offline task legacy offline-legacy-236a853ba726
+PASS offline task packet offline-packet-931574d3e57a
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "05f58047e80a3a9ce3b90ccf5128d1eb3d836e8261a9699a7ed1a770fd728e25", "bytes": 2645, "verified_files": 6}, "packet": {"sha256": "07096efbfe417083b8343a2466eefef8bb124b7899e4179f346e4b61d3181f3a", "bytes": 3975, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "eec35df523d260262f517c2e527115421da0c56a3fb49c2d020905ebd75e45c9"}
+started cpag-round7-old
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "6c768d285cd88ca215ac079483b3e74c45e11ac5a2b86635e1c5540477da80db", "bytes": 2657, "verified_files": 6}, "packet": {"sha256": "d1b33c10595753593a65579e3738707ff4fd936345da2316fe45f2e0397161f4", "bytes": 3975, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+PASS offline task legacy offline-legacy-8a62cb4224e8
+PASS offline task packet offline-packet-6da3e4bf9c1b
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "a89037150a04c2d5d35c17149a8c5ba23931b394fabc72a50f6a7751abff4f39", "bytes": 2659, "verified_files": 6}, "packet": {"sha256": "a7345dd9dcdfcf03e3a4ef68511769b8be07a98bf94e9bb591ec703085a3c146", "bytes": 3968, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "63b697d506e3bb1b02df931f0682236196683ce805b19cadcc278902ecb9a525"}
+{"valid": true, "synthetic_only": true, "source_version": "cpag-engineering-synthetic-rc1", "metadata_equal": true, "history_equal": true, "files_equal": true, "evidence_audit": true, "capacity": {"reserved_bytes": 387656, "attempt_file_bytes": 125512, "reservation_count": 5, "valid": true}, "control": {"valid": true, "matched_execution_count": 4}}
+started cpag-round7-restored
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "66ebbdaff5a3e1478eae546efa7d204471b4212a982459faf569a3c171d1932e", "bytes": 2668, "verified_files": 6}, "packet": {"sha256": "73fe57c8596334d9a59b2963eeb28ba76f7652aff1688210bcc305457abb52be", "bytes": 3968, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "synthetic_only": true}
+{"valid": true, "synthetic_only": true, "source_version": "1386a4f68afbe00d83bb355632e9ff7637a227c2", "metadata_equal": true, "history_equal": true, "files_equal": true, "evidence_audit": true, "capacity": {"reserved_bytes": 193846, "attempt_file_bytes": 62774, "reservation_count": 3, "valid": true}, "control": {"valid": true, "matched_execution_count": 2}}
+started cpag-round7-rollback
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "26e5b366930d3ad36c13705f5f3e31405f19f9fd9ab9774f7d1f3254709249f5", "bytes": 2657, "verified_files": 6}, "packet": {"sha256": "88d651e97ac4c2bf386e7dc5cef4cd21f39862b0477a43f56ff5ec4766e1668a", "bytes": 3975, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+PASS offline task legacy offline-legacy-76df41bb2c2d
+PASS offline task packet offline-packet-c3a73ea122b0
+{"task_states": "succeeded", "packet_query_slices": 1, "downloads": {"legacy": {"sha256": "0f55b9be82540d6afe50e81d2ee2bf7f49184f46eb4a525a6ac3c0be8a974859", "bytes": 2665, "verified_files": 6}, "packet": {"sha256": "80c5797f0944210954a89d2c5cf871451b395b86f238292e94d0f26fdaa85cc0", "bytes": 3980, "verified_files": 7}}, "negative_download_refusals": ["legacy_tampered_download_manifest", "legacy_missing_artifact", "legacy_tampered_artifact", "legacy_tampered_original", "packet_tampered_published_wrapper"]}
+{"valid": true, "snapshot_sha256": "cbc10303a0d89814d41a261f4ae3189ba2eb85b224b9ad25c726474d21a39b73"}
+{
+  "valid": true,
+  "synthetic_only": true,
+  "baseline": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+  "upgrade_existing_evidence": true,
+  "candidate_independent_restore": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "cpag-engineering-synthetic-rc1",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 387656,
+      "attempt_file_bytes": 125512,
+      "reservation_count": 5,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 4
+    }
+  },
+  "baseline_rollback": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 193846,
+      "attempt_file_bytes": 62774,
+      "reservation_count": 3,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 2
+    }
+  },
+  "snapshot_negatives": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_unchanged": true,
+    "cases": {
+      "missing_original_capture": "rejected_before_restore",
+      "tampered_original_capture": "rejected_before_restore",
+      "missing_published_manifest": "rejected_before_restore",
+      "tampered_capacity_ledger": "rejected_before_restore",
+      "tampered_database_dump": "rejected_before_restore",
+      "missing_exit_receipt": "rejected_before_restore"
+    }
+  },
+  "old_executor_fresh_tasks_after_rollback": true,
+  "newer_data_retained": true
+}
+
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping
+NOTICE:  relation "cpag_release_migrations" already exists, skipping

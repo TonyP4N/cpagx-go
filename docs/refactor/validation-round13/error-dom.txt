@@ -1,0 +1,170 @@
+- banner:
+  - heading "合成双源验证" [level=1]
+  - paragraph: 网络报文与过程采样的可核查关联候选
+  - link "返回 CPAG 首页":
+    - /url: /
+- main:
+  - region "合成验证范围":
+    - strong: 仅限合成验证。
+    - text: 这里展示观测事实与假设性关联候选，不作因果、攻击识别或物理动作成功判断。协议成功响应仅表示协议服务响应成功；端点地址不证明操作主体。时间偏移由配置提供，采样间隔不能确定动作发生时刻。
+  - region "提交合成双源任务":
+    - heading "提交合成测试输入" [level=2]
+    - text: 网络原始报文
+    - button "网络原始报文"
+    - text: 过程采样 CSV
+    - button "过程采样 CSV"
+    - text: 合成配置 JSON
+    - button "合成配置 JSON"
+    - checkbox "我确认三份输入均为合成测试数据，配置文件声明 synthetic=true。" [checked]
+    - text: 我确认三份输入均为合成测试数据，配置文件声明 synthetic=true。
+    - button "运行合成双源验证"
+  - region "打开已有任务":
+    - heading "查看已有任务" [level=2]
+    - textbox "合成双源任务 ID":
+      - /placeholder: 粘贴任务 ID
+      - text: fc078362-85a8-4f3b-bed1-afa4bafbae67
+    - button "读取任务"
+    - button "刷新当前任务"
+    - paragraph: 任务 ID：fc078362-85a8-4f3b-bed1-afa4bafbae67
+    - paragraph: 状态：completed
+  - region "双源结果摘要":
+    - paragraph: 网络操作
+    - paragraph: "1"
+    - paragraph: 过程变化
+    - paragraph: "1"
+    - paragraph: 关联候选
+    - paragraph: "1"
+    - paragraph: 孤立过程变化
+    - paragraph: "0"
+  - region "双源时间线":
+    - heading "双源时间线" [level=2]
+    - paragraph: 各行显示配置时钟修正后的可能时间区间；区间重叠仅供比较。
+    - heading "网络操作" [level=3]
+    - list:
+      - listitem:
+        - button "查看网络操作证据 packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a": write_attribute · request 2026-01-01T00:00:10.000Z — 2026-01-01T00:00:10.000Z
+      - listitem:
+        - button "查看网络操作证据 packet-377e1a1ec5dfbae16bb269dd7ef035e8320cfd862173219417efe1aed20b8115": write_attribute · response 2026-01-01T00:00:11.000Z — 2026-01-01T00:00:11.000Z
+    - heading "过程采样" [level=3]
+    - list:
+      - listitem: synthetic-pump / pump_state = 0 2026-01-01T00:00:09.000Z — 2026-01-01T00:00:09.000Z
+      - listitem:
+        - button "查看过程采样证据 666218055522e6220bd5e36903fe802df568bc24dccbfbb1624fffa605b60aac": synthetic-pump / pump_state = 0 2026-01-01T00:00:10.500Z — 2026-01-01T00:00:10.500Z
+      - listitem:
+        - button "查看过程采样证据 59bdeb6c1d0a2662f34af8bcfd1dd661f1a11610e53b29fb1f2e3a23a258a3d9": synthetic-pump / pump_state = 1 2026-01-01T00:00:12.000Z — 2026-01-01T00:00:12.000Z
+      - listitem: synthetic-pump / pump_state = 1 2026-01-01T00:00:15.000Z — 2026-01-01T00:00:15.000Z
+      - listitem: synthetic-pump / pump_state = 1 2026-01-01T00:00:16.000Z — 2026-01-01T00:00:16.000Z
+  - region "双源关联图":
+    - heading "关联图" [level=2]
+    - paragraph: 选择网络操作、过程变化或候选连线以核查原始证据。所有连线均为假设。
+    - img "双源关系图：左侧网络操作，右侧过程变化；连线为假设性关联候选":
+      - text: 网络操作 过程变化 其他原始节点
+      - button "查看候选连线 candidate-d6e9a4da1ab5ddb2655a23fa5987a170db16879f83360118332b8ca5cc621dbb，状态 counterevidence_present": counterevidence_present
+      - button "查看network节点 packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a": network packet-97a114d601c6…
+      - button "查看derived_event节点 change-67ee4da11f655149581cc5e85630e7c620ca7604e1818031707d18479908e429": derived_event change-67ee4da11f65…
+      - button "查看network节点 packet-377e1a1ec5dfbae16bb269dd7ef035e8320cfd862173219417efe1aed20b8115": network packet-377e1a1ec5df…
+      - text: process 913f233311cf3693ca1…
+      - button "查看process节点 666218055522e6220bd5e36903fe802df568bc24dccbfbb1624fffa605b60aac": process 666218055522e6220bd…
+      - button "查看process节点 59bdeb6c1d0a2662f34af8bcfd1dd661f1a11610e53b29fb1f2e3a23a258a3d9": process 59bdeb6c1d0a2662f34…
+      - text: process 8964b7f32742852eb6a… process 32b9ff75cf230835ac1…
+    - heading "网络操作节点" [level=3]
+    - button "write_attribute packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a 评估：expected_change_observed · 响应：error"
+    - heading "过程变化节点" [level=3]
+    - 'button "synthetic-pump / pump_state: 0 → 1 change-67ee4da11f655149581cc5e85630e7c620ca7604e1818031707d18479908e429 2026-01-01T00:00:10.500Z — 2026-01-01T00:00:12.000Z"'
+    - heading "候选连线" [level=3]
+    - button "counterevidence_present · 假设性关联 packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a → change-67ee4da11f655149581cc5e85630e7c620ca7604e1818031707d18479908e429"
+  - region "候选判断和未知原因":
+    - heading "候选依据与歧义" [level=2]
+    - article:
+      - heading "counterevidence_present · candidate-d6e9a4da1ab5ddb2655a23fa5987a170db16879f83360118332b8ca5cc621dbb" [level=3]
+      - text: 支持依据：
+      - list:
+        - listitem: explicit_mapping
+        - listitem: expected_sample_transition
+        - listitem: possible_temporal_window
+      - text: 反证：
+      - list:
+        - listitem: "{\"evidence_refs\":[{\"column\":null,\"file_sha256\":\"5e039c7f29832fcfd3595573a4ffa5cca98c2611918c3c7aebf8777fc834992c\",\"frame_number\":2,\"raw_time\":\"1767225611000000\",\"record_number\":null}],\"reason\":\"error_response\"}"
+      - text: 未知原因：无 替代操作：无 替代变化：无
+    - heading "缺失与质量原因" [level=2]
+    - heading "全局未知原因" [level=3]
+    - text: 无
+    - paragraph: 操作 packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a
+    - text: 未知：无 反证：
+    - list:
+      - listitem: "{\"evidence_refs\":[{\"column\":null,\"file_sha256\":\"5e039c7f29832fcfd3595573a4ffa5cca98c2611918c3c7aebf8777fc834992c\",\"frame_number\":2,\"raw_time\":\"1767225611000000\",\"record_number\":null}],\"reason\":\"error_response\"}"
+    - group: 完整质量记录与来源区间
+  - region "证据核查":
+    - heading "原始证据核查" [level=2]
+    - paragraph: 已选择：operation · packet-97a114d601c6ba474b6e91ab90b5a72c07cf62c01b2e6c8db99c0af4fe881b6a
+    - heading "网络操作" [level=3]
+    - paragraph: 捕获端点：192.0.2.1:1234 → 192.0.2.2:44818（端点不证明操作主体）
+    - paragraph: "操作：write_attribute；路径：{\"attribute\":1,\"class\":1,\"instance\":1}；请求数据：0100"
+    - paragraph: 响应：error（协议状态码 5）。仅协议响应，非物理成功。
+    - paragraph: 映射状态：matched · synthetic-pump / pump_state
+    - paragraph: 核查后的原始记录：4；核查后的网络字段：2
+    - list:
+      - listitem:
+        - heading "原始记录 1" [level=3]
+        - term: 文件 SHA-256
+        - definition: 423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31
+        - term: 帧号
+        - definition: —
+        - term: 记录号
+        - definition: "2"
+        - term: 列名
+        - definition: pump
+        - term: 原始时间
+        - definition: 2026-01-01T00:00:10.500000Z
+        - group: 查看原始内容
+      - listitem:
+        - heading "原始记录 2" [level=3]
+        - term: 文件 SHA-256
+        - definition: 423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31
+        - term: 帧号
+        - definition: —
+        - term: 记录号
+        - definition: "3"
+        - term: 列名
+        - definition: pump
+        - term: 原始时间
+        - definition: 2026-01-01T00:00:12Z
+        - group: 查看原始内容
+      - listitem:
+        - heading "原始记录 3" [level=3]
+        - term: 文件 SHA-256
+        - definition: 5e039c7f29832fcfd3595573a4ffa5cca98c2611918c3c7aebf8777fc834992c
+        - term: 帧号
+        - definition: "1"
+        - term: 记录号
+        - definition: —
+        - term: 列名
+        - definition: —
+        - term: 原始时间
+        - definition: "1767225610000000"
+        - group: 查看原始内容
+      - listitem:
+        - heading "原始记录 4" [level=3]
+        - term: 文件 SHA-256
+        - definition: 5e039c7f29832fcfd3595573a4ffa5cca98c2611918c3c7aebf8777fc834992c
+        - term: 帧号
+        - definition: "2"
+        - term: 记录号
+        - definition: —
+        - term: 列名
+        - definition: —
+        - term: 原始时间
+        - definition: "1767225611000000"
+        - group: 查看原始内容
+    - group: 查看核查后的网络字段
+    - group: 查看选中项、时钟配置和局限
+  - region "结果文件":
+    - heading "可下载结果" [level=2]
+    - button "下载 graph.json"
+    - button "下载 events.json"
+    - button "下载 dataset.json"
+    - button "下载 quality.json"
+    - button "下载 analysis.json"
+    - button "下载 run_manifest.json"
+    - group: 查看文件清单与校验信息
+- alert

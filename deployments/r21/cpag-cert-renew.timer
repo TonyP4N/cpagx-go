@@ -1,0 +1,10 @@
+[Unit]
+Description=Twice-daily CPAG certificate renewal check
+
+[Timer]
+OnCalendar=*-*-* 02,14:00:00
+RandomizedDelaySec=3600
+Persistent=true
+
+[Install]
+WantedBy=timers.target

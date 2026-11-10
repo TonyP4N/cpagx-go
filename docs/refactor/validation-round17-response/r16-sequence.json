@@ -1,0 +1,91 @@
+{
+  "scope": "synthetic software only",
+  "checks": {
+    "single_source_complete_backup": true,
+    "complete_materials_real_worker_four_refs": true,
+    "missing_source": {
+      "http": 422,
+      "error": "preflight_incomplete",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "missing_batch": {
+      "http": 422,
+      "error": "preflight_incomplete",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "missing_authorization_ref": {
+      "http": 422,
+      "error": "preflight_incomplete",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "batch_conflict": {
+      "http": 409,
+      "error": "batch_conflict",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "missing_mapping_basis": {
+      "http": 422,
+      "error": "insufficient_basis",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "missing_time_basis": {
+      "http": 422,
+      "error": "insufficient_basis",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 4
+    },
+    "checked_original_bytes_changed": {
+      "http": 409,
+      "error": "preflight_stale",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 2
+    },
+    "retained_report_tamper": {
+      "http": 409,
+      "error": "preflight_stale",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 4
+    },
+    "invalid_source_kind_400": true,
+    "checked_input_set_changed": {
+      "http": 409,
+      "error": "preflight_stale",
+      "api_cli_equal": true,
+      "no_jobs_or_bindings": true,
+      "audit_count": 6
+    },
+    "append_files_configs_preserves_history_and_run": true,
+    "tampered_original_backup_refused": true,
+    "tampered_historical_snapshot_backup_refused": true,
+    "append_then_complete_backup": true,
+    "empty_database_new_directory_restore": true,
+    "restored_two_history_reports_and_four_refs": true,
+    "explicit_legacy_backfill_preserves_reports_and_backs_up": true,
+    "unreconstructable_report_retained_and_backup_refused": true
+  },
+  "status": "passed",
+  "historical_dataset_id": "46b3e2faff14916cbe06b9467bd70508",
+  "preflight_ids": [
+    "11d88072954e43dcc904290048fa5265",
+    "a502aeb70ef0dd8dd6fb7a5667854368"
+  ],
+  "run_id": "8af710b409682b2f5d1bb82cdf42e4e8",
+  "snapshot_sha256": [
+    "f5703fdea2d5046848d5be0f11a95162dc26f7874839742775eabadd88b497c2",
+    "bf330707e44e9aeb1c9bc2b4849df1043cc42ce856a392e44e70c8d704b45ad6"
+  ],
+  "original_evidence_refs": 4
+}

@@ -1,0 +1,21 @@
+{
+  "commit": "b208bc9e8962c0db4cc3acfa03cb3b34e1f1be5c",
+  "scope": "disposable database, genuine Go public API, synthetic fixture; no worker execution claimed",
+  "single_source_preflight_status": "single_source_review",
+  "backup_before_append_valid": true,
+  "dual_source_preflight_status": "ready_for_manual_review",
+  "backup_after_append_valid": false,
+  "backup_after_append_error": "source catalog invalid: [{\"scope\": \"v3_preflights\", \"id\": \"1f2894d33a0ba382c489c5ddc55bd202\", \"reason\": \"preflight report differs from retained sources/config\"}]",
+  "missing_provenance_preflight_status": "material_gaps",
+  "missing_provenance_gaps": [
+    "authorization",
+    "mapping",
+    "release",
+    "source",
+    "time_basis"
+  ],
+  "missing_provenance_run_status": 201,
+  "missing_provenance_run_state": "queued",
+  "invalid_source_kind_status": 422,
+  "invalid_source_kind_error": "invalid_dataset"
+}

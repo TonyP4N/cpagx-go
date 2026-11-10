@@ -1,0 +1,25 @@
+{
+  "scope": "local synthetic evaluator only; not final-artifact, Worker, reference machine or real-material acceptance",
+  "python": "3.11.9",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "matching_version": "indexed-temporal-one-to-one-v2",
+  "scenario": "22000 per side, identical time and batch/kind/asset, tolerance0, handwritten expectedTP22000FP0FN0",
+  "matching": {
+    "wall_seconds": 0.11516529100481421,
+    "cpu_seconds": 0.056620000000000004,
+    "tp": 22000
+  },
+  "evaluate_wall_seconds": 4.278976125002373,
+  "evaluate_cpu_seconds": 1.6924,
+  "process_peak_rss_bytes": 121896960,
+  "result_canonical_bytes": 2579026,
+  "metrics": {
+    "tp": 22000,
+    "fp": 0,
+    "fn": 0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "normal_hours": 1.0,
+    "false_alarms_per_normal_hour": 0.0
+  }
+}

@@ -1,0 +1,10 @@
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/final
+    replay_test.go:19: graph projection lost verified metadata: map[string]interface {}{"graph":map[string]interface {}{"edges":[]interface {}{}, "nodes":[]interface {}{}}, "mode":"dual_source_replay", "replay_version":interface {}(nil), "revision_number":interface {}(nil), "synthetic":false}
+=== RUN   TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/snapshot
+--- FAIL: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion (0.00s)
+    --- FAIL: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/final (0.00s)
+    --- PASS: TestReplayGraphProjectionRetainsVerifiedEnvelopeVersion/snapshot (0.00s)
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	0.359s
+FAIL

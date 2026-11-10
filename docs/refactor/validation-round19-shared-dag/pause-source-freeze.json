@@ -1,0 +1,22 @@
+{
+  "status": "paused_after_M_attempt3",
+  "git_head": "f182309cda35808f7ba7f7cf6de4f6d5cd2f626f",
+  "git_branch": "refactor/m1-evidence-core",
+  "files_sha256": {
+    "services/analysis/src/cpag_core/dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "services/analysis/src/cpag_core/dual_source_rules.py": "238860a98584688fe8ba5022f141b782da6f69e8a869c0f05f22ca916a65dea0",
+    "services/analysis/src/cpag_core/dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "services/analysis/src/cpag_core/pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "services/analysis/src/cpag_core/capacity.py": "c3ad55fb885bd3b82798ead6a100992f558d8d26d9b978ea2991e599b2805d44",
+    "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1",
+    "tests/core/test_shared_artifact_store.py": "f2e9427a39158456cbb8cd637c1cbd39fe51c3c8f08abc4aa563802fac9582e3",
+    "tests/core/test_shared_artifact_store_compressed.py": "07b5a36b679a0e1c9ce75ae6079476bd044d65a200e0a990fa121f3959a38a20",
+    "schemas/SharedStoreRunManifest.schema.json": "72307ac23485deab0de8543ffd02c76f750b658608148dfa91e826018e335aac",
+    "docs/refactor/validation-round19-shared-dag/actual_M_compressed_probe.py": "b81e563484b27ddcc9992d408e16312d914a35a65e62fccd9cd75ed88bd32c32"
+  },
+  "M_attempt3_fixed_source_before_after": true,
+  "private_original_store_path": "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/shared-probe-M-attempt3-dag5/store",
+  "own_running_exec_sessions": [],
+  "process_scope": "all owned exec sessions completed; no Docker workloads started by this agent; macOS process enumeration unavailable in tool environment"
+}

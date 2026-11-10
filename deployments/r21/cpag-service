@@ -1,0 +1,140 @@
+#!/usr/bin/env python3
+"""Manage only this deployment's Go/Worker; private operator config is authoritative."""
+import argparse
+import fcntl
+import hashlib
+import json
+import os
+from pathlib import Path
+import signal
+import subprocess
+import sys
+import time
+from urllib.error import HTTPError,URLError
+from urllib.request import ProxyHandler,build_opener
+
+UNITS=['cpag-api.service','cpag-worker.service']
+
+def read_private(path):
+ info=path.lstat()
+ if not path.is_file() or info.st_mode&0o077:raise ValueError('private regular 0600 configuration required')
+ return json.loads(path.read_text())
+def proc(pid):
+ try:
+  row=Path(f'/proc/{pid}/stat').read_text().rsplit(')',1)[1].split()
+  return {'state':row[0],'start':row[19],'command':Path(f'/proc/{pid}/cmdline').read_bytes().replace(b'\0',b' ').decode(errors='replace')}
+ except (OSError,IndexError):return None
+def alive(record):
+ if not record or type(record.get('pid')) is not int or record['pid']<2:return False
+ row=proc(record['pid'])
+ return bool(row and row['state']!='Z' and row['start']==record.get('start'))
+def owned(record):
+ row=proc(record['pid'])
+ return alive(record) and record['config'] in row['command'] and record['marker'] in row['command']
+def write(path,value):
+ with open(path,'w',opener=lambda p,f:os.open(p,f,0o600)) as stream:json.dump(value,stream,indent=2);stream.write('\n')
+def health(app):
+ origin='http://'+app['public_addr'];opener=build_opener(ProxyHandler({}))
+ try:
+  with opener.open(origin+'/health/ready',timeout=2) as response:return response.status
+ except HTTPError as error:return error.code
+ except (OSError,URLError):return None
+
+def main():
+ os.umask(0o077)
+ p=argparse.ArgumentParser(description=__doc__);p.add_argument('action',choices=['start','stop','restart','status','migrate','logs']);p.add_argument('--config',type=Path,default=Path('/etc/cpag/operator.json'));p.add_argument('--mode',choices=['auto','process','systemd'],default='auto');p.add_argument('--lines',type=int,default=100);a=p.parse_args()
+ config=read_private(a.config);release=Path(config['release_root']);run=Path(config['run_root']);logs=Path(config['log_root']);control=Path(config['control_root'])
+ for root in [run,logs,control]:root.mkdir(parents=True,exist_ok=True,mode=0o700)
+ app=read_private(Path(config['app_config']));worker=read_private(Path(config['worker_config']))
+ pid_files={name:run/(name+'.pid.json') for name in ['api','worker']}
+ def records():return {name:json.loads(path.read_text()) if path.exists() else None for name,path in pid_files.items()}
+ systemd=a.mode=='systemd' or a.mode=='auto' and Path('/proc/1/comm').read_text().strip()=='systemd'
+ def event(action):
+  with (logs/'service.log').open('a') as stream:stream.write(json.dumps({'at':time.strftime('%Y-%m-%dT%H:%M:%SZ',time.gmtime()),'event':action,'deployment_id':config['deployment_id']})+'\n')
+ def process_stop():
+  for name in ['worker','api']:
+   path=pid_files[name];record=json.loads(path.read_text()) if path.exists() else None
+   if alive(record):
+    if not owned(record):raise RuntimeError('refuse mismatched process identity')
+    os.killpg(record['pid'],signal.SIGTERM);deadline=time.monotonic()+30
+    while alive(record) and time.monotonic()<deadline:time.sleep(.1)
+    if alive(record):raise RuntimeError('service did not exit; retained for inspection')
+   if path.exists():path.unlink()
+  event('stopped')
+ def stop():
+  if systemd:subprocess.run(['systemctl','stop',*reversed(UNITS)],check=True)
+  else:process_stop()
+ def start():
+  if systemd:
+   subprocess.run(['systemctl','start',*UNITS],check=True);return
+  current=records();running={key:alive(value) for key,value in current.items()}
+  if all(running.values()):
+   if not all(owned(value) for value in current.values()) or health(app)!=200:raise RuntimeError('existing services are not ready')
+   return
+  if any(running.values()):raise RuntimeError('partial service state; stop explicitly before starting')
+  env=dict(os.environ,PYTHONPATH=os.pathsep.join([str(release/'services/worker'),str(release/'services/analysis/src')]),PYTHONDONTWRITEBYTECODE='1',PYTHONUNBUFFERED='1',NO_PROXY='127.0.0.1,localhost',no_proxy='127.0.0.1,localhost')
+  try:
+   for name,command,marker,config_file in [('api',[str(release/'bin/cpagx-v3'),'--config',config['app_config']],'cpagx-v3',config['app_config']),('worker',[app['python_bin'],'-m','cpag_worker.service','--config',config['worker_config']],'cpag_worker.service',config['worker_config'])]:
+    with (logs/(name+'.log')).open('ab') as log:process=subprocess.Popen(command,cwd=release,env=env,stdin=subprocess.DEVNULL,stdout=log,stderr=subprocess.STDOUT,start_new_session=True,umask=0o077)
+    row=proc(process.pid)
+    if not row:raise RuntimeError('service process exited during start')
+    write(pid_files[name],{'pid':process.pid,'start':row['start'],'config':config_file,'marker':marker})
+    if name=='api':
+     deadline=time.monotonic()+60
+     while health(app)!=200:
+      if process.poll() is not None or time.monotonic()>deadline:raise RuntimeError('public readiness not reached; inspect private api.log')
+      time.sleep(.2)
+    else:
+     time.sleep(.3)
+     if process.poll() is not None:raise RuntimeError('worker exited during start; inspect private worker.log')
+   event('started')
+  except BaseException:process_stop();raise
+ def migrate():
+  if systemd and any(subprocess.run(['systemctl','is-active','--quiet',unit]).returncode==0 for unit in UNITS):raise RuntimeError('stop both services before migrations')
+  if any(alive(row) for row in records().values()):raise RuntimeError('stop both services before migrations')
+  container=json.loads(subprocess.check_output(['docker','inspect',config['pg_container']],text=True))[0]
+  labels=container.get('Config',{}).get('Labels') or {}
+  if labels.get('cpag.role')!='postgres' or labels.get('cpag.deployment_id')!=config['deployment_id']:raise RuntimeError('database container ownership mismatch')
+  identity=container['Id'];db=config['source_database']
+  if not db.replace('_','').isalnum():raise ValueError('invalid explicit source database')
+  def sql(command,input=None):
+   try:return subprocess.run(['docker','exec','-i',identity,'psql','-X','-qAt','-v','ON_ERROR_STOP=1','-U','postgres','-d',db,*command],input=input,text=True,capture_output=True,check=True).stdout.strip()
+   except subprocess.CalledProcessError as error:
+    with (logs/'migrations.log').open('a') as log:log.write(error.stderr or 'database migration command failed\n')
+    raise
+  with (control/'.maintenance.lock').open('a+') as maintenance:
+   fcntl.flock(maintenance,fcntl.LOCK_EX|fcntl.LOCK_NB)
+   sql([],"CREATE TABLE IF NOT EXISTS cpag_deployment_migrations(name text PRIMARY KEY,sha256 text NOT NULL,applied_at timestamptz NOT NULL DEFAULT clock_timestamp());")
+   applied=[]
+   with (logs/'migrations.log').open('a') as log:
+    for path in sorted((release/'migrations').glob('*.sql')):
+     if not path.name.replace('_','').replace('.','').replace('-','').isalnum():raise ValueError('invalid migration name')
+     digest=hashlib.sha256(path.read_bytes()).hexdigest();prior=sql(['-c',"SELECT sha256 FROM cpag_deployment_migrations WHERE name='"+path.name+"'"])
+     if prior and prior!=digest:raise RuntimeError('applied migration changed: '+path.name)
+     if prior:continue
+     sql([],"BEGIN;\n"+path.read_text()+"\nINSERT INTO cpag_deployment_migrations(name,sha256) VALUES ('"+path.name+"','"+digest+"');\nCOMMIT;\n")
+     applied.append(path.name);log.write(json.dumps({'migration':path.name,'sha256':digest,'status':'applied'})+'\n');log.flush()
+   event('migrated');print(json.dumps({'status':'migrated','applied':applied}))
+ with (run/'.service.lock').open('a+') as lock:
+  fcntl.flock(lock,fcntl.LOCK_EX)
+  if a.action=='migrate':migrate();return
+  if a.action=='start':start()
+  elif a.action=='stop':stop()
+  elif a.action=='restart':stop();start()
+  elif a.action=='logs':
+   if not 1<=a.lines<=1000:raise ValueError('log lines must be 1..1000')
+   if systemd:subprocess.run(['journalctl','--no-pager','-n',str(a.lines),'-u',UNITS[0],'-u',UNITS[1]],check=True)
+   else:
+    for name in ['api.log','worker.log','service.log','migrations.log']:
+     path=logs/name
+     if path.exists():
+      print(name,flush=True);subprocess.run(['tail','-n',str(a.lines),'--',str(path)],check=True)
+   return
+  state={'manager':'systemd' if systemd else 'process','ready_status':health(app)}
+  if systemd:state['services']={unit:subprocess.run(['systemctl','is-active','--quiet',unit]).returncode==0 for unit in UNITS}
+  else:state['services']={key:{'running':alive(row),'pid':row['pid'] if row else None} for key,row in records().items()}
+  print(json.dumps(state))
+if __name__=='__main__':
+ try:main()
+ except (OSError,ValueError,RuntimeError,subprocess.CalledProcessError) as error:
+  print(json.dumps({'status':'error','reason':str(error) if not isinstance(error,subprocess.CalledProcessError) else 'owned database or service command failed; inspect private logs'}),file=sys.stderr);sys.exit(1)

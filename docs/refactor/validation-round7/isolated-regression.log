@@ -1,0 +1,21 @@
+test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) ... ok
+test_concurrent_capacity_reservation_fails_closed (test_isolated_recovery.RecoveryIsolation.test_concurrent_capacity_reservation_fails_closed) ... ok
+test_global_api_failure_is_retryable (test_isolated_recovery.RecoveryIsolation.test_global_api_failure_is_retryable) ... ok
+test_global_docker_failure_is_retryable (test_isolated_recovery.RecoveryIsolation.test_global_docker_failure_is_retryable) ... ok
+test_history_attempt_path_failure_does_not_block_later_attempt (test_isolated_recovery.RecoveryIsolation.test_history_attempt_path_failure_does_not_block_later_attempt) ... ok
+test_known_local_bare_daemon_location_is_backward_compatible (test_isolated_recovery.RecoveryIsolation.test_known_local_bare_daemon_location_is_backward_compatible) ... ok
+test_malformed_history_row_does_not_hide_later_attempt (test_isolated_recovery.RecoveryIsolation.test_malformed_history_row_does_not_hide_later_attempt) ... ok
+test_malformed_ledger_missing_root_raises_controlled_error (test_isolated_recovery.RecoveryIsolation.test_malformed_ledger_missing_root_raises_controlled_error) ... ok
+test_missing_capacity_ledger_is_not_empty_budget (test_isolated_recovery.RecoveryIsolation.test_missing_capacity_ledger_is_not_empty_budget) ... ok
+test_missing_capacity_ledger_with_only_intent_is_not_zero (test_isolated_recovery.RecoveryIsolation.test_missing_capacity_ledger_with_only_intent_is_not_zero) ... ok
+test_non_object_records_are_pending (test_isolated_recovery.RecoveryIsolation.test_non_object_records_are_pending) ... ok
+test_periodic_cli_waits_and_retries_global_failure (test_isolated_recovery.RecoveryIsolation.test_periodic_cli_waits_and_retries_global_failure) ... ok
+test_post_coordinator_network_outage_is_global (test_isolated_recovery.RecoveryIsolation.test_post_coordinator_network_outage_is_global) ... ok
+test_same_attempt_owner_cannot_fail_or_reduce_active_reservation (test_isolated_recovery.RecoveryIsolation.test_same_attempt_owner_cannot_fail_or_reduce_active_reservation) ... ok
+test_three_bad_records_before_good_remain_isolated_across_scans (test_isolated_recovery.RecoveryIsolation.test_three_bad_records_before_good_remain_isolated_across_scans) ... ok
+test_traversal_or_directory_identity_mismatch_is_never_used (test_isolated_recovery.RecoveryIsolation.test_traversal_or_directory_identity_mismatch_is_never_used) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.056s
+
+OK

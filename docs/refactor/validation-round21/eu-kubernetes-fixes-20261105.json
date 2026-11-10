@@ -1,0 +1,210 @@
+{
+  "baseline": "94badfa693190e2b56eaa3a4b647a2ff5e8af6ac",
+  "date": "2026-11-05",
+  "scope": "EU k3s bounded synthetic software repair; not R21 overall closure",
+  "runtime_image": "docker.io/library/cpag-eu-suite@sha256:7185ad3d8c44270530ac988a9387455320740c94cbdd786cfbaf1e822a849217",
+  "operator_image": "sha256:f47eef40d9d542eba3277e5ea59bb9310757341b4366fcd2b277ba6627c463fc",
+  "go_binary_sha256": "4ce1af0adadf5dfaee344c2fd2ed88afaed3fb600915a0c437dba89b135364d4",
+  "source_sha256": {
+    "services/worker/cpag_worker/kube_service.py": "4d8fa854cfd3cfa0f138a51b8dd54ce75eee6bf7b1467f1b37d6a7926e01a89c",
+    "services/worker/cpag_worker/kube_control.py": "b1629143229b6ce91ad47d4dcbe9645f5361052e28530321a7892be090b89726",
+    "services/worker/cpag_worker/kube_job.py": "c1e4dbecd26adb867bd349c303b364368c42a82b0529c1ca1aa40d35c8ecbb48",
+    "internal/jobs/kube_execution.go": "93b7b3a009321a50213d2819079a29017c53c4a96a306bdbc54a45c9f87b7cd1",
+    "internal/jobapi/compact_sidecar.go": "f90842abe4ca9c4d4a5494aa7d3fc41fae88ac84b3db8a215833da47a5e81340",
+    "scripts/backup/bundle.py": "094a1f6c3c397e6f9cf8279682637143761a8396faad4d3b34995745e15c1dc4",
+    "scripts/backup/postgres_target.py": "d2ec9476d277576b41771534f6df40609d3c7cb566714fa64aca8524bce07ca6",
+    "scripts/backup/terminal_shared.py": "6b1d7b7fed3092f3cb8362d528b964ea627860df243e845a166ee6995fd68089",
+    "scripts/backup/kubernetes_ops.py": "fb9f5a8626f2461978ff5b7f5b8e16880de52a793d4166fdb3494189fa55fa3b",
+    "tests/worker/test_kubernetes.py": "41e295cf53412aebe7d517b4ed0ad8de4039196ff8d59cb4901f96da907a08cf",
+    "tests/backup/test_kubernetes_backup.py": "ae581cbd66d2191aaf0680f5bb2dc922b80459cb7dab7f9ecc610a116fa8785e"
+  },
+  "tests": {
+    "worker": {
+      "passed": 22,
+      "new_targeted": 7
+    },
+    "backup_working_tree": {
+      "passed": 125,
+      "includes_existing_untracked_prototype_tests": true,
+      "new_targeted": 6
+    },
+    "go": [
+      "internal/jobs passed",
+      "internal/jobapi passed"
+    ],
+    "linux_images": {
+      "worker_targeted": 7,
+      "backup_targeted": 6
+    }
+  },
+  "public_replay": {
+    "status": "passed",
+    "run_id": "16c291e141eccb2c39198643669513c2",
+    "platform": "darwin/arm64",
+    "browser": "156.0.8078.80",
+    "browser_tls_mode": "system trust",
+    "page_errors": [],
+    "task_wait_ms": 9849,
+    "four_original_references": [
+      {
+        "column": "pump",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:10.500000Z",
+        "record_number": 3,
+        "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+        "source_slot": "process"
+      },
+      {
+        "column": "pump",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:12Z",
+        "record_number": 4,
+        "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+        "source_slot": "process"
+      },
+      {
+        "column": null,
+        "frame_number": 1,
+        "raw_time": "1767225610000000",
+        "record_number": null,
+        "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504",
+        "source_slot": "network-0"
+      },
+      {
+        "column": null,
+        "frame_number": 1,
+        "raw_time": "1767225611000000",
+        "record_number": null,
+        "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec",
+        "source_slot": "network-1"
+      }
+    ],
+    "controlled_manifest_sha256": "8168b6cce55a40e23779d285bfd62d3bb680ea6fdd84f333351ac86010d1750c",
+    "checks": {
+      "ordinary_https_login": true,
+      "ordinary_upload_three_originals": true,
+      "ordinary_offline_single_submission": true,
+      "closed_page_relogin_same_run_recovered": true,
+      "replay_initial_snapshot_excludes_future": true,
+      "replay_snapshot_revision_and_originals": true,
+      "four_original_records_opened": true,
+      "controlled_original_download": true,
+      "controlled_artifact_download": true
+    },
+    "check_field_note": "Generic inherited offline/upload labels: this run is replay and reused the earlier dataset and preflight.",
+    "snapshots": 16,
+    "revisions": 11
+  },
+  "running_cancel": {
+    "run_id": "9751192a1ff0bac38711cd01ec7128f3",
+    "observed_container_running": true,
+    "final_state": "cancelled",
+    "exit_recorded": 1,
+    "publication_state": "fenced",
+    "following_run": "0938c4aefd3048d7f22f9df1e5482d11",
+    "following_state": "succeeded"
+  },
+  "bundle": {
+    "online_refusal": {
+      "version": "kubernetes-terminal-bundle-1",
+      "valid": false,
+      "action": "backup",
+      "error_type": "ValueError",
+      "reason": "running deployment: explicitly stop services for terminal backup",
+      "partial_evidence_retained": true
+    },
+    "backup": {
+      "version": "kubernetes-terminal-bundle-1",
+      "valid": true,
+      "action": "backup",
+      "namespace_uid": "7953c811-8adc-468b-a6c1-ec03c9b47d73",
+      "app_uid": "ca0c145a-5512-4eba-a107-59a54a3c467e",
+      "source_database": "cpag_app",
+      "bundle_sha256": "cfad79fbaa312dac97f2308660e1969e04fc2a9539bc31aac4bdadf84207ab57",
+      "format_version": 7,
+      "files": 117,
+      "control_files": 42,
+      "source_preserved": true,
+      "restore_requires_source_reverification": true
+    },
+    "first_restore_failure": {
+      "version": "kubernetes-terminal-bundle-1",
+      "valid": false,
+      "action": "restore",
+      "error_type": "ValueError",
+      "reason": "capacity ledger root or reservations mismatch",
+      "partial_evidence_retained": true
+    },
+    "restore": {
+      "version": "kubernetes-terminal-bundle-1",
+      "valid": true,
+      "action": "restore",
+      "database": "cpag_r21_restore_20261105_b",
+      "source_preserved": true,
+      "source_trust": "pending_formal_service_reverification",
+      "sessions_revoked": 8,
+      "file_inventory_equal": true,
+      "control_inventory_equal_before_rebase": true
+    }
+  },
+  "restored_service": {
+    "status": "passed",
+    "checks": [
+      {
+        "run_id": "81f671b3acb78e6c59d281933c401210",
+        "mode": "offline",
+        "verified_raw_refs": 4,
+        "manifest_sha256": "f329924055c40fbdabb55e30f295e22647cba5e4cceda84660d2dee4e05c0620",
+        "reverified_result": true,
+        "initial_snapshot_empty": null
+      },
+      {
+        "run_id": "16c291e141eccb2c39198643669513c2",
+        "mode": "replay",
+        "verified_raw_refs": 4,
+        "manifest_sha256": "8168b6cce55a40e23779d285bfd62d3bb680ea6fdd84f333351ac86010d1750c",
+        "reverified_result": true,
+        "initial_snapshot_empty": true
+      }
+    ],
+    "source_preserved": true,
+    "cancelled_run_preserved": true
+  },
+  "post_restore_source": {
+    "run_id": "81f671b3acb78e6c59d281933c401210",
+    "state": "succeeded",
+    "result_available": true,
+    "anonymous": [
+      {
+        "path": "/api/v3/runs/81f671b3acb78e6c59d281933c401210",
+        "status": 401
+      },
+      {
+        "path": "/api/v3/runs/81f671b3acb78e6c59d281933c401210/artifacts/run_manifest.json/download",
+        "status": 401
+      }
+    ]
+  },
+  "retained_failures": [
+    "first Linux test imported stale second Worker installation; copied both paths and passed",
+    "initial k3s wrapper could not unpack on read-only operator root; failed before stopping app; actual unpacked kubectl used",
+    "first restore rejected container/host capacity path mismatch; failed DB and target retained; new target passed using same backup",
+    "temporary restore Pod Never policy failed before network rules converged; service restart policy used; passed",
+    "restore probe initially indexed run.state at wrong response level; query-only assertion corrected and passed"
+  ],
+  "pending": [
+    "independent Windows browser",
+    "remaining R21 target-site fault/stability gates",
+    "community M/L capacity",
+    "reference environment performance",
+    "authorized real industrial material"
+  ],
+  "r22_started": false,
+  "restore_validation_cleanup": {
+    "temporary_pod_removed": true,
+    "temporary_policy_removed": true,
+    "temporary_secret_removed": true,
+    "restored_data_retained": true,
+    "source_ready_replicas": 1
+  }
+}

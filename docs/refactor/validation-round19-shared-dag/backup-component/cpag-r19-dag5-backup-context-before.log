@@ -1,0 +1,22 @@
+test_added_source_inventory_during_copy_is_not_ignored (test_shared_storage.SharedStorageBackupTests.test_added_source_inventory_during_copy_is_not_ignored) ... ok
+test_context_type_alias_and_nonfinite_deadlines_refused (test_shared_storage.SharedStorageBackupTests.test_context_type_alias_and_nonfinite_deadlines_refused) ... FAIL
+test_new_directory_copy_preserves_all_fields_aliases_order_and_bounded_pages (test_shared_storage.SharedStorageBackupTests.test_new_directory_copy_preserves_all_fields_aliases_order_and_bounded_pages) ... ok
+test_non_object_and_unknown_manifest_versions_refused (test_shared_storage.SharedStorageBackupTests.test_non_object_and_unknown_manifest_versions_refused) ... ok
+test_old_or_unknown_format_wrong_run_and_unsealed_are_refused (test_shared_storage.SharedStorageBackupTests.test_old_or_unknown_format_wrong_run_and_unsealed_are_refused) ... ok
+test_query_and_deadline_budgets_and_failed_copy_remain_explicit (test_shared_storage.SharedStorageBackupTests.test_query_and_deadline_budgets_and_failed_copy_remain_explicit) ... ok
+test_rehashed_sqlite_and_manifest_do_not_hide_changed_merkle_node (test_shared_storage.SharedStorageBackupTests.test_rehashed_sqlite_and_manifest_do_not_hide_changed_merkle_node) ... ok
+test_resolved_destination_cannot_be_inside_source_through_parent_alias (test_shared_storage.SharedStorageBackupTests.test_resolved_destination_cannot_be_inside_source_through_parent_alias) ... ok
+test_same_size_database_tamper_missing_and_extra_inventory_refused (test_shared_storage.SharedStorageBackupTests.test_same_size_database_tamper_missing_and_extra_inventory_refused) ... ok
+
+======================================================================
+FAIL: test_context_type_alias_and_nonfinite_deadlines_refused (test_shared_storage.SharedStorageBackupTests.test_context_type_alias_and_nonfinite_deadlines_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "$WORKSPACE/cpagx-go/tests/backup/test_shared_storage.py", line 108, in test_context_type_alias_and_nonfinite_deadlines_refused
+    with self.assertRaises(ValueError):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.064s
+
+FAILED (failures=1)

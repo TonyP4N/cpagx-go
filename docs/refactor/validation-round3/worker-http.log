@@ -1,0 +1,7 @@
+PASS live authorization: missing and wrong bearer rejected
+PASS live wrong attempt token fenced before reading nonexistent manifest
+PASS live core success: events/graph match direct core; repeat completion idempotent; later tampering detected
+PASS live timeout: child exited, final attempt failed
+PASS live cancellation: ACK only after child exit
+PASS live SIGKILL: watchdog removed child; lease expiry recovered attempt 2; stale completion fenced
+PASS live completion rejects corrupted artifact

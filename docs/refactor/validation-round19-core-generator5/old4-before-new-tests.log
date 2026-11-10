@@ -1,0 +1,8 @@
+test_core_case_never_dispatches_formal_go_or_worker (test_round19_compact_fixture.CompactFixtureControls.test_core_case_never_dispatches_formal_go_or_worker) ... ok
+test_each_scale_explicit_core_version_preserves_raw_and_boundaries (test_round19_compact_fixture.CompactFixtureControls.test_each_scale_explicit_core_version_preserves_raw_and_boundaries) ... ok
+test_upgrade_copies_existing_raw_bytes_and_preserves_business_config (test_round19_compact_fixture.CompactFixtureControls.test_upgrade_copies_existing_raw_bytes_and_preserves_business_config) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 1.025s
+
+OK

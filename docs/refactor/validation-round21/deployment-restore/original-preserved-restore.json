@@ -1,0 +1,22 @@
+{
+  "version": "r21-original-preserved-fresh-restore-1",
+  "passed": true,
+  "checks": {
+    "original_shared_inventory_unchanged": true,
+    "original_control_inventory_unchanged": true,
+    "restored_shared_inventory_equal": true,
+    "original_job_and_attempt_rows_unchanged": true
+  },
+  "counts": {
+    "source": {
+      "active_sessions": 11,
+      "worker_observations": 1
+    },
+    "restored": {
+      "active_sessions": 0,
+      "worker_observations": 0
+    }
+  },
+  "source_database": "cpag_app",
+  "restore_database": "cpag_restore"
+}

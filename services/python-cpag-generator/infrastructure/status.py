@@ -1,5 +1,6 @@
 import os
 import json
+import tempfile
 from typing import Dict, Optional, List
 
 
@@ -18,8 +19,14 @@ def write_manifest(base_dir: str, task_id: str, manifest: Dict):
         if not created_at.endswith('Z') and not created_at.endswith('+00:00'):
             manifest['created_at'] = created_at + 'Z'
     
-    with open(path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, ensure_ascii=False, indent=2)
+    fd, temporary = tempfile.mkstemp(prefix='.manifest-', dir=out_dir)
+    try:
+        with os.fdopen(fd, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, ensure_ascii=False, indent=2)
+        os.replace(temporary, path)
+    finally:
+        if os.path.exists(temporary):
+            os.unlink(temporary)
     return path
 
 

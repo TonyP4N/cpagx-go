@@ -1,0 +1,22 @@
+{
+  "status": "aborted",
+  "reason": "Core metrics fields changed after old image was built; restarted host verifier rejected new UI job old metrics with replay_semantic_mismatch:metrics.json. This run is retained for diagnosis, not final metrics/browser acceptance.",
+  "browser_acceptance_claimed": false,
+  "failures": [
+    {
+      "job_id": "f8fe1ea2475bcb8de7f82e963cc14556",
+      "attempt": "attempt-2.worker",
+      "error": "replay_semantic_mismatch:metrics.json"
+    },
+    {
+      "job_id": "f8fe1ea2475bcb8de7f82e963cc14556",
+      "attempt": "attempt-1.worker",
+      "error": "replay_semantic_mismatch:metrics.json"
+    },
+    {
+      "job_id": "f8fe1ea2475bcb8de7f82e963cc14556",
+      "attempt": "attempt-3.worker",
+      "error": "replay_semantic_mismatch:metrics.json"
+    }
+  ]
+}

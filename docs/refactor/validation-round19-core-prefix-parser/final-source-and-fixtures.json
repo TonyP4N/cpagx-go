@@ -1,0 +1,48 @@
+{
+  "files": {
+    "scripts/validation/round19_scale_fixture.py": "89150beb5bdf0d021913a4e101287c26e6b69ff9805ba8c6c5c415e8cb8bc4f5",
+    "services/analysis/src/cpag_core/replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+    "services/analysis/src/cpag_core/replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+    "tests/replay_inputs/test_compact_inputs.py": "e134bbf2d121e546b63fe1b459fda0d358cdbdd62cbf8b69f44ec4e7dfdb871c",
+    "tests/validation/test_round19_compact_fixture.py": "1cd520f1c7ea571915ea2eb5c5545a7af0f8c0c21a9a60393b88b4b31254dd1c"
+  },
+  "scale_fixtures": {
+    "L": {
+      "files": {
+        "fixture.json": "3788eb4227f851dd3e083fc7043decf234c77d92c0ec0d213cd98527a8c85f2d",
+        "matrix.json": "e739315b54dc5e88c3a63b3a9cefb81ab554b3ee2d381d95cfa7358051ac1091",
+        "network.pcap": "abac2b769dbe57b4cc9558dfc1a98dc5a910358d2bca4e3f129a0ddf90d8e381",
+        "offline-profile.json": "492f689a6b04ef28bf2fbdb1023993d748efba9fed41f0e165c8a46b3409473e",
+        "preflight.json": "69c135470a0790ab03dc4b6fa9559e783e31c238e7eeff71381cbcf535eef051",
+        "process.csv": "02508de1fa3a2e76702edbb0dc70658ffb7b577263a87386ac553a26c69818f4",
+        "replay-profile.json": "3c82247d9ba439972ac009174d09984494613bfdc47a053ef5da2d360ec1dfd3"
+      },
+      "path": "controlled outputs/cpag-r19-core-compact-generator-L-attempt1"
+    },
+    "M": {
+      "files": {
+        "fixture.json": "58baf80e80460de86087f98cd7532aac662b14df2fd2e19898cec53f9ecda680",
+        "matrix.json": "0a0c2ea307196f53aa7f23857bd6f94035e3f087a04fb0408adab9ca7637d295",
+        "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+        "offline-profile.json": "492f689a6b04ef28bf2fbdb1023993d748efba9fed41f0e165c8a46b3409473e",
+        "preflight.json": "104e15178487a3ddd13151c537be55edbe1a8a51d48e550c360f1c04f9db5ade",
+        "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+        "replay-profile.json": "1edfb63cbd56faa0580c41b243afc04d48c425a96e2d4acb20528cc8f3b48867"
+      },
+      "path": "controlled outputs/cpag-r19-core-compact-generator-M-attempt1"
+    },
+    "S": {
+      "files": {
+        "fixture.json": "cb6072e3b06c9c9a4a7b62fce09280c3fee01049168585c469a9446f05703a1b",
+        "matrix.json": "653a5c13ab36b0bc735e97dae9ab4f34bedb7233f83acaed7d2d26953e726903",
+        "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+        "offline-profile.json": "492f689a6b04ef28bf2fbdb1023993d748efba9fed41f0e165c8a46b3409473e",
+        "preflight.json": "e01d4aad663c92e616b80df21e2082fdb69ddfc5ad9d8d9d2e61bae6ce9e3c6c",
+        "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+        "replay-profile.json": "2bd7dcc4ff4682f1d0a201d88ad7f84fc902f96e6538df8d794f52e4ede029d0"
+      },
+      "path": "controlled outputs/cpag-r19-core-compact-generator-S-attempt1"
+    }
+  },
+  "version": "r19-core-prefix-parser-source-1"
+}

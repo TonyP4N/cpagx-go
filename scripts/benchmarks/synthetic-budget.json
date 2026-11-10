@@ -1,0 +1,8 @@
+{
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "sizes": [100, 1000, 5000],
+  "repeats": 3,
+  "sample_timeout_seconds": 60,
+  "max_peak_rss_bytes": 536870912
+}

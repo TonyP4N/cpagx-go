@@ -1,0 +1,60 @@
+{
+  "rows": [
+    {
+      "attempt": 1,
+      "complete_outer_manifest_exists": true,
+      "declared_roots_below_old_outer_512GiB_limit": true,
+      "manifest_sha256": "520099445b1d063dcd498f168f486809e83186a4b6a32b775ae92b6b802dfb17",
+      "maximum_declared_root_logical_bytes": 168329190,
+      "mode": "offline",
+      "scale": "S"
+    },
+    {
+      "attempt": 1,
+      "complete_outer_manifest_exists": true,
+      "declared_roots_below_old_outer_512GiB_limit": true,
+      "manifest_sha256": "4d6c31329042d3e85191ae1dfc7b93cdf600900cc072c7dc8fbe11b3dbbe4323",
+      "maximum_declared_root_logical_bytes": 16326764034,
+      "mode": "replay",
+      "scale": "S"
+    },
+    {
+      "attempt": 1,
+      "complete_outer_manifest_exists": true,
+      "declared_roots_below_old_outer_512GiB_limit": true,
+      "manifest_sha256": "9847a8d741bd2f589190bb4143209b100a886296a24b015bb5ee3bdf5664a501",
+      "maximum_declared_root_logical_bytes": 2563787148,
+      "mode": "offline",
+      "scale": "M"
+    },
+    {
+      "attempt": 1,
+      "complete_outer_manifest_exists": false,
+      "declared_roots_below_old_outer_512GiB_limit": null,
+      "manifest_sha256": null,
+      "maximum_declared_root_logical_bytes": null,
+      "mode": "replay",
+      "scale": "M"
+    },
+    {
+      "attempt": 1,
+      "complete_outer_manifest_exists": false,
+      "declared_roots_below_old_outer_512GiB_limit": null,
+      "manifest_sha256": null,
+      "maximum_declared_root_logical_bytes": null,
+      "mode": "offline",
+      "scale": "L"
+    },
+    {
+      "attempt": 2,
+      "complete_outer_manifest_exists": false,
+      "declared_roots_below_old_outer_512GiB_limit": null,
+      "manifest_sha256": null,
+      "maximum_declared_root_logical_bytes": null,
+      "mode": "replay",
+      "scale": "L"
+    }
+  ],
+  "scope": "postmeasurement read of retained outer manifest declarations only; not source verification or high-extent certification",
+  "version": "r19-original56-outer-extent-audit-1"
+}

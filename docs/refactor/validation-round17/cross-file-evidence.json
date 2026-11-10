@@ -1,0 +1,1342 @@
+{
+  "synthetic": true,
+  "selection": {
+    "operation": {
+      "assessment": "expected_change_observed",
+      "candidates": [
+        "candidate-40062402f99ba8796cf0b7f047875ddd1a54a764112432ec2c7dbe9a3d518f72"
+      ],
+      "counterevidence": [],
+      "destination_endpoint": "192.0.2.2:44818",
+      "identity_scope": "captured_endpoint_only",
+      "mapping": {
+        "asset_id": "synthetic-pump",
+        "config_version": "synthetic-map-v1",
+        "expected_value": 1,
+        "rule_ids": [
+          "set-pump-one"
+        ],
+        "status": "matched",
+        "tag": "pump_state",
+        "versions": [
+          {
+            "basis": "generated explicit packet/tag fixture mapping",
+            "rule_id": "set-pump-one",
+            "valid_from": "2026-01-01T00:00:00Z",
+            "valid_to": "2026-01-01T00:01:00Z",
+            "version": "generated-mapping-v1"
+          }
+        ]
+      },
+      "observation_evidence": [],
+      "operation": "write_attribute",
+      "operation_id": "packet-fac8835e37368e6ae10dd184ce5b898b136fcb16ded3fd0ca56cf81e7c7ece68",
+      "path": {
+        "attribute": 1,
+        "class": 1,
+        "instance": 1
+      },
+      "protocol": "ENIP/CPF/CIP",
+      "request_data_hex": "0100",
+      "request_evidence": [
+        {
+          "column": null,
+          "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+          "frame_number": 1,
+          "raw_time": "1767225610000000",
+          "record_number": null
+        }
+      ],
+      "response": {
+        "additional_status": [],
+        "event_id": "packet-92b3c5a595f92a963a96e73b590899786a07b3aee19b61ae80d3c12aac3c9f7a",
+        "evidence_refs": [
+          {
+            "column": null,
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "raw_time": "1767225611000000",
+            "record_number": null
+          }
+        ],
+        "general_status": 0,
+        "meaning": "protocol_service_success_only",
+        "state": "success",
+        "time": {
+          "basis": "independent synthetic UTC fixture clock",
+          "interval": [
+            1767225611.0,
+            1767225611.0
+          ],
+          "model": {
+            "drift_anchor": "2026-01-01T00:00:00Z",
+            "drift_basis": "generated fixed UTC clock",
+            "drift_ppm": 0,
+            "precision_basis": "generated exact timestamp reference",
+            "precision_seconds": 0,
+            "valid_from": "2026-01-01T00:00:00Z",
+            "valid_to": "2026-01-01T00:01:00Z",
+            "version": "generated-clock-v1"
+          },
+          "offset_seconds": 0,
+          "raw": [
+            {
+              "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+              "frame_number": 1,
+              "raw_timestamp": 1767225611000000,
+              "ticks_per_second": 1000000
+            }
+          ],
+          "status": "configured",
+          "uncertainty_seconds": 0,
+          "unknown_reasons": []
+        }
+      },
+      "source_endpoint": "192.0.2.1:1234",
+      "support": [
+        "expected_sample_transition"
+      ],
+      "time": {
+        "basis": "independent synthetic UTC fixture clock",
+        "interval": [
+          1767225610.0,
+          1767225610.0
+        ],
+        "model": {
+          "drift_anchor": "2026-01-01T00:00:00Z",
+          "drift_basis": "generated fixed UTC clock",
+          "drift_ppm": 0,
+          "precision_basis": "generated exact timestamp reference",
+          "precision_seconds": 0,
+          "valid_from": "2026-01-01T00:00:00Z",
+          "valid_to": "2026-01-01T00:01:00Z",
+          "version": "generated-clock-v1"
+        },
+        "offset_seconds": 0,
+        "raw": [
+          {
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000
+          }
+        ],
+        "status": "configured",
+        "uncertainty_seconds": 0,
+        "unknown_reasons": []
+      },
+      "unknown_reasons": [],
+      "window": [
+        1767225610.0,
+        1767225615.0
+      ]
+    },
+    "candidates": [
+      {
+        "alternative_change_ids": [],
+        "alternative_operation_ids": [],
+        "candidate_id": "candidate-40062402f99ba8796cf0b7f047875ddd1a54a764112432ec2c7dbe9a3d518f72",
+        "change_id": "change-67ee4da11f655149581cc5e85630e7c620ca7604e1818031707d18479908e429",
+        "claim": {
+          "assumptions": [
+            "configured_mapping_and_clock_basis",
+            "sampling_does_not_prove_action_time",
+            "no_causality_attack_or_physical_execution_asserted"
+          ],
+          "claim_id": "candidate-40062402f99ba8796cf0b7f047875ddd1a54a764112432ec2c7dbe9a3d518f72",
+          "counterevidence": [],
+          "evidence_refs": [
+            {
+              "column": "pump",
+              "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+              "frame_number": null,
+              "raw_time": "2026-01-01T00:00:10.500000Z",
+              "record_number": 2
+            },
+            {
+              "column": "pump",
+              "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+              "frame_number": null,
+              "raw_time": "2026-01-01T00:00:12Z",
+              "record_number": 3
+            },
+            {
+              "column": null,
+              "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+              "frame_number": 1,
+              "raw_time": "1767225611000000",
+              "record_number": null
+            },
+            {
+              "column": null,
+              "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+              "frame_number": 1,
+              "raw_time": "1767225610000000",
+              "record_number": null
+            }
+          ],
+          "relation_type": "candidate_network_process_association",
+          "rule_id": "set-pump-one",
+          "schema_version": "1.0.0",
+          "status": "hypothetical",
+          "synthetic": true
+        },
+        "config_version": "synthetic-map-v1",
+        "counterevidence": [],
+        "operation_id": "packet-fac8835e37368e6ae10dd184ce5b898b136fcb16ded3fd0ca56cf81e7c7ece68",
+        "rule_id": "set-pump-one",
+        "rule_version": "bounded-transition-v1",
+        "state": "supported_candidate",
+        "support": [
+          "explicit_mapping",
+          "expected_sample_transition",
+          "possible_temporal_window"
+        ],
+        "unknown_reasons": [],
+        "window": [
+          1767225610.0,
+          1767225615.0
+        ]
+      }
+    ],
+    "changes": [
+      {
+        "event_id": "change-67ee4da11f655149581cc5e85630e7c620ca7604e1818031707d18479908e429",
+        "event_type": "observed_sample_transition",
+        "evidence_refs": [
+          {
+            "column": "pump",
+            "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 2
+          },
+          {
+            "column": "pump",
+            "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 3
+          }
+        ],
+        "parameters": {
+          "change_epsilon": 0,
+          "config_version": "synthetic-map-v1",
+          "max_sample_gap_seconds": 3
+        },
+        "result": {
+          "after": 1.0,
+          "after_event_id": "59bdeb6c1d0a2662f34af8bcfd1dd661f1a11610e53b29fb1f2e3a23a258a3d9",
+          "asset_id": "synthetic-pump",
+          "before": 0.0,
+          "before_event_id": "666218055522e6220bd5e36903fe802df568bc24dccbfbb1624fffa605b60aac",
+          "interval": [
+            1767225610.5,
+            1767225612.0
+          ],
+          "interval_start_inclusive": false,
+          "tag": "pump_state",
+          "time_semantics": "transition_somewhere_between_samples"
+        },
+        "rule_version": "bounded-transition-v1",
+        "schema_version": "1.0.0",
+        "synthetic": true,
+        "time_range": {
+          "end": "2026-01-01T00:00:12Z",
+          "start": "2026-01-01T00:00:10.500000Z"
+        }
+      }
+    ]
+  },
+  "time_configuration": {
+    "network": {
+      "basis": "independent synthetic UTC fixture clock",
+      "drift_anchor": "2026-01-01T00:00:00Z",
+      "drift_basis": "generated fixed UTC clock",
+      "drift_ppm": 0,
+      "offset_seconds": 0,
+      "precision_basis": "generated exact timestamp reference",
+      "precision_seconds": 0,
+      "uncertainty_seconds": 0,
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_to": "2026-01-01T00:01:00Z",
+      "version": "generated-clock-v1"
+    },
+    "process": {
+      "basis": "independent synthetic UTC fixture clock",
+      "drift_anchor": "2026-01-01T00:00:00Z",
+      "drift_basis": "generated fixed UTC clock",
+      "drift_ppm": 0,
+      "offset_seconds": 0,
+      "precision_basis": "generated exact timestamp reference",
+      "precision_seconds": 0,
+      "uncertainty_seconds": 0,
+      "valid_from": "2026-01-01T00:00:00Z",
+      "valid_to": "2026-01-01T00:01:00Z",
+      "version": "generated-clock-v1"
+    }
+  },
+  "source_ranges": {
+    "network": [
+      1767225610.0,
+      1767225611.0
+    ],
+    "process": [
+      1767225609.0,
+      1767225616.0
+    ]
+  },
+  "quality": {
+    "group_issues": [],
+    "network_unsupported": [],
+    "process": {
+      "event_count": 5,
+      "reasons": [],
+      "status": "valid"
+    },
+    "process_issues": [],
+    "source_ranges": {
+      "network": [
+        1767225610.0,
+        1767225611.0
+      ],
+      "process": [
+        1767225609.0,
+        1767225616.0
+      ]
+    },
+    "unknown_reasons": []
+  },
+  "verified_original_evidence": [
+    {
+      "source_ref": {
+        "column": "pump",
+        "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:10.500000Z",
+        "record_number": 2
+      },
+      "original": {
+        "time": "2026-01-01T00:00:10.500000Z",
+        "pump": "0"
+      }
+    },
+    {
+      "source_ref": {
+        "column": "pump",
+        "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:12Z",
+        "record_number": 3
+      },
+      "original": {
+        "time": "2026-01-01T00:00:12Z",
+        "pump": "1"
+      }
+    },
+    {
+      "source_ref": {
+        "column": null,
+        "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+        "frame_number": 1,
+        "raw_time": "1767225611000000",
+        "record_number": null
+      },
+      "original": {
+        "transport": {
+          "status": "partial",
+          "source_ip": "192.0.2.2",
+          "destination_ip": "192.0.2.1",
+          "ip_protocol": 6,
+          "reason": "application_semantics_unsupported",
+          "source_port": 44818,
+          "destination_port": 1234,
+          "sequence_number": 100,
+          "acknowledgment_number": 0,
+          "tcp_flags": 24,
+          "tcp_payload_length": 44
+        },
+        "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+        "frame_number": 1,
+        "byte_offset": 40,
+        "captured_length": 98,
+        "original_length": 98,
+        "raw_timestamp": 1767225611000000,
+        "ticks_per_second": 1000000,
+        "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+        "quality": [
+          "protocol_semantics_unsupported"
+        ],
+        "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+        "integrity": "file_and_frame_sha256_verified",
+        "network_checksums": {
+          "basis": "captured_bytes_only_offload_unknown",
+          "ipv4": {
+            "stored_hex": "0000",
+            "residual": 63135,
+            "valid_for_captured_bytes": false
+          },
+          "tcp": {
+            "stored_hex": "0000",
+            "residual": 39506,
+            "valid_for_captured_bytes": false
+          }
+        }
+      }
+    },
+    {
+      "source_ref": {
+        "column": null,
+        "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+        "frame_number": 1,
+        "raw_time": "1767225610000000",
+        "record_number": null
+      },
+      "original": {
+        "transport": {
+          "status": "partial",
+          "source_ip": "192.0.2.1",
+          "destination_ip": "192.0.2.2",
+          "ip_protocol": 6,
+          "reason": "application_semantics_unsupported",
+          "source_port": 1234,
+          "destination_port": 44818,
+          "sequence_number": 100,
+          "acknowledgment_number": 0,
+          "tcp_flags": 24,
+          "tcp_payload_length": 50
+        },
+        "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+        "frame_number": 1,
+        "byte_offset": 40,
+        "captured_length": 104,
+        "original_length": 104,
+        "raw_timestamp": 1767225610000000,
+        "ticks_per_second": 1000000,
+        "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+        "quality": [
+          "protocol_semantics_unsupported"
+        ],
+        "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+        "integrity": "file_and_frame_sha256_verified",
+        "network_checksums": {
+          "basis": "captured_bytes_only_offload_unknown",
+          "ipv4": {
+            "stored_hex": "0000",
+            "residual": 63129,
+            "valid_for_captured_bytes": false
+          },
+          "tcp": {
+            "stored_hex": "0000",
+            "residual": 39238,
+            "valid_for_captured_bytes": false
+          }
+        }
+      }
+    }
+  ],
+  "verified_network_fields": [
+    {
+      "event_id": "packet-fac8835e37368e6ae10dd184ce5b898b136fcb16ded3fd0ca56cf81e7c7ece68",
+      "fields": {
+        "cip.data": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 102,
+              "hex": "0100",
+              "length": 2,
+              "pdu_byte_offset": 48,
+              "sha256": "47dc540c94ceb704a23875c11273e16bb0b8a87aed84de911f2133568115f254",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 142
+            }
+          }
+        ],
+        "cip.path": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 96,
+              "hex": "200124013001",
+              "length": 6,
+              "pdu_byte_offset": 42,
+              "sha256": "d71cbb20fdc218b81214c17e50f1a21fef90c9108e2d5eabe3ddb19bceb39095",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 136
+            }
+          }
+        ],
+        "cip.service": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 94,
+              "hex": "10",
+              "length": 1,
+              "pdu_byte_offset": 40,
+              "sha256": "c555eab45d08845ae9f10d452a99bfcb06f74a50b988fe7e48dd323789b88ee3",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 134
+            }
+          }
+        ],
+        "encapsulation.command": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 54,
+              "hex": "6f00",
+              "length": 2,
+              "pdu_byte_offset": 0,
+              "sha256": "3541e98bd04b5587b9c1918d8abed88bded9328de3fedd36e856d151cb05383e",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 94
+            }
+          }
+        ],
+        "encapsulation.context": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 66,
+              "hex": "0100000000000000",
+              "length": 8,
+              "pdu_byte_offset": 12,
+              "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 106
+            }
+          }
+        ],
+        "encapsulation.length": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 56,
+              "hex": "1a00",
+              "length": 2,
+              "pdu_byte_offset": 2,
+              "sha256": "fdbb66f97af044e4b88b0bb0a4789f8f014f98b53f5fe11102bd19f45d53c45b",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 96
+            }
+          }
+        ],
+        "encapsulation.session": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 58,
+              "hex": "01000000",
+              "length": 4,
+              "pdu_byte_offset": 4,
+              "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 98
+            }
+          }
+        ],
+        "encapsulation.status": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.1",
+              "destination_ip": "192.0.2.2",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 1234,
+              "destination_port": 44818,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 50
+            },
+            "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 104,
+            "original_length": 104,
+            "raw_timestamp": 1767225610000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "2b9d4f24d2aada0bbaeee7a9547d4a3c42703e077099fd2388a96612732bc4a1",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "00000000000000000000000008004500005a0001000040060000c0000201c000020204d2af12000000640000000050181000000000006f001a000100000000000000010000000000000000000000000000000000020000000000b2000a0010032001240130010100",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63129,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39238,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 62,
+              "hex": "00000000",
+              "length": 4,
+              "pdu_byte_offset": 8,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+                "frame_number": 1,
+                "raw_time": "1767225610000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 102
+            }
+          }
+        ]
+      }
+    },
+    {
+      "event_id": "packet-92b3c5a595f92a963a96e73b590899786a07b3aee19b61ae80d3c12aac3c9f7a",
+      "fields": {
+        "cip.general_status": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 96,
+              "hex": "00",
+              "length": 1,
+              "pdu_byte_offset": 42,
+              "sha256": "6e340b9cffb37a989ca544e6bb780a2c78901d3fb33738768511a30617afa01d",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 136
+            }
+          }
+        ],
+        "cip.service": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 94,
+              "hex": "90",
+              "length": 1,
+              "pdu_byte_offset": 40,
+              "sha256": "9e076ceaf246b6003d9c2680a2b4cf0bffd069805902b0b5edeebf49039fe4bd",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 134
+            }
+          }
+        ],
+        "encapsulation.command": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 54,
+              "hex": "6f00",
+              "length": 2,
+              "pdu_byte_offset": 0,
+              "sha256": "3541e98bd04b5587b9c1918d8abed88bded9328de3fedd36e856d151cb05383e",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 94
+            }
+          }
+        ],
+        "encapsulation.context": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 66,
+              "hex": "0100000000000000",
+              "length": 8,
+              "pdu_byte_offset": 12,
+              "sha256": "7c9fa136d4413fa6173637e883b6998d32e1d675f88cddff9dcbcf331820f4b8",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 106
+            }
+          }
+        ],
+        "encapsulation.length": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 56,
+              "hex": "1400",
+              "length": 2,
+              "pdu_byte_offset": 2,
+              "sha256": "5aeca385d8b781825b07bbec7c858b7170426c88088935850bc13dd6402368a5",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 96
+            }
+          }
+        ],
+        "encapsulation.session": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 58,
+              "hex": "01000000",
+              "length": 4,
+              "pdu_byte_offset": 4,
+              "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 98
+            }
+          }
+        ],
+        "encapsulation.status": [
+          {
+            "transport": {
+              "status": "partial",
+              "source_ip": "192.0.2.2",
+              "destination_ip": "192.0.2.1",
+              "ip_protocol": 6,
+              "reason": "application_semantics_unsupported",
+              "source_port": 44818,
+              "destination_port": 1234,
+              "sequence_number": 100,
+              "acknowledgment_number": 0,
+              "tcp_flags": 24,
+              "tcp_payload_length": 44
+            },
+            "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+            "frame_number": 1,
+            "byte_offset": 40,
+            "captured_length": 98,
+            "original_length": 98,
+            "raw_timestamp": 1767225611000000,
+            "ticks_per_second": 1000000,
+            "frame_sha256": "d1796ebbf55bcd5633411a638d446a831388fb6bda5edd8479279b05c40aa26b",
+            "quality": [
+              "protocol_semantics_unsupported"
+            ],
+            "raw_hex": "0000000000000000000000000800450000540001000040060000c0000202c0000201af1204d2000000640000000050181000000000006f0014000100000000000000010000000000000000000000000000000000020000000000b200040090000000",
+            "integrity": "file_and_frame_sha256_verified",
+            "network_checksums": {
+              "basis": "captured_bytes_only_offload_unknown",
+              "ipv4": {
+                "stored_hex": "0000",
+                "residual": 63135,
+                "valid_for_captured_bytes": false
+              },
+              "tcp": {
+                "stored_hex": "0000",
+                "residual": 39506,
+                "valid_for_captured_bytes": false
+              }
+            },
+            "field": {
+              "frame_byte_offset": 62,
+              "hex": "00000000",
+              "length": 4,
+              "pdu_byte_offset": 8,
+              "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+              "source_ref": {
+                "column": null,
+                "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+                "frame_number": 1,
+                "raw_time": "1767225611000000",
+                "record_number": null
+              },
+              "absolute_byte_offset": 102
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "config_version": "synthetic-map-v1",
+  "config_fingerprint": "84f8781154b74beef61b43bb5a173bd41d105199d3d36e30c166a984506d3b0c",
+  "limitations": [
+    "synthetic_only",
+    "no_attack_or_causality_decision",
+    "response_success_is_not_physical_effect",
+    "endpoint_not_authenticated_actor",
+    "configured_offsets_not_estimated",
+    "existing_bounded_protocol_subset"
+  ],
+  "source_provenance": {
+    "authorization_ref": "repository generated software fixture",
+    "collection_range": {
+      "end": "2026-01-01T00:01:00Z",
+      "start": "2026-01-01T00:00:00Z"
+    },
+    "mapping_evidence_ref": "repository generated packet/tag fixture",
+    "release": "generated-fixture-v1",
+    "rules_evidence_ref": "repository generated finite-rule fixture",
+    "source": "generated R17 fixture exercising source branch; no industrial sample",
+    "timezone_basis": "generated UTC fixture clock"
+  }
+}

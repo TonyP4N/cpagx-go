@@ -1,0 +1,11 @@
+test_failed_bytes_are_retained_and_never_read_as_trusted_result (test_shared_export.FailedAttemptRetentionTests.test_failed_bytes_are_retained_and_never_read_as_trusted_result) ... ok
+test_approval_mac_run_version_expiry_and_same_size_byte_changes_refused (test_shared_export.SharedExportTests.test_approval_mac_run_version_expiry_and_same_size_byte_changes_refused) ... ok
+test_complete_offline_roots_compare_original_core_and_original_graph_all_fields (test_shared_export.SharedExportTests.test_complete_offline_roots_compare_original_core_and_original_graph_all_fields) ... ok
+test_complete_replay_source_verify_history_and_prefix_query (test_shared_export.SharedExportTests.test_complete_replay_source_verify_history_and_prefix_query) ... ok
+test_inventory_context_and_source_rebuild_not_only_outer_hash (test_shared_export.SharedExportTests.test_inventory_context_and_source_rebuild_not_only_outer_hash) ... ok
+test_real_original_query_pagination_and_metadata_with_core_capability (test_shared_export.SharedExportTests.test_real_original_query_pagination_and_metadata_with_core_capability) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.755s
+
+OK

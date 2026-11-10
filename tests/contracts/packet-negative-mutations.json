@@ -1,0 +1,191 @@
+[
+  {
+    "label": "slice_frame_byte_offset_-1",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/frame_byte_offset",
+    "operation": "set",
+    "value": -1
+  },
+  {
+    "label": "slice_pdu_byte_offset_-1",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/pdu_byte_offset",
+    "operation": "set",
+    "value": -1
+  },
+  {
+    "label": "slice_length_0",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/length",
+    "operation": "set",
+    "value": 0
+  },
+  {
+    "label": "slice_frame_byte_offset_262145",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/frame_byte_offset",
+    "operation": "set",
+    "value": 262145
+  },
+  {
+    "label": "slice_pdu_byte_offset_262145",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/pdu_byte_offset",
+    "operation": "set",
+    "value": 262145
+  },
+  {
+    "label": "slice_length_262145",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/length",
+    "operation": "set",
+    "value": 262145
+  },
+  {
+    "label": "slice_frame_byte_offset_1.5",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/frame_byte_offset",
+    "operation": "set",
+    "value": 1.5
+  },
+  {
+    "label": "slice_length_True",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/length",
+    "operation": "set",
+    "value": true
+  },
+  {
+    "label": "slice_hex_0",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/hex",
+    "operation": "set",
+    "value": "0"
+  },
+  {
+    "label": "slice_hex_zz",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/hex",
+    "operation": "set",
+    "value": "zz"
+  },
+  {
+    "label": "slice_sha256_invalid",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/sha256",
+    "operation": "set",
+    "value": "invalid"
+  },
+  {
+    "label": "slice_source_ref_not-object",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/source_ref",
+    "operation": "set",
+    "value": "not-object"
+  },
+  {
+    "label": "missing_slice_hash",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/field_slices/0/sha256",
+    "operation": "delete",
+    "value": null
+  },
+  {
+    "label": "source_refs/0/frame_number",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/source_refs/0/frame_number",
+    "operation": "set",
+    "value": 0
+  },
+  {
+    "label": "source_refs/0/file_sha256",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/source_refs/0/file_sha256",
+    "operation": "set",
+    "value": "invalid"
+  },
+  {
+    "label": "source_refs/0/raw_time",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/source_refs/0/raw_time",
+    "operation": "set",
+    "value": 7
+  },
+  {
+    "label": "source_refs/0/unexpected",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/source_refs/0/unexpected",
+    "operation": "set",
+    "value": true
+  },
+  {
+    "label": "source_refs",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/source_refs",
+    "operation": "set",
+    "value": "not-array"
+  },
+  {
+    "label": "fields/cip.path/length",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path/length",
+    "operation": "set",
+    "value": 0
+  },
+  {
+    "label": "fields/cip.path/pdu_byte_offset",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path/pdu_byte_offset",
+    "operation": "set",
+    "value": -1
+  },
+  {
+    "label": "fields/cip.path/hex",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path/hex",
+    "operation": "set",
+    "value": "x"
+  },
+  {
+    "label": "fields/cip.path/slices",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path/slices",
+    "operation": "set",
+    "value": {}
+  },
+  {
+    "label": "fields/cip.path",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path",
+    "operation": "set",
+    "value": 17
+  },
+  {
+    "label": "association_status",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/association_status",
+    "operation": "set",
+    "value": "invented"
+  },
+  {
+    "label": "association_reason",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/association_reason",
+    "operation": "set",
+    "value": 3
+  },
+  {
+    "label": "direction",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/direction",
+    "operation": "set",
+    "value": "sideways"
+  },
+  {
+    "label": "missing_field_slices",
+    "schema": "PacketObservationArtifact",
+    "path": "/observations/0/fields/cip.path/slices",
+    "operation": "delete",
+    "value": null
+  }
+]

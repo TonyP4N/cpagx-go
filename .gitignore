@@ -49,3 +49,14 @@ uploads/
 tests/data
 tests/evaluation_results
 tests/misc
+# M1 local environments, restricted data, and immutable run outputs
+.venv/
+.pytest_cache/
+*.egg-info/
+raw/
+normalized/
+runs/
+evaluations/
+
+# Local full-stack verification state
+.local-stack/

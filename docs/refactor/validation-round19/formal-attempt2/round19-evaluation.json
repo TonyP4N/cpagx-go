@@ -1,0 +1,181 @@
+{
+  "checks": [
+    {
+      "job": "01bac571a36e101e90e8158e416c3748",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "da24240564561ed1222e03921cd62556",
+      "evidence_available": true
+    },
+    {
+      "job": "68a1f79be5bdac049dc619af46bb9faf",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "d0b669cf95b4b28d8377f0e5c9bedbe0",
+      "evidence_available": true
+    },
+    {
+      "job": "f968b3f590a4cae8a9c03e021540e790",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "3acb1eece9031419539b048ca0d49c5b",
+      "evidence_available": true
+    },
+    {
+      "job": "e6843b43b1f60d33dc94f071c6c22510",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c885ae3f1d4f4d31782efb4a912cba0c",
+      "evidence_available": true
+    },
+    {
+      "job": "4417ab32b91be63d723c82c112e7ec20",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "0b68844c314088b979711375a03bdec9",
+      "evidence_available": true
+    },
+    {
+      "job": "db3fc92d9874403bdfd796df557e6d0c",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "966589436e8b29a83df7d3abc23b5491",
+      "evidence_available": true
+    },
+    {
+      "job": "01bac571a36e101e90e8158e416c3748",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "da24240564561ed1222e03921cd62556",
+      "evidence_available": true
+    },
+    {
+      "job": "68a1f79be5bdac049dc619af46bb9faf",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "d0b669cf95b4b28d8377f0e5c9bedbe0",
+      "evidence_available": true
+    },
+    {
+      "job": "f968b3f590a4cae8a9c03e021540e790",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "3acb1eece9031419539b048ca0d49c5b",
+      "evidence_available": true
+    },
+    {
+      "job": "e6843b43b1f60d33dc94f071c6c22510",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c885ae3f1d4f4d31782efb4a912cba0c",
+      "evidence_available": true
+    },
+    {
+      "job": "4417ab32b91be63d723c82c112e7ec20",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "0b68844c314088b979711375a03bdec9",
+      "evidence_available": true
+    },
+    {
+      "job": "db3fc92d9874403bdfd796df557e6d0c",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "966589436e8b29a83df7d3abc23b5491",
+      "evidence_available": true
+    }
+  ],
+  "roles": [
+    {
+      "ungranted_read": 404,
+      "granted_read": 200,
+      "viewer_write": 403,
+      "duplicate_same_id": true
+    }
+  ],
+  "scope": "formal synthetic task plus terminal PG/file restore; not capacity or industrial validation"
+}

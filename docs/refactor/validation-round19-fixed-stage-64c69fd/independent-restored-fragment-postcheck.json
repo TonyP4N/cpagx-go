@@ -1,0 +1,17 @@
+{
+  "scope": "independent bytes postcheck of retained actual HTTP responses; does not modify original attempt",
+  "checks": [
+    {
+      "path": "density-evaluation/http/0013-reference-locator.response",
+      "response_sha256": "9b955384be86d15639fda34dc37fe49479838aeaa5729e078abd39557535057d",
+      "fragment_sha256": "8aed7043dbc6a6fa29d900d2179532441077c064279670aca8426e1a6ef3b46f",
+      "independent_original_bytes_equal": true
+    },
+    {
+      "path": "restored-density-evaluation/http/0006-restored-reference.response",
+      "response_sha256": "9b955384be86d15639fda34dc37fe49479838aeaa5729e078abd39557535057d",
+      "fragment_sha256": "8aed7043dbc6a6fa29d900d2179532441077c064279670aca8426e1a6ef3b46f",
+      "independent_original_bytes_equal": true
+    }
+  ]
+}

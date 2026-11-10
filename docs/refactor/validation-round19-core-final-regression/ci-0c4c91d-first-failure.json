@@ -1,0 +1,13 @@
+{
+  "commit": "0c4c91da4b8a3957ea3c88de925c88f43854146f",
+  "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40732102011",
+  "attempt": 1,
+  "conclusion": "failure",
+  "failed_job": "backup-restore",
+  "cause": "Docker mirror PostgreSQL layer descriptor not found; container not started",
+  "raw_sha256": {
+    "status.json": "bb1e38e439793bbd7a92e19800bef3da5ddff730a10d4c9dfa9756af7e7c42cf",
+    "failed.log": "89ba8463234569a7c2c89d33ecf3cd17456c23fc360793aa9aa89d633c1ece2a"
+  },
+  "scope": "first failure retained; no test changes or relaxed acceptance"
+}

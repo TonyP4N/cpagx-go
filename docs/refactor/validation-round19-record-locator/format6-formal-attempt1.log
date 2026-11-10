@@ -1,0 +1,20 @@
+NOTICE:  trigger "m4_attempt_history" for relation "m4_jobs" does not exist, skipping
+NOTICE:  trigger "v3_capture_binding_validate" for relation "v3_run_bindings" does not exist, skipping
+NOTICE:  trigger "v3_capture_source_protect" for relation "v3_dataset_files" does not exist, skipping
+NOTICE:  trigger "m4_capacity_claim" for relation "m4_jobs" does not exist, skipping
+Traceback (most recent call last):
+  File "$WORKSPACE/cpagx-go/scripts/validation/round19_preparation_acceptance.py", line 118, in <module>
+    parser=argparse.ArgumentParser();parser.add_argument('--output',required=True);args=parser.parse_args();run(Path(args.output).resolve())
+                                                                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/validation/round19_preparation_acceptance.py", line 109, in run
+    try:r19.run(work,bundle_version=r19.eb.V3_VERSION,before_evaluation=checked)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/validation/round19_evaluation_acceptance.py", line 153, in run
+    try:r18.main(work)
+        ^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/validation/round18_acceptance.py", line 229, in main
+    job=submit('normal',profile_id);status=r.status_until(client,job);assert status['state']=='succeeded',status
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "$WORKSPACE/cpagx-go/scripts/validation/round16_acceptance.py", line 173, in status_until
+    time.sleep(.5)
+KeyboardInterrupt

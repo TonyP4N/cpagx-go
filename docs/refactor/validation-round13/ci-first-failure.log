@@ -1,0 +1,72 @@
+isolated-executor	Real isolated task publication and historical-attempt recovery	﻿2026-10-26T09:38:50.1095489Z ##[group]Run bash scripts/m4/isolated/validate-isolated.sh
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1096140Z ^[[36;1mbash scripts/m4/isolated/validate-isolated.sh^[[0m
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1316868Z shell: /usr/bin/bash -e {0}
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1317221Z env:
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1317551Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1318053Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1318549Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1319002Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1319484Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1319932Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.1320311Z ##[endgroup]
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:50.3907849Z  Image mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94 Pulling 
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6330169Z  5b6f078adbb9 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6330995Z  ac28590ba464 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6331410Z  82e3b18698cd Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6331808Z  11e80b5eea53 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6332199Z  10c02ef94427 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6332599Z  2d35ebdb57d9 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6332995Z  3cecdd37f6f2 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6333391Z  1d12e864e19a Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6333892Z  a5bd5a0b8636 Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.6334824Z  aabce23918dc Pulling fs layer 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9959374Z  a5bd5a0b8636 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9968408Z  aabce23918dc Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9969752Z  11e80b5eea53 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9970387Z  5b6f078adbb9 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9971140Z  82e3b18698cd Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:51.9974611Z  10c02ef94427 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.0957816Z  ac28590ba464 Downloading 15.73MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.0970675Z  3cecdd37f6f2 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.0971653Z  1d12e864e19a Downloading 918.3kB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.0972493Z  2d35ebdb57d9 Downloading 3.146MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.1953686Z  1d12e864e19a Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.1958794Z  2d35ebdb57d9 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.1968951Z  ac28590ba464 Downloading 40.89MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.2099692Z  2d35ebdb57d9 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.2946509Z  ac28590ba464 Downloading 67.11MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.2993504Z  82e3b18698cd Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.3004921Z  10c02ef94427 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.3027926Z  1d12e864e19a Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.3053038Z  2d35ebdb57d9 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.3950251Z  ac28590ba464 Downloading 67.11MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.4954266Z  ac28590ba464 Downloading 76.55MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.5950045Z  ac28590ba464 Downloading 100.7MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.6950305Z  ac28590ba464 Downloading 100.7MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.7953369Z  ac28590ba464 Downloading 105.9MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.8950714Z  ac28590ba464 Downloading 105.9MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:52.9949071Z  ac28590ba464 Downloading 105.9MB
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.0958616Z  ac28590ba464 Download complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.1034908Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.2015185Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.3030958Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.4034745Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.5034370Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.6019602Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.7046485Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.8037638Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:53.9026824Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.0023070Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.1026063Z  ac28590ba464 Extracting 1B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.2033098Z  ac28590ba464 Extracting 2B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.3018020Z  ac28590ba464 Extracting 2B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.4046273Z  ac28590ba464 Extracting 2B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.5022742Z  ac28590ba464 Extracting 2B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6340168Z  ac28590ba464 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6614435Z  a5bd5a0b8636 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6623720Z  aabce23918dc Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6646779Z  11e80b5eea53 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6657210Z  5b6f078adbb9 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6666297Z  3cecdd37f6f2 Pull complete 0B
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.6681145Z failed to copy: httpReadSeeker: failed open: could not fetch content descriptor sha256:9a2b4c80ac9f07cc778de296fe4d653728a304ebf162bcee8b9a9b94da3922ef (application/vnd.in-toto+json) from remote: not found
+isolated-executor	Real isolated task publication and historical-attempt recovery	2026-10-26T09:38:54.7326738Z ##[error]Process completed with exit code 1.

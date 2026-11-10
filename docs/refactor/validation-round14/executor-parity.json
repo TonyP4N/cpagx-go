@@ -1,0 +1,213 @@
+{
+  "synthetic_only": true,
+  "cases": {
+    "success": {
+      "persistent_id": "dual-876ba3bf91d7437ca8a9b750ace23cac",
+      "celery_id": "bd735bb5-2f29-45a4-98da-7f0e6e5b0282",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 1,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "a3c5d68f-4291-4a8c-b4ad-7329f0c77a30",
+          "persistent": "dual-876ba3bf91d7437ca8a9b750ace23cac"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "error": {
+      "persistent_id": "dual-b70e0d8853464a4bacb575461a533f7a",
+      "celery_id": "0f5669a6-2c55-4a56-95f5-af31a5e96cb1",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 1,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "7f75040d-c9af-41d6-853f-3e9c01419548",
+          "persistent": "dual-b70e0d8853464a4bacb575461a533f7a"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "missing_response": {
+      "persistent_id": "dual-c94a7f4eeee24cd8ae8ef45b0ccbe4b7",
+      "celery_id": "5529770e-a095-4320-bd78-10aebe20e846",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 1,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "8a5ce6a4-7e6b-4307-b1cb-05e9128ffdf9",
+          "persistent": "dual-c94a7f4eeee24cd8ae8ef45b0ccbe4b7"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "mapping_missing": {
+      "persistent_id": "dual-74491fea3c234b18a0816b0f47b05802",
+      "celery_id": "d49e024d-aa19-4ac2-926f-bb2317beff76",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 1,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "942127d9-85f4-4156-9594-9e9545309889",
+          "persistent": "dual-74491fea3c234b18a0816b0f47b05802"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "mapping_conflict": {
+      "persistent_id": "dual-349a3c13d0994ef7b06cfee09caa37b1",
+      "celery_id": "fe70a0db-1628-414f-ba09-24d59362311c",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 1,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "dba95c49-7a5f-43c8-9224-2f564322047e",
+          "persistent": "dual-349a3c13d0994ef7b06cfee09caa37b1"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "ambiguous": {
+      "persistent_id": "dual-ca3aafd7aba94e0391b1b198077aa97f",
+      "celery_id": "2fd24506-dfc3-402e-b890-649b75337656",
+      "equal": [
+        "analysis",
+        "events",
+        "graph",
+        "quality",
+        "dataset",
+        "original_evidence"
+      ],
+      "operation_queries": 2,
+      "attempt": 1,
+      "runtime_metadata": {
+        "run_id": {
+          "celery": "267d6b0b-4d9a-4d01-8d3a-8b53b5ef5a80",
+          "persistent": "dual-ca3aafd7aba94e0391b1b198077aa97f"
+        },
+        "attempt_id": {
+          "celery": 1,
+          "persistent": 1
+        },
+        "tool_versions": {
+          "celery": {
+            "core": "0.1.1"
+          },
+          "persistent": {
+            "core": "0.1.1"
+          }
+        }
+      },
+      "all_nested_artifact_hashes_equal": true
+    },
+    "invalid": {
+      "persistent_id": "dual-48a1ffb073824b2782c555d61902dc0a",
+      "status": "failed"
+    }
+  },
+  "allowed_runtime_differences": {
+    "run_id": "Celery core UUID versus persistent job identity",
+    "attempt_id": "Persistent attempt identity; independent Celery first run is 1",
+    "tool_versions.python": "Host versus container Python patch version"
+  },
+  "status": "passed"
+}

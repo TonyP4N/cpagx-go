@@ -1,0 +1,63 @@
+{
+  "version": "r19-standard-projection-microbenchmark-2",
+  "scope": "complete small replay final projection and full state store, no capacity acceptance",
+  "reference_accepted": false,
+  "projection_sha256": "76331e334be1ead923ea8063a726b967fce92ff446b2b8a82a93ff5278c4b3e8",
+  "complete_projection_equal": true,
+  "fields": {
+    "network": 2,
+    "process": 5,
+    "changes": 1,
+    "candidates": 1
+  },
+  "samples": [
+    {
+      "repeat": 0,
+      "path": "existing",
+      "rounds": 30,
+      "seconds": 0.21435416597523727,
+      "nodes": 356
+    },
+    {
+      "repeat": 0,
+      "path": "composed",
+      "rounds": 30,
+      "seconds": 0.19388354200054891,
+      "nodes": 357
+    },
+    {
+      "repeat": 1,
+      "path": "composed",
+      "rounds": 30,
+      "seconds": 0.1993263750046026,
+      "nodes": 357
+    },
+    {
+      "repeat": 1,
+      "path": "existing",
+      "rounds": 30,
+      "seconds": 0.2131516250083223,
+      "nodes": 356
+    },
+    {
+      "repeat": 2,
+      "path": "existing",
+      "rounds": 30,
+      "seconds": 0.21375091702793725,
+      "nodes": 356
+    },
+    {
+      "repeat": 2,
+      "path": "composed",
+      "rounds": 30,
+      "seconds": 0.19602000000304542,
+      "nodes": 357
+    }
+  ],
+  "sources": {
+    "services/analysis/src/cpag_core/dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+    "services/analysis/src/cpag_core/compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+    "services/analysis/src/cpag_core/compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+    "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "cb9037f0c750319b32f7c286afe2aa23ad3356a2dfd81e44e9a040b9a6ad99b6"
+  }
+}

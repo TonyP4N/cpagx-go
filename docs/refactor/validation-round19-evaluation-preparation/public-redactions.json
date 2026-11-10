@@ -1,0 +1,14 @@
+[
+  {
+    "path": "go-cache-permission-attempt1.log",
+    "original_sha256": "2b781dba9f95d6e05683c9d67459317d230699fc27bc2f27ebb004f557cc587c",
+    "public_sha256": "b0ffe92fd9e0d3c7b399e0c10621e88fdfb4489e6446d306866f5c56728b63a1",
+    "redaction": "personal path only; original retained in controlled output"
+  },
+  {
+    "path": "baseline-cli.json",
+    "original_sha256": "ef06ffeec6da6b66f72c9965873f2f0ad91b45bdf139050800faf4e507f1dcfa",
+    "public_sha256": "dd88a4ba83fa444d87de85feeaa413b576c268868d0897a99854f6d380a90536",
+    "redaction": "personal path only; original retained in controlled output"
+  }
+]

@@ -1,0 +1,156 @@
+{
+  "synthetic_only": true,
+  "runtime": "real uvicorn + Celery prefork + RabbitMQ + Redis",
+  "project": "cpag-r9-991b0abd",
+  "checks": {
+    "queued_without_worker": {
+      "task_id": "f8beec81-43f6-4199-b2cd-0cccef3a52d9",
+      "http_status": "queued",
+      "rabbitmq_messages_ready": 1,
+      "published_artifact_count": 0
+    },
+    "celery_backend_first": {
+      "state": "SUCCESS",
+      "result_status": "completed"
+    },
+    "valid_queue_execution": "HTTP accepted; real prefork worker completed; five downloads, hashes, result and source refs verified",
+    "malformed": {
+      "task_id": "56bb2a9c-4467-4694-a387-32641b41f0bd",
+      "status": "failed",
+      "artifact_count": 0,
+      "backend": {
+        "state": "FAILURE",
+        "result_status": null
+      }
+    },
+    "header_only": {
+      "task_id": "998a85e2-5454-45cb-ad6a-585801e8f453",
+      "status": "failed",
+      "artifact_count": 0,
+      "backend": {
+        "state": "FAILURE",
+        "result_status": null
+      }
+    },
+    "duplicate_completed": {
+      "task_id": "f8beec81-43f6-4199-b2cd-0cccef3a52d9",
+      "worker_success_count": 2,
+      "files_unchanged": true,
+      "backend": {
+        "state": "SUCCESS",
+        "result_status": "completed"
+      }
+    },
+    "worker_shutdown_exit_code": 0,
+    "celery_backend_after_restart": {
+      "state": "SUCCESS",
+      "result_status": "completed"
+    },
+    "worker_restart": {
+      "task_id": "03910d10-624c-44c0-bd88-ded328b417b0",
+      "status": "completed"
+    },
+    "queue_idle_before_broker_stop": {
+      "messages_ready": 0,
+      "messages_unacknowledged": 0
+    },
+    "broker_down": {
+      "http_code": 503,
+      "manifest_status": "failed",
+      "artifact_count": 0
+    },
+    "broker_restore_ports": {
+      "old_amqp_port": "32768",
+      "new_amqp_port": "32771",
+      "disposable_api_restarted": true
+    },
+    "broker_recovered": {
+      "task_id": "c77a0b6c-4ca8-4ad8-8779-a27dc3202bba",
+      "backend": {
+        "state": "SUCCESS",
+        "result_status": "completed"
+      }
+    },
+    "tampered_publication": {
+      "http_codes": {
+        "/cpag/artifacts/f8beec81-43f6-4199-b2cd-0cccef3a52d9": 409,
+        "/cpag/result/f8beec81-43f6-4199-b2cd-0cccef3a52d9": 409,
+        "/cpag/result/f8beec81-43f6-4199-b2cd-0cccef3a52d9/json": 409,
+        "/cpag/download/f8beec81-43f6-4199-b2cd-0cccef3a52d9/graph.json": 409
+      },
+      "corruption": "valid JSON with changed SHA/size"
+    },
+    "missing_publication": {
+      "http_codes": {
+        "/cpag/artifacts/f8beec81-43f6-4199-b2cd-0cccef3a52d9": 409,
+        "/cpag/result/f8beec81-43f6-4199-b2cd-0cccef3a52d9": 409,
+        "/cpag/result/f8beec81-43f6-4199-b2cd-0cccef3a52d9/json": 409,
+        "/cpag/download/f8beec81-43f6-4199-b2cd-0cccef3a52d9/graph.json": 409
+      }
+    },
+    "restored_publication": true
+  },
+  "artifacts": {
+    "first": {
+      "task_id": "f8beec81-43f6-4199-b2cd-0cccef3a52d9",
+      "artifact_sha256": {
+        "dataset.json": "12b1420720578ff775a03070d0c9b1783bd1486c69da9995f880c6e7a9835308",
+        "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+        "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+        "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+        "run_manifest.json": "57457062d6f466e1672c8171d7044457f6936abea274c39e391c2da24bfb868a"
+      },
+      "resolved_event_count": 8,
+      "resolved_record_sha256": "76c40b8bf365f82a6fbf75fe0856016cf3e2b60d5da2d84c673846c29edc03de",
+      "standalone_comparison": "four files byte-identical; run_manifest only run_id differs"
+    },
+    "after_worker_restart": {
+      "task_id": "03910d10-624c-44c0-bd88-ded328b417b0",
+      "artifact_sha256": {
+        "dataset.json": "12b1420720578ff775a03070d0c9b1783bd1486c69da9995f880c6e7a9835308",
+        "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+        "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+        "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+        "run_manifest.json": "c33431f9d9761446984c503d8f2f64c4aeaa980022e1f7dac937dfa7d8daf16c"
+      },
+      "resolved_event_count": 8,
+      "resolved_record_sha256": "76c40b8bf365f82a6fbf75fe0856016cf3e2b60d5da2d84c673846c29edc03de",
+      "standalone_comparison": null
+    },
+    "after_broker_recovery": {
+      "task_id": "c77a0b6c-4ca8-4ad8-8779-a27dc3202bba",
+      "artifact_sha256": {
+        "dataset.json": "12b1420720578ff775a03070d0c9b1783bd1486c69da9995f880c6e7a9835308",
+        "events.json": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+        "graph.json": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+        "quality.json": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+        "run_manifest.json": "389b809675a9e48cd64ce19ee9e2b839b8c4db8898d088332c51b4739e82fd46"
+      },
+      "resolved_event_count": 8,
+      "resolved_record_sha256": "76c40b8bf365f82a6fbf75fe0856016cf3e2b60d5da2d84c673846c29edc03de",
+      "standalone_comparison": null
+    }
+  },
+  "limitations": [
+    "No mid-compute worker kill/recovery claim",
+    "No real industrial data or production validation"
+  ],
+  "versions": {
+    "python": "3.11.17",
+    "docker_images": "CONTAINER                     REPOSITORY                       TAG                 PLATFORM            IMAGE ID            SIZE                CREATED\ncpag-r9-991b0abd-rabbitmq-1   mirror.gcr.io/library/rabbitmq   3.13.7-management   linux/amd64         e582c0bc7766        114MB               10 months ago\ncpag-r9-991b0abd-redis-1      mirror.gcr.io/library/redis      7.4.2-alpine        linux/amd64         02419de7eddf        17.2MB              21 months ago",
+    "celery": "5.3.4"
+  },
+  "worker_start_method": "macOS harness forces billiard fork; Linux uses Celery default",
+  "status": "passed",
+  "cleanup": {
+    "compose_down_with_volumes": true,
+    "status": "passed",
+    "api_exit_code": 0,
+    "worker_exit_code": 0
+  },
+  "source_sha256": {
+    "network": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+    "process": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+    "profile": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+  }
+}

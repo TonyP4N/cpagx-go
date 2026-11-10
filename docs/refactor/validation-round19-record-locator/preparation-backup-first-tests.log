@@ -1,0 +1,11 @@
+test_actual_raw_bytea_hash_and_semantic_projection_checked_once_per_run_projection (test_evaluation_preparations.PreparationBackupTests.test_actual_raw_bytea_hash_and_semantic_projection_checked_once_per_run_projection) ... ok
+test_metadata_sql_never_serializes_large_bytea_before_redaction (test_evaluation_preparations.PreparationBackupTests.test_metadata_sql_never_serializes_large_bytea_before_redaction) ... ok
+test_pending_both_refused_and_failed_does_not_expose_partial_document (test_evaluation_preparations.PreparationBackupTests.test_pending_both_refused_and_failed_does_not_expose_partial_document) ... ok
+test_ready_global_budget_is_one_gib_not_per_row_unbounded (test_evaluation_preparations.PreparationBackupTests.test_ready_global_budget_is_one_gib_not_per_row_unbounded) ... ok
+test_terminal_ready_snapshot_binds_all_actual_source_bytes (test_evaluation_preparations.PreparationBackupTests.test_terminal_ready_snapshot_binds_all_actual_source_bytes) ... ok
+test_unavailable_mixed_identity_inventory_history_and_private_fields_refused (test_evaluation_preparations.PreparationBackupTests.test_unavailable_mixed_identity_inventory_history_and_private_fields_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.041s
+
+OK

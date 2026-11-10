@@ -1,0 +1,66 @@
+{"monitor_elapsed_seconds": 0.00019816600251942873, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 1.0087997079826891, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 2.0127584580041002, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 3.022999999986496, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 4.033247790997848, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 5.041986915981397, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 6.0521691250032745, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 7.0611491659947205, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 8.069948415999534, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 9.080090790987015, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 10.082777749979869, "bytes": {}, "total": 0}
+{"monitor_elapsed_seconds": 11.083890040987171, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 4788224}, "total": 4797952}
+{"monitor_elapsed_seconds": 12.092160915985005, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 31952896}, "total": 31962624}
+{"monitor_elapsed_seconds": 13.09561724998639, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 54628352}, "total": 54638080}
+{"monitor_elapsed_seconds": 14.1005177909974, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 75481088}, "total": 75490816}
+{"monitor_elapsed_seconds": 15.110801665985491, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 95965184}, "total": 95974912}
+{"monitor_elapsed_seconds": 16.11369850000483, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 118251520}, "total": 118261248}
+{"monitor_elapsed_seconds": 17.117196124978364, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 141275136}, "total": 141284864}
+{"monitor_elapsed_seconds": 18.121257874998264, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 164257792}, "total": 164267520}
+{"monitor_elapsed_seconds": 19.13402554098866, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 186679296}, "total": 186689024}
+{"monitor_elapsed_seconds": 20.143947332981043, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 208216064}, "total": 208225792}
+{"monitor_elapsed_seconds": 21.150421582977287, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 230944768}, "total": 230954496}
+{"monitor_elapsed_seconds": 22.160701540997252, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 251498496}, "total": 251508224}
+{"monitor_elapsed_seconds": 23.164027833001455, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 273985536}, "total": 273995264}
+{"monitor_elapsed_seconds": 24.16687849999289, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 294576128}, "total": 294585856}
+{"monitor_elapsed_seconds": 25.167761916003656, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 316325888}, "total": 316335616}
+{"monitor_elapsed_seconds": 26.169160207995446, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 337829888}, "total": 337839616}
+{"monitor_elapsed_seconds": 27.178446915990207, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 359333888}, "total": 359343616}
+{"monitor_elapsed_seconds": 28.182684125000378, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 381476864}, "total": 381486592}
+{"monitor_elapsed_seconds": 29.183808332978515, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 403824640}, "total": 403834368}
+{"monitor_elapsed_seconds": 30.188876874977723, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 425902080}, "total": 425911808}
+{"monitor_elapsed_seconds": 31.19217741600005, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 447524864}, "total": 447534592}
+{"monitor_elapsed_seconds": 32.20104237500345, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 469721088}, "total": 469730816}
+{"monitor_elapsed_seconds": 33.20809379097773, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 489799680}, "total": 489809408}
+{"monitor_elapsed_seconds": 34.212964957987424, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 509222912}, "total": 509232640}
+{"monitor_elapsed_seconds": 35.21633091598051, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 529510400}, "total": 529520128}
+{"monitor_elapsed_seconds": 36.21667491598055, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 549236736}, "total": 549246464}
+{"monitor_elapsed_seconds": 37.217923249991145, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 569806848}, "total": 569816576}
+{"monitor_elapsed_seconds": 38.22081895798328, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 591847424}, "total": 591857152}
+{"monitor_elapsed_seconds": 39.22184612500132, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 614113280}, "total": 614123008}
+{"monitor_elapsed_seconds": 40.224728665984, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 634978304}, "total": 634988032}
+{"monitor_elapsed_seconds": 41.230934624996735, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 656908288}, "total": 656918016}
+{"monitor_elapsed_seconds": 42.23622312498628, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 678662144}, "total": 678671872}
+{"monitor_elapsed_seconds": 43.24157537499559, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 700456960}, "total": 700466688}
+{"monitor_elapsed_seconds": 44.24690504098544, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 722563072}, "total": 722572800}
+{"monitor_elapsed_seconds": 45.24973429099191, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 744767488}, "total": 744777216}
+{"monitor_elapsed_seconds": 46.25501179098501, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 766627840}, "total": 766637568}
+{"monitor_elapsed_seconds": 47.259197165985825, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 786567168}, "total": 786576896}
+{"monitor_elapsed_seconds": 48.264448250003625, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 808550400}, "total": 808560128}
+{"monitor_elapsed_seconds": 49.266906374978134, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 826216448}, "total": 826226176}
+{"monitor_elapsed_seconds": 50.27090474998113, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 838070272}, "total": 838080000}
+{"monitor_elapsed_seconds": 51.27483691598172, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 854634496}, "total": 854644224}
+{"monitor_elapsed_seconds": 52.28007074998459, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 873451520}, "total": 873461248}
+{"monitor_elapsed_seconds": 53.28122420798172, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 893554688}, "total": 893564416}
+{"monitor_elapsed_seconds": 54.286533082980895, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 909336576}, "total": 909346304}
+{"monitor_elapsed_seconds": 55.289990958001, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 930721792}, "total": 930731520}
+{"monitor_elapsed_seconds": 56.29135841599782, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 952709120}, "total": 952718848}
+{"monitor_elapsed_seconds": 57.29234604098019, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 974090240}, "total": 974099968}
+{"monitor_elapsed_seconds": 58.29561104098684, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 995364864}, "total": 995374592}
+{"monitor_elapsed_seconds": 59.30089349998161, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1013977088}, "total": 1013986816}
+{"monitor_elapsed_seconds": 60.30617062500096, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1025511424}, "total": 1025521152}
+{"monitor_elapsed_seconds": 61.31144045799738, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1037373440}, "total": 1037383168}
+{"monitor_elapsed_seconds": 62.31493408299866, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1049305088}, "total": 1049314816}
+{"monitor_elapsed_seconds": 63.3201386249857, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1061060608}, "total": 1061070336}
+{"monitor_elapsed_seconds": 64.3223023749888, "bytes": {"shared.sqlite3-journal": 9728, "shared.sqlite3": 1068957696}, "total": 1068967424}
+{"monitor_elapsed_seconds": 65.32477420798386, "bytes": {"shared.sqlite3": 12288}, "total": 12288}

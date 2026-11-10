@@ -1,0 +1,62 @@
+{
+  "scope": "read-only retained S100 fields; not new analysis, M/L runtime, compression result or industrial acceptance",
+  "artifact": "/private/tmp/cpag-r19-fixed-s100-run1/source/jobs/ab5812b2ca4c36dabc1b36cbd035b0d0/attempt-1",
+  "source_measurement_commit": "3e7340ea0e923820b21881dcb33740e0f2d0ec20",
+  "analysis_sha256": "b8454759a8f13613350758b4378b14735c676adac47788c24f1f253c800c6e1c",
+  "analysis_bytes": 168329050,
+  "candidate_count": 2596,
+  "wall_seconds": 5.240144416980911,
+  "cpu_seconds": 5.006685,
+  "process_peak_rss_bytes": 48185344,
+  "cursor_peak_characters": 144728,
+  "fields": {
+    "candidate_full": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 165420683,
+      "unique_payloads": 2596,
+      "unique_encoded_bytes": 165420683
+    },
+    "candidate_counterevidence": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 84768282,
+      "unique_payloads": 2596,
+      "unique_encoded_bytes": 84768282
+    },
+    "candidate_unknown_reasons": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 114477,
+      "unique_payloads": 2,
+      "unique_encoded_bytes": 123
+    },
+    "candidate_support": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 197296,
+      "unique_payloads": 1,
+      "unique_encoded_bytes": 76
+    },
+    "claim_counterevidence": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 57082552,
+      "unique_payloads": 2596,
+      "unique_encoded_bytes": 57082552
+    },
+    "claim_evidence_refs": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 1795691,
+      "unique_payloads": 2596,
+      "unique_encoded_bytes": 1795691
+    },
+    "claim_assumptions": {
+      "occurrences": 2596,
+      "encoded_total_bytes": 334884,
+      "unique_payloads": 1,
+      "unique_encoded_bytes": 129
+    }
+  },
+  "all_candidate_source_reference_occurrences": {
+    "count": 809026,
+    "encoded_total_bytes": 139219839,
+    "unique_payloads": 288,
+    "unique_encoded_bytes": 48757
+  }
+}

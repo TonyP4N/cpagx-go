@@ -1,0 +1,683 @@
+{
+  "apiVersion": "v1",
+  "kind": "List",
+  "items": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "cpag-api",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "progressDeadlineSeconds": 600,
+        "replicas": 0,
+        "revisionHistoryLimit": 10,
+        "selector": {
+          "matchLabels": {
+            "app": "cpag-api"
+          }
+        },
+        "strategy": {
+          "type": "Recreate"
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "cpag-api"
+            },
+            "annotations": {
+              "cpag.resident/status": "review-paused"
+            }
+          },
+          "spec": {
+            "automountServiceAccountToken": false,
+            "containers": [
+              {
+                "image": "docker.io/library/nginx@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949",
+                "imagePullPolicy": "IfNotPresent",
+                "name": "public-relay",
+                "resources": {
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "64Mi"
+                  },
+                  "requests": {
+                    "cpu": "10m",
+                    "memory": "16Mi"
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/etc/nginx/conf.d",
+                    "name": "relay",
+                    "readOnly": true
+                  }
+                ]
+              },
+              {
+                "command": [
+                  "/opt/cpag/bin/cpagx-v3",
+                  "--config",
+                  "/etc/cpag/app.json"
+                ],
+                "env": [
+                  {
+                    "name": "CPAG_VERIFY_BACKEND",
+                    "value": "kube-sidecar-v1"
+                  }
+                ],
+                "image": "docker.io/library/cpag-resident-api@sha256:8a5bdb7d09ec5f64bb4b2e9771af93bacd462aef42da40949814fae40b9065da",
+                "imagePullPolicy": "Never",
+                "name": "api",
+                "readinessProbe": {
+                  "exec": {
+                    "command": [
+                      "python3",
+                      "-c",
+                      "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/health/ready',timeout=2).read()"
+                    ]
+                  },
+                  "failureThreshold": 3,
+                  "periodSeconds": 10,
+                  "successThreshold": 1,
+                  "timeoutSeconds": 4
+                },
+                "resources": {
+                  "limits": {
+                    "cpu": "1",
+                    "memory": "512Mi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  }
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/verify-channel",
+                    "name": "verify-channel"
+                  },
+                  {
+                    "mountPath": "/etc/cpag",
+                    "name": "config",
+                    "readOnly": true
+                  },
+                  {
+                    "mountPath": "/state/shared",
+                    "name": "shared"
+                  },
+                  {
+                    "mountPath": "/state/control",
+                    "name": "control"
+                  },
+                  {
+                    "name": "observer-account",
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "readOnly": true
+                  }
+                ]
+              },
+              {
+                "command": [
+                  "python3",
+                  "/opt/cpag/source-verifier.py"
+                ],
+                "env": [
+                  {
+                    "name": "PYTHONPATH",
+                    "value": "/opt/cpag/services/analysis/src"
+                  }
+                ],
+                "image": "docker.io/library/cpag-resident-api@sha256:8a5bdb7d09ec5f64bb4b2e9771af93bacd462aef42da40949814fae40b9065da",
+                "imagePullPolicy": "Never",
+                "name": "source-verifier",
+                "resources": {
+                  "limits": {
+                    "cpu": "4",
+                    "memory": "8Gi"
+                  },
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "128Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                },
+                "terminationMessagePath": "/dev/termination-log",
+                "terminationMessagePolicy": "File",
+                "volumeMounts": [
+                  {
+                    "mountPath": "/state/shared/jobs",
+                    "name": "shared",
+                    "readOnly": true,
+                    "subPath": "jobs"
+                  },
+                  {
+                    "mountPath": "/verify-channel",
+                    "name": "verify-channel"
+                  },
+                  {
+                    "mountPath": "/tmp",
+                    "name": "verify-tmp"
+                  }
+                ]
+              },
+              {
+                "name": "private-relay",
+                "image": "docker.io/library/cpag-resident-api@sha256:8a5bdb7d09ec5f64bb4b2e9771af93bacd462aef42da40949814fae40b9065da",
+                "imagePullPolicy": "Never",
+                "command": [
+                  "python3",
+                  "/opt/cpag/private_relay.py"
+                ],
+                "volumeMounts": [
+                  {
+                    "name": "worker-config",
+                    "mountPath": "/etc/cpag",
+                    "readOnly": true
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "10m",
+                    "memory": "16Mi"
+                  },
+                  "limits": {
+                    "cpu": "250m",
+                    "memory": "64Mi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ]
+                  },
+                  "readOnlyRootFilesystem": true
+                }
+              }
+            ],
+            "dnsPolicy": "ClusterFirst",
+            "restartPolicy": "Always",
+            "schedulerName": "default-scheduler",
+            "securityContext": {},
+            "serviceAccount": "cpag-resident-observer",
+            "serviceAccountName": "cpag-resident-observer",
+            "terminationGracePeriodSeconds": 30,
+            "volumes": [
+              {
+                "emptyDir": {},
+                "name": "verify-channel"
+              },
+              {
+                "emptyDir": {
+                  "medium": "Memory",
+                  "sizeLimit": "4Gi"
+                },
+                "name": "verify-tmp"
+              },
+              {
+                "name": "worker-config",
+                "secret": {
+                  "defaultMode": 384,
+                  "secretName": "cpag-worker-config"
+                }
+              },
+              {
+                "name": "config",
+                "secret": {
+                  "defaultMode": 384,
+                  "secretName": "cpag-app-config"
+                }
+              },
+              {
+                "name": "shared",
+                "persistentVolumeClaim": {
+                  "claimName": "cpag-shared"
+                }
+              },
+              {
+                "name": "control",
+                "persistentVolumeClaim": {
+                  "claimName": "cpag-control"
+                }
+              },
+              {
+                "configMap": {
+                  "defaultMode": 420,
+                  "name": "cpag-public-relay"
+                },
+                "name": "relay"
+              },
+              {
+                "name": "observer-account",
+                "projected": {
+                  "defaultMode": 256,
+                  "sources": [
+                    {
+                      "serviceAccountToken": {
+                        "expirationSeconds": 3600,
+                        "path": "token"
+                      }
+                    },
+                    {
+                      "configMap": {
+                        "name": "kube-root-ca.crt",
+                        "items": [
+                          {
+                            "key": "ca.crt",
+                            "path": "ca.crt"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "downwardAPI": {
+                        "items": [
+                          {
+                            "path": "namespace",
+                            "fieldRef": {
+                              "fieldPath": "metadata.namespace"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "ServiceAccount",
+      "metadata": {
+        "name": "cpag-resident-observer",
+        "namespace": "cpag"
+      }
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "Role",
+      "metadata": {
+        "name": "cpag-resident-observe",
+        "namespace": "cpag"
+      },
+      "rules": [
+        {
+          "apiGroups": [
+            ""
+          ],
+          "resources": [
+            "pods"
+          ],
+          "verbs": [
+            "get"
+          ]
+        }
+      ]
+    },
+    {
+      "apiVersion": "rbac.authorization.k8s.io/v1",
+      "kind": "RoleBinding",
+      "metadata": {
+        "name": "cpag-resident-observe",
+        "namespace": "cpag"
+      },
+      "subjects": [
+        {
+          "kind": "ServiceAccount",
+          "name": "cpag-resident-observer",
+          "namespace": "cpag"
+        }
+      ],
+      "roleRef": {
+        "apiGroup": "rbac.authorization.k8s.io",
+        "kind": "Role",
+        "name": "cpag-resident-observe"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "cpag-resident-internal",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "type": "ClusterIP",
+        "selector": {
+          "app": "cpag-api"
+        },
+        "ports": [
+          {
+            "name": "internal",
+            "port": 8096,
+            "targetPort": 8096
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Service",
+      "metadata": {
+        "name": "cpag-workbench",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "internalTrafficPolicy": "Cluster",
+        "ipFamilies": [
+          "IPv4"
+        ],
+        "ipFamilyPolicy": "SingleStack",
+        "ports": [
+          {
+            "port": 80,
+            "protocol": "TCP",
+            "targetPort": 8080
+          }
+        ],
+        "selector": {
+          "app": "cpag-api"
+        },
+        "sessionAffinity": "None",
+        "type": "ClusterIP"
+      }
+    },
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+        "name": "cpag-worker",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "replicas": 0,
+        "strategy": {
+          "type": "Recreate"
+        },
+        "selector": {
+          "matchLabels": {
+            "app": "cpag-worker"
+          }
+        },
+        "template": {
+          "metadata": {
+            "labels": {
+              "app": "cpag-worker"
+            }
+          },
+          "spec": {
+            "serviceAccountName": "cpag-resident-observer",
+            "automountServiceAccountToken": false,
+            "terminationGracePeriodSeconds": 60,
+            "containers": [
+              {
+                "name": "worker",
+                "image": "docker.io/library/cpag-resident-worker@sha256:5d8ac9e716934343a709a31500b588ccbb5ac56a26ab430f7c1481feb8c9eac8",
+                "imagePullPolicy": "Never",
+                "command": [
+                  "sh",
+                  "-ec",
+                  "umask 077; mkdir -p /private; chmod 0700 /private; cp /config/worker.json /private/config.json; exec python3 -m cpag_worker.resident_service --config /private/config.json --work-root /resident-work"
+                ],
+                "env": [
+                  {
+                    "name": "CPAG_POD_NAME",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.name"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CPAG_POD_UID",
+                    "valueFrom": {
+                      "fieldRef": {
+                        "fieldPath": "metadata.uid"
+                      }
+                    }
+                  },
+                  {
+                    "name": "CPAG_NAMESPACE_UID",
+                    "value": "REPLACE_WITH_TARGET_NAMESPACE_UID"
+                  },
+                  {
+                    "name": "CPAG_CONTAINER_NAME",
+                    "value": "worker"
+                  }
+                ],
+                "resources": {
+                  "requests": {
+                    "cpu": "100m",
+                    "memory": "256Mi"
+                  },
+                  "limits": {
+                    "cpu": "4",
+                    "memory": "13Gi"
+                  }
+                },
+                "securityContext": {
+                  "allowPrivilegeEscalation": false,
+                  "readOnlyRootFilesystem": true,
+                  "capabilities": {
+                    "drop": [
+                      "ALL"
+                    ],
+                    "add": [
+                      "SETUID",
+                      "SETGID",
+                      "CHOWN",
+                      "DAC_OVERRIDE",
+                      "KILL"
+                    ]
+                  }
+                },
+                "volumeMounts": [
+                  {
+                    "name": "config",
+                    "mountPath": "/config",
+                    "readOnly": true
+                  },
+                  {
+                    "name": "private",
+                    "mountPath": "/private"
+                  },
+                  {
+                    "name": "work",
+                    "mountPath": "/resident-work"
+                  },
+                  {
+                    "name": "shared",
+                    "mountPath": "/state/shared"
+                  },
+                  {
+                    "name": "control",
+                    "mountPath": "/state/control"
+                  },
+                  {
+                    "name": "observer-account",
+                    "mountPath": "/var/run/secrets/kubernetes.io/serviceaccount",
+                    "readOnly": true
+                  }
+                ]
+              }
+            ],
+            "volumes": [
+              {
+                "name": "config",
+                "secret": {
+                  "secretName": "cpag-worker-config",
+                  "defaultMode": 384
+                }
+              },
+              {
+                "name": "private",
+                "emptyDir": {
+                  "medium": "Memory",
+                  "sizeLimit": "1Mi"
+                }
+              },
+              {
+                "name": "work",
+                "emptyDir": {
+                  "medium": "Memory",
+                  "sizeLimit": "4Gi"
+                }
+              },
+              {
+                "name": "shared",
+                "persistentVolumeClaim": {
+                  "claimName": "cpag-shared"
+                }
+              },
+              {
+                "name": "control",
+                "persistentVolumeClaim": {
+                  "claimName": "cpag-control"
+                }
+              },
+              {
+                "name": "observer-account",
+                "projected": {
+                  "defaultMode": 256,
+                  "sources": [
+                    {
+                      "serviceAccountToken": {
+                        "expirationSeconds": 3600,
+                        "path": "token"
+                      }
+                    },
+                    {
+                      "configMap": {
+                        "name": "kube-root-ca.crt",
+                        "items": [
+                          {
+                            "key": "ca.crt",
+                            "path": "ca.crt"
+                          }
+                        ]
+                      }
+                    },
+                    {
+                      "downwardAPI": {
+                        "items": [
+                          {
+                            "path": "namespace",
+                            "fieldRef": {
+                              "fieldPath": "metadata.namespace"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "cpag-api-resident-private",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app": "cpag-api"
+          }
+        },
+        "policyTypes": [
+          "Ingress"
+        ],
+        "ingress": [
+          {
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 8080
+              }
+            ]
+          },
+          {
+            "from": [
+              {
+                "podSelector": {
+                  "matchLabels": {
+                    "app": "cpag-worker"
+                  }
+                }
+              }
+            ],
+            "ports": [
+              {
+                "protocol": "TCP",
+                "port": 8096
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "networking.k8s.io/v1",
+      "kind": "NetworkPolicy",
+      "metadata": {
+        "name": "cpag-worker-deny-ingress",
+        "namespace": "cpag"
+      },
+      "spec": {
+        "podSelector": {
+          "matchLabels": {
+            "app": "cpag-worker"
+          }
+        },
+        "policyTypes": [
+          "Ingress"
+        ],
+        "ingress": []
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "data": {
+        "default.conf": "server { listen 8080; absolute_redirect off; server_name cpag.montp3.pro; client_max_body_size 128m; location = / { return 302 /workbench/$is_args$args; } location = /index.html { return 302 /workbench/$is_args$args; } location = /workspace { return 302 /workbench/$is_args$args; } location = /workspace.html { return 302 /workbench/$is_args$args; } location ^~ /workspace/ { return 302 /workbench/$is_args$args; } location / { proxy_http_version 1.1; proxy_set_header Host $http_host; proxy_set_header Connection \"\"; proxy_request_buffering off; proxy_buffering off; proxy_read_timeout 610s; proxy_pass http://127.0.0.1:8095; } }"
+      },
+      "kind": "ConfigMap",
+      "metadata": {
+        "name": "cpag-public-relay",
+        "namespace": "cpag"
+      }
+    }
+  ]
+}

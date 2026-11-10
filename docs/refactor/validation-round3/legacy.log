@@ -1,0 +1,12 @@
+test_failed_parser_becomes_failed_public_result_without_graph (test_no_fabricated_pcap.LegacySafetyTests.test_failed_parser_becomes_failed_public_result_without_graph) ... ok
+test_optimized_classic_delegates_to_explicit_unsupported (test_no_fabricated_pcap.LegacySafetyTests.test_optimized_classic_delegates_to_explicit_unsupported) ... ok
+test_pcapng_io_and_header_errors_surface (test_no_fabricated_pcap.LegacySafetyTests.test_pcapng_io_and_header_errors_surface) ... ok
+test_standard_rejects_even_syntactically_valid_placeholder_trigger (test_no_fabricated_pcap.LegacySafetyTests.test_standard_rejects_even_syntactically_valid_placeholder_trigger) ... ok
+test_task_checks_failed_result_before_success_handling (test_no_fabricated_pcap.LegacySafetyTests.test_task_checks_failed_result_before_success_handling) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.160s
+
+OK
+Detected file type: pcap
+Detected file type: pcap

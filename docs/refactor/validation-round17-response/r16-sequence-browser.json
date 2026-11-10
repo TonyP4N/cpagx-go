@@ -1,0 +1,34 @@
+{
+  "synthetic_only": true,
+  "status": "passed",
+  "checks": {
+    "preflight_incomplete": {
+      "status": 422,
+      "queued_delta": 0
+    },
+    "batch_conflict": {
+      "status": 409,
+      "queued_delta": 0
+    },
+    "insufficient_basis": {
+      "status": 422,
+      "queued_delta": 0
+    },
+    "missing_mapping_refused": true,
+    "missing_time_refused": true,
+    "two_historical_reports_readable": true,
+    "preflight_stale": {
+      "status": 409,
+      "queued_delta": 0
+    }
+  },
+  "page_errors": [],
+  "screenshots": [
+    "preflight_incomplete.png",
+    "batch_conflict.png",
+    "insufficient_basis.png",
+    "insufficient_basis.png",
+    "two-history-reports.png",
+    "preflight_stale.png"
+  ]
+}

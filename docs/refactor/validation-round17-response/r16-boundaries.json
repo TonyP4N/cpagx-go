@@ -1,0 +1,23 @@
+{
+  "checks": [
+    "admin_created_dedicated_datasets_and_acl",
+    "cross_dataset_anonymous_and_internal_credential_boundary",
+    "upload_idempotency_hash_limit_and_interruption",
+    "role_matrix_and_global_viewer_ceiling",
+    "batch_conflict_is_explicit_report",
+    "real_single_source_missing_metadata_no_analysis",
+    "two_executed_versions_viewer_reads_and_cross_run_denial",
+    "original_tamper_missing_blocks_all_trust_then_recovers"
+  ],
+  "dedicated_dataset_id": "d7aa299fc75e230f95be0cfcd3624b91",
+  "dedicated_real_dataset_id": "2edf767e5a34fd6a5e2da9840170d586",
+  "new_config_id": "a6ef0b18075ed065df74407215bd5802",
+  "new_run_id": "13134424167ad2a8f54987b5b867f90f",
+  "old_config_id": "dbcffddc3ff8e3a409e6f8464d2ada9a",
+  "old_run_id": "698fbe91f3fde0a534de23464b883414",
+  "real_declared_source_test_material": "generated synthetic fixture bytes reused solely to exercise real-source metadata intake and rejection; no industrial data was analyzed",
+  "result_sha256_new": "2dd5ca8b3a1222dd9db0d08a650aadcbb8e8deb0a36ddefeacbdcc60a6725dd4",
+  "result_sha256_old": "e0bf4d727d21e52384ae09d0fe9b18198864a5a07274211b8e0665a7b6dea8cc",
+  "shadow_run_id": "ddda7fe6ca32db5aa27048b360587cd1",
+  "status": "passed"
+}

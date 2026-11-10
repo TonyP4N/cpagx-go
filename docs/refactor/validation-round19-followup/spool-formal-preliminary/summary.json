@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "scope": "generated small formal Worker/history/empty-db restore; no scale performance claim",
+  "git_head": "3e7340ea0e923820b21881dcb33740e0f2d0ec20",
+  "source_state": "uncommitted explicit spool integration pending parent commit",
+  "worker_image": "cpag-isolated:r19-spool-acceptance",
+  "worker_image_id": "sha256:e8c9982c7e80965e6242a4e50df43086ac51f59d3acda237dc4d59d2f3440e23",
+  "runs": 7,
+  "checks": 14,
+  "stages": [
+    "original",
+    "restored"
+  ],
+  "empty_database_new_directory_restore": true,
+  "history_format": "replay-history-checkpoint-delta-2",
+  "logical_comparison": "complete reconstructed snapshots/revisions and retained semantic files; no dropped business fields",
+  "physical_comparison": "individual run/attempt history manifest and SQLite hashes equal after restoration; context-bound physical files need not match different runs",
+  "credential_exact_match_scan": {
+    "selected_files": 4,
+    "private_values_checked": 6,
+    "found": false
+  },
+  "post_formal_negative_guard": "backup now also rejects explicit null history_format instead of treating it as historical omission; valid-format formal behavior unchanged, focused backup regression follows",
+  "acceptance_stage": "preliminary_before_aggregate_output_budget_fix",
+  "final_source_gate": "pending rerun with fixed spool-final-1 image"
+}

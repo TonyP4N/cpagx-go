@@ -1,0 +1,11 @@
+{
+  "baseline": "2f08784",
+  "synthetic": true,
+  "database_calls_mocked": true,
+  "outcomes": {
+    "first": true,
+    "second": "CalledProcessError"
+  },
+  "final_report_valid": false,
+  "restored_directory_exists": true
+}

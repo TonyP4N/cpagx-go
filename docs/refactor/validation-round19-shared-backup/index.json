@@ -1,0 +1,91 @@
+{
+  "baseline": "a4358daefd52475ab727e331ea30432a80f2abf8",
+  "browser": {
+    "console_errors": [],
+    "error": "422 query_limit; 已清除本页可信结果。",
+    "evidence": [
+      "process logical record 3 pump=0",
+      "process logical record 4 pump=1",
+      "network-0 request frame 1",
+      "network-1 response frame 1"
+    ],
+    "legal_operation_restored": true,
+    "legal_snapshot": 15,
+    "legal_snapshot_four_raw_evidence_returned": true,
+    "method": "ordinary UI login, dataset and run clicks in restored formal app",
+    "old_results_and_evidence_removed": true,
+    "out_of_range_snapshot": 999,
+    "run_id": "30487b3a21731005a000e987dccef3a1"
+  },
+  "bundle": {
+    "bytes": 876454,
+    "control_files": 61,
+    "database_bytes": 83399,
+    "files": 46,
+    "format_version": 7,
+    "timing_note": "First local run did not record precise backup/restore phase clocks. Instrumented final-candidate CI run records wall and monotonic times; no mtime-based estimates."
+  },
+  "candidate_acceptance": "CI repeats same small full restore on final runtime, no long computation",
+  "candidate_runtime_changes_after_local_run": [
+    "backup path-overlap rejection",
+    "format7 affirmative exit proof and verifier publication binding"
+  ],
+  "environment": {
+    "host": "macOS-27.2-arm64-arm-64bit",
+    "scope": "Docker development environment; not Ubuntu reference qualification"
+  },
+  "evidence": [
+    "local-restore.json",
+    "restore-negatives.json",
+    "linux-permissions.json"
+  ],
+  "failures": {
+    "expected_rejections": "6 restore mutants + live-service maintenance rejection; preserved separately",
+    "unexpected_local_failures": 0
+  },
+  "prior_ci": {
+    "jobs_success": 17,
+    "run": 41058856610,
+    "scope": "prior formal service package only"
+  },
+  "private_evidence": "/private/tmp/cpag-r19-shared-backup-1-20261102",
+  "r19_complete": false,
+  "review_fixes": {
+    "exit_proof": {
+      "after": "13 terminal tests passed, explicit exit fields and verifier publication/version bound",
+      "before": "21 invalid-proof subcases accepted; outputs/r19-format7-exit-contract-before.log",
+      "existing_bundle_reaudit": {
+        "attempts": 3,
+        "elapsed_seconds": 0.108,
+        "error_count": 0,
+        "format": 7,
+        "scope": "read-only local existing bundle; no DB write or long execution",
+        "source_trust": "must_reverify_in_restored_service",
+        "storage_job_statuses": [
+          "storage_only_source_pending",
+          "retained_untrusted_terminal_attempt",
+          "storage_only_source_pending",
+          null
+        ],
+        "valid": true,
+        "verifiers": 2
+      }
+    },
+    "overlapping_directories": "reject before maintenance lock/database/copy; 2 focused tests"
+  },
+  "source_trust": "restored formal service must reconstruct sources before trusted reads",
+  "status": "local_acceptance_passed_candidate_ci_required",
+  "synthetic_engineering_only": true,
+  "tests": {
+    "backup_unittest": {
+      "note": "Local total includes preserved untracked DAG5 prototype tests; CI uses committed suite.",
+      "passed": 104,
+      "seconds": 9.639
+    },
+    "worker_service": {
+      "passed": 1,
+      "seconds": 0.003
+    }
+  },
+  "version": "r19-dag6-terminal-backup-1"
+}

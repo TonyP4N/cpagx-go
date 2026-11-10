@@ -1,0 +1,15 @@
+test_attempt_snapshot_identity_publication_and_history_gaps (test_bundle.BundleTests.test_attempt_snapshot_identity_publication_and_history_gaps) ... ok
+test_missing_and_tampered_files (test_bundle.BundleTests.test_missing_and_tampered_files) ... ok
+test_nonterminal_and_path_escape (test_bundle.BundleTests.test_nonterminal_and_path_escape) ... ok
+test_original_records_graph_and_orphans (test_bundle.BundleTests.test_original_records_graph_and_orphans) ... ok
+test_packet_full_refs_and_original_field_query (test_bundle.BundleTests.test_packet_full_refs_and_original_field_query) ... ok
+test_packet_rehashed_field_forgery_and_missing_capture (test_bundle.BundleTests.test_packet_rehashed_field_forgery_and_missing_capture) ... ok
+test_rehashed_graph_reference_rejected (test_bundle.BundleTests.test_rehashed_graph_reference_rejected) ... ok
+test_rehashed_invalid_record_reference_rejected (test_bundle.BundleTests.test_rehashed_invalid_record_reference_rejected) ... ok
+test_restore_inventory_difference_is_failure_with_report (test_bundle.BundleTests.test_restore_inventory_difference_is_failure_with_report) ... ok
+test_restore_tampering_reports_before_database_mutation (test_bundle.BundleTests.test_restore_tampering_reports_before_database_mutation) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.128s
+
+OK

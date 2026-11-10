@@ -1,0 +1,13 @@
+{
+  "synthetic_only": true,
+  "checks": {
+    "restored_task_four_original_refs": true,
+    "graph_candidate_and_evidence": true,
+    "controlled_download": true,
+    "missing_refused": true,
+    "tampered_refused": true,
+    "upload_isolated_task_four_refs": true
+  },
+  "page_errors": [],
+  "status": "passed"
+}

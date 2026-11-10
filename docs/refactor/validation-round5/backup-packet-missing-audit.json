@@ -1,0 +1,63 @@
+{
+  "valid": false,
+  "errors": [
+    {
+      "job_id": "backup-packet",
+      "reason": "missing file: inputs/backup-packet-0-0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d.pcap"
+    }
+  ],
+  "referenced_files": [
+    "inputs/backup-cancelled-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+    "inputs/backup-cancelled-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+    "inputs/backup-cancelled-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+    "inputs/backup-failed-0-d856eab9166142abdf23210f2c0cc9774312f1b1bb4a8d8db5f7a79a3d405a58.jsonl",
+    "inputs/backup-failed-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+    "inputs/backup-failed-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+    "inputs/backup-packet-0-0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d.pcap",
+    "inputs/backup-success-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+    "inputs/backup-success-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+    "inputs/backup-success-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+    "jobs/backup-success/attempt-1/a7b429ec99e8810e4135cc1b055f85f7f3c266ddeb96d9520c92c7098df41052.json",
+    "jobs/backup-success/attempt-1/dataset.json",
+    "jobs/backup-success/attempt-1/events.json",
+    "jobs/backup-success/attempt-1/graph.json",
+    "jobs/backup-success/attempt-1/quality.json",
+    "jobs/backup-success/attempt-1/run_manifest.json"
+  ],
+  "unreferenced_files": [
+    "inputs/backup-packet-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+    "inputs/backup-packet-2-95284c23610f0c36889bf80dff908271168ff9031f091eac919519237e8b1b7b.json",
+    "inputs/bad.jsonl",
+    "inputs/network.jsonl",
+    "inputs/packet-profile.json",
+    "inputs/process.csv",
+    "inputs/profile.json",
+    "inputs/synthetic.pcap",
+    "jobs/backup-failed/attempt-1.worker/child.pid",
+    "jobs/backup-failed/attempt-1.worker/exit.json",
+    "jobs/backup-failed/attempt-1.worker/stderr.log",
+    "jobs/backup-failed/attempt-1.worker/stdout.log",
+    "jobs/backup-failed/attempt-1.worker/supervisor.json",
+    "jobs/backup-packet/attempt-1.worker/child.pid",
+    "jobs/backup-packet/attempt-1.worker/exit.json",
+    "jobs/backup-packet/attempt-1.worker/stderr.log",
+    "jobs/backup-packet/attempt-1.worker/stdout.log",
+    "jobs/backup-packet/attempt-1.worker/supervisor.json",
+    "jobs/backup-packet/attempt-1/35bb989fe66b167150699a2a3a3f8f9b91af4a1ab07f75142754618cfad793e3.json",
+    "jobs/backup-packet/attempt-1/dataset.json",
+    "jobs/backup-packet/attempt-1/events.json",
+    "jobs/backup-packet/attempt-1/graph.json",
+    "jobs/backup-packet/attempt-1/manifest.json",
+    "jobs/backup-packet/attempt-1/packet_observations.json",
+    "jobs/backup-packet/attempt-1/quality.json",
+    "jobs/backup-packet/attempt-1/run_manifest.json",
+    "jobs/backup-success/attempt-1.worker/child.pid",
+    "jobs/backup-success/attempt-1.worker/exit.json",
+    "jobs/backup-success/attempt-1.worker/stderr.log",
+    "jobs/backup-success/attempt-1.worker/stdout.log",
+    "jobs/backup-success/attempt-1.worker/supervisor.json",
+    "jobs/backup-success/attempt-1/manifest.json",
+    "orphan-retained.txt"
+  ],
+  "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+}

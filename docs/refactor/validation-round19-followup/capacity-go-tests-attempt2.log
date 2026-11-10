@@ -1,0 +1,13 @@
+ok  	github.com/TonyP4N/cpagx-go/internal/capacity	1.715s
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs	1.699s
+--- FAIL: TestCSVLogicalBudgetDoesNotCountQuotedNewlinesAsRecords (0.01s)
+    capacity_test.go:35: symlinks forbidden
+--- FAIL: TestOperatorArtifactGuardPreservesInputAndOldLimits (0.32s)
+    capacity_test.go:47: symlinks forbidden
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi	18.603s
+--- FAIL: TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence (7.08s)
+    evaluation_store_test.go:158: read /evidence?event=manual-operation&reference=true: 409 {"error":{"code":"evaluation_unavailable","message":"saved evaluation or original evidence unavailable or changed"}}
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	30.654s
+FAIL

@@ -1,0 +1,80 @@
+{
+  "scope": "actual local synthetic M core and isolated store only; not formal M pipeline, new storage publication, evaluation or L acceptance",
+  "format": "shared-observation-dag-4",
+  "source_sha256_before": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "0cc628073f297881c5489d20171aac2d2d1f1345ce8b8687e313b2c9fa6a326a",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "shared_artifact_store_compressed.py": "e5eaec6b5b66c26b13ee4b1d3eb354d14115aca0e05d865e3735f9d57145d91f"
+  },
+  "status": "failed",
+  "fixture": "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/capacity-v2-M",
+  "samples": [
+    {
+      "name": "actual_core_analysis",
+      "event": "completed",
+      "wall_at_start": 0.0013840000028721988,
+      "wall_seconds": 37.68100400001276,
+      "cpu_seconds": 37.442099999999996
+    },
+    {
+      "name": "actual_standard_graph_and_events",
+      "event": "completed",
+      "wall_at_start": 37.68302137500723,
+      "wall_seconds": 51.85361979098525,
+      "cpu_seconds": 51.582826000000004
+    },
+    {
+      "name": "store_analysis.json",
+      "event": "completed",
+      "wall_at_start": 89.54016487501212,
+      "wall_seconds": 61.29122704200563,
+      "cpu_seconds": 60.262113
+    },
+    {
+      "name": "store_dual/analysis.json",
+      "event": "entered",
+      "wall_at_start": 150.83238258300116
+    }
+  ],
+  "input_sha256": {
+    "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+    "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+    "offline-profile.json": "fff5f2ee703925262748eff552f493f3744cbfd86e0c9fdda4db4dadf4a87b8a"
+  },
+  "wall_seconds": 180.0029265829944,
+  "process_peak_rss_bytes": 300040192,
+  "actual_counts": {
+    "network": 2000,
+    "process": 1000,
+    "operations": 1000,
+    "changes": 999,
+    "candidates": 31801
+  },
+  "roots": {
+    "analysis.json": {
+      "name": "analysis.json",
+      "digest": "fe1f060b3dd1ad122155b2b5e637c9448084ddcd05518ee3f3d13b4d5f126031",
+      "logical_bytes": 2563787143,
+      "items": 20,
+      "kind": "dict"
+    }
+  },
+  "node_count_so_far": 522050,
+  "sqlite_bytes_so_far": 876687360,
+  "error_type": "ValueError",
+  "error": "shared_store_deadline_exceeded",
+  "node_count_at_failure": 522050,
+  "sqlite_bytes_at_failure": 876687360,
+  "source_sha256_after": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "0cc628073f297881c5489d20171aac2d2d1f1345ce8b8687e313b2c9fa6a326a",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "shared_artifact_store_compressed.py": "e5eaec6b5b66c26b13ee4b1d3eb354d14115aca0e05d865e3735f9d57145d91f"
+  },
+  "fixed_source_during_measurement": true
+}

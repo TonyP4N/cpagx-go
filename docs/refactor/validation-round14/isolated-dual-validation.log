@@ -1,0 +1,8 @@
+PASS dual-source claim, 11-file nested handoff, reanalysis, immutable complete and idempotency
+PASS repeated enqueue rejected without replacing the accepted attempt
+PASS existing host Worker dispatches the same core and publishes the same 11 artifacts
+PASS queued cancellation without publication
+PASS running cancellation after actual dual analysis, before projection; container exit evidenced
+PASS killed worker after actual dual analysis, stale lease, attempt 2 and old-attempt fence
+PASS API restart after durable handoff crash resumes one publication
+PASS changed nested source after handoff cannot be recovered as success

@@ -1,0 +1,93 @@
+{
+  "baseline": "2f08784 + round6 backup changes",
+  "synthetic": true,
+  "cases": {
+    "missing_tree": {
+      "returned": {
+        "valid": false,
+        "errors": [
+          {
+            "scope": "file_tree",
+            "reason": "file tree root missing, not a directory or symlink"
+          }
+        ],
+        "jobs": [],
+        "inventory_complete": false,
+        "referenced_files": [],
+        "unreferenced_files": [],
+        "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+      }
+    },
+    "terminal_missing_inputs": {
+      "returned": {
+        "valid": false,
+        "errors": [
+          {
+            "row_index": 0,
+            "job_id": "missing",
+            "reason": "missing or invalid input reference: network"
+          }
+        ],
+        "jobs": [
+          {
+            "row_index": 0,
+            "job_id": "missing",
+            "valid": false
+          }
+        ],
+        "inventory_complete": true,
+        "referenced_files": [],
+        "unreferenced_files": [],
+        "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+      }
+    },
+    "one_malformed_row_in_batch": {
+      "returned": {
+        "valid": false,
+        "errors": [
+          {
+            "row_index": 0,
+            "job_id": "malformed",
+            "reason": "job payload must be an object"
+          },
+          {
+            "row_index": 1,
+            "job_id": "second",
+            "reason": "active/nonterminal task: second"
+          }
+        ],
+        "jobs": [
+          {
+            "row_index": 0,
+            "job_id": "malformed",
+            "valid": false
+          },
+          {
+            "row_index": 1,
+            "job_id": "second",
+            "valid": false
+          }
+        ],
+        "inventory_complete": true,
+        "referenced_files": [],
+        "unreferenced_files": [],
+        "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+      }
+    },
+    "malformed_attempt_in_batch": {
+      "returned": {
+        "valid": false,
+        "errors": [
+          {
+            "row_index": 0,
+            "job_id": null,
+            "attempt": null,
+            "reason": "invalid history job/attempt"
+          }
+        ],
+        "attempt_count": 1,
+        "verified_attempt_count": 0
+      }
+    }
+  }
+}

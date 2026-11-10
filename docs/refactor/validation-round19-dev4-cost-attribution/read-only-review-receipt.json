@@ -1,0 +1,36 @@
+{
+  "scope": "partial read-only existing measurement attribution",
+  "source_recorded_paths_rechecked": 37,
+  "source_original_presence_and_hash_unchanged": true,
+  "frozen_runtime_definition_checks": {
+    "compact_projection.py": {
+      "repository_sha256_at_read": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+      "recorded_image_sha256": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+      "matches_recorded_image": true
+    },
+    "dual_source_export.py": {
+      "repository_sha256_at_read": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+      "recorded_image_sha256": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+      "matches_recorded_image": true
+    },
+    "dual_source.py": {
+      "repository_sha256_at_read": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+      "recorded_image_sha256": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+      "matches_recorded_image": true
+    }
+  },
+  "core_or_benchmark_or_test_suite_started": false,
+  "original_or_adapter_public_matrix_modified": false,
+  "derived_consistency_checks": [
+    "12 controller/native phase slots; failed verify CPU recovered from packet",
+    "S replay unavailable queries remain null",
+    "M complete artifact stat and declared bytes both100668118",
+    "CSV row counts equal JSON tables"
+  ],
+  "derived_sha256": {
+    "cost-attribution.json": "a20525922db95d01e42fa0e2fa6140f46ee2b8166ccbe5004bb072dcadc9ba71",
+    "extract.py": "a0433a0210285ccd91640fcdfc124965de0ed14d3a2ec5ade2f7c4e6a9976b10",
+    "nested-phase-costs.csv": "c0eab94ae091b271ff791f0dda6efbc275cbaf63e654c1af4a7a2555a2e20053",
+    "stage-costs.csv": "54d2175911921ab742b40ad599bcd52cb8226fef8bdb1897b91c8f1b1aa2bd6e"
+  }
+}

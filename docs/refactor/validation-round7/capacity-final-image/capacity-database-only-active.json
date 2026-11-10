@@ -1,0 +1,1631 @@
+{
+  "version": 1,
+  "root": "/private/var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T/cpag-capacity.ezV8ro/shared",
+  "control": "/private/var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T/cpag-capacity.ezV8ro/control",
+  "output_bytes": 16777216,
+  "ledger_before": {
+    "state": "missing",
+    "sha256": null
+  },
+  "files": [
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103225-99968a7f69e144bfbacda1955a8e7ff4/capacity.original",
+      "size": 23,
+      "sha256": "b2d188e3887755d4fee7030a6f687c0d3b009400ad9206fa2631b5eca2b9edf3",
+      "identity": [
+        16777231,
+        67207886,
+        23,
+        1792981945540130991,
+        1792981945540276700
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103225-99968a7f69e144bfbacda1955a8e7ff4/manifest.json",
+      "size": 388,
+      "sha256": "b22dfc293265bb301e137ba9011003463382e1fdc61bce2dea2fc431a54a3a02",
+      "identity": [
+        16777231,
+        67207888,
+        388,
+        1792981945540862325,
+        1792981945540991200
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103225-99968a7f69e144bfbacda1955a8e7ff4/preview.json",
+      "size": 11058,
+      "sha256": "5d9921e751d04e5bd4ec20927bac24bf645cb901522a08fd2e81a5401ceb118a",
+      "identity": [
+        16777231,
+        67207887,
+        11058,
+        1792981945540511575,
+        1792981945540637283
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103228-2e07883a73304c82a4fc9de626356edb/manifest.json",
+      "size": 316,
+      "sha256": "91a475ca76977f7103aace79a1a05ae298c2f159a9c31dd8c567211e62df2477",
+      "identity": [
+        16777231,
+        67207971,
+        316,
+        1792981948481312610,
+        1792981948481459068
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103228-2e07883a73304c82a4fc9de626356edb/preview.json",
+      "size": 19456,
+      "sha256": "b24598df3617d6e14e9ac1bfc059322989968a863f985d400b8608323a66df32",
+      "identity": [
+        16777231,
+        67207970,
+        19456,
+        1792981948480850068,
+        1792981948481054485
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103231-211bedcd9da84e5f8ca3f873f48c4ace/capacity.original",
+      "size": 323,
+      "sha256": "7613cd8e63b3f3259115337fccd64968ecf8e6e6562a71eb6816925fa0055505",
+      "identity": [
+        16777231,
+        67208041,
+        323,
+        1792981951567461737,
+        1792981951567681571
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103231-211bedcd9da84e5f8ca3f873f48c4ace/manifest.json",
+      "size": 387,
+      "sha256": "f0def948d858fa0f8fde45028daf1a97037a615cc0503451da76cedbeb34d7a9",
+      "identity": [
+        16777231,
+        67208043,
+        387,
+        1792981951568391613,
+        1792981951568498821
+      ]
+    },
+    {
+      "root": "control",
+      "path": "capacity-backups/20261026T103231-211bedcd9da84e5f8ca3f873f48c4ace/preview.json",
+      "size": 27738,
+      "sha256": "badcc451b5d2502130a957007d6436e2891b4ccf7f5b8f04421582cd8eceef7b",
+      "identity": [
+        16777231,
+        67208042,
+        27738,
+        1792981951568085446,
+        1792981951568217113
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/create-intent.json",
+      "size": 308,
+      "sha256": "824778f17866f3815564c6c3c4cf0c9d4fb801afcd325811ade5b2ad588e8c81",
+      "identity": [
+        16777231,
+        67207903,
+        308,
+        1792981945782558422,
+        1792981945782751088
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/execution.json",
+      "size": 347,
+      "sha256": "de4fc2315959ee2080ee7a7b7565401ba891a0f1137d15e88dc349bd04857d3e",
+      "identity": [
+        16777231,
+        67207909,
+        347,
+        1792981946027260480,
+        1792981946027526272
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/exit.json",
+      "size": 773,
+      "sha256": "5cdbab0ece3e5ce38f476194c80721bad81012adc3ed7141a581c2357f555526",
+      "identity": [
+        16777231,
+        67207927,
+        773,
+        1792981947294669978,
+        1792981947294963187
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/handoff.json",
+      "size": 169,
+      "sha256": "428a376b7cf3ac13e849b25f0fb50538e055872d6c1dbe255c2b96fb4d28ee38",
+      "identity": [
+        16777231,
+        67207928,
+        169,
+        1792981947299474816,
+        1792981947299617483
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/inputs/network.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207899,
+        543,
+        1792981945664780689,
+        1792981945664885689
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/inputs/process.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207900,
+        153,
+        1792981945665326981,
+        1792981945665437190
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/inputs/profile.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207901,
+        351,
+        1792981945665661732,
+        1792981945665751023
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/publication.json",
+      "size": 169,
+      "sha256": "428a376b7cf3ac13e849b25f0fb50538e055872d6c1dbe255c2b96fb4d28ee38",
+      "identity": [
+        16777231,
+        67207931,
+        169,
+        1792981947313300495,
+        1792981947313455953
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/remove-intent.json",
+      "size": 5957,
+      "sha256": "1e3a887a083d822cb6233b4d310cbd0bb18a58d36b8e096a1aee496f296cd57b",
+      "identity": [
+        16777231,
+        67207926,
+        5957,
+        1792981947256276651,
+        1792981947256431360
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/stage.json",
+      "size": 108,
+      "sha256": "43bc96ff41e266d9790ead0b264ac13777fc1a621f073bc839b5c62f56f53f10",
+      "identity": [
+        16777231,
+        67207915,
+        108,
+        1792981947058062677,
+        1792981947058250636
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.worker/stopped-inspect.json",
+      "size": 5577,
+      "sha256": "7b62774a9dc90cb5aeac9ed1ffaebcfcc87d19a27581c6eda4890e7ea0d840a3",
+      "identity": [
+        16777231,
+        67207925,
+        5577,
+        1792981947255570900,
+        1792981947255746817
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/create-intent.json",
+      "size": 308,
+      "sha256": "c2128c6d15fbfa5de03d1e106e26a2680f75ed616db7d3148f534d6dfa890ca0",
+      "identity": [
+        16777231,
+        67207837,
+        308,
+        1792981942884977010,
+        1792981942885183718
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/execution.json",
+      "size": 347,
+      "sha256": "f3c025bcd1679acafbb2ada321eb68adacd3274e8ecf719073ca8f89d4386471",
+      "identity": [
+        16777231,
+        67207840,
+        347,
+        1792981943261825481,
+        1792981943262040398
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/exit.json",
+      "size": 773,
+      "sha256": "36767febc2cb472d2c0962650fe625624fff52dfb08c5f4c603bfa334f8151d5",
+      "identity": [
+        16777231,
+        67207868,
+        773,
+        1792981944626934402,
+        1792981944627122736
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/handoff.json",
+      "size": 169,
+      "sha256": "b5f700e4e3e3ed1bad6122f156f828cd7cfe062e830760fb6d6472b016c32420",
+      "identity": [
+        16777231,
+        67207869,
+        169,
+        1792981944632649741,
+        1792981944632820825
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/inputs/network.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207829,
+        543,
+        1792981942752492846,
+        1792981942752600305
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/inputs/process.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207830,
+        153,
+        1792981942752818138,
+        1792981942752905513
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/inputs/profile.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207831,
+        351,
+        1792981942753127430,
+        1792981942753210763
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/publication.json",
+      "size": 169,
+      "sha256": "b5f700e4e3e3ed1bad6122f156f828cd7cfe062e830760fb6d6472b016c32420",
+      "identity": [
+        16777231,
+        67207872,
+        169,
+        1792981944648723631,
+        1792981944648874131
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/remove-intent.json",
+      "size": 5958,
+      "sha256": "dff9fc0a7b12f2ec1a20f2bf4e5738d657002aa581802621ba2e6d486e4165b0",
+      "identity": [
+        16777231,
+        67207867,
+        5958,
+        1792981944578236441,
+        1792981944578420775
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/stage.json",
+      "size": 108,
+      "sha256": "44eae32e1a824a8f52efe03cd46aea354b71743346b35d84b9ef9d02c283961e",
+      "identity": [
+        16777231,
+        67207858,
+        108,
+        1792981944371168876,
+        1792981944371424834
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.worker/stopped-inspect.json",
+      "size": 5578,
+      "sha256": "f4e6fd891808d2bcdde814e9f9339a96daf27468bf717b01f6c4efcf6f795e5e",
+      "identity": [
+        16777231,
+        67207866,
+        5578,
+        1792981944577334648,
+        1792981944577623649
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/create-intent.json",
+      "size": 308,
+      "sha256": "2ba42b164075f6117204b545d6ba3271c04031a1e3370b6043b3144e1c5b4a6a",
+      "identity": [
+        16777231,
+        67207994,
+        308,
+        1792981948799095485,
+        1792981948799267651
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/execution.json",
+      "size": 347,
+      "sha256": "eca0c1a572ab46b4831b158987c0eb08633aadba88531df923b605ff50a86cfc",
+      "identity": [
+        16777231,
+        67207997,
+        347,
+        1792981949231584382,
+        1792981949231821341
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/exit.json",
+      "size": 773,
+      "sha256": "0b683fb0a89b801a5bcee3d46dda3cb3ba80f49e357927b4a72fea06ca9c296c",
+      "identity": [
+        16777231,
+        67208021,
+        773,
+        1792981950724443420,
+        1792981950724665795
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/handoff.json",
+      "size": 169,
+      "sha256": "2cae8aa40333a5e4768b448ab9056e3c3d10ada52fe982cca3a73a2213b8a3fd",
+      "identity": [
+        16777231,
+        67208022,
+        169,
+        1792981950735287888,
+        1792981950736865598
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/inputs/network.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207987,
+        543,
+        1792981948690702761,
+        1792981948690905928
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/inputs/process.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207988,
+        153,
+        1792981948691209553,
+        1792981948691321720
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/inputs/profile.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207989,
+        351,
+        1792981948691534553,
+        1792981948691624262
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/publication.json",
+      "size": 169,
+      "sha256": "2cae8aa40333a5e4768b448ab9056e3c3d10ada52fe982cca3a73a2213b8a3fd",
+      "identity": [
+        16777231,
+        67208026,
+        169,
+        1792981950749497610,
+        1792981950749623568
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/remove-intent.json",
+      "size": 5958,
+      "sha256": "804b6bac4565e3a322d4e8d17868900230dc6ec2c9bf65b1ba8e6c9355f99103",
+      "identity": [
+        16777231,
+        67208020,
+        5958,
+        1792981950677897962,
+        1792981950678074170
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/stage.json",
+      "size": 108,
+      "sha256": "5dfe32ddbc33f4f48838ff0eb372089af2c76d7971cf3ddb4e9c67b626f96536",
+      "identity": [
+        16777231,
+        67208004,
+        108,
+        1792981950408064088,
+        1792981950408198255
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.worker/stopped-inspect.json",
+      "size": 5578,
+      "sha256": "2274413d7af5defc26b1ef56a6d1266a0a838f960f36390a68d75ad775bd3f75",
+      "identity": [
+        16777231,
+        67208019,
+        5578,
+        1792981950676714044,
+        1792981950676896169
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/create-intent.json",
+      "size": 310,
+      "sha256": "41fb05a6a55b99f08a5a5a291f24db61d0a8ffdf1e3e70323f8bcb270876f752",
+      "identity": [
+        16777231,
+        67208060,
+        310,
+        1792981951820378552,
+        1792981951820604177
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/execution.json",
+      "size": 349,
+      "sha256": "1ab71cc34eacec54268fe307beffdd4e465fe6f9ca802cbb2ab328dac9868499",
+      "identity": [
+        16777231,
+        67208062,
+        349,
+        1792981951994868754,
+        1792981951995103213
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/exit.json",
+      "size": 777,
+      "sha256": "9b834cf8b55e7b851ad1e7c43843f32bdcc5d71e4dd4a077407accf091f21617",
+      "identity": [
+        16777231,
+        67208101,
+        777,
+        1792981953215510876,
+        1792981953215731043
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/handoff.json",
+      "size": 171,
+      "sha256": "200c824f2e6f4b57e76016749ee674aae6c8a5f468c9c3694bc360d8cb3585d8",
+      "identity": [
+        16777231,
+        67208103,
+        171,
+        1792981953221365839,
+        1792981953221514506
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/inputs/network.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67208055,
+        543,
+        1792981951705052114,
+        1792981951705169030
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/inputs/process.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67208056,
+        153,
+        1792981951705412614,
+        1792981951705515739
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/inputs/profile.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67208057,
+        351,
+        1792981951705740114,
+        1792981951705828906
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/publication.json",
+      "size": 171,
+      "sha256": "200c824f2e6f4b57e76016749ee674aae6c8a5f468c9c3694bc360d8cb3585d8",
+      "identity": [
+        16777231,
+        67208106,
+        171,
+        1792981953239103606,
+        1792981953239269231
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/remove-intent.json",
+      "size": 5964,
+      "sha256": "5ff22c1e552d484a205a3f9869e179d988eae389b3f4066f7dc86c31f63dfef0",
+      "identity": [
+        16777231,
+        67208098,
+        5964,
+        1792981953173455587,
+        1792981953173600837
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/stage.json",
+      "size": 110,
+      "sha256": "110e76b9f4cc7703afd29103a076c4b4d36bb24c0dc03399a3444ebf8beb5554",
+      "identity": [
+        16777231,
+        67208079,
+        110,
+        1792981952915770558,
+        1792981952915957600
+      ]
+    },
+    {
+      "root": "control",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.worker/stopped-inspect.json",
+      "size": 5582,
+      "sha256": "78eaae8d18fd6b5a4334b56daf85c6949a42eeaa5d7ba29c1ed8a833fc3194b3",
+      "identity": [
+        16777231,
+        67208097,
+        5582,
+        1792981953172862545,
+        1792981953173042962
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "baseline/dataset.json",
+      "size": 573,
+      "sha256": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "identity": [
+        16777231,
+        67207786,
+        573,
+        1792981939800191884,
+        1792981939800191884
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "baseline/events.json",
+      "size": 4281,
+      "sha256": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "identity": [
+        16777231,
+        67207787,
+        4281,
+        1792981939800379926,
+        1792981939800379926
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "baseline/graph.json",
+      "size": 3344,
+      "sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "identity": [
+        16777231,
+        67207788,
+        3344,
+        1792981939800525842,
+        1792981939800525842
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "baseline/quality.json",
+      "size": 180,
+      "sha256": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "identity": [
+        16777231,
+        67207789,
+        180,
+        1792981939800644134,
+        1792981939800644134
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "baseline/run_manifest.json",
+      "size": 1261,
+      "sha256": "88c315244488a22605b355174cdf70b53e104d093fce78bf47be415ee523d605",
+      "identity": [
+        16777231,
+        67207790,
+        1261,
+        1792981939802062636,
+        1792981939802062636
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67208108,
+        543,
+        1792981953245211945,
+        1792981953245211945
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67208109,
+        153,
+        1792981953247276530,
+        1792981953247276530
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67208110,
+        351,
+        1792981953251439576,
+        1792981953251439576
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207875,
+        543,
+        1792981944654616469,
+        1792981944654616469
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207876,
+        153,
+        1792981944658566557,
+        1792981944658566557
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207877,
+        351,
+        1792981944661402851,
+        1792981944661402851
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207791,
+        543,
+        1792981939804183888,
+        1792981939804183888
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207798,
+        153,
+        1792981940699367086,
+        1792981940699367086
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207799,
+        351,
+        1792981940721886897,
+        1792981940721886897
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207933,
+        543,
+        1792981947318668583,
+        1792981947318668583
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207934,
+        153,
+        1792981947322622754,
+        1792981947322622754
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207935,
+        351,
+        1792981947325160673,
+        1792981947325160673
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67208028,
+        543,
+        1792981950754343281,
+        1792981950754343281
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67208029,
+        153,
+        1792981950756123116,
+        1792981950756123116
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67208031,
+        351,
+        1792981950758501743,
+        1792981950758501743
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/network.jsonl",
+      "size": 543,
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99",
+      "identity": [
+        16777231,
+        67207781,
+        543,
+        1792981939767654896,
+        1792981939767681437
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/process.csv",
+      "size": 153,
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666",
+      "identity": [
+        16777231,
+        67207782,
+        153,
+        1792981939769285564,
+        1792981939769310355
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "inputs/profile.json",
+      "size": 351,
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164",
+      "identity": [
+        16777231,
+        67207783,
+        351,
+        1792981939771014024,
+        1792981939771037274
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1.publish-lock",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identity": [
+        16777231,
+        67207929,
+        0,
+        1792981947299708733,
+        1792981947299732858
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/605c388875b9fd6c006e7207cfcad4acbb24b013205a86bb3ad55d14f40a1f75.json",
+      "size": 944,
+      "sha256": "605c388875b9fd6c006e7207cfcad4acbb24b013205a86bb3ad55d14f40a1f75",
+      "identity": [
+        16777231,
+        67207930,
+        944,
+        1792981947305162238,
+        1792981947305162238
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/dataset.json",
+      "size": 573,
+      "sha256": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "identity": [
+        16777231,
+        67207921,
+        573,
+        1792981947123166570,
+        1792981947300008816
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/events.json",
+      "size": 4281,
+      "sha256": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "identity": [
+        16777231,
+        67207920,
+        4281,
+        1792981947123036278,
+        1792981947299861649
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/graph.json",
+      "size": 3344,
+      "sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "identity": [
+        16777231,
+        67207919,
+        3344,
+        1792981947122881737,
+        1792981947299949858
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/manifest.json",
+      "size": 944,
+      "sha256": "605c388875b9fd6c006e7207cfcad4acbb24b013205a86bb3ad55d14f40a1f75",
+      "identity": [
+        16777231,
+        67207922,
+        944,
+        1792981947125501364,
+        1792981947299922024
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/quality.json",
+      "size": 180,
+      "sha256": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "identity": [
+        16777231,
+        67207918,
+        180,
+        1792981947122729111,
+        1792981947299893691
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4/attempt-1/run_manifest.json",
+      "size": 1262,
+      "sha256": "213ea3f7a7adc02e9c08fa0c206ae8e04c593c530b56ee61386e5cce053cb373",
+      "identity": [
+        16777231,
+        67207917,
+        1262,
+        1792981947122531320,
+        1792981947299977483
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1.publish-lock",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identity": [
+        16777231,
+        67207870,
+        0,
+        1792981944632931283,
+        1792981944632958283
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/93357553fda150c49a69160b56492521ab74d443a39a66b363d6977311ccfd8e.json",
+      "size": 944,
+      "sha256": "93357553fda150c49a69160b56492521ab74d443a39a66b363d6977311ccfd8e",
+      "identity": [
+        16777231,
+        67207871,
+        944,
+        1792981944641517291,
+        1792981944641517291
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/dataset.json",
+      "size": 573,
+      "sha256": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "identity": [
+        16777231,
+        67207864,
+        573,
+        1792981944434124433,
+        1792981944633192992
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/events.json",
+      "size": 4281,
+      "sha256": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "identity": [
+        16777231,
+        67207863,
+        4281,
+        1792981944433962142,
+        1792981944633081033
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/graph.json",
+      "size": 3344,
+      "sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "identity": [
+        16777231,
+        67207862,
+        3344,
+        1792981944433754308,
+        1792981944633141158
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/manifest.json",
+      "size": 944,
+      "sha256": "93357553fda150c49a69160b56492521ab74d443a39a66b363d6977311ccfd8e",
+      "identity": [
+        16777231,
+        67207865,
+        944,
+        1792981944438147479,
+        1792981944633123075
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/quality.json",
+      "size": 180,
+      "sha256": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "identity": [
+        16777231,
+        67207861,
+        180,
+        1792981944433502433,
+        1792981944633104325
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-initial-f1d3d5abc37d40048754e76513393ede/attempt-1/run_manifest.json",
+      "size": 1262,
+      "sha256": "51043196014711fc034ef024e2458f0a326ffa60afe8e17b1862414189d45138",
+      "identity": [
+        16777231,
+        67207860,
+        1262,
+        1792981944433078141,
+        1792981944633171075
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1.publish-lock",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identity": [
+        16777231,
+        67208023,
+        0,
+        1792981950736993181,
+        1792981950737042765
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/440467aba4cb90d1c613eacb10de612acefe2e9654a66f32930011161616a1d5.json",
+      "size": 944,
+      "sha256": "440467aba4cb90d1c613eacb10de612acefe2e9654a66f32930011161616a1d5",
+      "identity": [
+        16777231,
+        67208024,
+        944,
+        1792981950744541313,
+        1792981950744541313
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/dataset.json",
+      "size": 573,
+      "sha256": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "identity": [
+        16777231,
+        67208010,
+        573,
+        1792981950517352481,
+        1792981950737756140
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/events.json",
+      "size": 4281,
+      "sha256": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "identity": [
+        16777231,
+        67208009,
+        4281,
+        1792981950517185189,
+        1792981950737331890
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/graph.json",
+      "size": 3344,
+      "sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "identity": [
+        16777231,
+        67208008,
+        3344,
+        1792981950516987022,
+        1792981950737715224
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/manifest.json",
+      "size": 944,
+      "sha256": "440467aba4cb90d1c613eacb10de612acefe2e9654a66f32930011161616a1d5",
+      "identity": [
+        16777231,
+        67208011,
+        944,
+        1792981950519618149,
+        1792981950737658015
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/quality.json",
+      "size": 180,
+      "sha256": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "identity": [
+        16777231,
+        67208007,
+        180,
+        1792981950516794230,
+        1792981950737418474
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e/attempt-1/run_manifest.json",
+      "size": 1262,
+      "sha256": "dfa2bb6f9b170c635f8b31f898fbed5fa956b3b802b4d1923aba8105dc76b3dc",
+      "identity": [
+        16777231,
+        67208006,
+        1262,
+        1792981950516497521,
+        1792981950737735432
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1.publish-lock",
+      "size": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "identity": [
+        16777231,
+        67208104,
+        0,
+        1792981953221608423,
+        1792981953221634840
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/3e2813a5aa581c75ef67d1290415ec25d07ecbc7d20fe4dda49be99de9de9cf8.json",
+      "size": 944,
+      "sha256": "3e2813a5aa581c75ef67d1290415ec25d07ecbc7d20fe4dda49be99de9de9cf8",
+      "identity": [
+        16777231,
+        67208105,
+        944,
+        1792981953229958472,
+        1792981953229958472
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/dataset.json",
+      "size": 573,
+      "sha256": "6f8c7bf9e353ab0f493976d27b4ac73d88143c23d59bf01913acb90d31987ca2",
+      "identity": [
+        16777231,
+        67208086,
+        573,
+        1792981952979715951,
+        1792981953221922590
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/events.json",
+      "size": 4281,
+      "sha256": "67fe4870e0a48670dac958b4bf7845adf7ae0fd09defd603795c801636cc1dc3",
+      "identity": [
+        16777231,
+        67208085,
+        4281,
+        1792981952979490409,
+        1792981953221772673
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/graph.json",
+      "size": 3344,
+      "sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "identity": [
+        16777231,
+        67208084,
+        3344,
+        1792981952979236700,
+        1792981953221866131
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/manifest.json",
+      "size": 944,
+      "sha256": "3e2813a5aa581c75ef67d1290415ec25d07ecbc7d20fe4dda49be99de9de9cf8",
+      "identity": [
+        16777231,
+        67208087,
+        944,
+        1792981952981766453,
+        1792981953221838132
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/quality.json",
+      "size": 180,
+      "sha256": "48bed226112b26f99ea745df7c3f87d1fa811530a7c0098302db31375afe7d81",
+      "identity": [
+        16777231,
+        67208083,
+        180,
+        1792981952978954783,
+        1792981953221808298
+      ]
+    },
+    {
+      "root": "shared",
+      "path": "jobs/capacity-oversized-b665f8c7b2914343a747f931004c32e0/attempt-1/run_manifest.json",
+      "size": 1262,
+      "sha256": "6300dbaea8fa250e71a6076ea243979902af09e1a459f5e09e14660f754cfec0",
+      "identity": [
+        16777231,
+        67208082,
+        1262,
+        1792981952978534908,
+        1792981953221894798
+      ]
+    }
+  ],
+  "api_states": {
+    "capacity-active-6af17c5d19e048e9843682dbf8cf8ae3": {
+      "state": "running",
+      "attempt": 1,
+      "lease_valid": true,
+      "payload": {
+        "network": {
+          "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+          "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+        },
+        "process": {
+          "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+          "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+        },
+        "profile": {
+          "path": "inputs/capacity-active-6af17c5d19e048e9843682dbf8cf8ae3-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+          "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+        },
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+      },
+      "attempt_history": [
+        {
+          "executor": "isolated-v2",
+          "start_revoked_at": null,
+          "attempt": 1,
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+          "container_id": "c7266881d4a6ea89120790e9d2f51bdde49c528f0c6157104ab73e770a22ae48",
+          "exited_at": null,
+          "publication_state": "unpublished"
+        }
+      ]
+    },
+    "capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4": {
+      "state": "succeeded",
+      "attempt": 1,
+      "lease_valid": false,
+      "payload": {
+        "network": {
+          "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+          "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+        },
+        "process": {
+          "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+          "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+        },
+        "profile": {
+          "path": "inputs/capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+          "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+        },
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+      },
+      "attempt_history": [
+        {
+          "executor": "isolated-v2",
+          "start_revoked_at": null,
+          "attempt": 1,
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+          "container_id": "5ea34bb9bea1ce806dac4c1709fab55c56bdc823732b094b1d59593017492738",
+          "exited_at": "2026-10-26T10:32:27.297698+08:00",
+          "publication_state": "published"
+        }
+      ]
+    },
+    "capacity-initial-f1d3d5abc37d40048754e76513393ede": {
+      "state": "succeeded",
+      "attempt": 1,
+      "lease_valid": false,
+      "payload": {
+        "network": {
+          "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+          "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+        },
+        "process": {
+          "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+          "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+        },
+        "profile": {
+          "path": "inputs/capacity-initial-f1d3d5abc37d40048754e76513393ede-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+          "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+        },
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+      },
+      "attempt_history": [
+        {
+          "executor": "isolated-v2",
+          "start_revoked_at": null,
+          "attempt": 1,
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+          "container_id": "4bbb52224541448c721fc2d3a4f12146daa73e89fefd084d71398096b4e1309b",
+          "exited_at": "2026-10-26T10:32:24.630686+08:00",
+          "publication_state": "published"
+        }
+      ]
+    },
+    "capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e": {
+      "state": "succeeded",
+      "attempt": 1,
+      "lease_valid": false,
+      "payload": {
+        "network": {
+          "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+          "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+        },
+        "process": {
+          "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+          "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+        },
+        "profile": {
+          "path": "inputs/capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+          "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+        },
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+      },
+      "attempt_history": [
+        {
+          "executor": "isolated-v2",
+          "start_revoked_at": null,
+          "attempt": 1,
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+          "container_id": "c4e96603fe52a034a3a26ddb89aed87b953fc39b4ff57baca30d24228c10a4b4",
+          "exited_at": "2026-10-26T10:32:30.728582+08:00",
+          "publication_state": "published"
+        }
+      ]
+    },
+    "capacity-oversized-b665f8c7b2914343a747f931004c32e0": {
+      "state": "succeeded",
+      "attempt": 1,
+      "lease_valid": false,
+      "payload": {
+        "network": {
+          "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+          "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+        },
+        "process": {
+          "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+          "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+        },
+        "profile": {
+          "path": "inputs/capacity-oversized-b665f8c7b2914343a747f931004c32e0-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+          "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+        },
+        "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+      },
+      "attempt_history": [
+        {
+          "executor": "isolated-v2",
+          "start_revoked_at": null,
+          "attempt": 1,
+          "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+          "container_id": "ac5929f2342bc37f3029bea13d73271ead26e6853e7b5ab46c3d8e75c28cd9c6",
+          "exited_at": "2026-10-26T10:32:33.218407+08:00",
+          "publication_state": "published"
+        }
+      ]
+    }
+  },
+  "execution_discovery": [
+    {
+      "id": "capacity-active-6af17c5d19e048e9843682dbf8cf8ae3",
+      "attempt": 1,
+      "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:00219670996c3120e6c9a825",
+      "container_id": "c7266881d4a6ea89120790e9d2f51bdde49c528f0c6157104ab73e770a22ae48",
+      "executor": "isolated-v2",
+      "exited_at": null,
+      "state": "running",
+      "current_attempt": 1,
+      "lease_valid": true,
+      "start_revoked_at": null,
+      "unscoped": false
+    }
+  ],
+  "discovery_unknown": null,
+  "decisions": [
+    {
+      "key": "capacity-active-6af17c5d19e048e9843682dbf8cf8ae3:1",
+      "previous": null,
+      "proposed": 35652631,
+      "observed_bytes": 0,
+      "reason": "retain_active_or_unproven_reservation"
+    },
+    {
+      "key": "capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4:1",
+      "previous": null,
+      "proposed": 91519,
+      "observed_bytes": 25983,
+      "reason": "terminal_with_attempt_exit_proof"
+    },
+    {
+      "key": "capacity-initial-f1d3d5abc37d40048754e76513393ede:1",
+      "previous": null,
+      "proposed": 91521,
+      "observed_bytes": 25985,
+      "reason": "terminal_with_attempt_exit_proof"
+    },
+    {
+      "key": "capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e:1",
+      "previous": null,
+      "proposed": 91521,
+      "observed_bytes": 25985,
+      "reason": "terminal_with_attempt_exit_proof"
+    },
+    {
+      "key": "capacity-oversized-b665f8c7b2914343a747f931004c32e0:1",
+      "previous": null,
+      "proposed": 91545,
+      "observed_bytes": 26009,
+      "reason": "terminal_with_attempt_exit_proof"
+    }
+  ],
+  "unknown_attempts": [
+    "capacity-active-6af17c5d19e048e9843682dbf8cf8ae3:1"
+  ],
+  "outside_job_bytes": 75610,
+  "unattributed_job_bytes": 0,
+  "proposed_ledger": {
+    "root": "/private/var/folders/2f/5wpnwfls5t1cpv0_qmwmc1n00000gn/T/cpag-capacity.ezV8ro/shared",
+    "reservations": {
+      "capacity-active-6af17c5d19e048e9843682dbf8cf8ae3:1": 35652631,
+      "capacity-corrupt-531f2ad982c34432862c9fba4cbac6c4:1": 91519,
+      "capacity-initial-f1d3d5abc37d40048754e76513393ede:1": 91521,
+      "capacity-missing-5c7d4673eab845da8a8dd7d6b0ed416e:1": 91521,
+      "capacity-oversized-b665f8c7b2914343a747f931004c32e0:1": 91545,
+      "__existing__": 0
+    }
+  },
+  "applicable": false,
+  "plan_id": "44757312f1c43d8165d1c5f9ff26a955bfb52184b49bc5c5d556dad02d65df34"
+}

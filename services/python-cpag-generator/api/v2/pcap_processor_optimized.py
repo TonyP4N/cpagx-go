@@ -112,6 +112,14 @@ class OptimizedPCAPProcessor:
             }
         }
     
+    def _parse_pcap_enhanced(self, file_path: str, **kwargs) -> pd.DataFrame:
+        """Use the same explicit unsupported outcome as the legacy standard path."""
+        return self.base_processor._parse_classic_pcap(
+            file_path,
+            kwargs.get('max_pkts', 120000),
+            kwargs.get('target_cip', 8000),
+        )
+
     def _parse_pcapng_enhanced(self, file_path: str, **kwargs) -> pd.DataFrame:
         """Enhanced PCAPNG parsing with deep packet inspection"""
         records = []

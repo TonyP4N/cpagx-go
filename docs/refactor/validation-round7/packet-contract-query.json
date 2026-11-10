@@ -1,0 +1,444 @@
+{
+  "event": {
+    "correlation_id": "association-7f0e417effb1c27013a2377c3cc9ce39f0cb0090088e774bd8a92d3aec370c0d",
+    "endpoints": {
+      "destination": "192.0.2.2:44818",
+      "source": "192.0.2.1:1234"
+    },
+    "event_id": "packet-3fcb64a9402e72bad281232d4d79465fccfaec9133d1ae4c3539a937222b2bc8",
+    "event_time": null,
+    "ingest_time": null,
+    "operation": "read_attribute",
+    "protocol": "ENIP/CPF/CIP",
+    "quality": {
+      "reasons": [
+        "synthetic_only",
+        "bounded_stream_subset",
+        "connection_epoch_unverified",
+        "network_checksums_not_validated",
+        "association_matched:unique_request_response"
+      ],
+      "status": "partial"
+    },
+    "response_status": null,
+    "schema_version": "1.0.0",
+    "source_ref": {
+      "column": null,
+      "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+      "frame_number": 1,
+      "raw_time": "1000001",
+      "record_number": null
+    },
+    "synthetic": true
+  },
+  "node": {
+    "event_id": "packet-3fcb64a9402e72bad281232d4d79465fccfaec9133d1ae4c3539a937222b2bc8",
+    "evidence_refs": [
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 1,
+        "raw_time": "1000001",
+        "record_number": null
+      },
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 2,
+        "raw_time": "2000001",
+        "record_number": null
+      },
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 3,
+        "raw_time": "3000001",
+        "record_number": null
+      }
+    ],
+    "id": "packet-3fcb64a9402e72bad281232d4d79465fccfaec9133d1ae4c3539a937222b2bc8",
+    "kind": "network"
+  },
+  "observation": {
+    "association_reason": "unique_request_response",
+    "association_status": "matched",
+    "data_hex": "",
+    "direction": "request",
+    "endpoints": [
+      [
+        "192.0.2.1",
+        1234
+      ],
+      [
+        "192.0.2.2",
+        44818
+      ]
+    ],
+    "epoch": 0,
+    "field_slices": [
+      {
+        "frame_byte_offset": 54,
+        "hex": "00000000000000000000020000000000b20008000e03200124013001",
+        "length": 28,
+        "pdu_byte_offset": 20,
+        "sha256": "349ab73c31485eb552839fffa49810803c295af021fcf3c4310a16bcfde369c5",
+        "source_ref": {
+          "column": null,
+          "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+          "frame_number": 1,
+          "raw_time": "1000001",
+          "record_number": null
+        }
+      },
+      {
+        "frame_byte_offset": 54,
+        "hex": "6f00180001000000000000000102030405060708",
+        "length": 20,
+        "pdu_byte_offset": 0,
+        "sha256": "8d187469b7354a2fdf66cc3b0d0e36c3a3dceb40f68ead9129f9072cb09efcb4",
+        "source_ref": {
+          "column": null,
+          "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+          "frame_number": 2,
+          "raw_time": "2000001",
+          "record_number": null
+        }
+      },
+      {
+        "frame_byte_offset": 54,
+        "hex": "6f00180001000000000000000102030405060708",
+        "length": 20,
+        "pdu_byte_offset": 0,
+        "sha256": "8d187469b7354a2fdf66cc3b0d0e36c3a3dceb40f68ead9129f9072cb09efcb4",
+        "source_ref": {
+          "column": null,
+          "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+          "frame_number": 3,
+          "raw_time": "3000001",
+          "record_number": null
+        }
+      }
+    ],
+    "fields": {
+      "cip.path": {
+        "hex": "200124013001",
+        "length": 6,
+        "pdu_byte_offset": 42,
+        "slices": [
+          {
+            "frame_byte_offset": 76,
+            "hex": "200124013001",
+            "length": 6,
+            "pdu_byte_offset": 42,
+            "sha256": "d71cbb20fdc218b81214c17e50f1a21fef90c9108e2d5eabe3ddb19bceb39095",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 1,
+              "raw_time": "1000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "cip.service": {
+        "hex": "0e",
+        "length": 1,
+        "pdu_byte_offset": 40,
+        "slices": [
+          {
+            "frame_byte_offset": 74,
+            "hex": "0e",
+            "length": 1,
+            "pdu_byte_offset": 40,
+            "sha256": "4d7b3ef7300acf70c892d8327db8272f54434adbc61a4e130a563cb59a0d0f47",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 1,
+              "raw_time": "1000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "encapsulation.command": {
+        "hex": "6f00",
+        "length": 2,
+        "pdu_byte_offset": 0,
+        "slices": [
+          {
+            "frame_byte_offset": 54,
+            "hex": "6f00",
+            "length": 2,
+            "pdu_byte_offset": 0,
+            "sha256": "3541e98bd04b5587b9c1918d8abed88bded9328de3fedd36e856d151cb05383e",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 2,
+              "raw_time": "2000001",
+              "record_number": null
+            }
+          },
+          {
+            "frame_byte_offset": 54,
+            "hex": "6f00",
+            "length": 2,
+            "pdu_byte_offset": 0,
+            "sha256": "3541e98bd04b5587b9c1918d8abed88bded9328de3fedd36e856d151cb05383e",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 3,
+              "raw_time": "3000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "encapsulation.context": {
+        "hex": "0102030405060708",
+        "length": 8,
+        "pdu_byte_offset": 12,
+        "slices": [
+          {
+            "frame_byte_offset": 66,
+            "hex": "0102030405060708",
+            "length": 8,
+            "pdu_byte_offset": 12,
+            "sha256": "66840dda154e8a113c31dd0ad32f7f3a366a80e8136979d8f5a101d3d29d6f72",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 2,
+              "raw_time": "2000001",
+              "record_number": null
+            }
+          },
+          {
+            "frame_byte_offset": 66,
+            "hex": "0102030405060708",
+            "length": 8,
+            "pdu_byte_offset": 12,
+            "sha256": "66840dda154e8a113c31dd0ad32f7f3a366a80e8136979d8f5a101d3d29d6f72",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 3,
+              "raw_time": "3000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "encapsulation.length": {
+        "hex": "1800",
+        "length": 2,
+        "pdu_byte_offset": 2,
+        "slices": [
+          {
+            "frame_byte_offset": 56,
+            "hex": "1800",
+            "length": 2,
+            "pdu_byte_offset": 2,
+            "sha256": "78a23af8da46b1b37e8767921a2d3f528fdc8eca37cea8aea775fd2b283d3776",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 2,
+              "raw_time": "2000001",
+              "record_number": null
+            }
+          },
+          {
+            "frame_byte_offset": 56,
+            "hex": "1800",
+            "length": 2,
+            "pdu_byte_offset": 2,
+            "sha256": "78a23af8da46b1b37e8767921a2d3f528fdc8eca37cea8aea775fd2b283d3776",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 3,
+              "raw_time": "3000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "encapsulation.session": {
+        "hex": "01000000",
+        "length": 4,
+        "pdu_byte_offset": 4,
+        "slices": [
+          {
+            "frame_byte_offset": 58,
+            "hex": "01000000",
+            "length": 4,
+            "pdu_byte_offset": 4,
+            "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 2,
+              "raw_time": "2000001",
+              "record_number": null
+            }
+          },
+          {
+            "frame_byte_offset": 58,
+            "hex": "01000000",
+            "length": 4,
+            "pdu_byte_offset": 4,
+            "sha256": "67abdd721024f0ff4e0b3f4c2fc13bc5bad42d0b7851d456d88d203d15aaa450",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 3,
+              "raw_time": "3000001",
+              "record_number": null
+            }
+          }
+        ]
+      },
+      "encapsulation.status": {
+        "hex": "00000000",
+        "length": 4,
+        "pdu_byte_offset": 8,
+        "slices": [
+          {
+            "frame_byte_offset": 62,
+            "hex": "00000000",
+            "length": 4,
+            "pdu_byte_offset": 8,
+            "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 2,
+              "raw_time": "2000001",
+              "record_number": null
+            }
+          },
+          {
+            "frame_byte_offset": 62,
+            "hex": "00000000",
+            "length": 4,
+            "pdu_byte_offset": 8,
+            "sha256": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+            "source_ref": {
+              "column": null,
+              "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+              "frame_number": 3,
+              "raw_time": "3000001",
+              "record_number": null
+            }
+          }
+        ]
+      }
+    },
+    "operation": "read_attribute",
+    "path": {
+      "attribute": 1,
+      "class": 1,
+      "instance": 1
+    },
+    "pdu_hex": "6f0018000100000000000000010203040506070800000000000000000000020000000000b20008000e03200124013001",
+    "pdu_sha256": "dda5b05242baa364b3d9100a8476c611adda5b8a82a9714ec4012c6b9d95121c",
+    "quality": [
+      "synthetic_only",
+      "bounded_stream_subset",
+      "connection_epoch_unverified",
+      "network_checksums_not_validated"
+    ],
+    "sender_context": "0102030405060708",
+    "service": 14,
+    "session_handle": 1,
+    "source_refs": [
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 1,
+        "raw_time": "1000001",
+        "record_number": null
+      },
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 2,
+        "raw_time": "2000001",
+        "record_number": null
+      },
+      {
+        "column": null,
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 3,
+        "raw_time": "3000001",
+        "record_number": null
+      }
+    ],
+    "timeout_raw": 0
+  },
+  "verified_fields": {
+    "cip.path": [
+      {
+        "transport": {
+          "status": "partial",
+          "source_ip": "192.0.2.1",
+          "destination_ip": "192.0.2.2",
+          "ip_protocol": 6,
+          "reason": "application_semantics_unsupported",
+          "source_port": 1234,
+          "destination_port": 44818,
+          "sequence_number": 120,
+          "acknowledgment_number": 0,
+          "tcp_flags": 24,
+          "tcp_payload_length": 28
+        },
+        "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+        "frame_number": 1,
+        "byte_offset": 40,
+        "captured_length": 82,
+        "original_length": 82,
+        "raw_timestamp": 1000001,
+        "ticks_per_second": 1000000,
+        "frame_sha256": "bc2210cacb7dad1ed8be1096a6b0499871e79dc22f2572ff3a4034044d9f2281",
+        "quality": [
+          "protocol_semantics_unsupported"
+        ],
+        "raw_hex": "0000000000000000000000000800450000440001000040060000c0000201c000020204d2af120000007800000000501810000000000000000000000000000000020000000000b20008000e03200124013001",
+        "integrity": "file_and_frame_sha256_verified",
+        "network_checksums": {
+          "basis": "captured_bytes_only_offload_unknown",
+          "ipv4": {
+            "stored_hex": "0000",
+            "residual": 63151,
+            "valid_for_captured_bytes": false
+          },
+          "tcp": {
+            "stored_hex": "0000",
+            "residual": 10569,
+            "valid_for_captured_bytes": false
+          }
+        },
+        "field": {
+          "frame_byte_offset": 76,
+          "hex": "200124013001",
+          "length": 6,
+          "pdu_byte_offset": 42,
+          "sha256": "d71cbb20fdc218b81214c17e50f1a21fef90c9108e2d5eabe3ddb19bceb39095",
+          "source_ref": {
+            "column": null,
+            "file_sha256": "0c19a2724035d79fdfb202f452a93d21080b20b2dd313daa7e2313dc8321b23d",
+            "frame_number": 1,
+            "raw_time": "1000001",
+            "record_number": null
+          },
+          "absolute_byte_offset": 116
+        }
+      }
+    ]
+  },
+  "validation_run_id": "d432d34254654f46ab3456166fc03eae"
+}

@@ -1,0 +1,132 @@
+{
+  "status": "passed",
+  "scope": "Fresh Go binary against already verified unchanged replay task publications",
+  "checks": [
+    {
+      "run_id": "1be7492eaa6380a895e9b2f39853c265",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "1be7492eaa6380a895e9b2f39853c265",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "b93e35ec8c034e39af2da9c2de4eae6c",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "b93e35ec8c034e39af2da9c2de4eae6c",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "fe94dd43216814fc0d7fa54789bacffc",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "fe94dd43216814fc0d7fa54789bacffc",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "49090f8fd439e7202d8ffca74f5e6d2c",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "49090f8fd439e7202d8ffca74f5e6d2c",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "3ba8b69ddb72bd50b91fa153ed430d1a",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "3ba8b69ddb72bd50b91fa153ed430d1a",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "e1c1ddac37a19ce1d8b3d9d04f1a3980",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "e1c1ddac37a19ce1d8b3d9d04f1a3980",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "638e2ca562947435408c460b8a1578e2",
+      "location": "source",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    },
+    {
+      "run_id": "638e2ca562947435408c460b8a1578e2",
+      "location": "restored",
+      "default_and_revision_graph_mode": "dual_source_replay",
+      "replay_version": "dual-source-replay-1",
+      "contents_unchanged": true,
+      "pending_trigger_refs": 1,
+      "revised_trigger_refs": 1
+    }
+  ]
+}

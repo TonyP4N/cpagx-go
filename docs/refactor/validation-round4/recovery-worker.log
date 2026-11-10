@@ -1,0 +1,43 @@
+ Network cpag-m4-worker-validation_default Creating 
+ Network cpag-m4-worker-validation_default Created 
+ Volume cpag-m4-worker-validation_validation_data Creating 
+ Volume cpag-m4-worker-validation_validation_data Created 
+ Container cpag-m4-worker-validation-postgres-1 Creating 
+ Container cpag-m4-worker-validation-postgres-1 Created 
+ Container cpag-m4-worker-validation-postgres-1 Starting 
+ Container cpag-m4-worker-validation-postgres-1 Started 
+ Container cpag-m4-worker-validation-postgres-1 Waiting 
+ Container cpag-m4-worker-validation-postgres-1 Healthy 
+=== RUN   TestPostgresFaults
+--- PASS: TestPostgresFaults (0.12s)
+=== RUN   TestIndependentRecovery
+--- PASS: TestIndependentRecovery (0.28s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	1.801s
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-job-api	[no test files]
+?   	github.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/m4-recovery	[no test files]
+TRUNCATE TABLE
+PASS live authorization: missing and wrong bearer rejected
+PASS queued cancellation reports actual cancelled state
+PASS live wrong attempt token fenced before reading nonexistent manifest
+PASS live core success: events/graph match direct core; repeat completion idempotent; later tampering detected
+PASS live timeout: child exited, final attempt failed
+PASS live cancellation: ACK only after child exit
+PASS live SIGKILL: watchdog removed child; lease expiry recovered attempt 2; stale completion fenced
+PASS live completion rejects corrupted artifact
+ Container cpag-m4-worker-validation-postgres-1 Restarting 
+ Container cpag-m4-worker-validation-postgres-1 Started 
+ Container cpag-m4-worker-validation-postgres-1 Running 
+ Container cpag-m4-worker-validation-postgres-1 Waiting 
+ Container cpag-m4-worker-validation-postgres-1 Healthy 
+PASS database container restart: API reconnects and reads persisted terminal metadata and published manifests
+PASS independent recovery during actual API outage, Worker SIGKILL, no new claims; guardian proves computation exit
+scripts/m4/validate-worker.sh: line 72: 12247 Terminated: 15          CPAG_ENABLE_M4=1 M4_DATABASE_URL="$database_url" "$work_dir/api" > "$work_dir/api.log" 2>&1
+ Container cpag-m4-worker-validation-postgres-1 Stopping 
+ Container cpag-m4-worker-validation-postgres-1 Stopped 
+ Container cpag-m4-worker-validation-postgres-1 Removing 
+ Container cpag-m4-worker-validation-postgres-1 Removed 
+ Network cpag-m4-worker-validation_default Removing 
+ Volume cpag-m4-worker-validation_validation_data Removing 
+ Volume cpag-m4-worker-validation_validation_data Removed 
+ Network cpag-m4-worker-validation_default Removed 

@@ -1,0 +1,6 @@
+{
+  "version": "core-controller-interruption-1",
+  "reason": "parent_requested_hold_for_offline_phase_analysis",
+  "scope": "administrative interruption, not core performance result",
+  "container_id": "35ed0d9a716a2ba2575c2e04ac34550ecd0526d3b9812931070f07acc22a98b8"
+}

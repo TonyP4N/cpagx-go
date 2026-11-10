@@ -1,0 +1,13 @@
+test_complete_batch_is_deterministic_and_does_not_mutate_raw (test_intake.IntakeTests.test_complete_batch_is_deterministic_and_does_not_mutate_raw) ... ok
+test_input_identity_excludes_paths_and_order_but_config_changes_count (test_intake.IntakeTests.test_input_identity_excludes_paths_and_order_but_config_changes_count) ... ok
+test_material_gaps_and_single_source (test_intake.IntakeTests.test_material_gaps_and_single_source) ... ok
+test_negative_file_cases_have_reason_and_exit_code (test_intake.IntakeTests.test_negative_file_cases_have_reason_and_exit_code) ... ok
+test_nonfinite_config_and_missing_source_metadata (test_intake.IntakeTests.test_nonfinite_config_and_missing_source_metadata) ... ok
+test_output_cannot_be_inside_raw (test_intake.IntakeTests.test_output_cannot_be_inside_raw) ... ok
+test_report_redacts_credential_and_restricted_url (test_intake.IntakeTests.test_report_redacts_credential_and_restricted_url) ... ok
+test_symlink_and_batch_id_conflict (test_intake.IntakeTests.test_symlink_and_batch_id_conflict) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.466s
+
+OK

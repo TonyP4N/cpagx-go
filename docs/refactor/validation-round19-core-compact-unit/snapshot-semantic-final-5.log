@@ -1,0 +1,10 @@
+test_default_omission_preserves_the_pre_projection_dag6_reader_semantics (test_compact_semantic_regression.CompactSemanticRegression.test_default_omission_preserves_the_pre_projection_dag6_reader_semantics) ... ok
+test_duplicate_conflict_and_allowed_too_late_preserve_all_business_fields (test_compact_semantic_regression.CompactSemanticRegression.test_duplicate_conflict_and_allowed_too_late_preserve_all_business_fields) ... ok
+test_future_raw_bytes_schedule_and_speed_cannot_rewrite_prefix (test_compact_semantic_regression.CompactSemanticRegression.test_future_raw_bytes_schedule_and_speed_cannot_rewrite_prefix) ... ok
+test_normal_all_snapshot_fields_and_container_id_bijections (test_compact_semantic_regression.CompactSemanticRegression.test_normal_all_snapshot_fields_and_container_id_bijections) ... ok
+test_r17_clock_and_mapping_unknowns_survive_every_historical_state (test_compact_semantic_regression.CompactSemanticRegression.test_r17_clock_and_mapping_unknowns_survive_every_historical_state) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 11.592s
+
+OK

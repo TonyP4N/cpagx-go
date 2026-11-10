@@ -1,0 +1,24 @@
+test_capture_truncation_metadata (test_packet_envelope.EnvelopeTests.test_capture_truncation_metadata) ... ok
+test_limits_and_gate (test_packet_envelope.EnvelopeTests.test_limits_and_gate) ... ok
+test_literal_hex_golden_not_generated_by_helpers (test_packet_envelope.EnvelopeTests.test_literal_hex_golden_not_generated_by_helpers) ... ok
+test_multiple_interfaces_and_timestamp_options_rejected (test_packet_envelope.EnvelopeTests.test_multiple_interfaces_and_timestamp_options_rejected) ... ok
+test_pcap_variants_and_references (test_packet_envelope.EnvelopeTests.test_pcap_variants_and_references) ... ok
+test_pcapng_both_orders (test_packet_envelope.EnvelopeTests.test_pcapng_both_orders) ... ok
+test_tcp_duplicate_segments_reordered_and_unanswered_retained_only (test_packet_envelope.EnvelopeTests.test_tcp_duplicate_segments_reordered_and_unanswered_retained_only) ... ok
+test_transport_headers_only (test_packet_envelope.EnvelopeTests.test_transport_headers_only) ... ok
+test_truncation_and_corruption_fail_without_partial_result (test_packet_envelope.EnvelopeTests.test_truncation_and_corruption_fail_without_partial_result) ... ok
+test_unsupported_links_options_sections (test_packet_envelope.EnvelopeTests.test_unsupported_links_options_sections) ... ok
+test_connection_boundaries_disable_pairing (test_packet_protocol.ProtocolTests.test_connection_boundaries_disable_pairing) ... ok
+test_duplicates_overlap_disable_pairs (test_packet_protocol.ProtocolTests.test_duplicates_overlap_disable_pairs) ... ok
+test_gate_limits_and_mutation_evidence (test_packet_protocol.ProtocolTests.test_gate_limits_and_mutation_evidence) ... ok
+test_golden_fields_pairs_and_reordered_containers (test_packet_protocol.ProtocolTests.test_golden_fields_pairs_and_reordered_containers) ... ok
+test_mismatch_unanswered_and_zero_context (test_packet_protocol.ProtocolTests.test_mismatch_unanswered_and_zero_context) ... ok
+test_partial_coalesced_and_truncated (test_packet_protocol.ProtocolTests.test_partial_coalesced_and_truncated) ... ok
+test_set_and_response_status (test_packet_protocol.ProtocolTests.test_set_and_response_status) ... ok
+test_transport_and_header_boundaries (test_packet_protocol.ProtocolTests.test_transport_and_header_boundaries) ... ok
+test_unsupported_service_path_and_bad_lengths (test_packet_protocol.ProtocolTests.test_unsupported_service_path_and_bad_lengths) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.254s
+
+OK

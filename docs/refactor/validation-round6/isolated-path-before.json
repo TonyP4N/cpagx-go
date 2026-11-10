@@ -1,0 +1,26 @@
+{
+  "synthetic": true,
+  "api_and_docker_mocked": true,
+  "same_daemon_scope": true,
+  "local_record_path": "control/jobs/legitimate/attempt-1.worker/execution.json",
+  "record_id": "../outside",
+  "external_to_jobs_reads": [
+    "control/outside/attempt-1.worker/exit.json"
+  ],
+  "outgoing_paths": [
+    "/v1/executions?location=docker%3Adaemon%3Ac6ac06ab7f9df702ff076786",
+    "/v1/jobs/legitimate/attempts",
+    "/v1/jobs/../outside",
+    "/v1/jobs/../outside/exit"
+  ],
+  "outcomes": [
+    {
+      "id": "../outside",
+      "attempt": 1,
+      "pending": "capacity_ledger_missing",
+      "retryable": true,
+      "error_type": "ValueError"
+    }
+  ],
+  "scope_note": "API status response mocked to allow the malformed local record past HTTP lookup; no real API exploit claimed"
+}

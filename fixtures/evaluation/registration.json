@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "registered_at": "2025-12-01T00:00:00Z",
+  "holdout_opened_at": "2026-01-02T00:00:00Z",
+  "input_fingerprint": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "config_fingerprint": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "split_sha256": "80a19fed77cb6c5181f19cdea2a2417799abe63cf17a59d310800f597869081f",
+  "tolerance_seconds": 2,
+  "thresholds": {}
+}

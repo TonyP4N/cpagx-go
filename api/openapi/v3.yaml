@@ -1,0 +1,472 @@
+openapi: 3.1.0
+info:
+  title: CPAG v3 research API
+  version: 0.6.0
+  description: Loopback API with optional operator-configured external HTTPS origin. External browser writes must match that origin. Sessions use HttpOnly and SameSite=Strict with Secure enabled in HTTPS mode. Bounded dual analysis accepts one to four ordered captures and one CSV with a current immutable preflight. Real input requires explicit bounded-real-capable-v1 profile and declared provenance, mapping and clock evidence; accepted_unvalidated is retained. Explicit dual_source_replay uses the same material gates, immutable profile.replay.version dual-source-replay-1 and existing task lifecycle. Only verified terminal replay snapshots/revisions are queryable; running temporary output is never published. Optional capacity_profile engineering-capacity-1 enables versioned offline admission limits only with an explicit operator capacity_policy; omission preserves old input limits. Operator resource_profile is copied into immutable job payloads without changing user profile fingerprints. New-capacity replay requires explicit nested history_format replay-history-checkpoint-delta-2, frozen in the payload and publication; old JSONL history retains its old limits. Capacity certification and unexecuted scales remain incomplete.
+servers:
+  - url: http://127.0.0.1:8095
+paths:
+  /api/v3/history/jobs/{job}/artifacts:
+    parameters: [{ in: path, name: job, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator-only read of a published legacy normalized or packet synthetic job without dataset ACLs. Rechecks its attempt and source and artifact fingerprints.
+      responses:
+        '200': { description: Verified member names and digests }
+        '403': { description: Administrator required }
+        '409': { description: Unsupported format or unavailable publication }
+  /api/v3/history/jobs/{job}/artifacts/{name}/download:
+    parameters:
+      - { in: path, name: job, required: true, schema: { type: string } }
+      - { in: path, name: name, required: true, schema: { type: string } }
+    get:
+      security: [{ cookieAuth: [] }]
+      responses:
+        '200': { description: Attachment from the reverified inventory }
+        '401': { description: Login required }
+        '403': { description: Administrator required }
+        '404': { description: Artifact missing from the known inventory }
+        '409': { description: Invalid original or changed publication }
+        '429': { description: Controlled download busy }
+  /api/v3/runs/{run_id}/shared-query:
+    get:
+      summary: Explicit DAG6 verified logical artifact query
+      security: [{ cookieAuth: [] }]
+      description: >-
+        Dataset ACL and current run/attempt state are checked server-side. Requires explicit
+        engineering-core-capacity-3, shared-observation-dag-6, shared-storage-budget-2 and
+        operator resource_profile storage-budget-2 with a pinned compact_verifier_image.
+        Full source verification completes in a private read-only isolated verifier before
+        publication. Service restart discards in-memory authority and triggers re-verification;
+        no client approval or digest grants access. Each query rechecks current source/artifact
+        bytes. At most 100 items, 8 MiB and 10 seconds; oversized objects are refused, not
+        truncated. Use page/path for large graph/history objects. Capacity ceilings do not
+        certify M1000 or L10000 support; these remain incomplete community work.
+      parameters:
+        - { name: run_id, in: path, required: true, schema: { type: string } }
+        - { name: action, in: query, schema: { type: string, enum: [metadata, page, get, graph, snapshot, revisions, selection, evidence], default: metadata } }
+        - { name: logical_root, in: query, schema: { type: string }, description: Exact authenticated named root, such as analysis.json or history/snapshots. }
+        - { name: path, in: query, schema: { type: string, maxLength: 8192 }, description: JSON array of at most 32 field names or nonnegative indices. }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000 } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 100 } }
+        - { name: snapshot, in: query, schema: { type: integer, minimum: 0, maximum: 64999 } }
+        - { name: after, in: query, schema: { type: integer, minimum: 0, maximum: 90000 } }
+        - { name: operation, in: query, schema: { type: string } }
+        - { name: change, in: query, schema: { type: string } }
+        - { name: trigger, in: query, schema: { type: string, enum: ['true'] } }
+        - { name: ref_offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000 } }
+        - { name: ref_limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 100 } }
+      responses:
+        '200': { description: Complete bounded object or explicit array page with total and has_more. }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { description: verification_pending, result_changed or source_verification_failed; no trusted result is returned. A current unpublished run becomes failed only after confirmed execution and verifier exit; historical terminal state is preserved. }
+        '422': { description: query_limit or unsupported query; no silent truncation. }
+        '504': { description: query_timeout; no trusted result is returned. }
+  /health/live:
+    get:
+      description: Process response only, independent of database/storage/Worker availability.
+      responses: { '200': { description: Live }, '405': { $ref: '#/components/responses/Error' } }
+  /health/ready:
+    get:
+      description: Database ping within 2 seconds and required shared/control directories accessible on writable filesystems with at least 64 MiB available; returns status and boolean database/storage checks, never paths or database errors. This floor does not replace Worker profile admission.
+      responses: { '200': { description: Dependencies ready }, '503': { description: status not_ready with boolean database/storage checks }, '405': { $ref: '#/components/responses/Error' } }
+  /api/v3/health/operations:
+    get:
+      summary: Administrator-only bounded queue, Worker, storage and retained-error query
+      security: [{ cookieAuth: [] }]
+      description: >-
+        Requires migration 017. Authenticated successful claim polls and active heartbeats
+        update ephemeral observations, cleared on backup restore. Observations never grant
+        lease or publication authority. Categories summarize current retained job last_error,
+        not event rates; raw text is excluded. Queue wait starts at eligible available_at.
+        Worker list is at most 100; errors use pagination; DB deadline 3 seconds.
+        Alerts are explicit response conditions, not external notification delivery.
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, maximum: 1000000, default: 0 } }
+        - { name: errors, in: query, schema: { type: string, enum: [all, parse, storage, resource, execution], default: all } }
+        - { name: worker_stale_seconds, in: query, schema: { type: integer, minimum: 2, maximum: 3600, default: 120 } }
+        - { name: queue_warn_seconds, in: query, schema: { type: integer, minimum: 1, maximum: 86400, default: 60 } }
+      responses:
+        '200': { description: operations-1 with thresholds, queue, workers, storage, retained_error_counts, errors/error_page and alerts; status ok or degraded }
+        '401': { $ref: '#/components/responses/Error' }
+        '403': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '503': { description: operations_schema_not_ready or operations_unavailable, never empty success }
+  /api/v3/session:
+    post:
+      summary: Login and set HttpOnly SameSite Strict session cookie
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password]
+              properties: { username: { type: string }, password: { type: string } }
+      responses: { '200': { description: Session created }, '401': { $ref: '#/components/responses/Error' } }
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Current user }, '401': { $ref: '#/components/responses/Error' } }
+    delete:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Session revoked }, '401': { $ref: '#/components/responses/Error' } }
+  /api/v3/users:
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only.
+      responses: { '200': { description: Users without password hashes }, '403': { $ref: '#/components/responses/Error' } }
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only. Password must contain at least 12 characters.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [username, password, role]
+              properties:
+                username: { type: string }
+                password: { type: string }
+                role: { enum: [admin, analyst, viewer] }
+      responses: { '201': { description: User created }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets:
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Datasets visible through server ACL } }
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, source_kind, source, batch, authorization_ref]
+              properties:
+                name: { type: string }
+                source_kind: { enum: [synthetic, real] }
+                source: { type: string }
+                batch: { type: string }
+                authorization_ref: { type: string, description: 'Declared reference, not verified authorization' }
+      responses: { '201': { description: Dataset and owner ACL created }, '400': { description: invalid_source_kind or malformed request }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Dataset with file and config summaries }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/acl:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Administrator grants analyst or viewer access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, access]
+              properties: { user_id: { type: string }, access: { enum: [viewer, analyst] } }
+      responses: { '200': { description: ACL granted }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/files:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: File catalog without storage paths } }
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Upload limits remain 64MiB per capture and 8MiB per process file; upload success is not analysis capacity acceptance. The versioned analysis profile separately enforces capture aggregate, CSV logical-record and column budgets.
+      parameters:
+        - { in: query, name: role, required: true, schema: { enum: [network, process] } }
+        - { in: query, name: name, required: true, schema: { type: string }, description: Original basename }
+        - { in: header, name: X-Content-SHA256, required: true, schema: { type: string, pattern: '^[a-f0-9]{64}$' } }
+        - { in: header, name: Idempotency-Key, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema: { type: string, format: binary }
+      responses:
+        '201': { description: Immutable file created }
+        '200': { description: Same key and same file already uploaded }
+        '409': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+  /api/v3/datasets/{dataset_id}/files/{file_id}/download:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: file_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Rehashed original bytes }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/configs:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Immutable config versions } }
+    post:
+      security: [{ cookieAuth: [] }]
+      description: The immutable dual document may declare capacity_profile engineering-capacity-1 with analysis_mode bounded-real-capable-v1. The operator must explicitly enable the matching capacity_policy. Limits are at most four captures, 64MiB each and 128MiB aggregate, CSV 8MiB / 10000 logical records / 16 columns, and profile document 8MiB. Without the declaration historical analysis limits remain 16MiB aggregate / CSV 2MiB / 1000 records / profile 64KiB. Replay with expanded capacity requires replay.history_format replay-history-checkpoint-delta-2 and separate DualSpoolProfile/ReplaySpoolProfile contracts; omitted capacity_profile keeps old budgets even with new storage. These budgets are not measured acceptance claims. resource_profile and capacity_policy are operator configuration fields, not fields users can raise in uploaded documents or run requests.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [kind, document]
+              properties: { kind: { enum: [intake, dual] }, document: { type: object } }
+      responses: { '201': { description: New version created }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/configs/{config_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: config_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Version with document } }
+  /api/v3/datasets/{dataset_id}/preflight:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [config_version_id]
+              properties: { config_version_id: { type: string } }
+      responses: { '200': { description: Existing core metadata and integrity report, including incomplete results }, '409': { description: Stored original changed or batch identity conflicts; batch conflict includes its retained preflight report }, '422': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/preflights:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Authorized historical reports with native, reconstructed, or explicitly unresolved snapshot status.
+      responses: { '200': { description: Historical preflight summaries }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/datasets/{dataset_id}/preflights/{preflight_id}:
+    parameters: [{ $ref: '#/components/parameters/datasetId' }, { in: path, name: preflight_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Retained report and verified exact snapshot, if reconstructable }, '409': { description: Snapshot digest or structure changed } }
+  /api/v3/runs:
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: dataset_id, required: true, schema: { type: string } }]
+      responses: { '200': { description: Authorized runs } }
+    post:
+      security: [{ cookieAuth: [] }]
+      description: The selected immutable profile binds capacity_profile through its fingerprint. The service independently freezes the operator resource_profile into the job payload. Submission and unfinished publication require operator binding; supported historical results are read under their original frozen budgets and never reinterpreted using a larger current operator policy. Explicit capacity_policy engineering-capacity-1 persists a database-wide single-unexited-attempt gate including expired, failed and cancelling attempts until verified exit or gated non-start proof. It does not clear on an unconfigured restart.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [dataset_id, config_version_id, preflight_id, mode]
+              properties: { dataset_id: { type: string }, config_version_id: { type: string }, preflight_id: { type: string, description: 'Fresh native ready intake report bound to current input set' }, mode: { enum: [dual_source, dual_source_replay], description: Replay requires an immutable dual profile with explicit replay version and bounded arrival sequence; optional replay.history_format selects checkpoint-delta storage and is separately bound to the payload/publication } }
+      responses: { '201': { description: Atomic M4 job and v3 binding to preflight }, '409': { description: batch_conflict or preflight_stale; no job inserted }, '422': { description: preflight_required, preflight_incomplete, insufficient_basis, source_provenance_mismatch, source_count, unsupported_format or invalid_inputs; no job inserted } }
+  /api/v3/runs/{run_id}:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: 'Sanitized M4 state, persisted execution phase and registered/exited attempt counts (live processed_records is null), attempt history, explicit mode, nullable replay_version and immutable ordered network_file_ids (null for legacy or scalar input)' }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/retry:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Requeue the same failed or cancelled binding after confirmed exit of every execution, within original attempt and resource budgets. The next successful claim increments the attempt. Requires dataset write access.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [expected_attempt], properties: { expected_attempt: { type: integer, minimum: 0 } } }
+      responses: { '200': { description: Original run queued }, '403': { $ref: '#/components/responses/Error' }, '404': { $ref: '#/components/responses/Error' }, '409': { description: 'retry_conflict, retry_binding_unverified or retry_input_invalid' }, '422': { description: invalid_attempt } }
+  /api/v3/runs/{run_id}/cancel:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Actual resulting state }, '403': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/result:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified M4 dual or replay result; replay data contains final analysis, graph, events and replay summary; optional revision selects snapshot_number }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/evaluation-preparation:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Explicit evaluation-preparation-1 for the current successful publication. Dataset write permission is required. The service derives run, attempt, payload, publication and dataset bindings; clients cannot supply trusted hashes, labels or prepared content. Preparation is bounded to 1800 seconds and preserves every preparation attempt. A queued response is not completion. Repeating a ready request is idempotent; retrying a failed preparation retains its previous attempt history. Only the requested projection is prepared.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties: { projection: { type: string, enum: [network, process, dual], default: dual } }
+              additionalProperties: false
+      responses:
+        '202': { description: Queued or preparing; poll status until ready or failed, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '200': { description: Existing ready preparation after current byte and permission verification, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '403': { description: Dataset write permission required }
+        '404': { description: Missing run or no dataset read permission }
+        '409': { description: Current publication unavailable or source changed }
+        '422': { description: Unknown fields, query or projection }
+        '503': { description: Queue, database, adapter or audit unavailable }
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Authorized preparation state, source attempt and bounded cost diagnostics. Ready content is bound to the current publication and all input/artifact bytes are rechecked. This status response does not return the prediction document. Its cost distinguishes verification, projection, postcheck and elapsed preparation; these are host measurements, not Worker container quotas or reference-platform performance. Pending or failed states do not certify a result.
+      parameters: [{ in: query, name: projection, required: false, schema: { type: string, enum: [network, process, dual], default: dual } }]
+      responses:
+        '200': { description: Current explicit state and costs, content: { application/json: { schema: { $ref: '#/components/schemas/EvaluationPreparationResponse' } } } }
+        '404': { description: No preparation requested, missing run or no dataset permission }
+        '409': { description: Prepared publication bytes or identity changed }
+        '422': { description: Repeated or unsupported query }
+        '503': { description: Database or audit unavailable }
+  /api/v3/runs/{run_id}/evaluation-input:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Read-only R19 observation projection from the currently published verified offline or terminal replay artifact. Batch comes from the authorized dataset and sample_sha256 is the verified composite input_fingerprint. No annotations, analysis submission, frozen registration or persisted evaluation are accepted here. Network/process are views of this run, not independently executed single-source experiments. Bounded to 10 seconds; legacy runs use an 8 MiB projection budget and explicitly versioned R19 resource profiles permit 128 MiB. Once preparation is requested, queued/preparing/failed returns evaluation_preparation_not_ready; only ready content with current byte, attempt and ACL checks can be read. Without a preparation record the legacy verification path is retained.
+      parameters: [{ in: query, name: projection, required: false, schema: { type: string, enum: [network, process, dual], default: dual } }]
+      responses: { '200': { description: Unchanged final-artifact adapter contract including predictions, version/artifact binding, exclusions, event links, process statistics and limitations }, '401': { $ref: '#/components/responses/Error' }, '404': { description: Missing run or no dataset read permission }, '409': { description: Unpublished, changed, unsupported or unavailable bounded projection }, '422': { description: Unsupported, repeated or unknown query parameter }, '503': { description: Adapter or read audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    post:
+      security: [{ cookieAuth: [] }]
+      description: Import one complete CLI evaluation bundle document (filename to parsed JSON object, including manifest.json), maximum 8 MiB for evaluation-bundle-1 and 128 MiB for evaluation-bundle-2/3. Version 2 verifies retained reference bytes; version 3 additionally requires csv-logical-record-1 locators verified against logical CSV records. Old declarations never become located references automatically. Dataset write access required; viewers cannot import. The server re-verifies the current publication, frozen inputs, independent-reference declarations and computed result before transactionally storing the document with its canonical Python digest and audit entry. Batch and composite sample fingerprint must equal server dataset/publication context. Declaration is not independent custody proof. No analysis is submitted.
+      requestBody: { required: true, content: { application/json: { schema: { type: object, additionalProperties: true } } } }
+      responses: { '201': { description: New saved evaluation metadata and verified result }, '200': { description: Identical document already saved for this run }, '403': { description: Dataset write permission required }, '404': { description: Missing run or no dataset read permission }, '409': { description: Bundle, original publication or context failed verification }, '422': { description: Body exceeds its version budget, unsupported version or query }, '503': { description: Storage or audit unavailable; no import committed } }
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Latest 100 saved evaluation metadata records. Listing does not certify current original evidence; detail, download and evidence reads re-verify it.
+      responses: { '200': { description: Metadata records, limit and explicit saved-only status }, '404': { description: Missing run or no dataset read permission }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Saved metadata and result plus read-only context for registration and split definitions with freeze and annotation versions after complete bundle and current original publication re-verification }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Saved document, versions, current attempt or original evidence unavailable or changed }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}/download:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified complete filename-to-JSON bundle document as JSON attachment; retained serialization preserves Python number semantics }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Bundle or current original evidence failed re-verification }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/evaluations/{evaluation_id}/evidence:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: evaluation_id, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Query a retained prediction, exclusion or unlabelled relation through the existing verified original-evidence query. reference=true preserves bundle-specific status; v1 is an unverified declaration; v2 verifies retained original bytes but does not resolve its free-text record; v3 returns the exact logical CSV record, requested fields and raw byte fragment under csv-logical-record-1. Byte and locator checks do not prove annotation independence or correctness. Entire saved bundle and current publication are re-verified. No arbitrary paths accepted. Queries are bounded to 10 seconds and 8 MiB output.
+      parameters:
+        - { in: query, name: event, required: true, schema: { type: string, minLength: 1, maxLength: 1024 } }
+        - { in: query, name: reference, required: false, schema: { type: string, const: 'true' } }
+      responses: { '200': { description: Saved evaluation metadata and verified evidence or declared independent reference }, '404': { description: Missing evaluation or no dataset read permission }, '409': { description: Unknown event, changed bundle, expired attempt binding or missing original evidence }, '422': { description: Missing, repeated or unsupported query parameter }, '503': { description: Database or audit unavailable } }
+  /api/v3/runs/{run_id}/graph:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Replay snapshot_number; default is verified final graph }]
+      responses: { '200': { description: Verified graph }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/evidence:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { in: query, name: revision, required: false, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Required for replay; immutable snapshot_number beginning at zero }
+        - { in: query, name: trigger, required: false, schema: { type: string, const: 'true' }, description: Replay only; third mutually exclusive selector for the selected snapshot trigger evidence, including discarded or too_late records; no arbitrary raw references }
+        - { in: query, name: operation, required: false, schema: { type: string } }
+        - { in: query, name: change, required: false, schema: { type: string } }
+        - { in: query, name: ref_offset, required: false, schema: { type: integer, minimum: 0, default: 0 }, description: Explicit operator resource profile or new spool history; offset into the complete selected original-evidence reference list }
+        - { in: query, name: ref_limit, required: false, schema: { type: integer, minimum: 1, maximum: 100, default: 100 }, description: Explicit operator resource profile or new spool history; at most 100 original references per response, with an independent 8MiB response byte guard; oversized evidence fails rather than truncating. Legacy responses retain their previous shape when pagination is not requested. }
+      responses: { '200': { description: Verified bounded original evidence; exactly one operation/change/trigger selector required; trigger accepts exactly true }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/revisions:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters:
+        - { in: query, name: after, schema: { type: integer, minimum: 0, maximum: 90000, default: 0 } }
+        - { in: query, name: limit, schema: { type: integer, minimum: 1, maximum: 8192, default: 100 } }
+      responses: { '200': { description: Verified terminal replay revisions with old/new snapshot numbers and total; no unverified live output. Old JSONL uses after at most 8192 and limit at most 8192; explicit spool uses frozen-budget after at most 90000 and limit at most 100 }, '404': { $ref: '#/components/responses/Error' }, '409': { description: Running, unpublished, missing or changed replay history } }
+  /api/v3/runs/{run_id}/snapshots:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      parameters: [{ in: query, name: revision, required: true, schema: { type: integer, minimum: 0, maximum: 44999 }, description: Immutable snapshot_number; old and unexpanded budgets remain at most 4095, explicit engineering spool permits at most 44999 }]
+      responses: { '200': { description: Verified snapshot containing analysis, graph, events, available_at, trigger and immutable IDs }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/snapshots/{snapshot_number}:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: snapshot_number, required: true, schema: { type: integer, minimum: 0, maximum: 44999 } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Same verified immutable replay snapshot as snapshots query }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/artifacts:
+    parameters: [{ $ref: '#/components/parameters/runId' }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Published artifact inventory with checksums }, '409': { $ref: '#/components/responses/Error' } }
+  /api/v3/runs/{run_id}/artifacts/{artifact_path}/download:
+    parameters: [{ $ref: '#/components/parameters/runId' }, { in: path, name: artifact_path, required: true, schema: { type: string } }]
+    get:
+      security: [{ cookieAuth: [] }]
+      responses: { '200': { description: Verified published bytes }, '404': { $ref: '#/components/responses/Error' } }
+  /api/v3/audit:
+    get:
+      security: [{ cookieAuth: [] }]
+      description: Administrator only; returns only server selected nonsecret fields.
+      responses: { '200': { description: Recent audit metadata }, '403': { $ref: '#/components/responses/Error' } }
+components:
+  schemas:
+    EvaluationPreparationResponse:
+      type: object
+      required: [preparation]
+      properties:
+        preparation:
+          type: object
+          required: [id, run_id, attempt, source_attempt, projection, strategy_version, state, reason_code, preparation_attempt, publication_sha256, document_size, cost]
+          properties:
+            id: { type: string }
+            run_id: { type: string }
+            attempt: { type: integer, minimum: 1 }
+            source_attempt: { type: integer, minimum: 1 }
+            preparation_attempt: { type: integer, minimum: 0, maximum: 100 }
+            projection: { enum: [network, process, dual] }
+            strategy_version: { const: evaluation-preparation-1 }
+            state: { enum: [queued, preparing, ready, failed] }
+            reason_code: { type: string }
+            publication_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            document_sha256: { type: string, pattern: '^[a-f0-9]{64}$' }
+            document_size: { type: integer, minimum: 0, maximum: 134217728 }
+            duration_seconds: { type: number, minimum: 0 }
+            cost: { type: object, additionalProperties: true }
+          additionalProperties: false
+      additionalProperties: false
+    CapacityProfileDeclaration:
+      type: object
+      description: Optional fields within the full immutable dual profile. This fragment does not replace the complete DualSourceProfile schema.
+      properties:
+        capacity_profile: { const: engineering-capacity-1 }
+        analysis_mode: { const: bounded-real-capable-v1 }
+        replay:
+          type: object
+          description: Optional explicit storage declaration within the full ReplaySpoolProfile. Logical replay_version remains dual-source-replay-1; absent history_format keeps the JSONL-v1 inventory and limits.
+          properties:
+            history_format: { const: replay-history-checkpoint-delta-2 }
+    OperatorBudgetSelection:
+      type: object
+      description: Operator settings fragment from the private server configuration; not a public API request. Omitted settings preserve old defaults. The persisted site policy cannot be disabled through HTTP or by omission on restart. New profiles and hardware capacity still require independent full-chain verification.
+      properties:
+        capacity_policy: { enum: ['', engineering-capacity-1] }
+        resource_profile: { enum: ['', r19-dev-s100-1, engineering-capacity-1] }
+      additionalProperties: false
+  securitySchemes:
+    cookieAuth: { type: apiKey, in: cookie, name: cpag_session }
+  parameters:
+    datasetId: { in: path, name: dataset_id, required: true, schema: { type: string } }
+    runId: { in: path, name: run_id, required: true, schema: { type: string } }
+  responses:
+    Error:
+      description: Structured error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: object
+                required: [code, message]
+                properties: { code: { type: string }, message: { type: string } }

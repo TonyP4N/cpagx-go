@@ -1,0 +1,7 @@
+ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	1.933s
+--- FAIL: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory (3.58s)
+    --- FAIL: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored (0.01s)
+        evaluation_store_test.go:284: restored original 409 {"error":{"code":"evaluation_unavailable","message":"saved evaluation or original evidence unavailable or changed"}}
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog	11.941s
+FAIL

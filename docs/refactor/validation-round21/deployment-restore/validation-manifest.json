@@ -1,0 +1,7 @@
+{
+  "version": "r21-cross-volume-retention-validation-1",
+  "validation_script_sha256": "377668e6e6b253a0ffe794a6d36487b027f0b153f28d00d7e63791e0d18158ca",
+  "source_base_commit": "914a0c35b08551bb2659d278616540894f42df20",
+  "production_ops_package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+  "change_scope": "validation script only; separate live/stopped script identities and actual EXDEV guard; no production changes"
+}
