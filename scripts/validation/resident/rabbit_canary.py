@@ -31,9 +31,9 @@ class Canary:
         L.apply([secret,L.obj('PersistentVolumeClaim','cpag-rabbit-data',spec={'accessModes':['ReadWriteOnce'],'resources':{'requests':{'storage':'1Gi'}}}),deploy,service,policy]);L.run(L.K+['-n','cpag','rollout','status','statefulset/cpag-rabbitmq','--timeout=240s'])
         for user,password in [('canary-consumer',self.consumer_password),('canary-publisher',self.publisher_password)]:
             L.run(L.K+['-n','cpag','exec','cpag-rabbitmq-0','--','rabbitmqctl','add_user',user,password],stdout=subprocess.DEVNULL)
-        for user,permissions in [('canary-consumer',['^$','^$','^cpag\\.v3\\.tasks$']),('canary-publisher',['^cpag\\.v3\\.tasks$','^cpag\\.v3\\.tasks$','^$'])]:
+        for user,permissions in [('canary-consumer',['^$','^$','^cpag\\.v3\\.tasks$']),('canary-publisher',['^$','^cpag\\.v3\\.tasks$','^$'])]:
             L.run(L.K+['-n','cpag','exec','cpag-rabbitmq-0','--','rabbitmqctl','set_permissions','-p','cpag-canary',user,*permissions],stdout=subprocess.DEVNULL)
-        self.report['client_permissions']={'consumer':'read-only dedicated queue, no management tag','publisher':'configure/write dedicated queue/exchange, no management tag'}
+        self.report['client_permissions']={'consumer':'read-only dedicated queue, no management tag','publisher':'write-only dedicated exchange, no management tag'}
 
     @staticmethod
     def private_config_init(image, source, target):
