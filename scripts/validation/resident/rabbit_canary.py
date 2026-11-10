@@ -30,7 +30,9 @@ class Canary:
         policy=L.obj('NetworkPolicy','cpag-rabbit-fixture-private',spec={'podSelector':{'matchLabels':{'app':'cpag-rabbitmq'}},'policyTypes':['Ingress'],'ingress':[{'from':[{'podSelector':{'matchLabels':{'app':'cpag-worker'}}},{'podSelector':{'matchLabels':{'app':'cpag-celery-publisher'}}}],'ports':[{'protocol':'TCP','port':5672}]},{'from':[{'podSelector':{'matchLabels':{'app':'cpag-api'}}},{'podSelector':{'matchLabels':{'app':'cpag-rabbit-bootstrap'}}}],'ports':[{'protocol':'TCP','port':15672}]}]});policy['apiVersion']='networking.k8s.io/v1'
         L.apply([secret,L.obj('PersistentVolumeClaim','cpag-rabbit-data',spec={'accessModes':['ReadWriteOnce'],'resources':{'requests':{'storage':'1Gi'}}}),deploy,service,policy]);L.run(L.K+['-n','cpag','rollout','status','statefulset/cpag-rabbitmq','--timeout=240s'])
         for user,password in [('canary-consumer',self.consumer_password),('canary-publisher',self.publisher_password)]:
-            L.run(L.K+['-n','cpag','exec','cpag-rabbitmq-0','--','rabbitmqctl','add_user',user,password],stdout=subprocess.DEVNULL)
+            # Do not let CalledProcessError render password-bearing argv into CI logs.
+            created=subprocess.run(L.K+['-n','cpag','exec','cpag-rabbitmq-0','--','rabbitmqctl','add_user',user,password],stdout=subprocess.DEVNULL,stderr=subprocess.PIPE)
+            if created.returncode: raise RuntimeError('isolated broker client creation failed')
         for user,permissions in [('canary-consumer',['^$','^$','^cpag\\.v3\\.tasks$']),('canary-publisher',['^$','^cpag\\.v3\\.tasks$','^$'])]:
             L.run(L.K+['-n','cpag','exec','cpag-rabbitmq-0','--','rabbitmqctl','set_permissions','-p','cpag-canary',user,*permissions],stdout=subprocess.DEVNULL)
         self.report['client_permissions']={'consumer':'read-only dedicated queue, no management tag','publisher':'write-only dedicated exchange, no management tag'}
