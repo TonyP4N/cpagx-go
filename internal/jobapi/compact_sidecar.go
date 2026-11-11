@@ -12,6 +12,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 )
@@ -53,7 +54,12 @@ func (s *Server) compactSidecarVerify(ctx context.Context, base, sha string, req
 		return nil, context.DeadlineExceeded
 	}
 	request["seconds"] = seconds
-	raw, err := json.Marshal(map[string]any{"request": request, "authority_key": hex.EncodeToString(key[:])})
+	envelope := map[string]any{"request": request, "authority_key": hex.EncodeToString(key[:])}
+	compose := os.Getenv("CPAG_VERIFY_BACKEND") == "compose-file-sidecar-v1"
+	if compose {
+		envelope["verifier_identity"] = s.CompactVerifierImage
+	}
+	raw, err := json.Marshal(envelope)
 	if err != nil {
 		return nil, err
 	}
@@ -70,11 +76,17 @@ func (s *Server) compactSidecarVerify(ctx context.Context, base, sha string, req
 		return nil, err
 	} // ambiguous execution; keep the durable slot
 	defer resp.Body.Close()
+	if compose && resp.Header.Get("X-CPAG-Verifier-Identity") != s.CompactVerifierImage {
+		return nil, errors.New("Compose source verifier identity mismatch")
+	}
 	result, err := io.ReadAll(io.LimitReader(resp.Body, (8<<20)+1))
 	if err != nil || len(result) > 8<<20 {
 		return nil, errors.New("invalid verifier response")
 	}
 	receipt := map[string]any{"version": "service-sidecar-verification-2", "verification_id": id, "run_id": job, "attempt_id": attempt, "publication_sha256": sha, "status": resp.StatusCode, "ended_at": time.Now().UTC(), "cleanup_completed": true}
+	if compose {
+		receipt["verifier_source_identity"] = s.CompactVerifierImage
+	}
 	if err = s.saveCompactReceipt(job, attempt, id, receipt); err != nil {
 		return nil, err
 	}

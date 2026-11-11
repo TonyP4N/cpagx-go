@@ -22,44 +22,79 @@ import (
 // ResidentExecution binds the trusted guardian receipt to a registered runtime.
 // The computation never receives the coordinator credential or control volume.
 type ResidentExecution struct {
-	Reason        string    `json:"reason,omitempty"`
-	Version       string    `json:"version"`
-	Namespace     string    `json:"namespace"`
-	PodName       string    `json:"pod_name"`
-	PodUID        string    `json:"pod_uid"`
-	ContainerName string    `json:"container_name"`
-	ContainerID   string    `json:"container_id"`
-	GroupExited   bool      `json:"group_exited,omitempty"`
-	ChildPID      int       `json:"child_pid,omitempty"`
-	GuardianPID   int       `json:"guardian_pid,omitempty"`
-	ReturnCode    *int      `json:"returncode,omitempty"`
-	FinishedAt    time.Time `json:"finished_at,omitempty"`
+	Backend       string     `json:"backend,omitempty"`
+	DeploymentID  string     `json:"deployment_id,omitempty"`
+	Generation    string     `json:"generation,omitempty"`
+	SupervisorID  string     `json:"supervisor_id,omitempty"`
+	ObservedAt    *time.Time `json:"observed_at,omitempty"`
+	Reason        string     `json:"reason,omitempty"`
+	Version       string     `json:"version"`
+	Namespace     string     `json:"namespace,omitempty"`
+	PodName       string     `json:"pod_name,omitempty"`
+	PodUID        string     `json:"pod_uid,omitempty"`
+	ContainerName string     `json:"container_name,omitempty"`
+	ContainerID   string     `json:"container_id"`
+	GroupExited   bool       `json:"group_exited,omitempty"`
+	ChildPID      int        `json:"child_pid,omitempty"`
+	GuardianPID   int        `json:"guardian_pid,omitempty"`
+	ReturnCode    *int       `json:"returncode,omitempty"`
+	FinishedAt    time.Time  `json:"finished_at,omitempty"`
 }
 
 var kubeName = regexp.MustCompile(`^[a-z0-9]([-a-z0-9.]*[a-z0-9])?$`)
 
 func residentLocation(location string) bool {
+	if id, ok := strings.CutPrefix(location, "resident-compose:"); ok {
+		return dispatchIdentity.MatchString(id)
+	}
 	uid, ok := strings.CutPrefix(location, "resident:")
 	return ok && kubeUID.MatchString(uid)
 }
 func validResidentIdentity(p ResidentExecution) bool {
+	if p.Backend == "compose-pid1-v1" {
+		return dispatchIdentity.MatchString(p.DeploymentID) && dispatchIdentity.MatchString(p.Generation) && p.ContainerID == "pid1://"+p.Generation && len(p.SupervisorID) <= 63 && kubeName.MatchString(p.SupervisorID) && p.Namespace == "" && p.PodName == "" && p.PodUID == "" && p.ContainerName == ""
+	}
+	if p.Backend != "" || p.DeploymentID != "" || p.Generation != "" || p.SupervisorID != "" {
+		return false
+	}
 	raw, ok := strings.CutPrefix(p.ContainerID, "containerd://")
 	return p.Namespace == "cpag" && kubeUID.MatchString(p.PodUID) && len(p.PodName) <= 253 && kubeName.MatchString(p.PodName) && len(p.ContainerName) <= 63 && kubeName.MatchString(p.ContainerName) && ok && digest.MatchString(raw)
 }
 func sameResident(a, b ResidentExecution) bool {
-	return a.Namespace == b.Namespace && a.PodName == b.PodName && a.PodUID == b.PodUID && a.ContainerName == b.ContainerName && a.ContainerID == b.ContainerID
+	return a.Backend == b.Backend && a.DeploymentID == b.DeploymentID && a.Generation == b.Generation && a.SupervisorID == b.SupervisorID && a.Namespace == b.Namespace && a.PodName == b.PodName && a.PodUID == b.PodUID && a.ContainerName == b.ContainerName && a.ContainerID == b.ContainerID
 }
 func validResidentExit(c Claim, p ExitProof, recovered bool) bool {
 	k := p.Resident
-	if k == nil || !validResidentIdentity(*k) || !residentLocation(p.Location) || p.Scope != "resident-process-group" || !p.Exited || p.ContainerID != k.ContainerID || p.ID != c.ID || p.Attempt != c.Attempt || p.Worker != c.Worker || c.Token == "" || p.Token != c.Token {
+	if k == nil || !validResidentIdentity(*k) || !validResidentLocation(*k, p.Location) || p.Scope != "resident-process-group" || !p.Exited || p.ContainerID != k.ContainerID || p.ID != c.ID || p.Attempt != c.Attempt || p.Worker != c.Worker || c.Token == "" || p.Token != c.Token {
+		return false
+	}
+	if k.Backend == "compose-pid1-v1" && k.SupervisorID != c.Worker {
 		return false
 	}
 	if recovered {
+		if k.Backend == "compose-pid1-v1" {
+			return k.Version == "resident-compose-terminated-1" && k.Reason == "superseded_pid1_generation" && k.ObservedAt != nil && !k.ObservedAt.IsZero() && k.ReturnCode == nil
+		}
 		return k.Version == "resident-container-terminated-1" && !k.FinishedAt.IsZero() && k.ReturnCode != nil
 	}
 	return k.Version == "resident-guardian-1" && k.GroupExited && k.ChildPID > 0 && k.GuardianPID > 0 && k.ChildPID != k.GuardianPID && k.ReturnCode != nil
 }
+func validResidentLocation(p ResidentExecution, location string) bool {
+	if p.Backend == "compose-pid1-v1" {
+		return location == "resident-compose:"+p.DeploymentID
+	}
+	uid, ok := strings.CutPrefix(location, "resident:")
+	return ok && kubeUID.MatchString(uid)
+}
 func (r Repository) RegisterResidentExecution(ctx context.Context, c Claim, location, containerID string, p ResidentExecution) error {
+	if p.Backend == "compose-pid1-v1" {
+		if p.SupervisorID != c.Worker {
+			return ErrInvalidProof
+		}
+		if err := verifyComposeRegistration(r.ControlRoot, p); err != nil {
+			return err
+		}
+	}
 	return r.registerExecution(ctx, c, location, containerID, &p)
 }
 func (r Repository) recordResidentExit(ctx context.Context, c Claim, p ExitProof, recovered bool) error {
@@ -158,6 +193,17 @@ type residentTermination struct {
 func (r Repository) recoverResident(ctx context.Context, c Claim, location string, p ResidentExecution) error {
 	if !validResidentIdentity(p) {
 		return ErrInvalidProof
+	}
+	if p.Backend == "compose-pid1-v1" {
+		if err := verifyComposeTermination(r.ControlRoot, p); err != nil {
+			return err
+		}
+		p.Version = "resident-compose-terminated-1"
+		p.Reason = "superseded_pid1_generation"
+		observed := time.Now().UTC()
+		p.ObservedAt = &observed
+		p.ReturnCode = nil
+		return r.recordResidentExit(ctx, c, ExitProof{ID: c.ID, Attempt: c.Attempt, Worker: c.Worker, Token: c.Token, Location: location, ContainerID: p.ContainerID, Scope: "resident-process-group", Exited: true, Resident: &p}, true)
 	}
 	get := r.PodGet
 	if get == nil {

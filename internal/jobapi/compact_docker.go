@@ -83,6 +83,9 @@ func (s *Server) RecoverCompactVerifiers(ctx context.Context) error {
 		return err
 	}
 	rows.Close()
+	if len(items) > 0 && os.Getenv("CPAG_VERIFY_BACKEND") == "compose-file-sidecar-v1" {
+		return errors.New("unsettled Compose source verifier execution requires trusted exit evidence")
+	}
 	for _, r := range items {
 		if err = s.removeCompactVerifier(r.container, r.id, r.attempt); err != nil {
 			return err

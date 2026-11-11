@@ -61,7 +61,7 @@ func (r Repository) RegisterExecution(ctx context.Context, c Claim, location, co
 }
 
 func (r Repository) registerExecution(ctx context.Context, c Claim, location, containerID string, resident *ResidentExecution) error {
-	if !((resident != nil && residentLocation(location) && validResidentIdentity(*resident) && resident.Version == "resident-registration-1" && resident.ContainerID == containerID) || (kubeLocation(location) && kubeUID.MatchString(containerID)) || (strings.HasPrefix(location, "docker:") && digest.MatchString(containerID) && len(location) <= 512)) {
+	if !((resident != nil && validResidentLocation(*resident, location) && validResidentIdentity(*resident) && resident.Version == "resident-registration-1" && resident.ContainerID == containerID) || (kubeLocation(location) && kubeUID.MatchString(containerID)) || (strings.HasPrefix(location, "docker:") && digest.MatchString(containerID) && len(location) <= 512)) {
 		return fmt.Errorf("execution location and container identity required")
 	}
 	tx, err := r.DB.BeginTx(ctx, nil)

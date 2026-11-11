@@ -32,7 +32,7 @@ def read_config(path):
         raise ValueError('private owner-only config file and parent directory required')
     config = json.loads(path.read_text())
     required = {'api_url', 'shared_root', 'control_root', 'worker_id', 'worker_token', 'coordinator_token', 'resource_profile'}
-    if not isinstance(config, dict) or not required <= config.keys() or config.keys() - required - {'image', 'poll_seconds', 'recovery_seconds'}:
+    if not isinstance(config, dict) or not required <= config.keys() or config.keys() - required - {'image', 'poll_seconds', 'recovery_seconds', 'runtime_backend', 'deployment_id'}:
         raise ValueError('invalid resident configuration fields')
     if config['api_url'].rstrip('/') not in ('http://cpag-resident-internal:8096', 'http://127.0.0.1:8094'):
         raise ValueError('resident internal API required')
@@ -40,6 +40,14 @@ def read_config(path):
         raise ValueError('resident compact resource profile required')
     if any(not isinstance(config[k], str) or len(config[k]) < 24 for k in ('worker_token', 'coordinator_token')) or config['worker_token'] == config['coordinator_token']:
         raise ValueError('distinct private credentials required')
+    backend = config.get('runtime_backend', 'kubernetes-pod-v1')
+    if backend not in ('kubernetes-pod-v1', 'compose-pid1-v1'):
+        raise ValueError('unsupported resident runtime backend')
+    if backend == 'compose-pid1-v1':
+        if not re.fullmatch(r'[0-9a-f]{32}', config.get('deployment_id', '')):
+            raise ValueError('stable Compose deployment identity required')
+    elif config.get('deployment_id'):
+        raise ValueError('Compose identity requires explicit runtime backend')
     for name in ('shared_root', 'control_root'):
         if not Path(config[name]).is_absolute():
             raise ValueError('absolute storage required')
@@ -82,17 +90,24 @@ def registration(previous=None):
 
 
 class ResidentWorker:
-    def __init__(self, config, work_root, resident=None):
+    def __init__(self, config, work_root, resident=None, generation=None):
         self.config = config
         self.root, self.control = Path(config['shared_root']).resolve(), Path(config['control_root']).resolve()
         self.work_root = Path(work_root)
+        self.compose_generation = generation
+        if config.get('runtime_backend') == 'compose-pid1-v1':
+            if resident is None:
+                if generation is None:
+                    raise ValueError('Compose generation must be acquired by singleton PID1 startup')
+                resident = generation.identity
+            atomic_json(self.control/'resident-instance.json', resident)
         if resident is None:
             instance_file = self.control / 'resident-instance.json'
             previous = json.loads(instance_file.read_text()) if instance_file.exists() else {}
             resident = registration(previous.get('container_id'))
             atomic_json(instance_file, resident)
         self.resident = resident
-        self.location = 'resident:'+os.environ['CPAG_NAMESPACE_UID']
+        self.location = 'resident-compose:'+resident['deployment_id'] if resident.get('backend') == 'compose-pid1-v1' else 'resident:'+os.environ['CPAG_NAMESPACE_UID']
         self.api = API(config['api_url'], config['worker_token'])
         self.coord = API(config['api_url'], config['coordinator_token'])
         self.helper = DockerExecutor(self.api, self.coord, self.root, self.control, config['worker_id'],
@@ -197,7 +212,7 @@ class ResidentWorker:
                 raise ValueError('ownership lost before launch')
             guardian = subprocess.Popen([sys.executable, '-m', 'cpag_worker.guardian', str(base/'guardian.json')],
                                         stdin=subprocess.PIPE, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                        start_new_session=True)
+                                        start_new_session=True, close_fds=True)
             while guardian.poll() is None:
                 if self.helper.stopping or not health['owned'] or health['cancelled']:
                     guardian.stdin.close()
@@ -262,13 +277,19 @@ def main():
     shared = Path(config['shared_root'])
     if shared.is_symlink() or not shared.is_dir() or shared.stat().st_uid == 65532 or shared.stat().st_mode & 0o077:
         parser.error('shared root must be an owner-only directory inaccessible to compute')
-    owner = ResidentWorker(config, work)
-    stopped = threading.Event()
-    def stop(*_): stopped.set(); owner.helper.stop()
-    signal.signal(signal.SIGTERM, stop); signal.signal(signal.SIGINT, stop)
     with (control/'.maintenance.lock').open('a+') as maintenance, (control/'.resident-owner.lock').open('a+') as lock:
+        os.set_inheritable(maintenance.fileno(), False)
+        os.set_inheritable(lock.fileno(), False)
         fcntl.flock(maintenance, fcntl.LOCK_SH | fcntl.LOCK_NB)
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        generation = None
+        if config.get('runtime_backend') == 'compose-pid1-v1':
+            from .resident_generation import ComposeGeneration
+            generation = ComposeGeneration(control, config['deployment_id'], config['worker_id'])
+        owner = ResidentWorker(config, work, generation=generation)
+        stopped = threading.Event()
+        def stop(*_): stopped.set(); owner.helper.stop()
+        signal.signal(signal.SIGTERM, stop); signal.signal(signal.SIGINT, stop)
         engine = threading.Lock(); fatal = threading.Event(); dispatcher = None
         if args.dispatch_mode != 'poll':
             from .resident_dispatch import DispatchServer

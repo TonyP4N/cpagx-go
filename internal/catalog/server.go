@@ -122,7 +122,7 @@ func LoadConfig(path string) (Config, error) {
 	if ((c.CapacityPolicy == capacity.EngineeringShared) != (c.ResourceProfile == capacity.EngineeringShared)) || ((c.CapacityPolicy == capacity.EngineeringCore) != (c.ResourceProfile == capacity.StorageBudget)) {
 		return c, errors.New("shared policy and resource profile must be explicitly paired")
 	}
-	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierImage(c.CompactVerifierImage) {
+	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierIdentity(c.CompactVerifierImage) {
 		return c, errors.New("compact policy requires immutable verifier image")
 	}
 	if _, e = capacity.ArtifactBytes(c.ResourceProfile); e != nil {
@@ -157,6 +157,11 @@ func LoopbackAddr(addr string) bool {
 	return host == "127.0.0.1" || host == "[::1]" || host == "::1" || host == "localhost"
 }
 func New(db *sql.DB, c Config) (*Server, error) {
+	if c.CapacityPolicy == capacity.EngineeringCore {
+		if err := jobapi.VerifyComposeVerifierBundle(c.CompactVerifierImage, c.PythonBin); err != nil {
+			return nil, err
+		}
+	}
 	if err := validateDispatchConfig(c); err != nil {
 		return nil, err
 	}
@@ -169,7 +174,7 @@ func New(db *sql.DB, c Config) (*Server, error) {
 	if ((c.CapacityPolicy == capacity.EngineeringShared) != (c.ResourceProfile == capacity.EngineeringShared)) || ((c.CapacityPolicy == capacity.EngineeringCore) != (c.ResourceProfile == capacity.StorageBudget)) {
 		return nil, errors.New("shared policy and resource profile must be explicitly paired")
 	}
-	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierImage(c.CompactVerifierImage) {
+	if c.CapacityPolicy == capacity.EngineeringCore && !jobapi.ValidCompactVerifierIdentity(c.CompactVerifierImage) {
 		return nil, errors.New("compact policy requires immutable verifier image")
 	}
 	if _, err := capacity.ArtifactBytes(c.ResourceProfile); err != nil {
@@ -459,7 +464,7 @@ func (s *Server) serveSession(w http.ResponseWriter, r *http.Request) {
 			fail(w, 503, "database_error", "session unavailable")
 			return
 		}
-		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Value: raw, Path: "/api/v3", Secure: s.cfg.ExternalOrigin != "", HttpOnly: true, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
+		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Value: raw, Path: "/api/v3", Secure: strings.HasPrefix(s.cfg.ExternalOrigin, "https://"), HttpOnly: true, SameSite: http.SameSiteStrictMode, MaxAge: 43200})
 		respond(w, 200, map[string]any{"user": p})
 	case "GET":
 		p, e := s.session(r)
@@ -489,7 +494,7 @@ func (s *Server) serveSession(w http.ResponseWriter, r *http.Request) {
 			fail(w, 503, "database_error", "session unavailable")
 			return
 		}
-		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Path: "/api/v3", MaxAge: -1, Secure: s.cfg.ExternalOrigin != "", HttpOnly: true, SameSite: http.SameSiteStrictMode})
+		http.SetCookie(w, &http.Cookie{Name: "cpag_session", Path: "/api/v3", MaxAge: -1, Secure: strings.HasPrefix(s.cfg.ExternalOrigin, "https://"), HttpOnly: true, SameSite: http.SameSiteStrictMode})
 		respond(w, 200, map[string]bool{"ok": true})
 	default:
 		fail(w, 405, "method_not_allowed", "method not allowed")

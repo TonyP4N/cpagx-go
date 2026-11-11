@@ -267,7 +267,7 @@ func (s *Server) compactCLI(ctx context.Context, base string, p Payload, sha, ac
 	key := s.compact.key
 	s.compact.mu.Unlock()
 	if action == "verify" {
-		if os.Getenv("CPAG_VERIFY_BACKEND") == "kube-sidecar-v1" {
+		if os.Getenv("CPAG_VERIFY_BACKEND") == "kube-sidecar-v1" || os.Getenv("CPAG_VERIFY_BACKEND") == "compose-file-sidecar-v1" {
 			return s.compactSidecarVerify(ctx, base, sha, request, key)
 		}
 		return s.compactDockerVerify(ctx, base, p, sha, request, key)
