@@ -58,6 +58,9 @@ class Smoke:
         if result.returncode:
             (self.out/'last-command.stdout').write_text(result.stdout)
             (self.out/'last-command.stderr').write_text(result.stderr)
+            if args[:len(self.dc)]==self.dc and len(args)>len(self.dc) and args[len(self.dc)]=='up':
+                # Detached Compose progress contains no service stdout or config.
+                (self.public/'compose-startup.log').write_text(result.stderr)
             raise RuntimeError('disposable Compose command failed')
         return result.stdout.strip()
 
@@ -292,6 +295,11 @@ print(json.dumps(live))
                 try:
                     (self.out/'compose-private.log').write_text(self.compose('logs','--no-color','--tail','150'))
                     (self.out/'compose-private-status.json').write_text(self.compose('ps','--all','--format','json'))
+                    # Relay has no secret mounts/env and access logging is off.
+                    (self.public/'relay.log').write_text(self.compose('logs','--no-color','--tail','150','relay'))
+                    raw=self.compose('ps','--all','--format','json')
+                    values=json.loads(raw) if raw.lstrip().startswith('[') else [json.loads(line) for line in raw.splitlines() if line.strip()]
+                    (self.public/'service-states.json').write_text(json.dumps([{key:row.get(key) for key in ('Service','State','Health','ExitCode')} for row in values],indent=2)+'\n')
                 except Exception: pass
             if self.launched and not self.args.keep:
                 self.compose('down','--volumes','--remove-orphans','--timeout','20')

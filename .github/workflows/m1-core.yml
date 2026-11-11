@@ -541,3 +541,6 @@ jobs:
           path: |
             ${{ runner.temp }}/compose-v3-smoke/public/report.json
             ${{ runner.temp }}/compose-v3-smoke/public/source-build.log
+            ${{ runner.temp }}/compose-v3-smoke/public/compose-startup.log
+            ${{ runner.temp }}/compose-v3-smoke/public/relay.log
+            ${{ runner.temp }}/compose-v3-smoke/public/service-states.json
