@@ -167,6 +167,11 @@ services:
       api: {condition: service_healthy}
     network_mode: service:api
     user: '101:101'
+    healthcheck:
+      test: [CMD, /usr/local/bin/cpag-http-health]
+      interval: 5s
+      timeout: 3s
+      retries: 30
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]

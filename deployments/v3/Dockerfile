@@ -4,7 +4,7 @@ WORKDIR /src
 COPY go.mod go.sum ./
 COPY internal ./internal
 WORKDIR /src/internal/jobs/integration
-RUN go mod download && go build -mod=readonly -trimpath -o /out/cpagx-v3 ./cmd/cpagx-v3 && go build -mod=readonly -trimpath -o /out/cpag-migrate ./cmd/cpag-migrate
+RUN go mod download && go build -mod=readonly -trimpath -o /out/cpagx-v3 ./cmd/cpagx-v3 && go build -mod=readonly -trimpath -o /out/cpag-migrate ./cmd/cpag-migrate && go build -mod=readonly -trimpath -o /out/cpag-http-health ./cmd/cpag-http-health
 
 FROM node:22.14.0-alpine3.21 AS ui-build
 WORKDIR /webui
@@ -35,5 +35,7 @@ CMD ["--config", "/etc/cpag/app.json"]
 
 FROM docker.io/library/nginx@sha256:0e52bd054126cdc040b1276c0af347aeb02a41b9cfe305d6094767ac30e97949 AS relay
 COPY deployments/v3/nginx.conf /etc/nginx/nginx.conf
+COPY --from=go-build /out/cpag-http-health /usr/local/bin/cpag-http-health
 USER 101:101
 ENTRYPOINT ["nginx", "-g", "daemon off;"]
+CMD []
