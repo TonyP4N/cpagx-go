@@ -18,6 +18,7 @@ import sys
 import tarfile
 import time
 from urllib.parse import urlencode
+from urllib.error import HTTPError
 from urllib.request import HTTPCookieProcessor, ProxyHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[2]
@@ -91,6 +92,15 @@ class Smoke:
         self.compose('up','-d','--no-build','--wait','--wait-timeout','300')
         self.wait(lambda: self.raw('/health/ready') is not None, 120)
         self.app = json.loads(self.execute('api', "import json;print(json.dumps(json.load(open('/etc/cpag/app.json'))))"))
+        foreign = Request(self.origin+'/api/v3/session', method='POST',
+            data=json.dumps({'username':self.app['bootstrap_admin_username'],'password':self.app['bootstrap_admin_password']}).encode(),
+            headers={'Content-Type':'application/json','Origin':'http://foreign.invalid','Sec-Fetch-Site':'cross-site'})
+        try:
+            self.http.open(foreign,timeout=30)
+            raise AssertionError('foreign browser origin accepted')
+        except HTTPError as error:
+            assert error.code==403
+        self.report['foreign_origin_rejected']=True
         self.post('/session', {'username': self.app['bootstrap_admin_username'], 'password': self.app['bootstrap_admin_password']})
         identity = self.worker_identity()
         assert identity['generation']['backend']=='compose-pid1-v1'
@@ -103,9 +113,12 @@ class Smoke:
         with self.http.open(self.origin+path, timeout=30) as response: return response.read()
 
     def request(self, method, path, body=None, headers=None):
+        merged={'Content-Type':'application/json'}
+        if method=='POST': merged.update({'Origin':self.origin,'Sec-Fetch-Site':'same-origin'})
+        merged.update(headers or {})
         request = Request(self.origin+'/api/v3'+path, method=method,
             data=None if body is None else body if isinstance(body, bytes) else json.dumps(body).encode(),
-            headers=headers or {'Content-Type':'application/json'})
+            headers=merged)
         with self.http.open(request, timeout=60) as response: return json.load(response)
 
     def post(self, path, body): return self.request('POST',path,body)
