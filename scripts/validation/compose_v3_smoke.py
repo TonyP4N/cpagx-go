@@ -37,7 +37,8 @@ class Smoke:
             raise ValueError('disposable Compose project prefix required')
         self.report = {'scope': 'disposable source Compose synthetic smoke; not capacity or industrial acceptance',
                        'project': self.project, 'status': 'running', 'runs': []}
-        self.env = dict(os.environ, CPAG_IMAGE='cpag-v3:'+self.project)
+        self.env = dict(os.environ, CPAG_IMAGE='cpag-v3:'+self.project,
+                        CPAG_RELAY_IMAGE='cpag-v3-relay:'+self.project, CPAG_EXTERNAL_ORIGIN='')
         with socket.socket() as sock:
             sock.bind(('127.0.0.1', 0)); port = sock.getsockname()[1]
         self.env['CPAG_HTTP_PORT'] = str(port); self.origin = 'http://127.0.0.1:'+str(port)
