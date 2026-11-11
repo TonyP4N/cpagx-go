@@ -5,7 +5,21 @@
 
 CPAGx-Go is a microservices platform for analyzing cyber-physical attack graphs from network traffic. Built for security researchers and SOC analysts to visualize attack paths in industrial control systems.
 
-## M1 重构入口（2026-10-24）
+## 安装 v3 工作台
+
+Docker Compose 和 k3s 使用同一套工作台、Go API 和分析核心。网页提交的数据集和任务保存在 PostgreSQL，常驻 Worker 领取任务后在自己的容器内启动 Python，API 核验退出记录与产物后发布结果。
+
+**已有旧版 Compose 部署的用户**请先按[升级与回滚说明](docs/deployment/compose-upgrade.md)保存旧任务、卷和结果，并在独立端口验证 v3。首次安装请从仓库根目录运行：
+
+```sh
+docker compose -f deployments/docker-compose.yml up -d --build
+docker compose -f deployments/docker-compose.yml ps -a
+curl -fsS http://127.0.0.1:3000/health/ready
+```
+
+通过 [本地工作台](http://127.0.0.1:3000/workbench/) 登录，首次管理员凭据的读取命令见[安装说明](docs/deployment/compose-upgrade.md)。原 `deployments/docker-compose.local.yml` 文件名也可使用。EU 的 k3s 镜像和工作负载由[独立 GitOps 清单](https://github.com/pplulee/infra/tree/main/gitops/environments/eu/apps/cpag)管理。
+
+## 历史开发记录（2026-10-24）
 
 最新进展见 [第三轮协议适配与 Worker 接入](docs/refactor/round3-completion-20261024.md)。
 
@@ -16,176 +30,6 @@ CPAGx-Go is a microservices platform for analyzing cyber-physical attack graphs 
 后续已启动本地全栈并验证合成任务提交、队列执行、结果下载与重复投递，见 [全栈验证与启动说明](docs/refactor/full-stack-validation.md)。
 
 当前分支新增可独立运行的纯 Python 核心、九类版本化数据契约和合成样例。使用方式见 [核心说明](services/analysis/README.md)，实施及验证结果见 [本轮交付记录](docs/refactor/acceptance.md)。本轮只验证软件行为；尚未取得 SWaT 原始双源数据，未验证真实时间对齐、关联或准确性。公开规则不是独立标准答案。
-
-旧 V2 普通 PCAP 占位解析已禁用，返回明确的 `UNSUPPORTED_CLASSIC_PCAP`。旧服务、队列和界面仍为迁移前实现，不等于新核心已接管 HTTP 请求。下方原有功能和部署说明属于旧版，不能据此认定已通过工业验证；实际入口与遗留问题见 [基线记录](docs/refactor/legacy-baseline.md)。
-
-## Features
-
-- **Real-time PCAP processing** with ENIP/CIP protocol support
-- **Interactive graph visualization** powered by Neo4j
-- **Scalable microservices architecture** with async processing
-- **Multi-version API support** for different analysis capabilities
-- **Production-ready infrastructure** with monitoring and observability
-
-## Architecture
-
-```
-┌─────────────┐    ┌──────────────┐    ┌─────────────┐
-│   Web UI    │    │  Go API      │    │   Python    │
-│  (Next.js)  │◄──►│  Gateway     │◄──►│   Services  │
-│   :3000     │    │   :8080      │    │ v1:8000     │
-└─────────────┘    └──────────────┘    │ v2:8002     │
-                          │            │   +Celery   │
-                          │            └─────────────┘
-        ┌─────────────────┼─────────────────┐
-        │                 │                 │
-   ┌────▼────┐      ┌─────▼─────┐    ┌─────▼─────┐
-   │  Neo4j  │      │ RabbitMQ  │    │   Redis   │
-   │  :7687  │      │  :5672    │    │   :6379   │
-   └─────────┘      └───────────┘    └───────────┘
-```
-
-## Quick Start
-
-### Using Docker Compose (Recommended)
-
-```bash
-git clone https://github.com/TonyP4N/cpagx-go.git
-cd cpagx-go
-cp deployments/env.example deployments/.env
-# Edit .env with your configuration
-make docker-compose-up
-```
-
-Access the application:
-- Web UI: http://localhost:3000
-- API: http://localhost:8080
-- Neo4j Browser: http://localhost:7476
-
-### Local Development
-
-**Prerequisites:**
-- Go 1.24+
-- Python 3.9+
-- Node.js 18+
-- Neo4j 5.15+
-
-```bash
-# Install dependencies
-make dev-setup
-
-# Build and run
-make build
-make run
-```
-
-## Usage
-
-### Upload and Process CSV, PCAP, PCAPNG Files
-
-1. Open the Web UI at http://localhost:3000
-2. Select API version (v1 for basic processing, v2 for enhanced analysis)
-3. Upload PCAP/PCAPNG files via drag-and-drop
-4. View processing results and generated attack graphs
-
-### API Endpoints
-
-```bash
-# Upload file for processing
-POST /api/v2/cpag/upload
-
-# Check processing status
-GET /api/v2/cpag/status/{task_id}
-
-# Retrieve attack graph
-GET /api/graph/data/{task_id}
-
-# Health check
-GET /api/health
-```
-
-### CLI Usage
-
-```bash
-# Process file directly
-./bin/cpagx analyze input.pcap
-
-# Start server with custom config
-./bin/cpagx server -c configs/config-prod.json
-
-# Show configuration
-./bin/cpagx config show
-```
-
-## Configuration
-
-Configuration is managed through JSON files in the `configs/` directory:
-
-- `config.json` - Default configuration
-- `config-dev.json` - Development settings  
-- `config-prod.json` - Production settings
-
-Key configuration sections:
-- **server** - API gateway settings
-- **neo4j** - Graph database connection
-- **python** - Processing service URLs
-- **versions** - API version management
-
-## Monitoring
-
-The platform includes comprehensive monitoring:
-
-- **Prometheus** metrics at :9090
-- **Grafana** dashboards at :3001
-- **Flower** Celery monitoring at :5555
-- **RabbitMQ** management at :15672
-
-## Development
-
-### Project Structure
-
-```
-├── api/                    # HTTP handlers and routing
-├── cmd/cpagx/             # CLI application entry point
-├── configs/               # Configuration files
-├── internal/              # Core services and utilities
-├── services/              # Python processing services
-├── webui/                 # Next.js frontend
-├── deployments/           # Docker and infrastructure
-└── tests/                 # Evaluation and testing
-```
-
-### Running Services Individually
-
-```bash
-# Go API Gateway
-make build && ./bin/cpagx server
-
-# Python Services - Start All Versions
-cd services/python-cpag-generator
-./start_all.sh
-
-# Or start individual Python service versions:
-# V1 Service (port 8000)
-cd services/python-cpag-generator
-export CPAG_VERSION=v1 && export PORT=8000 && python main.py
-
-# V2 Service (port 8002)
-cd services/python-cpag-generator
-export CPAG_VERSION=v2 && export PORT=8002 && python main.py
-
-# Celery Worker
-cd services/python-cpag-generator
-celery -A entrypoints.app:celery worker --loglevel=info
-
-# Celery Beat (task scheduler)
-cd services/python-cpag-generator
-celery -A entrypoints.app:celery beat --loglevel=info
-
-# Web UI
-cd webui
-npm run dev
-```
 
 ## License
 
