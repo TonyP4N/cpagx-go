@@ -27,6 +27,10 @@ COPY deployments/v3/ /opt/cpag/deploy/
 COPY deployments/resident/private_relay.py /opt/cpag/private_relay.py
 COPY deployments/r21/k3s/source-verifier.py /opt/cpag/source-verifier.py
 COPY deployments/resident/verifier_identity.py /opt/cpag/verifier_identity.py
+# Source checkouts and secure archive extraction may have owner-only directory modes.
+# Normalize immutable program inputs only; private runtime volumes stay0700/0600.
+RUN chmod a+rx /opt /opt/cpag && chmod -R a+rX /opt/cpag/services /opt/cpag/schemas
+RUN PYTHONDONTWRITEBYTECODE=1 PYTHONPATH=/opt/cpag/services/worker:/opt/cpag/services/analysis/src python3 -c "import os,json,pathlib; os.setgroups([]); os.setgid(65532); os.setuid(65532); os.chdir('/opt/cpag'); import cpag_core.contracts,cpag_worker.resident_sandbox; paths=list(pathlib.Path('/opt/cpag/schemas').glob('*.json')); assert paths; [json.loads(p.read_text()) for p in paths]"
 RUN python3 /opt/cpag/verifier_identity.py --root /opt/cpag > /opt/cpag/verifier-source.identity
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONPATH=/opt/cpag/services/worker:/opt/cpag/services/analysis/src
 WORKDIR /opt/cpag
