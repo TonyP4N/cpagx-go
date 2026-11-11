@@ -18,7 +18,7 @@ import subprocess
 import sys
 import tarfile
 import time
-from urllib.parse import urlencode
+from urllib.parse import urlencode, urlsplit
 from urllib.error import HTTPError
 from urllib.request import HTTPRedirectHandler, HTTPCookieProcessor, ProxyHandler, Request, build_opener
 
@@ -340,6 +340,8 @@ print(json.dumps(live))
             self.prepare();self.baseline();self.lifecycle();self.phase='done';self.report['status']='passed'
         except Exception as error:
             self.report['status']='failed';self.report['failure']={'phase':self.phase,'error_type':type(error).__name__}
+            if isinstance(error,HTTPError):
+                self.report['failure'].update(http_status=error.code,http_path=urlsplit(error.url).path)
             raise
         finally:
             self.save()
