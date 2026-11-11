@@ -74,6 +74,8 @@ class Smoke:
         model = json.loads(self.compose('config','--format','json'))
         expected = {'bootstrap','postgres','migrate','api','private-relay','source-verifier','relay','resident-worker'}
         assert set(model['services']) == expected, 'canonical standalone service set changed'
+        for volume in model.get('volumes', {}).values():
+            assert not volume.get('external') and volume['name'].startswith(self.project+'_'), 'test may only own project-scoped volumes'
         for service in model['services'].values():
             assert not service.get('privileged')
             for volume in service.get('volumes', []):
