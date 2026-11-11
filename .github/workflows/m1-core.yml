@@ -538,4 +538,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compose-v3-public-evidence
-          path: ${{ runner.temp }}/compose-v3-smoke/public/report.json
+          path: |
+            ${{ runner.temp }}/compose-v3-smoke/public/report.json
+            ${{ runner.temp }}/compose-v3-smoke/public/source-build.log

@@ -88,7 +88,11 @@ class Smoke:
         self.report['canonical_alias_matches'] = True
         self.report['no_host_binds_or_docker_socket'] = True
         self.phase = 'cold_build'; self.save()
-        self.compose('build','--no-cache')
+        # This log is public-source compilation only, before bootstrap creates
+        # credentials. Runtime/container logs remain private to this directory.
+        with (self.public/'source-build.log').open('w') as log:
+            result=subprocess.run(self.dc+['build','--no-cache'],env=self.env,stdout=log,stderr=subprocess.STDOUT)
+        if result.returncode: raise RuntimeError('cold source build failed; see public/source-build.log')
         self.phase = 'startup'; self.save(); self.launched = True
         self.compose('up','-d','--no-build','--wait','--wait-timeout','300')
         self.wait(lambda: self.raw('/health/ready') is not None, 120)
