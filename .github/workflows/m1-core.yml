@@ -516,3 +516,26 @@ jobs:
             ${{ env.R19_FORMAL_OUTPUT }}/http-timings.json
             ${{ env.R19_FORMAL_OUTPUT }}/*-resource-proof.json
             ${{ env.R19_FORMAL_OUTPUT }}-permissions/report.json
+
+  compose-v3:
+    name: Cold source Compose v3 smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cold-build and exercise the actual standalone Compose stack
+        env:
+          DOCKER_DEFAULT_PLATFORM: linux/amd64
+        run: |
+          python scripts/validation/compose_v3_smoke.py \
+            --project "cpag-compose-ci-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" \
+            --output "$RUNNER_TEMP/compose-v3-smoke"
+      - name: Preserve sanitized Compose API and lifecycle evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: compose-v3-public-evidence
+          path: ${{ runner.temp }}/compose-v3-smoke/public/report.json
