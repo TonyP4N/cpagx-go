@@ -12,6 +12,7 @@ RUN npm ci --no-audit --no-fund
 
 # Copy sources and build
 COPY . .
+ARG NEXT_PUBLIC_CPAG_ENTRY=workbench
 RUN npm run build:static
 
 ########################

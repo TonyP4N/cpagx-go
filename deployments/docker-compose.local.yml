@@ -162,6 +162,8 @@ services:
     build:
       context: ../webui
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_CPAG_ENTRY: legacy
     ports:
       - "3000:80"
     environment:
