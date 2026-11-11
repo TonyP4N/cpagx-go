@@ -97,6 +97,11 @@ class Smoke:
         with archive.open('wb') as stream:
             subprocess.run(['git','-C',str(REPO),'archive','--format=tar',commit], stdout=stream, check=True)
         with tarfile.open(archive) as bundle: bundle.extractall(self.context, filter='data')
+        # data_filter intentionally drops directory modes. Keep the private
+        # output parent0700, but give immutable source build inputs checkout
+        # traversal modes, independently of this harness's restrictive umask.
+        for directory in self.context.rglob('*'):
+            if directory.is_dir() and not directory.is_symlink(): directory.chmod(0o755)
         self.report['source_commit'] = commit
         self.report['docker_architecture'] = self.command(['docker','info','--format','{{.Architecture}}'])
         model = json.loads(self.compose('config','--format','json'))
@@ -228,8 +233,35 @@ class Smoke:
                                   'preflight_id':self.preflight,'mode':mode})['run']['id']
 
     def state(self, job): return self.get('/runs/'+job)['run']
+    def job_failure(self, job, run):
+        try:
+            code="""import json,pathlib,sys,stat
+base=pathlib.Path('/state/control/jobs')/sys.argv[1]/('attempt-'+sys.argv[2]+'.worker')
+out={'stderr_tail':(base/'stderr.log').read_text(errors='replace')[-3000:] if (base/'stderr.log').is_file() else None}
+if (base/'child.pid').is_file():
+ pid=int((base/'child.pid').read_text());out['child_pid']=pid
+ p=pathlib.Path('/proc')/str(pid)/'stat'
+ out['child_proc_state']=p.read_text().rsplit(')',1)[1].split()[0] if p.exists() else 'exited'
+if (base/'exit.json').is_file():
+ proof=json.loads((base/'exit.json').read_text())
+ out['guardian_exit']={key:proof.get(key) for key in ('scope','exited','resident')}
+out['program_modes']={p:oct(stat.S_IMODE(pathlib.Path(p).stat().st_mode)) for p in ('/opt/cpag/services/analysis/src','/opt/cpag/services/analysis/src/cpag_core','/opt/cpag/schemas')}
+print(json.dumps(out))
+"""
+            child=json.loads(self.execute('resident-worker',code,job,str(run.get('attempt',1))))
+            encoded=json.dumps(child)
+            for key,value in self.app.items():
+                if isinstance(value,str) and value and any(piece in key for piece in ('token','password','secret','database_url')):
+                    encoded=encoded.replace(value,'[redacted]')
+            self.report['job_failure']={'synthetic_only':True,'id':job,'state':run.get('state'),'attempt':run.get('attempt'),
+                                        'child':json.loads(encoded)}
+            self.save()
+        except Exception as error:
+            self.report['job_failure']={'id':job,'diagnostic_error_type':type(error).__name__};self.save()
+
     def terminal(self, job, wanted='succeeded', seconds=240):
         result=self.wait(lambda:(lambda r:r if r['state'] in ('succeeded','failed','cancelled') else None)(self.state(job)),seconds)
+        if result['state']!=wanted: self.job_failure(job,result)
         assert result['state']==wanted, 'unexpected terminal state'
         return result
 
