@@ -324,6 +324,24 @@ raise SystemExit(2)
         finally:
             if watcher.poll() is None:watcher.terminate();watcher.wait(timeout=5)
 
+    def internal_history(self, job):
+        # The public user contract intentionally omits trusted exit receipts.
+        # Inspect only this disposable stack's read-only internal status, using
+        # authority inside its API container; never print credentials or tokens.
+        code="""import json,sys,urllib.request
+config=json.load(open('/etc/cpag/app.json'))
+request=urllib.request.Request('http://127.0.0.1:8094/v1/jobs/'+sys.argv[1],headers={'Authorization':'Bearer '+config['worker_token']})
+with urllib.request.urlopen(request,timeout=15) as response:status=json.load(response)
+rows=[]
+for item in status['attempt_history']:
+ row={key:item.get(key) for key in ('attempt','location','container_id','exited_at','publication_state')}
+ proof=item.get('exit_evidence')
+ if proof:row['exit_evidence']={key:proof.get(key) for key in ('scope','exited','resident')}
+ rows.append(row)
+print(json.dumps(rows))
+"""
+        return json.loads(self.execute('api',code,job))
+
     def lifecycle(self):
         job,frozen=self.frozen();self.post('/runs/'+job+'/cancel',{})
         run=self.terminal(job,'cancelled',90);receipt=self.receipt(job,run['attempt'])
@@ -348,12 +366,13 @@ print(json.dumps(live))
         assert before['generation']['deployment_id']==after['generation']['deployment_id']
         history=run['attempt_history'];assert len(history)==2
         assert sum(r['publication_state']=='published' for r in history)==1
-        old=history[0]['exit_evidence']['resident']
+        trusted=self.internal_history(job);assert len(trusted)==2
+        old=trusted[0]['exit_evidence']['resident']
         assert old['version']=='resident-compose-terminated-1' and old['generation']==before['generation']['generation']
-        assert history[1]['exit_evidence']['resident']['version']=='resident-guardian-1'
+        assert trusted[1]['exit_evidence']['resident']['version']=='resident-guardian-1'
         self.report['pid1_recovery']={'id':job,'state':run['state'],'attempt':run['attempt'],
             'before_generation':before['generation'],'after_generation':after['generation'],
-            'single_published_attempt':True,'history':history}
+            'single_published_attempt':True,'history':history,'trusted_exit_history':trusted}
         self.phase='restart';self.save()
         # A normal user restart reuses generated secrets, DB, storage and migration ledger.
         previous=[r['id'] for r in self.report['runs']]
