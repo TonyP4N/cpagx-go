@@ -367,9 +367,15 @@ print(json.dumps(live))
         history=run['attempt_history'];assert len(history)==2
         assert sum(r['publication_state']=='published' for r in history)==1
         trusted=self.internal_history(job);assert len(trusted)==2
-        old=trusted[0]['exit_evidence']['resident']
+        first,second=trusted
+        assert first['publication_state']=='fenced' and first['exited_at']
+        assert second['publication_state']=='published' and second['exited_at']
+        old=first['exit_evidence']['resident'];guardian=second['exit_evidence']['resident']
         assert old['version']=='resident-compose-terminated-1' and old['generation']==before['generation']['generation']
-        assert trusted[1]['exit_evidence']['resident']['version']=='resident-guardian-1'
+        assert 'returncode' not in old and old['observed_at']
+        assert old['container_id']==before['generation']['container_id']
+        assert guardian['version']=='resident-guardian-1' and guardian['generation']==after['generation']['generation']
+        assert guardian['container_id']==after['generation']['container_id'] and guardian['group_exited'] and guardian['returncode']==0
         self.report['pid1_recovery']={'id':job,'state':run['state'],'attempt':run['attempt'],
             'before_generation':before['generation'],'after_generation':after['generation'],
             'single_published_attempt':True,'history':history,'trusted_exit_history':trusted}
@@ -384,6 +390,11 @@ print(json.dumps(live))
         assert all(restarted_app[key]==self.app[key] for key in ('bootstrap_admin_username','bootstrap_admin_password','database_url'))
         assert all(self.state(job)['state']=='succeeded' for job in previous)
         assert self.get('/runs/'+previous[0]+'/result')['manifest']['counts']['operations']==1
+        raw=self.compose('ps','--all','--format','json')
+        states=json.loads(raw) if raw.lstrip().startswith('[') else [json.loads(line) for line in raw.splitlines() if line.strip()]
+        init={r['Service']:{'state':r['State'],'exit_code':r['ExitCode']} for r in states if r['Service'] in ('bootstrap','migrate')}
+        assert set(init)=={'bootstrap','migrate'} and all(r['state']=='exited' and r['exit_code']==0 for r in init.values())
+        self.report['restart_init_services']=init
         self.report['restart_preserves_runs']=True
 
     def run(self):
