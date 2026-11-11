@@ -7,6 +7,7 @@ report excludes credentials, raw API authority, database contents and logs.
 import argparse
 import hashlib
 import http.cookiejar
+from html.parser import HTMLParser
 import json
 import os
 from pathlib import Path
@@ -19,10 +20,32 @@ import tarfile
 import time
 from urllib.parse import urlencode
 from urllib.error import HTTPError
-from urllib.request import HTTPCookieProcessor, ProxyHandler, Request, build_opener
+from urllib.request import HTTPRedirectHandler, HTTPCookieProcessor, ProxyHandler, Request, build_opener
 
 REPO = Path(__file__).resolve().parents[2]
 
+
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, *args, **kwargs): return None
+
+
+class WorkbenchHTML(HTMLParser):
+    def __init__(self):
+        super().__init__(); self.assets=[]; self.data=[]; self.in_data=False
+    def handle_starttag(self, tag, attrs):
+        attrs=dict(attrs)
+        if tag=='script':
+            self.in_data=attrs.get('id')=='__NEXT_DATA__'
+            value=attrs.get('src','')
+            if value.startswith('/_next/static/'):self.assets.append(value)
+        elif tag=='link' and attrs.get('rel')=='stylesheet':
+            value=attrs.get('href','')
+            if value.startswith('/_next/static/'):self.assets.append(value)
+    def handle_endtag(self, tag):
+        if tag=='script':self.in_data=False
+    def handle_data(self, data):
+        if self.in_data:self.data.append(data)
 
 
 class Smoke:
@@ -99,6 +122,7 @@ class Smoke:
         self.phase = 'startup'; self.save(); self.launched = True
         self.compose('up','-d','--no-build','--wait','--wait-timeout','300')
         self.wait(lambda: self.raw('/health/ready') is not None, 120)
+        self.landing()
         self.app = json.loads(self.execute('api', "import json;print(json.dumps(json.load(open('/etc/cpag/app.json'))))"))
         foreign = Request(self.origin+'/api/v3/session', method='POST',
             data=json.dumps({'username':self.app['bootstrap_admin_username'],'password':self.app['bootstrap_admin_password']}).encode(),
@@ -116,6 +140,34 @@ class Smoke:
         self.report['initial_worker'] = identity
         self.report['built_image_id'] = self.command(['docker','image','inspect',self.env['CPAG_IMAGE'],'--format','{{.Id}}'])
         self.phase = 'api_baseline'; self.save()
+
+    def landing(self):
+        # Follow no unvalidated redirect: all requests stay on this test relay.
+        client=build_opener(ProxyHandler({}),NoRedirect())
+        try:
+            client.open(self.origin+'/',timeout=30)
+            raise AssertionError('public root did not redirect to workbench')
+        except HTTPError as error:
+            assert error.code==302 and error.headers.get('Location')=='/workbench/'
+        with client.open(self.origin+'/workbench/',timeout=30) as response:
+            assert response.status==200 and 'text/html' in response.headers.get('Content-Type','')
+            html=response.read().decode()
+        parsed=WorkbenchHTML();parsed.feed(html)
+        data=json.loads(''.join(parsed.data));assert data['page']=='/workbench'
+        assert parsed.assets and any('.js' in path for path in parsed.assets)
+        paths=[]
+        for suffix in ('.js','.css'):
+            path=next((p for p in parsed.assets if suffix in p),None)
+            if path:paths.append(path)
+        assets=[]
+        for path in paths:
+            with client.open(self.origin+path,timeout=30) as response:
+                body=response.read();content=response.headers.get('Content-Type','')
+                assert response.status==200 and body and not body.lstrip().startswith(b'<!DOCTYPE')
+                assert ('javascript' in content) if '.js' in path else ('text/css' in content)
+            assets.append({'path':path,'bytes':len(body),'sha256':hashlib.sha256(body).hexdigest(),'content_type':content})
+        self.report['public_landing']={'root_status':302,'location':'/workbench/','workbench_status':200,'next_page':data['page'],'assets':assets}
+        self.save()
 
     def raw(self, path):
         with self.http.open(self.origin+path, timeout=30) as response: return response.read()
