@@ -1,6 +1,6 @@
 # 从旧版 Docker Compose 升级到 v3
 
-v3 在 Docker 上运行工作台、Go API、PostgreSQL 和常驻 Worker。使用新目录和独立的 Compose 项目名，可在同一主机试运行，并用原容器回滚。下面的命令适用于 Linux 容器和 Docker Compose v2。示例中的旧项目名、清单文件名、路径及端口请以现有部署为准。
+v3 在 Docker 上运行工作台、Go API、PostgreSQL 和常驻 Worker。使用新目录和独立的 Compose 项目名，可在同一主机试运行，并用原容器回滚。下面的命令适用于 Linux 容器和 Docker Compose v2.20 及以上版本。示例中的旧项目名、清单文件名、路径及端口请以现有部署为准。
 
 ## 保留旧任务和原始文件
 
@@ -20,7 +20,7 @@ v3 将任务、权限和数据集登记在 PostgreSQL。旧版任务号、图数
 
 ## 在原 Docker 主机上试运行
 
-在单独目录检出包含本次升级的发布版本，进入其仓库根目录。显式使用专用项目名 `cpag-v3`，旧项目继续使用原来的名称。先使用空闲端口。
+在单独目录检出包含本次升级的发布版本，进入其仓库根目录。显式使用专用项目名 `cpag-v3`，旧项目继续使用原来的名称。如果已有项目叫 cpag-v3，请在后续命令中为新项目统一选用另一个空闲项目名。先使用空闲端口。
 
 ```sh
 export CPAG_HTTP_PORT=3300
@@ -28,6 +28,8 @@ docker compose -p cpag-v3 -f deployments/docker-compose.local.yml up -d --build
 docker compose -p cpag-v3 -f deployments/docker-compose.local.yml ps -a
 curl -fsS http://127.0.0.1:3300/health/ready
 ```
+
+浏览器请使用命令中相同的 127.0.0.1 地址和端口，以通过来源校验。经 HTTPS 反向代理访问时，在启动前设置 CPAG_EXTERNAL_ORIGIN 为浏览器实际使用的完整 HTTPS 来源，例如 https://cpag.example.org。
 
 在本机受信任的终端读取首次登录凭据，然后访问 `http://127.0.0.1:3300/workbench/`。
 
