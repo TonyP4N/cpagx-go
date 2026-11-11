@@ -8,12 +8,12 @@ import (
 )
 
 func TestR21ExternalOrigin(t *testing.T) {
-	for _, origin := range []string{"", "https://cpag.example.org", "https://lab.test:8443"} {
+	for _, origin := range []string{"", "https://cpag.example.org", "https://lab.test:8443", "http://127.0.0.1", "http://127.0.0.1:3300"} {
 		if err := validateExternalOrigin(origin); err != nil {
 			t.Errorf("valid %q: %v", origin, err)
 		}
 	}
-	for _, origin := range []string{"https://", "http://lab.test", "https://lab.test/", "https://lab.test?", "https://lab.test#", "https://a@lab.test", "https://*.test", "https://Lab.test", "https://lab.test:443", "https://lab.test:99999"} {
+	for _, origin := range []string{"https://", "http://lab.test", "http://0.0.0.0:3000", "http://127.0.0.1.example.org:3000", "http://127.0.0.1:80", "http://127.0.0.1:3000/path", "https://lab.test/", "https://lab.test?", "https://lab.test#", "https://a@lab.test", "https://*.test", "https://Lab.test", "https://lab.test:443", "https://lab.test:99999"} {
 		if validateExternalOrigin(origin) == nil {
 			t.Errorf("accepted %q", origin)
 		}

@@ -16,9 +16,12 @@ func validateExternalOrigin(origin string) error {
 	if origin == "" {
 		return nil
 	}
-	invalid := errors.New("external_origin must be one canonical HTTPS origin without a path")
+	invalid := errors.New("external_origin must be a canonical HTTPS or loopback HTTP origin without a path")
 	u, err := url.Parse(origin)
-	if err != nil || u.Scheme != "https" || u.User != nil || origin != "https://"+u.Host || len(u.Hostname()) > 253 {
+	if err != nil || u.User != nil || origin != u.Scheme+"://"+u.Host || len(u.Hostname()) > 253 {
+		return invalid
+	}
+	if u.Scheme != "https" && !(u.Scheme == "http" && u.Hostname() == "127.0.0.1") {
 		return invalid
 	}
 	for _, label := range strings.Split(u.Hostname(), ".") {
@@ -29,7 +32,7 @@ func validateExternalOrigin(origin string) error {
 	expectedHost := u.Hostname()
 	if port := u.Port(); port != "" {
 		n, err := strconv.Atoi(port)
-		if err != nil || n < 1 || n > 65535 || n == 443 || strconv.Itoa(n) != port {
+		if err != nil || n < 1 || n > 65535 || (u.Scheme == "https" && n == 443) || (u.Scheme == "http" && n == 80) || strconv.Itoa(n) != port {
 			return invalid
 		}
 		expectedHost += ":" + port
