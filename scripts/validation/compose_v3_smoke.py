@@ -270,13 +270,36 @@ print(json.dumps(out))
         assert 'token' not in value
         return value
 
+    def verified_result(self, job, seconds=90):
+        started=time.monotonic();deadline=started+seconds;pending=0
+        while True:
+            remaining=deadline-time.monotonic()
+            if remaining<=0: raise TimeoutError('bounded source reverification timed out')
+            try:
+                with self.http.open(self.origin+'/api/v3/runs/'+job+'/result',timeout=min(30,remaining)) as response:
+                    result=json.load(response)
+                self.report.setdefault('verified_result_reads',[]).append({'id':job,'phase':self.phase,
+                    'verification_pending_responses':pending,'wall_seconds':round(time.monotonic()-started,3),'max_wait_seconds':seconds})
+                return result
+            except HTTPError as error:
+                if error.code!=409: raise
+                try:detail=json.loads(error.read())
+                except (ValueError,UnicodeDecodeError):raise error
+                if not isinstance(detail.get('error'),dict) or detail['error'].get('code')!='verification_pending':raise error
+                pending+=1
+                time.sleep(min(.25,max(0,deadline-time.monotonic())))
+
+    @staticmethod
+    def manifest_hash(result):
+        return hashlib.sha256(json.dumps(result['manifest'],sort_keys=True,separators=(',',':')).encode()).hexdigest()
+
     def baseline(self):
         self.fixtures()
         before=self.worker_identity()
         containers_before=sorted(self.compose('ps','-q').splitlines())
         for mode in ('dual_source','dual_source_replay'):
             job=self.submit(mode);run=self.terminal(job);route='/runs/'+job
-            result=self.wait(lambda:self.get(route+'/result'))
+            result=self.verified_result(job)
             counts=result['manifest']['counts'];assert all(counts[k]==1 for k in ('operations','changes','candidates'))
             query='/shared-query?'+urlencode({'action':'page','logical_root':'analysis.json','path':json.dumps(['operations']),'limit':10,'offset':0})
             page=self.get(route+query);assert page['total']==1
@@ -288,7 +311,7 @@ print(json.dumps(out))
             manifest=json.loads(downloaded);assert manifest['run_id']==job
             receipt=self.receipt(job,run['attempt']);assert receipt['resident']['group_exited'] and receipt['resident']['returncode']==0
             record={'id':job,'mode':mode,'attempt':run['attempt'],'counts':counts,'verified_original_count':4,
-                    'download_sha256':entry['sha256'],'receipt':receipt}
+                    'download_sha256':entry['sha256'],'verified_manifest_sha256':self.manifest_hash(result),'receipt':receipt}
             if mode=='dual_source_replay':
                 snapshot=self.get(route+'/shared-query?'+urlencode({'action':'get','logical_root':'history/snapshots','path':json.dumps([15,'revision_number'])}))
                 assert snapshot==11
@@ -389,7 +412,17 @@ print(json.dumps(live))
         restarted_app=json.loads(self.execute('api',"import json;print(json.dumps(json.load(open('/etc/cpag/app.json'))))"))
         assert all(restarted_app[key]==self.app[key] for key in ('bootstrap_admin_username','bootstrap_admin_password','database_url'))
         assert all(self.state(job)['state']=='succeeded' for job in previous)
-        assert self.get('/runs/'+previous[0]+'/result')['manifest']['counts']['operations']==1
+        restored=[]
+        for baseline in self.report['runs']:
+            job=baseline['id'];result=self.verified_result(job)
+            assert result['manifest']['counts']==baseline['counts']
+            assert self.manifest_hash(result)==baseline['verified_manifest_sha256']
+            inventory=self.get('/runs/'+job+'/artifacts')['artifacts']
+            entry=next(row for row in inventory if row['path']=='run_manifest.json')
+            downloaded=self.raw('/api/v3/runs/'+job+'/artifacts/run_manifest.json/download')
+            assert entry['sha256']==baseline['download_sha256']==hashlib.sha256(downloaded).hexdigest()
+            restored.append({'id':job,'verified_manifest_sha256':self.manifest_hash(result),'download_sha256':entry['sha256'],'matches_before_restart':True})
+        self.report['restart_verified_artifacts']=restored
         raw=self.compose('ps','--all','--format','json')
         states=json.loads(raw) if raw.lstrip().startswith('[') else [json.loads(line) for line in raw.splitlines() if line.strip()]
         init={r['Service']:{'state':r['State'],'exit_code':r['ExitCode']} for r in states if r['Service'] in ('bootstrap','migrate')}
