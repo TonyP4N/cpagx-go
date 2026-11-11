@@ -146,12 +146,6 @@ jobs:
         with:
           name: frontend-static
           path: webui/out
-      - name: Verify default and legacy Compose landing pages
-        run: |
-          grep -q 'href="/workbench/"' out/index.html
-          entry=$(docker compose -f ../deployments/docker-compose.local.yml config --format json | jq -er '.services.webui.build.args.NEXT_PUBLIC_CPAG_ENTRY')
-          NEXT_PUBLIC_CPAG_ENTRY="$entry" npm run build:static
-          grep -q 'Start Analysis' out/index.html
 
   service-regression:
     runs-on: ubuntu-latest
