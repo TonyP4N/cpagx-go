@@ -105,6 +105,8 @@ services:
       - shared:/state/shared
       - control:/state/control
       - verify-channel:/verify-channel
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
     read_only: true
     cap_drop: [ALL]
     security_opt: [no-new-privileges:true]
