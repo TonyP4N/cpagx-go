@@ -1,0 +1,30 @@
+test_archive_rejects_nested_extra (test_dual_source_worker.DualSourceWorkerTests.test_archive_rejects_nested_extra) ... ok
+test_nested_handoff_and_claim_identity (test_dual_source_worker.DualSourceWorkerTests.test_nested_handoff_and_claim_identity) ... ok
+test_real_multi_handoff_retains_every_ordered_source (test_dual_source_worker.DualSourceWorkerTests.test_real_multi_handoff_retains_every_ordered_source) ... ok
+test_stderr_native_exit_and_limit_retained_in_failure_receipt (test_failure_output.FailureOutputTests.test_stderr_native_exit_and_limit_retained_in_failure_receipt) ... ok
+test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) ... ok
+test_concurrent_capacity_reservation_fails_closed (test_isolated_recovery.RecoveryIsolation.test_concurrent_capacity_reservation_fails_closed) ... ok
+test_global_api_failure_is_retryable (test_isolated_recovery.RecoveryIsolation.test_global_api_failure_is_retryable) ... ok
+test_global_docker_failure_is_retryable (test_isolated_recovery.RecoveryIsolation.test_global_docker_failure_is_retryable) ... ok
+test_history_attempt_path_failure_does_not_block_later_attempt (test_isolated_recovery.RecoveryIsolation.test_history_attempt_path_failure_does_not_block_later_attempt) ... ok
+test_known_local_bare_daemon_location_is_backward_compatible (test_isolated_recovery.RecoveryIsolation.test_known_local_bare_daemon_location_is_backward_compatible) ... ok
+test_malformed_history_row_does_not_hide_later_attempt (test_isolated_recovery.RecoveryIsolation.test_malformed_history_row_does_not_hide_later_attempt) ... ok
+test_malformed_ledger_missing_root_raises_controlled_error (test_isolated_recovery.RecoveryIsolation.test_malformed_ledger_missing_root_raises_controlled_error) ... ok
+test_missing_capacity_ledger_is_not_empty_budget (test_isolated_recovery.RecoveryIsolation.test_missing_capacity_ledger_is_not_empty_budget) ... ok
+test_missing_capacity_ledger_with_only_intent_is_not_zero (test_isolated_recovery.RecoveryIsolation.test_missing_capacity_ledger_with_only_intent_is_not_zero) ... ok
+test_non_object_records_are_pending (test_isolated_recovery.RecoveryIsolation.test_non_object_records_are_pending) ... ok
+test_periodic_cli_waits_and_retries_global_failure (test_isolated_recovery.RecoveryIsolation.test_periodic_cli_waits_and_retries_global_failure) ... ok
+test_post_coordinator_network_outage_is_global (test_isolated_recovery.RecoveryIsolation.test_post_coordinator_network_outage_is_global) ... ok
+test_same_attempt_owner_cannot_fail_or_reduce_active_reservation (test_isolated_recovery.RecoveryIsolation.test_same_attempt_owner_cannot_fail_or_reduce_active_reservation) ... ok
+test_three_bad_records_before_good_remain_isolated_across_scans (test_isolated_recovery.RecoveryIsolation.test_three_bad_records_before_good_remain_isolated_across_scans) ... ok
+test_traversal_or_directory_identity_mismatch_is_never_used (test_isolated_recovery.RecoveryIsolation.test_traversal_or_directory_identity_mismatch_is_never_used) ... ok
+test_complete_replay_inventory_version_and_identity (test_replay_worker.ReplayHandoffTests.test_complete_replay_inventory_version_and_identity) ... ok
+test_truncated_history_cannot_pass_semantic_handoff (test_replay_worker.ReplayHandoffTests.test_truncated_history_cannot_pass_semantic_handoff) ... ok
+test_all_sources_counted_once_and_repeat_is_idempotent (test_round19_capacity.ReservationTests.test_all_sources_counted_once_and_repeat_is_idempotent) ... ok
+test_budget_includes_later_original_copy (test_round19_capacity.ReservationTests.test_budget_includes_later_original_copy) ... ok
+test_missing_later_original_refuses_reservation (test_round19_capacity.ReservationTests.test_missing_later_original_refuses_reservation) ... ok
+
+----------------------------------------------------------------------
+Ran 25 tests in 2.072s
+
+OK

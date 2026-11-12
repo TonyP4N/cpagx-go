@@ -1,0 +1,7 @@
+{
+  "valid": true,
+  "validation_run_id": "d432d34254654f46ab3456166fc03eae",
+  "phase": "completed",
+  "common_executor_consistency": true,
+  "packet_separate_contract": true
+}

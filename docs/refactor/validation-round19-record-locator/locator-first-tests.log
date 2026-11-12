@@ -1,0 +1,15 @@
+test_old_bytes_only_contract_never_upgrades_record_status (test_reference_locator.LocatedBundleTests.test_old_bytes_only_contract_never_upgrades_record_status) ... ok
+test_save_verify_query_and_new_directory_restore_return_same_fragment (test_reference_locator.LocatedBundleTests.test_save_verify_query_and_new_directory_restore_return_same_fragment) ... ok
+test_v3_impossible_locator_is_refused_before_publishing_and_on_rehashed_import (test_reference_locator.LocatedBundleTests.test_v3_impossible_locator_is_refused_before_publishing_and_on_rehashed_import) ... ok
+test_logical_record_is_not_a_physical_line_and_bytes_are_exact (test_reference_locator.ReferenceLocatorTests.test_logical_record_is_not_a_physical_line_and_bytes_are_exact) ... ok
+test_malformed_format_rejected_even_after_requested_record (test_reference_locator.ReferenceLocatorTests.test_malformed_format_rejected_even_after_requested_record) ... ok
+test_new_schemas_match_independent_validator (test_reference_locator.ReferenceLocatorTests.test_new_schemas_match_independent_validator) ... ok
+test_out_of_range_header_missing_columns_and_contract_errors_refused (test_reference_locator.ReferenceLocatorTests.test_out_of_range_header_missing_columns_and_contract_errors_refused) ... ok
+test_references_for_same_file_are_parsed_once_without_materializing_all_fragments (test_reference_locator.ReferenceLocatorTests.test_references_for_same_file_are_parsed_once_without_materializing_all_fragments) ... ok
+test_same_size_original_tamper_rejected_and_csv_limit_restored (test_reference_locator.ReferenceLocatorTests.test_same_size_original_tamper_rejected_and_csv_limit_restored) ... ok
+test_utf8_bom_quoted_header_and_blank_quoted_line_keep_offsets (test_reference_locator.ReferenceLocatorTests.test_utf8_bom_quoted_header_and_blank_quoted_line_keep_offsets) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.407s
+
+OK

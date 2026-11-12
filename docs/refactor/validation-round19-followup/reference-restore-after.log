@@ -1,0 +1,6 @@
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored
+--- PASS: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory (3.72s)
+    --- PASS: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored (0.18s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	4.048s

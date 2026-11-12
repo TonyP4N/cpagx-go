@@ -1,0 +1,42 @@
+[
+  {
+    "name": "core",
+    "exit_code": 0
+  },
+  {
+    "name": "contracts",
+    "exit_code": 0
+  },
+  {
+    "name": "parsers",
+    "exit_code": 0
+  },
+  {
+    "name": "legacy",
+    "exit_code": 0
+  },
+  {
+    "name": "integration",
+    "exit_code": 0
+  },
+  {
+    "name": "service",
+    "exit_code": 0
+  },
+  {
+    "name": "go-test",
+    "exit_code": 0
+  },
+  {
+    "name": "go-build",
+    "exit_code": 0
+  },
+  {
+    "name": "go-vet",
+    "exit_code": 0
+  },
+  {
+    "name": "frontend",
+    "exit_code": 0
+  }
+]

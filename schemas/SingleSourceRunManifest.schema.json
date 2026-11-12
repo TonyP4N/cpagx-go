@@ -1,0 +1,165 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "SingleSourceRunManifest.schema.json",
+  "title": "SingleSourceRunManifest",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "run_id": {
+      "type": "string",
+      "pattern": ".*\\S.*"
+    },
+    "attempt_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "input_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "config_fingerprint": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "tool_versions": {
+      "type": "object",
+      "properties": {
+        "core": {
+          "type": "string"
+        },
+        "python": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "core",
+        "python"
+      ],
+      "additionalProperties": false
+    },
+    "mode": {
+      "const": "single_source"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "size_bytes": {
+            "type": "integer"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "size_bytes"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "result_hashes": {
+      "type": "object",
+      "properties": {
+        "events": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "graph": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        }
+      },
+      "required": [
+        "events",
+        "graph"
+      ],
+      "additionalProperties": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "status": {
+      "const": "succeeded_with_warnings"
+    },
+    "warnings": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "single_source_version": {
+      "const": "bounded-single-source-1"
+    },
+    "analysis_version": {
+      "const": "bounded-single-source-1"
+    },
+    "base_analysis_version": {
+      "const": "bounded-dual-source-2"
+    },
+    "source_mode": {
+      "enum": [
+        "network",
+        "process"
+      ]
+    },
+    "source_presence": {
+      "type": "object",
+      "properties": {
+        "network": {
+          "type": "boolean"
+        },
+        "process": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "network",
+        "process"
+      ],
+      "additionalProperties": false
+    },
+    "source_files": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "run_id",
+    "attempt_id",
+    "input_fingerprint",
+    "config_fingerprint",
+    "tool_versions",
+    "mode",
+    "artifacts",
+    "result_hashes",
+    "limitations",
+    "status",
+    "warnings",
+    "single_source_version",
+    "analysis_version",
+    "base_analysis_version",
+    "source_mode",
+    "source_presence",
+    "source_files"
+  ],
+  "additionalProperties": false
+}

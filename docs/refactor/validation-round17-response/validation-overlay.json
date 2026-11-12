@@ -1,0 +1,62 @@
+{
+  "baseline": "288ffc068c0196d0725478c3404bdca0a2aaf26e",
+  "purpose": "same-byte temporary validation checkout, no deployment change",
+  "files": [
+    {
+      "path": "internal/jobapi/dual.go",
+      "sha256": "2f012370231d21ac9873de1ac4d0d5fd5790e94ad5d0110246ffea0d2b65163a"
+    },
+    {
+      "path": "internal/jobapi/server.go",
+      "sha256": "b6e38a6a3fc009b9a71449fa2f47b4584d92a92a6633ffee909b04481da08c8f"
+    },
+    {
+      "path": "internal/jobapi/analysis_version.go",
+      "sha256": "122b7dfe2ec9e596d35ccbe7af971b920eeaf413c2039339cd6a6611d1582b5c"
+    },
+    {
+      "path": "internal/jobapi/analysis_version_test.go",
+      "sha256": "f484a0a8c3c1df2f6f23c19d31eb232d54b3d5994f5fe4c7aaff96792460c7a9"
+    },
+    {
+      "path": "internal/jobapi/multi_test.go",
+      "sha256": "f3e687e5d1a0f08e5e39f1707cf748b6724160408aecdb99589cd825d3644d89"
+    },
+    {
+      "path": "internal/catalog/runs.go",
+      "sha256": "a2439926ad7690f8a8712a18541739151b1a30884e923155529d97910e80bd64"
+    },
+    {
+      "path": "services/analysis/src/cpag_core/dual_source.py",
+      "sha256": "2a169d680c24118bf88167ae32e2571b50ce1dfa7b145607903f2c3fb66cf6ef"
+    },
+    {
+      "path": "services/analysis/src/cpag_core/dual_source_export.py",
+      "sha256": "625f34cba68547160cabee2f21faa131734959245eb233a6257994ba7853c93c"
+    },
+    {
+      "path": "tests/dual_source/test_response_clock_versions.py",
+      "sha256": "8bea1910007eccdab4991a735cffdaa31d6d036a4164fc83d564743bbbfb3b01"
+    },
+    {
+      "path": "webui/src/pages/dual-source.tsx",
+      "sha256": "dbfa64090ef010207b1a7c4674de44494bd22e31bc31af99da427023870937c0"
+    },
+    {
+      "path": "scripts/validation/round17_response_acceptance.py",
+      "sha256": "94348cfdd4612cffd18d07442f15b33d877a7a2b45d8dc9c1115611fadaaf94c"
+    },
+    {
+      "path": "scripts/validation/round17_response_acceptance.sh",
+      "sha256": "dafe245535a0942e0d297cd69a0fbb222f9498d82677967978d37f506eed4334"
+    },
+    {
+      "path": "scripts/validation/round17_response_browser.cjs",
+      "sha256": "f199d4412366f8418dfa3c8fbdbe98e11210bc88d2c6d671fc85481629820218"
+    },
+    {
+      "path": "tests/validation/test_round17_response_acceptance.py",
+      "sha256": "9fd28347075ac84772fa1b68076ebedc72f7e8550e1ecf44296799288a598fd6"
+    }
+  ]
+}

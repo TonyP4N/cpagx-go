@@ -1,0 +1,18 @@
+{
+  "frozen_tag_unchanged": "49e998545b9b7b47f2b1dc9b19e6d8562f780765",
+  "archive_sha256_unchanged": "c199dd417e1c59c55563c5535e32d26197b164c95ae17c0ef3bb621f7228b49e",
+  "compared_to": "d65f9e6122442a53810a3e37e610e6fb7eb4b42d",
+  "protected_paths": [
+    "api",
+    "cmd",
+    "deployments",
+    "services/python-cpag-generator",
+    "services/worker",
+    "services/analysis/src/cpag_core/__main__.py",
+    "services/analysis/src/cpag_core/pipeline.py",
+    "services/analysis/src/cpag_core/replay.py",
+    "services/analysis/src/cpag_core/packet_pipeline.py"
+  ],
+  "protected_paths_diff": [],
+  "default_entry_unchanged": true
+}

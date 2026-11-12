@@ -1,0 +1,5 @@
+--- FAIL: TestSharedSchemas (0.00s)
+    contracts_test.go:20: explicit baseline and replay schema set required: <nil>; got 29 want 25
+FAIL
+FAIL	github.com/TonyP4N/cpagx-go/internal/contracts	0.388s
+FAIL

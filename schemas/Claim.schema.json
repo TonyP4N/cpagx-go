@@ -1,0 +1,143 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "Claim.schema.json",
+  "title": "Claim",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    },
+    "claim_id": {
+      "type": "string"
+    },
+    "relation_type": {
+      "type": "string"
+    },
+    "evidence_refs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "frame_number": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "record_number": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "column": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "raw_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "file_sha256",
+          "frame_number",
+          "record_number",
+          "column",
+          "raw_time"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "assumptions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "counterevidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "file_sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "frame_number": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "record_number": {
+            "type": [
+              "integer",
+              "null"
+            ],
+            "minimum": 1
+          },
+          "column": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "raw_time": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "file_sha256",
+          "frame_number",
+          "record_number",
+          "column",
+          "raw_time"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "rule_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "status": {
+      "enum": [
+        "observed",
+        "inferred",
+        "hypothetical"
+      ]
+    }
+  },
+  "required": [
+    "schema_version",
+    "synthetic",
+    "claim_id",
+    "relation_type",
+    "evidence_refs",
+    "assumptions",
+    "counterevidence",
+    "rule_id",
+    "status"
+  ],
+  "additionalProperties": false
+}

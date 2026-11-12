@@ -1,0 +1,9 @@
+{
+  "expected": "resolve structured record and reject out-of-range locator",
+  "actual": "evaluation and query accept an unresolved free-text locator",
+  "original_line_count": 3,
+  "requested_record": "row:999999",
+  "status": "reference_original_bytes_sha256_verified",
+  "record_locator_status": "declared_record_not_independently_resolved",
+  "returned_original_matches": true
+}

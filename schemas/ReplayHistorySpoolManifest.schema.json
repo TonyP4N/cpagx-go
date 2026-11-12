@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": "replay-history-checkpoint-delta-2"
+    },
+    "status": {
+      "const": "sealed_storage_not_source_verified"
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "run_id": {
+          "type": "string"
+        },
+        "attempt_id": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "semantic_config_fingerprint": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "replay_version": {
+          "const": "dual-source-replay-1"
+        }
+      },
+      "required": [
+        "run_id",
+        "attempt_id",
+        "semantic_config_fingerprint",
+        "replay_version"
+      ],
+      "additionalProperties": false
+    },
+    "limits": {
+      "type": "object",
+      "properties": {
+        "max_bytes": {
+          "type": "integer",
+          "minimum": 262144,
+          "maximum": 1073741824
+        },
+        "checkpoint_interval": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 128
+        },
+        "max_objects": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000000
+        },
+        "max_snapshots": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 45000
+        },
+        "max_revisions": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 90000
+        },
+        "max_object_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 33554432
+        },
+        "max_working_bytes": {
+          "type": "integer",
+          "minimum": 786432,
+          "maximum": 3221225472
+        }
+      },
+      "required": [
+        "max_bytes",
+        "checkpoint_interval",
+        "max_objects",
+        "max_snapshots",
+        "max_revisions",
+        "max_object_bytes",
+        "max_working_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "const": "history.sqlite3"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "size_bytes": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1073741824
+        }
+      },
+      "required": [
+        "path",
+        "sha256",
+        "size_bytes"
+      ],
+      "additionalProperties": false
+    },
+    "snapshot_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 45000
+    },
+    "revision_count": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 90000
+    },
+    "object_count": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "last_snapshot_id": {
+      "type": "string",
+      "pattern": "^snapshot-[a-f0-9]{64}$"
+    },
+    "schema_version": {
+      "const": "1.0.0"
+    },
+    "synthetic": {
+      "type": "boolean"
+    }
+  },
+  "required": [
+    "version",
+    "status",
+    "context",
+    "limits",
+    "database",
+    "snapshot_count",
+    "revision_count",
+    "object_count",
+    "last_snapshot_id",
+    "schema_version",
+    "synthetic"
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,58 @@
+core	Worker process supervision tests	﻿2026-10-28T14:53:01.9594840Z ##[group]Run python -m unittest discover -s tests/worker -v
+core	Worker process supervision tests	2026-10-28T14:53:01.9595208Z ^[[36;1mpython -m unittest discover -s tests/worker -v^[[0m
+core	Worker process supervision tests	2026-10-28T14:53:01.9650598Z shell: /usr/bin/bash -e {0}
+core	Worker process supervision tests	2026-10-28T14:53:01.9650830Z env:
+core	Worker process supervision tests	2026-10-28T14:53:01.9651057Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+core	Worker process supervision tests	2026-10-28T14:53:01.9668736Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+core	Worker process supervision tests	2026-10-28T14:53:01.9669116Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+core	Worker process supervision tests	2026-10-28T14:53:01.9669444Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+core	Worker process supervision tests	2026-10-28T14:53:01.9669746Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+core	Worker process supervision tests	2026-10-28T14:53:01.9670055Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+core	Worker process supervision tests	2026-10-28T14:53:01.9670305Z ##[endgroup]
+core	Worker process supervision tests	2026-10-28T14:53:02.0485176Z test_private_worker_credentials_only (test_service.ServiceConfig.test_private_worker_credentials_only) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:02.1066678Z test_abnormal_supervisor_no_terminal_state (test_worker.WorkerTests.test_abnormal_supervisor_no_terminal_state) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:02.4425614Z test_ambiguous_completion_does_not_send_fail (test_worker.WorkerTests.test_ambiguous_completion_does_not_send_fail) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:02.5108367Z test_api_unavailable_stops_child_without_terminal_write (test_worker.WorkerTests.test_api_unavailable_stops_child_without_terminal_write) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:02.5791939Z test_cancel_ack_after_exit (test_worker.WorkerTests.test_cancel_ack_after_exit) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:02.6849037Z test_core_does_not_receive_control_credentials (test_worker.WorkerTests.test_core_does_not_receive_control_credentials) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:03.8474593Z test_cpu_and_file_resource_limits (test_worker.WorkerTests.test_cpu_and_file_resource_limits) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:03.8513430Z test_duplicate_invocation_does_not_fail_existing_attempt (test_worker.WorkerTests.test_duplicate_invocation_does_not_fail_existing_attempt) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:03.8546748Z test_invalid_input_is_not_retryable (test_worker.WorkerTests.test_invalid_input_is_not_retryable) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:03.9235824Z test_lost_lease_stops_without_terminal_write (test_worker.WorkerTests.test_lost_lease_stops_without_terminal_write) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:03.9247778Z test_once_cli_reports_unavailable_dependency (test_worker.WorkerTests.test_once_cli_reports_unavailable_dependency) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:04.0302155Z test_real_core_publication (test_worker.WorkerTests.test_real_core_publication) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:04.3859216Z test_timeout_real_process_and_bounded_logs (test_worker.WorkerTests.test_timeout_real_process_and_bounded_logs) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:04.5841881Z test_worker_graceful_stop_stops_child (test_worker.WorkerTests.test_worker_graceful_stop_stops_child) ... ok
+core	Worker process supervision tests	2026-10-28T14:53:04.7440416Z test_worker_sigkill_parent_pipe_stops_child (test_worker.WorkerTests.test_worker_sigkill_parent_pipe_stops_child) ... ERROR
+core	Worker process supervision tests	2026-10-28T14:53:04.7441077Z
+core	Worker process supervision tests	2026-10-28T14:53:04.7441232Z ======================================================================
+core	Worker process supervision tests	2026-10-28T14:53:04.7442014Z ERROR: test_worker_sigkill_parent_pipe_stops_child (test_worker.WorkerTests.test_worker_sigkill_parent_pipe_stops_child)
+core	Worker process supervision tests	2026-10-28T14:53:04.7442727Z ----------------------------------------------------------------------
+core	Worker process supervision tests	2026-10-28T14:53:04.7443139Z Traceback (most recent call last):
+core	Worker process supervision tests	2026-10-28T14:53:04.7448844Z   File "/home/runner/work/cpagx-go/cpagx-go/tests/worker/test_worker.py", line 172, in test_worker_sigkill_parent_pipe_stops_child
+core	Worker process supervision tests	2026-10-28T14:53:04.7449614Z     self.worker_stop(True)
+core	Worker process supervision tests	2026-10-28T14:53:04.7450174Z   File "/home/runner/work/cpagx-go/cpagx-go/tests/worker/test_worker.py", line 174, in worker_stop
+core	Worker process supervision tests	2026-10-28T14:53:04.7450784Z     with tempfile.TemporaryDirectory() as tmp:
+core	Worker process supervision tests	2026-10-28T14:53:04.7451384Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/tempfile.py", line 943, in __exit__
+core	Worker process supervision tests	2026-10-28T14:53:04.7451910Z     self.cleanup()
+core	Worker process supervision tests	2026-10-28T14:53:04.7452376Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/tempfile.py", line 947, in cleanup
+core	Worker process supervision tests	2026-10-28T14:53:04.7453442Z     self._rmtree(self.name, ignore_errors=self._ignore_cleanup_errors)
+core	Worker process supervision tests	2026-10-28T14:53:04.7454076Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/tempfile.py", line 929, in _rmtree
+core	Worker process supervision tests	2026-10-28T14:53:04.7454599Z     _shutil.rmtree(name, onerror=onerror)
+core	Worker process supervision tests	2026-10-28T14:53:04.7455115Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 752, in rmtree
+core	Worker process supervision tests	2026-10-28T14:53:04.7455612Z     _rmtree_safe_fd(fd, path, onerror)
+core	Worker process supervision tests	2026-10-28T14:53:04.7456163Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 672, in _rmtree_safe_fd
+core	Worker process supervision tests	2026-10-28T14:53:04.7456726Z     _rmtree_safe_fd(dirfd, fullname, onerror)
+core	Worker process supervision tests	2026-10-28T14:53:04.7457447Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 672, in _rmtree_safe_fd
+core	Worker process supervision tests	2026-10-28T14:53:04.7457987Z     _rmtree_safe_fd(dirfd, fullname, onerror)
+core	Worker process supervision tests	2026-10-28T14:53:04.7458567Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 683, in _rmtree_safe_fd
+core	Worker process supervision tests	2026-10-28T14:53:04.7459119Z     onerror(os.rmdir, fullname, sys.exc_info())
+core	Worker process supervision tests	2026-10-28T14:53:04.7459680Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/shutil.py", line 681, in _rmtree_safe_fd
+core	Worker process supervision tests	2026-10-28T14:53:04.7460202Z     os.rmdir(entry.name, dir_fd=topfd)
+core	Worker process supervision tests	2026-10-28T14:53:04.7460550Z OSError: [Errno 39] Directory not empty: 'attempt-1.worker'
+core	Worker process supervision tests	2026-10-28T14:53:04.7460804Z
+core	Worker process supervision tests	2026-10-28T14:53:04.7460970Z ----------------------------------------------------------------------
+core	Worker process supervision tests	2026-10-28T14:53:04.7461327Z Ran 15 tests in 2.697s
+core	Worker process supervision tests	2026-10-28T14:53:04.7461478Z
+core	Worker process supervision tests	2026-10-28T14:53:04.7461567Z FAILED (errors=1)
+core	Worker process supervision tests	2026-10-28T14:53:04.7613636Z ##[error]Process completed with exit code 1.

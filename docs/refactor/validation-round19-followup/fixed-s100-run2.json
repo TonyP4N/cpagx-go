@@ -1,0 +1,442 @@
+{
+  "case": {
+    "cache_condition": "unverified_cold",
+    "case_manifest_sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+    "id": "S-dual_source-1",
+    "input_fingerprints": [
+      {
+        "bytes": 23424,
+        "path": "/private/tmp/cpag-r19-fixed-3e7340e/docs/refactor/validation-round19/capacity-S-raw-attempt2/network.pcap",
+        "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85"
+      },
+      {
+        "bytes": 3010,
+        "path": "/private/tmp/cpag-r19-fixed-3e7340e/docs/refactor/validation-round19/capacity-S-raw-attempt2/process.csv",
+        "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55"
+      },
+      {
+        "bytes": 2045,
+        "path": "/private/tmp/cpag-r19-fixed-3e7340e/docs/refactor/validation-round19/capacity-S-raw-attempt2/offline-profile.json",
+        "sha256": "ea1b146bbdbf947aa8a07ed9a58fabad75d33b1cebbd5ed0ad1cd8c796291281"
+      }
+    ],
+    "input_logical_records": 100,
+    "mode": "dual_source",
+    "repetition": 1,
+    "scale": "S"
+  },
+  "database_dump_returncode": 0,
+  "dev_run": true,
+  "environment": {
+    "commit": "3e7340ea0e923820b21881dcb33740e0f2d0ec20",
+    "cpu_count": 10,
+    "dirty": false,
+    "docker": {
+      "architecture": "aarch64",
+      "cpus": 10,
+      "driver": "overlayfs",
+      "id": "ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "memory_bytes": 8217448448,
+      "os": "Docker Desktop",
+      "version": "29.1.3"
+    },
+    "docker_ready": true,
+    "free_bytes": 30401794048,
+    "harness_sha256": "b323422b80419fe1f34c6c6ddf936f75ff850db8655e816c694a8e96a1a82ef0",
+    "machine": "arm64",
+    "memory_bytes": 17179869184,
+    "os_id": null,
+    "os_version": null,
+    "reference_environment_qualified": false,
+    "reference_refusal_reasons": [
+      "host_not_linux",
+      "host_not_ubuntu_24_04",
+      "host_not_x86_64",
+      "host_not_8_vcpu",
+      "ssd_unverified",
+      "docker_not_x86_64",
+      "docker_resources_below_proposed_profile"
+    ],
+    "source_tree_sha256": "908a013c21c450fb47f4ca54e6b8dac3a56b030e4e172b885f2f042fed79fcf9",
+    "ssd_verified": false,
+    "system": "Darwin",
+    "tracked_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "error": null,
+  "error_type": null,
+  "finished_at": "2026-10-28T04:07:10.833830+00:00",
+  "measurements": {
+    "phase_breakdown": {
+      "association_seconds": null,
+      "cpu_seconds": null,
+      "parse_seconds": null,
+      "reason": "current runtime does not expose separate phase/CPU/RSS totals; raw sampled Docker stats retained; cannot satisfy complete R19 measurement gate",
+      "rss_peak_bytes": null,
+      "write_seconds": null
+    },
+    "result_api_verified": true,
+    "submit_through_verify_and_evidence_seconds": 121.29576591699151,
+    "submit_to_terminal_seconds": 73.11587366700405
+  },
+  "private_evidence_root": "/private/tmp/cpag-r19-fixed-s100-run2",
+  "private_record_sha256": "d5a84254030456faa68c49f3ef14dc0da73d7a637c92ca31a232f89f26d8a1fc",
+  "reference_accepted": false,
+  "resource_profile": "r19-dev-s100-1",
+  "run_id": "44804c90da9be64656624af113afe96d",
+  "schema_version": "r19-capacity-measurement-1",
+  "stages": [
+    {
+      "elapsed_seconds": 0.22991095800534822,
+      "finished_at": "2026-10-28T04:05:04.585052+00:00",
+      "name": "environment_probe",
+      "started_at": "2026-10-28T04:05:04.354718+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 3.7080026231706142e-06,
+      "explicit_dev_override": true,
+      "finished_at": "2026-10-28T04:05:04.585743+00:00",
+      "name": "reference_environment_gate",
+      "reasons": [
+        "host_not_linux",
+        "host_not_ubuntu_24_04",
+        "host_not_x86_64",
+        "host_not_8_vcpu",
+        "ssd_unverified",
+        "docker_not_x86_64",
+        "docker_resources_below_proposed_profile"
+      ],
+      "reference_environment_qualified": false,
+      "started_at": "2026-10-28T04:05:04.585430+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.0014019999944139272,
+      "finished_at": "2026-10-28T04:05:04.587752+00:00",
+      "name": "raw_case_validation",
+      "started_at": "2026-10-28T04:05:04.586057+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.03178691599168815,
+      "finished_at": "2026-10-28T04:05:04.620270+00:00",
+      "name": "worker_image_binding",
+      "started_at": "2026-10-28T04:05:04.588077+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 126.21115429201745,
+      "finished_at": "2026-10-28T04:07:10.833056+00:00",
+      "name": "formal_chain_case",
+      "started_at": "2026-10-28T04:05:04.620866+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 1.3470247499935795,
+      "finished_at": "2026-10-28T04:05:06.037977+00:00",
+      "name": "build_formal_binaries",
+      "started_at": "2026-10-28T04:05:04.690303+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 1.7920194159960374,
+      "finished_at": "2026-10-28T04:05:07.831860+00:00",
+      "name": "database_start_and_migrations",
+      "started_at": "2026-10-28T04:05:06.038655+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.6923003749980126,
+      "finished_at": "2026-10-28T04:05:08.525288+00:00",
+      "name": "application_and_worker_start",
+      "started_at": "2026-10-28T04:05:07.832569+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.11807558298460208,
+      "finished_at": "2026-10-28T04:05:08.644426+00:00",
+      "name": "catalog_upload_preflight_config",
+      "started_at": "2026-10-28T04:05:08.525938+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 73.1152919169981,
+      "finished_at": "2026-10-28T04:06:21.761408+00:00",
+      "name": "submit_queue_container_to_terminal",
+      "started_at": "2026-10-28T04:05:08.645158+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 46.748535582999466,
+      "finished_at": "2026-10-28T04:07:08.512174+00:00",
+      "name": "retained_artifact_and_reference_verification",
+      "started_at": "2026-10-28T04:06:21.762498+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.7494306669977959,
+      "finished_at": "2026-10-28T04:07:09.263997+00:00",
+      "name": "evidence_query",
+      "original_evidence_items": 165,
+      "pages": [
+        {
+          "original_evidence_items": 100,
+          "page": {
+            "has_more": true,
+            "limit": 100,
+            "offset": 0,
+            "order": "canonical_source_reference",
+            "returned": 100,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.35741141700418666,
+          "response_bytes": 2237770
+        },
+        {
+          "original_evidence_items": 65,
+          "page": {
+            "has_more": false,
+            "limit": 100,
+            "offset": 100,
+            "order": "canonical_source_reference",
+            "returned": 65,
+            "total": 165,
+            "version": "source-reference-page-1"
+          },
+          "query_seconds": 0.35601254197536036,
+          "response_bytes": 2427531
+        }
+      ],
+      "query_seconds": 0.7494227499992121,
+      "response_bytes": 4665301,
+      "started_at": "2026-10-28T04:07:08.513814+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.6725817080005072,
+      "finished_at": "2026-10-28T04:07:09.938920+00:00",
+      "missing_original_status": 409,
+      "name": "warm_cache_integrity_rejection",
+      "restored_original_query": true,
+      "same_size_tamper_status": 409,
+      "started_at": "2026-10-28T04:07:09.264852+00:00",
+      "status": "succeeded"
+    },
+    {
+      "elapsed_seconds": 0.7921116659999825,
+      "finished_at": "2026-10-28T04:07:10.738042+00:00",
+      "name": "retain_database_and_stop_disposable_services",
+      "started_at": "2026-10-28T04:07:09.942240+00:00",
+      "status": "succeeded"
+    }
+  ],
+  "started_at": "2026-10-28T04:05:04.354086+00:00",
+  "status": "development_case_measured_incomplete_gate",
+  "target": {
+    "active_attempts": 1,
+    "candidates": 100000,
+    "changes": 10000,
+    "configuration_bytes": 8388608,
+    "container_cpu_seconds": 6000,
+    "container_cpus": 4,
+    "container_memory_bytes": 8589934592,
+    "container_pids": 64,
+    "container_swap_memory_bytes": 8589934592,
+    "evidence_bytes": 8388608,
+    "evidence_items": 100,
+    "evidence_seconds": 10,
+    "frames": 100000,
+    "network_files": 4,
+    "network_per_file_bytes": 67108864,
+    "network_total_bytes": 134217728,
+    "operations": 10000,
+    "output_bytes": 1073741824,
+    "persistent_handoff_bytes": 4294967296,
+    "process_bytes": 8388608,
+    "process_columns": 16,
+    "process_records": 10000,
+    "temporary_disk_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "terminal": {
+    "attempt": 1,
+    "attempt_history": [
+      {
+        "attempt": 1,
+        "exited_at": "2026-10-28T12:06:00.491822+08:00",
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e:74ce999b5abeed58ce22e29a",
+        "publication_state": "published"
+      }
+    ],
+    "config_version_id": "471021152170e43b33ffd165e83ce42f",
+    "created_at": "2026-10-28T12:05:08.762668+08:00",
+    "dataset_id": "ecbc93f8be542f779644b7e4a33b9151",
+    "id": "44804c90da9be64656624af113afe96d",
+    "last_error": null,
+    "lease_valid": false,
+    "mode": "dual_source",
+    "network_file_ids": null,
+    "preflight_id": "672a4dc12a20dac409cc96f4f0369f9b",
+    "preflight_link_origin": "native_gate",
+    "replay_version": null,
+    "state": "succeeded"
+  },
+  "worker_attempts": [
+    {
+      "attempt": "attempt-1.worker",
+      "compute_measurements": {
+        "cpu_system_seconds": 1.3376109999999999,
+        "cpu_user_seconds": 28.780215,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 65597440,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 30.196826388999966
+      },
+      "compute_measurements_sha256": "584a518b0dc0c3d12bfbc5f3730ee38f4b5858db477ad9788084e1408d9f5a5d",
+      "compute_phases": [
+        {
+          "cpu_seconds": 0.108381,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "network_parse",
+          "rss_high_water_bytes": 24383488,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 0.10894712500009973
+        },
+        {
+          "cpu_seconds": 0.0008519999999999917,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "process_parse",
+          "rss_high_water_bytes": 24383488,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 0.0008547090000092794
+        },
+        {
+          "cpu_seconds": 3.5970069999999996,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "association_and_evidence",
+          "rss_high_water_bytes": 41553920,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 3.609928959999934
+        },
+        {
+          "cpu_seconds": 3.709624,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "offline_analysis",
+          "rss_high_water_bytes": 41553920,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 3.7231088769999587
+        },
+        {
+          "cpu_seconds": 6.772711,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "retained_export",
+          "rss_high_water_bytes": 42844160,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 6.7976665029999594
+        },
+        {
+          "cpu_seconds": 1.4217719999999991,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "standard_projection",
+          "rss_high_water_bytes": 43917312,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 1.4266175010000097
+        },
+        {
+          "cpu_seconds": 0.1439650000000008,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "network_parse",
+          "rss_high_water_bytes": 46874624,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 0.14396974999999657
+        },
+        {
+          "cpu_seconds": 0.0009899999999993803,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "process_parse",
+          "rss_high_water_bytes": 46874624,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 0.0009932080000680799
+        },
+        {
+          "cpu_seconds": 4.947709,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "association_and_evidence",
+          "rss_high_water_bytes": 60178432,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 4.948159335000014
+        },
+        {
+          "cpu_seconds": 5.096126999999998,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "offline_analysis",
+          "rss_high_water_bytes": 60178432,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 5.096571710000035
+        },
+        {
+          "cpu_seconds": 1.9935849999999977,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "standard_projection",
+          "rss_high_water_bytes": 62218240,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 1.993764001000045
+        },
+        {
+          "cpu_seconds": 17.050344000000003,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "artifact_verification",
+          "rss_high_water_bytes": 65597440,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 17.051647591000005
+        },
+        {
+          "cpu_seconds": 29.833115,
+          "definition": "process cumulative RSS high-water; overlapping nested phase durations; excludes tmpfs, host and queue",
+          "phase": "complete_export",
+          "rss_high_water_bytes": 65597440,
+          "status": "returned",
+          "version": "offline-phase-resources-1",
+          "wall_seconds": 29.873624013999915
+        }
+      ],
+      "compute_phases_sha256": "a4925daa8a1a41f0535c96e873f43462e6983bc901d81e3ea2acfbe1f372a484",
+      "image_id": "sha256:a29a211cd586ca4c5cef1da4b3d28c91c43d2e947b016f8d9d2e6d2018acd1f0",
+      "limits": {
+        "Memory": 2147483648,
+        "MemorySwap": 2147483648,
+        "NanoCpus": 2000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 64,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/output": "rw,nosuid,nodev,size=536870912,mode=1777",
+          "/runtime": "rw,nosuid,nodev,size=1m,mode=1777",
+          "/tmp": "rw,nosuid,nodev,size=538968064,mode=1777"
+        }
+      },
+      "source_sha256": "d8c91e819bfcd3bb4c66494c86cf14f21f54ba9b6f2101e3471de470eee07b4f",
+      "state": {
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T04:06:00.28978171Z",
+        "OOMKilled": false,
+        "StartedAt": "2026-10-28T04:05:09.331982506Z",
+        "Status": "exited"
+      }
+    }
+  ]
+}

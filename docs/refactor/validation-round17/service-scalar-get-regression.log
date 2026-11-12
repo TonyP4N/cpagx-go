@@ -1,0 +1,14 @@
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding/scalar
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding/multi
+--- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding (0.00s)
+    --- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding/scalar (0.00s)
+    --- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding/multi (0.00s)
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding/scalar
+=== RUN   TestRunGETPreservesSQLNullLegacyCaptureBinding/multi
+--- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding (0.00s)
+    --- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding/scalar (0.00s)
+    --- PASS: TestRunGETPreservesSQLNullLegacyCaptureBinding/multi (0.00s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	0.326s

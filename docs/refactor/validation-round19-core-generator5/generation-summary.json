@@ -1,0 +1,101 @@
+{
+  "complete_core_acceptance": false,
+  "reference_accepted": false,
+  "scales": {
+    "L": {
+      "core_limits": {
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "output_bytes": 1073741824,
+        "temporary_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "directory": "controlled outputs/cpag-r19-core-standard-generator-L5-attempt1",
+      "files": {
+        "fixture.json": "32024d5f0a325baa5083a4d3d998452c63d722cdeca966c35d12cbf81deac077",
+        "matrix.json": "a3b64941fa66646675d560b419a21432de001340d3a6bb7d37d2c99fdffb6a88",
+        "network.pcap": "abac2b769dbe57b4cc9558dfc1a98dc5a910358d2bca4e3f129a0ddf90d8e381",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "007d4e228b5183b14820fe6f0dda04d5a90b0be2886257349930c2cd2b0504b9",
+        "process.csv": "02508de1fa3a2e76702edbb0dc70658ffb7b577263a87386ac553a26c69818f4",
+        "replay-profile.json": "3ffc35e4dee31eeede4914aa9a5b0f267e3d7313bf016be0dcd076468cfeaad6"
+      },
+      "logical_extent_guard": {
+        "max_logical_root_bytes": 4503599627370496,
+        "meaning": "authenticated shared logical extent arithmetic only; does not allocate memory or physical storage",
+        "physical_output_bytes": 1073741824,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "version": "shared-storage-budget-2",
+        "whole_root_materialization_authorized": false
+      },
+      "raw_original_preserved": true,
+      "standard_projection": "standard-graph-events-1",
+      "storage_budget_version": "shared-storage-budget-2"
+    },
+    "M": {
+      "core_limits": {
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "output_bytes": 1073741824,
+        "temporary_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "directory": "controlled outputs/cpag-r19-core-standard-generator-M5-attempt1",
+      "files": {
+        "fixture.json": "bdb873f327fca9032966f2ed2aff1470c46ac935254428c28daa666d904ace85",
+        "matrix.json": "c776f71d03897a2be8aa5f85d5c12ce6f8dab1df43cc9ddda11c9739932e22dd",
+        "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "8dee4506ff2ce4c0e83d725f51ece2507c68bf44960659c9e0e005ebf0778cf7",
+        "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+        "replay-profile.json": "e782771fdb23d28d456f9bd55c8c12041ec74e06e01d7c083e60f6a1aa096c40"
+      },
+      "logical_extent_guard": {
+        "max_logical_root_bytes": 4503599627370496,
+        "meaning": "authenticated shared logical extent arithmetic only; does not allocate memory or physical storage",
+        "physical_output_bytes": 1073741824,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "version": "shared-storage-budget-2",
+        "whole_root_materialization_authorized": false
+      },
+      "raw_original_preserved": true,
+      "standard_projection": "standard-graph-events-1",
+      "storage_budget_version": "shared-storage-budget-2"
+    },
+    "S": {
+      "core_limits": {
+        "cpus": 4,
+        "memory_bytes": 8589934592,
+        "output_bytes": 1073741824,
+        "temporary_bytes": 4294967296,
+        "wall_seconds": 1800
+      },
+      "directory": "controlled outputs/cpag-r19-core-standard-generator-S5-attempt1",
+      "files": {
+        "fixture.json": "8e07a141b253db524120bb6a6602c10e8e830c3e51a61ed152a7062df7c70de5",
+        "matrix.json": "4953b10336fc480ee9f9ff581ea9dd06f778182064f04ea27533e3eed3fe18c3",
+        "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+        "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+        "preflight.json": "c99a50466929aa3a60ef0b0053b2ff0de2b1d8427f343ad71160ddc87ec5edbc",
+        "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+        "replay-profile.json": "328c9217267d865a5bd264966359c6f292f099b7d503f684c96cb525793f9e31"
+      },
+      "logical_extent_guard": {
+        "max_logical_root_bytes": 4503599627370496,
+        "meaning": "authenticated shared logical extent arithmetic only; does not allocate memory or physical storage",
+        "physical_output_bytes": 1073741824,
+        "query_bytes": 8388608,
+        "query_items": 100,
+        "version": "shared-storage-budget-2",
+        "whole_root_materialization_authorized": false
+      },
+      "raw_original_preserved": true,
+      "standard_projection": "standard-graph-events-1",
+      "storage_budget_version": "shared-storage-budget-2"
+    }
+  },
+  "status": "static_generation_complete",
+  "version": "r19-density-capacity-5-static-generation-1"
+}

@@ -1,0 +1,192 @@
+test_budget2_accepts_above_legacy_boundary_without_materializing_content (test_compact_extent_contract.CompactExtentContractTests.test_budget2_accepts_above_legacy_boundary_without_materializing_content) ... ERROR
+test_full_outer_manifest_each_version_exact_boundary_and_one_above (test_compact_extent_contract.CompactExtentContractTests.test_full_outer_manifest_each_version_exact_boundary_and_one_above) ...
+  test_full_outer_manifest_each_version_exact_boundary_and_one_above (test_compact_extent_contract.CompactExtentContractTests.test_full_outer_manifest_each_version_exact_boundary_and_one_above) (version='shared-storage-budget-2') ... ERROR
+test_missing_and_unknown_budget_versions_are_rejected (test_compact_extent_contract.CompactExtentContractTests.test_missing_and_unknown_budget_versions_are_rejected) ... ok
+test_session_does_not_reuse_pass_after_nested_extent_or_version_changes (test_compact_extent_contract.CompactExtentContractTests.test_session_does_not_reuse_pass_after_nested_extent_or_version_changes) ... ERROR
+test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) ...
+  test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) (version='shared-storage-budget-1') ... FAIL
+  test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) (version='shared-storage-budget-2') ... FAIL
+test_absent_then_or_else_does_not_make_if_a_rejection_rule (test_compact_extent_contract.ConditionalSubsetTests.test_absent_then_or_else_does_not_make_if_a_rejection_rule) ... ok
+test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) ...
+  test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value=0) ... FAIL
+  test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value=4) ... FAIL
+  test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value='two') ... FAIL
+test_condition_ref_error_is_not_hidden_as_an_else_match (test_compact_extent_contract.ConditionalSubsetTests.test_condition_ref_error_is_not_hidden_as_an_else_match) ... FAIL
+test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) ...
+  test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'new', 'old_value': 2}) ... FAIL
+  test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'old', 'new_value': 4}) ... FAIL
+  test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'new_value': 4}) ... FAIL
+  test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'new', 'new_value': 5}) ... FAIL
+  test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'old_value': 3}) ... FAIL
+
+======================================================================
+ERROR: test_budget2_accepts_above_legacy_boundary_without_materializing_content (test_compact_extent_contract.CompactExtentContractTests.test_budget2_accepts_above_legacy_boundary_without_materializing_content)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 49, in test_budget2_accepts_above_legacy_boundary_without_materializing_content
+    validate('CompactStoreRunManifest',value)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 37, in validate
+    _validate(schema, value, name)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 89, in _validate_impl
+    _validate(schema.get('items',{}),item,f'{path}[{i}]')
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 103, in _validate_impl
+    raise ContractError(f'{path}: above maximum')
+cpag_core.contracts.ContractError: CompactStoreRunManifest.logical_artifacts[3].logical_bytes: above maximum
+
+======================================================================
+ERROR: test_full_outer_manifest_each_version_exact_boundary_and_one_above (test_compact_extent_contract.CompactExtentContractTests.test_full_outer_manifest_each_version_exact_boundary_and_one_above) (version='shared-storage-budget-2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 41, in test_full_outer_manifest_each_version_exact_boundary_and_one_above
+    self.assertIs(validate('CompactStoreRunManifest',value),value)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 37, in validate
+    _validate(schema, value, name)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 89, in _validate_impl
+    _validate(schema.get('items',{}),item,f'{path}[{i}]')
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 103, in _validate_impl
+    raise ContractError(f'{path}: above maximum')
+cpag_core.contracts.ContractError: CompactStoreRunManifest.logical_artifacts[3].logical_bytes: above maximum
+
+======================================================================
+ERROR: test_session_does_not_reuse_pass_after_nested_extent_or_version_changes (test_compact_extent_contract.CompactExtentContractTests.test_session_does_not_reuse_pass_after_nested_extent_or_version_changes)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 67, in test_session_does_not_reuse_pass_after_nested_extent_or_version_changes
+    validate('CompactStoreRunManifest',value)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 37, in validate
+    _validate(schema, value, name)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 89, in _validate_impl
+    _validate(schema.get('items',{}),item,f'{path}[{i}]')
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 76, in _validate_impl
+    _validate(props[key],item,path+'.'+key)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 46, in _validate
+    _validate_impl(schema,value,path)
+  File "<WORKSPACE>/cpagx-go/services/analysis/src/cpag_core/contracts.py", line 103, in _validate_impl
+    raise ContractError(f'{path}: above maximum')
+cpag_core.contracts.ContractError: CompactStoreRunManifest.logical_artifacts[3].logical_bytes: above maximum
+
+======================================================================
+FAIL: test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) (version='shared-storage-budget-1')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 55, in test_version_and_declared_extent_budget_cannot_be_crossed
+    with self.assertRaises(ContractError):validate('CompactStoreRunManifest',value)
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) (version='shared-storage-budget-2')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 55, in test_version_and_declared_extent_budget_cannot_be_crossed
+    with self.assertRaises(ContractError):validate('CompactStoreRunManifest',value)
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value=0)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 77, in test_allof_checks_every_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'number')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 77, in test_allof_checks_every_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'number')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) (value='two')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 77, in test_allof_checks_every_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'number')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_condition_ref_error_is_not_hidden_as_an_else_match (test_compact_extent_contract.ConditionalSubsetTests.test_condition_ref_error_is_not_hidden_as_an_else_match)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 95, in test_condition_ref_error_is_not_hidden_as_an_else_match
+    with self.assertRaises(OSError):
+AssertionError: OSError not raised
+
+======================================================================
+FAIL: test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'new', 'old_value': 2})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 87, in test_matching_missing_and_nonmatching_condition_use_the_correct_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'conditional')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'old', 'new_value': 4})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 87, in test_matching_missing_and_nonmatching_condition_use_the_correct_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'conditional')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'new_value': 4})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 87, in test_matching_missing_and_nonmatching_condition_use_the_correct_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'conditional')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'kind': 'new', 'new_value': 5})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 87, in test_matching_missing_and_nonmatching_condition_use_the_correct_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'conditional')
+AssertionError: ContractError not raised
+
+======================================================================
+FAIL: test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) (value={'old_value': 3})
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<WORKSPACE>/cpagx-go/tests/contracts/test_compact_extent_contract.py", line 87, in test_matching_missing_and_nonmatching_condition_use_the_correct_branch
+    with self.subTest(value=value),self.assertRaises(ContractError):_validate(schema,value,'conditional')
+AssertionError: ContractError not raised
+
+----------------------------------------------------------------------
+Ran 9 tests in 0.005s
+
+FAILED (failures=11, errors=3)

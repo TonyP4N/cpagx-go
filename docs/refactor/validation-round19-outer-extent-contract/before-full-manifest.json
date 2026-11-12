@@ -1,0 +1,92 @@
+{
+  "schema_version": "1.0.0",
+  "synthetic": true,
+  "run_id": "extent-contract",
+  "attempt_id": 1,
+  "input_fingerprint": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "config_fingerprint": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "tool_versions": {
+    "core": "test",
+    "python": "test"
+  },
+  "mode": "replay",
+  "artifacts": [],
+  "result_hashes": {
+    "events": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "graph": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+  },
+  "limitations": [],
+  "status": "succeeded",
+  "warnings": [],
+  "source_fingerprint": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "semantic_config_fingerprint": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+  "shared_manifest_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "storage_format": "shared-observation-dag-6",
+  "result_hash_kind": "merkle-json-dag-1",
+  "storage_budget": {
+    "version": "shared-storage-budget-2",
+    "physical_bytes": 1073741824,
+    "max_nodes": 8000000,
+    "max_roots": 160000,
+    "max_node_bytes": 8388608,
+    "max_dict_items": 4096,
+    "cache_bytes": 16777216,
+    "query_bytes": 8388608,
+    "query_items": 100,
+    "max_logical_root_bytes": 4503599627370496
+  },
+  "network_count": 1,
+  "graph_identity_strategy": "merkle-json-dag-1",
+  "counts": {
+    "network": 0,
+    "process": 0,
+    "operations": 0,
+    "changes": 0,
+    "candidates": 0,
+    "snapshots": 1,
+    "revisions": 0
+  },
+  "history_format": "shared-observation-dag-6",
+  "identity_strategy": "merkle-json-dag-1",
+  "replay_version": "dual-source-replay-1",
+  "prefix_digest_strategy": "incremental-prefix-digest-2",
+  "final_snapshot_number": 0,
+  "final_snapshot_id": "snapshot-1111111111111111111111111111111111111111111111111111111111111111",
+  "logical_artifacts": [
+    {
+      "name": "analysis.json",
+      "digest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "logical_bytes": 2,
+      "kind": "array_leaf",
+      "items": 0
+    },
+    {
+      "name": "events.json",
+      "digest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "logical_bytes": 2,
+      "kind": "array_leaf",
+      "items": 0
+    },
+    {
+      "name": "graph.json",
+      "digest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "logical_bytes": 2,
+      "kind": "array_leaf",
+      "items": 0
+    },
+    {
+      "name": "history/snapshots",
+      "digest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "logical_bytes": 549755813889,
+      "kind": "array_leaf",
+      "items": 0
+    },
+    {
+      "name": "history/revisions",
+      "digest": "2222222222222222222222222222222222222222222222222222222222222222",
+      "logical_bytes": 2,
+      "kind": "array_leaf",
+      "items": 0
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+test_case_counts_logical_csv_records_and_fingerprints_originals (test_round19_capacity.CapacityGateTests.test_case_counts_logical_csv_records_and_fingerprints_originals) ... ok
+test_case_rejects_old_jsonl_and_false_density_or_cold_claim (test_round19_capacity.CapacityGateTests.test_case_rejects_old_jsonl_and_false_density_or_cold_claim) ... ok
+test_command_bootstraps_without_pythonpath (test_round19_capacity.CapacityGateTests.test_command_bootstraps_without_pythonpath) ... ok
+test_formal_failure_cannot_be_converted_to_acceptance (test_round19_capacity.CapacityGateTests.test_formal_failure_cannot_be_converted_to_acceptance) ... ok
+test_only_explicit_dev_run_permits_mismatched_host_and_never_accepts (test_round19_capacity.CapacityGateTests.test_only_explicit_dev_run_permits_mismatched_host_and_never_accepts) ... ok
+test_probe_exception_and_failed_command_keep_raw_failure (test_round19_capacity.CapacityGateTests.test_probe_exception_and_failed_command_keep_raw_failure) ... ok
+test_reference_check_rejects_missing_and_individual_mismatches (test_round19_capacity.CapacityGateTests.test_reference_check_rejects_missing_and_individual_mismatches) ... ok
+test_reference_refusal_has_failure_record_and_does_not_start_worker (test_round19_capacity.CapacityGateTests.test_reference_refusal_has_failure_record_and_does_not_start_worker) ... ok
+test_remote_or_small_docker_is_not_reference_capable (test_round19_capacity.CapacityGateTests.test_remote_or_small_docker_is_not_reference_capable) ... ok
+test_all_scales_preserve_raw_request_response_and_csv_density (test_round19_scale_fixture.ScaleFixtureTests.test_all_scales_preserve_raw_request_response_and_csv_density) ... ok
+test_existing_fixture_is_never_overwritten (test_round19_scale_fixture.ScaleFixtureTests.test_existing_fixture_is_never_overwritten) ... ok
+
+----------------------------------------------------------------------
+Ran 11 tests in 0.285s
+
+OK

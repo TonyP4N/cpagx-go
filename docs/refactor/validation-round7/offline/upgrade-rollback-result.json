@@ -1,0 +1,59 @@
+{
+  "valid": true,
+  "synthetic_only": true,
+  "baseline": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+  "upgrade_existing_evidence": true,
+  "candidate_independent_restore": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "cpag-engineering-synthetic-rc1",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 387656,
+      "attempt_file_bytes": 125512,
+      "reservation_count": 5,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 4
+    }
+  },
+  "baseline_rollback": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_version": "1386a4f68afbe00d83bb355632e9ff7637a227c2",
+    "metadata_equal": true,
+    "history_equal": true,
+    "files_equal": true,
+    "evidence_audit": true,
+    "capacity": {
+      "reserved_bytes": 193846,
+      "attempt_file_bytes": 62774,
+      "reservation_count": 3,
+      "valid": true
+    },
+    "control": {
+      "valid": true,
+      "matched_execution_count": 2
+    }
+  },
+  "snapshot_negatives": {
+    "valid": true,
+    "synthetic_only": true,
+    "source_unchanged": true,
+    "cases": {
+      "missing_original_capture": "rejected_before_restore",
+      "tampered_original_capture": "rejected_before_restore",
+      "missing_published_manifest": "rejected_before_restore",
+      "tampered_capacity_ledger": "rejected_before_restore",
+      "tampered_database_dump": "rejected_before_restore",
+      "missing_exit_receipt": "rejected_before_restore"
+    }
+  },
+  "old_executor_fresh_tasks_after_rollback": true,
+  "newer_data_retained": true
+}

@@ -1,0 +1,32 @@
+{
+  "baseline": "2f08784",
+  "synthetic": true,
+  "cases": {
+    "missing_tree": {
+      "returned": {
+        "valid": true,
+        "errors": [],
+        "referenced_files": [],
+        "unreferenced_files": [],
+        "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+      }
+    },
+    "terminal_missing_inputs": {
+      "returned": {
+        "valid": true,
+        "errors": [],
+        "referenced_files": [],
+        "unreferenced_files": [],
+        "orphan_policy": "retain_and_report; unreferenced may be prior attempts or diagnostics, never delete automatically"
+      }
+    },
+    "one_malformed_row_in_batch": {
+      "raised": "AttributeError",
+      "reason": "'str' object has no attribute 'get'"
+    },
+    "malformed_attempt_in_batch": {
+      "raised": "AttributeError",
+      "reason": "'NoneType' object has no attribute 'get'"
+    }
+  }
+}

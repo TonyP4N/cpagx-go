@@ -1,0 +1,31 @@
+{
+  "version": "r19-outer-extent-contract-reproduction-1",
+  "frozen_measurement_commit": "56e106b2a44d88a0c67280d5d9e6a1e13aa79a75",
+  "review_head": "0c4c91da4b8a3957ea3c88de925c88f43854146f",
+  "scope": "outer manifest schema/runtime only; no physical expansion or capacity measurement",
+  "independent_expected": {
+    "budget1_max": 549755813888,
+    "budget2_max": 4503599627370496,
+    "budget2_at_549755813889_accepted": true,
+    "physical_bytes_unchanged": 1073741824,
+    "query_bytes_unchanged": 8388608,
+    "query_items_unchanged": 100
+  },
+  "before_full_manifest_result": {
+    "accepted": false,
+    "error_type": "ContractError",
+    "reason": "CompactStoreRunManifest.logical_artifacts[3].logical_bytes: above maximum"
+  },
+  "before_test_exit_code": 1,
+  "first_readonly_probe_invocation": {
+    "outcome": "ModuleNotFoundError: No module named cpag_core",
+    "cause": "PYTHONPATH omitted",
+    "corrected_before_test_command": true,
+    "project_failure": false
+  },
+  "sources": {
+    "schemas/CompactStoreRunManifest.schema.json": "8d97b2e8d77d5041d3d23fadaea9ed4b69b677f31885428bb2f69a2b030dd6cf",
+    "services/analysis/src/cpag_core/contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+    "tests/contracts/test_compact_extent_contract.py": "372225675d81ba39245103984d1b86163feeec9e169fb1f44b8bf7cdbea6b6cc"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "success": {
+    "id": "r14-dual-success-96d38bd532a04e67a8fc70d1a80a577b",
+    "state": "succeeded",
+    "attempt": 1,
+    "artifact_sha256": "664f4aaf351948a2fd398b78e50fbae4c55035b7ebf68f7df60c058b8bd122d7",
+    "attempt_count": 1
+  },
+  "host_worker": {
+    "id": "r14-dual-host-worker-8319945fd70846d297982b21ded19eef",
+    "state": "succeeded",
+    "attempt": 1,
+    "artifact_sha256": "d9a5028cce7779f2368a2ad19ec54ad4a9c23462827b23508a2350a9e904aceb",
+    "attempt_count": 1
+  },
+  "retry": {
+    "id": "r14-dual-lost-worker-2c2d83f2873a45cabdfc8bb16d1bdb60",
+    "state": "succeeded",
+    "attempt": 2,
+    "artifact_sha256": "f876889c46db3ba633b582726107d16f1fdcf9ac72616834287617403de772c1",
+    "attempt_count": 2
+  },
+  "crash_recovery": {
+    "id": "r14-dual-publish-crash-4c6f134bc8884a0bab3c0e66d78cd161",
+    "state": "succeeded",
+    "attempt": 1,
+    "artifact_sha256": "953ff977c5b5733d3b63d8bbf42fffd277b167ae2d4a24150d936bf44b958928",
+    "attempt_count": 1
+  },
+  "running_cancel": {
+    "id": "r14-dual-running-cancel-aa6d407bcf2b489d931f2b626559d178",
+    "state": "cancelled",
+    "attempt": 1,
+    "artifact_sha256": null,
+    "attempt_count": 1
+  },
+  "nested_tamper": {
+    "id": "r14-dual-nested-tamper-3d2db6abfc544f83a11b42a7917ec326",
+    "state": "cancelled",
+    "attempt": 1,
+    "artifact_sha256": null,
+    "attempt_count": 1
+  }
+}

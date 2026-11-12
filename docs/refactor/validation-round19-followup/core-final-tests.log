@@ -1,0 +1,33 @@
+test_csv_record_limit_fails_without_returning_partial_events (test_capacity_profile.CapacityProfileTests.test_csv_record_limit_fails_without_returning_partial_events) ... ok
+test_optional_version_does_not_expand_old_defaults (test_capacity_profile.CapacityProfileTests.test_optional_version_does_not_expand_old_defaults) ... ok
+test_parser_options_are_explicit_and_bounded (test_capacity_profile.CapacityProfileTests.test_parser_options_are_explicit_and_bounded) ... ok
+test_config_fingerprint_changes (test_core.CoreTests.test_config_fingerprint_changes) ... ok
+test_repeated_runs_evidence_and_checksums (test_core.CoreTests.test_repeated_runs_evidence_and_checksums) ... ok
+test_requires_synthetic_and_resolved_evidence (test_core.CoreTests.test_requires_synthetic_and_resolved_evidence) ... ok
+test_volatile_fields_excluded (test_core.CoreTests.test_volatile_fields_excluded) ... ok
+test_logical_record_and_column_bounds (test_core.EvidenceBoundaryTests.test_logical_record_and_column_bounds) ... ok
+test_csv_blank_and_multiline_positions_and_raw_values (test_core.IndexedEvidenceTests.test_csv_blank_and_multiline_positions_and_raw_values) ... ok
+test_empty_either_source_rejected (test_core.IndexedEvidenceTests.test_empty_either_source_rejected) ... ok
+test_invalid_jsonl_before_valid_and_raw_content (test_core.IndexedEvidenceTests.test_invalid_jsonl_before_valid_and_raw_content) ... ok
+test_mutation_before_during_index_and_publication (test_core.IndexedEvidenceTests.test_mutation_before_during_index_and_publication) ... ok
+test_csv_raw_time_mismatch_fails_before_publication (test_core.RawEvidenceValidationTests.test_csv_raw_time_mismatch_fails_before_publication) ... ok
+test_invalid_utf8_is_explicit_and_never_published (test_core.RawEvidenceValidationTests.test_invalid_utf8_is_explicit_and_never_published) ... ok
+test_invalid_one_source_does_not_hide_behind_valid_other_source (test_core.SourceFailureTests.test_invalid_one_source_does_not_hide_behind_valid_other_source) ... ok
+test_changed_bytes_at_exit_reject_whole_batch_and_clear_cache (test_evidence_batch.BatchEvidenceTests.test_changed_bytes_at_exit_reject_whole_batch_and_clear_cache) ... ok
+test_nested_batch_rejected (test_evidence_batch.BatchEvidenceTests.test_nested_batch_rejected) ... ok
+test_one_verification_each_boundary_and_same_original (test_evidence_batch.BatchEvidenceTests.test_one_verification_each_boundary_and_same_original) ... ok
+test_disabled_requires_no_output (test_measurement.PhaseTests.test_disabled_requires_no_output) ... ok
+test_opt_in_does_not_change_value_and_reports_failure (test_measurement.PhaseTests.test_opt_in_does_not_change_value_and_reports_failure) ... ok
+test_file_bytes_and_corruption (test_streaming_json.StreamingJSONTests.test_file_bytes_and_corruption) ... ok
+test_independent_legacy_bytes_and_hashes (test_streaming_json.StreamingJSONTests.test_independent_legacy_bytes_and_hashes) ... ok
+test_mutation_between_calls_not_cached (test_streaming_json.StreamingJSONTests.test_mutation_between_calls_not_cached) ... ok
+test_nonfinite_rejected (test_streaming_json.StreamingJSONTests.test_nonfinite_rejected) ... ok
+test_output_budget_exact_and_one_byte_over (test_streaming_json.StreamingJSONTests.test_output_budget_exact_and_one_byte_over) ... ok
+test_flat_mutation_rechecked_including_bool_int_equality (test_validation_session.SessionTests.test_flat_mutation_rechecked_including_bool_int_equality) ... ok
+test_nested_mutation_never_cached (test_validation_session.SessionTests.test_nested_mutation_never_cached) ... ok
+test_scopes_do_not_reuse_changed_schema (test_validation_session.SessionTests.test_scopes_do_not_reuse_changed_schema) ... ok
+
+----------------------------------------------------------------------
+Ran 28 tests in 0.217s
+
+OK

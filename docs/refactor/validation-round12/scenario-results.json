@@ -1,0 +1,292 @@
+[
+  {
+    "scenario": "success",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "error",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "error",
+      "assessment": "expected_change_observed",
+      "candidate_state": "counterevidence_present"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "error",
+      "assessment": "expected_change_observed",
+      "candidate_state": "counterevidence_present"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "missing_response",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "missing",
+      "assessment": "expected_change_observed",
+      "candidate_state": "unknown"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "missing",
+      "assessment": "expected_change_observed",
+      "candidate_state": "unknown"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "no_change",
+    "expected": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "no_expected_change_observed"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "no_expected_change_observed"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "orphan_change",
+    "expected": {
+      "operations": 0,
+      "changes": 1,
+      "candidates": 0,
+      "orphan_changes": 1
+    },
+    "actual": {
+      "operations": 0,
+      "changes": 1,
+      "candidates": 0,
+      "orphan_changes": 1
+    },
+    "passed": true
+  },
+  {
+    "scenario": "ambiguous",
+    "expected": {
+      "operations": 2,
+      "changes": 1,
+      "candidates": 2,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "ambiguous"
+    },
+    "actual": {
+      "operations": 2,
+      "changes": 1,
+      "candidates": 2,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "ambiguous"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "offset",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "out_of_order",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "supported_candidate"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "missing_value",
+    "expected": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "mapping_missing",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "mapping_missing"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "mapping_missing"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "mapping_conflict",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "mapping_conflict"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "mapping_conflict"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "clock_unknown",
+    "expected": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "time_basis_missing"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "time_basis_missing"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "disjoint",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "source_intervals_disjoint"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown",
+      "reason": "source_intervals_disjoint"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "uncertain_time",
+    "expected": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "unknown"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 1,
+      "candidates": 1,
+      "response": "success",
+      "assessment": "expected_change_observed",
+      "candidate_state": "unknown"
+    },
+    "passed": true
+  },
+  {
+    "scenario": "sampling_gap",
+    "expected": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown"
+    },
+    "actual": {
+      "operations": 1,
+      "changes": 0,
+      "candidates": 0,
+      "response": "success",
+      "assessment": "unknown"
+    },
+    "passed": true
+  }
+]

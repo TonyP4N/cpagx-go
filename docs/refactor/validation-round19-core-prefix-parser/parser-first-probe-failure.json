@@ -1,0 +1,9 @@
+{
+  "version": "r19-core-prefix-parse-cost-1",
+  "status": "failed",
+  "reason": "probe_selected_legacy_adapter_due_to_incorrect_constructor_argument_replacement",
+  "failure_layer": "measurement_harness",
+  "first_failure_preserved": true,
+  "raw_error": "stderr.log",
+  "reference_accepted": false
+}

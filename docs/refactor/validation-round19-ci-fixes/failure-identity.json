@@ -1,0 +1,8 @@
+{
+  "commit": "64c69fd8e932a14114b9da25c3c837cfd628f272",
+  "ci_url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40651735027",
+  "core_job_id": 122693156953,
+  "core_full_log_sha256": "cad7671e8224fa286d03c7337b1fde672b86f01a6317aa22958bb204a398aa12",
+  "root_cause": "pytest import plus free-function tests incompatible with registered unittest discovery; local pytest available had hidden CI missing dependency",
+  "fix": "use unittest.TestCase with stdlib temporary directories, retaining two actual subprocess alarm/inherited lock tests"
+}

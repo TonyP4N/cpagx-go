@@ -1,0 +1,57 @@
+{
+  "outer_network": {
+    "Name": "cpag-offline-rc1-airgap",
+    "Id": "00657bf65061ce0c4d839fd0fa51c31c1579fcd5f6f77e9adde00e35fd2bba98",
+    "Created": "2026-10-26T02:31:17.186610128Z",
+    "Scope": "local",
+    "Driver": "bridge",
+    "EnableIPv4": true,
+    "EnableIPv6": false,
+    "IPAM": {
+      "Driver": "default",
+      "Options": {},
+      "Config": [
+        {
+          "Subnet": "172.19.0.0/16",
+          "IPRange": "",
+          "Gateway": "172.19.0.1"
+        }
+      ]
+    },
+    "Internal": true,
+    "Attachable": false,
+    "Ingress": false,
+    "ConfigFrom": {
+      "Network": ""
+    },
+    "ConfigOnly": false,
+    "Options": {
+      "com.docker.network.enable_ipv4": "true",
+      "com.docker.network.enable_ipv6": "false"
+    },
+    "Labels": {},
+    "Containers": {
+      "74252f048820543b5880fe4b3bd9d1dd105bd6199ce0fa6e09613947966c1b2d": {
+        "Name": "cpag-offline-rc1",
+        "EndpointID": "0d256617eecf65c65cff7dba1aa6d9af221566bf1992f1f146dca18f2d2d03b4",
+        "MacAddress": "26:02:9d:db:2d:10",
+        "IPv4Address": "172.19.0.2/16",
+        "IPv6Address": ""
+      }
+    },
+    "Status": {
+      "IPAM": {
+        "Subnets": {
+          "172.19.0.0/16": {
+            "IPsInUse": 4,
+            "DynamicIPsAvailable": 65532
+          }
+        }
+      }
+    }
+  },
+  "routes": "172.17.0.0/16 dev docker0 scope link  src 172.17.0.1 \n172.19.0.0/16 dev eth0 scope link  src 172.19.0.2 \n",
+  "public_https_exit": 1,
+  "public_https_error": "wget: bad address 'example.com'\n",
+  "images_before_install": ""
+}

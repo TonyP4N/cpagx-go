@@ -1,0 +1,8 @@
+test_budget_version_is_explicit_and_keeps_physical_and_read_limits (test_compact_history_budget.CompactExtentTests.test_budget_version_is_explicit_and_keeps_physical_and_read_limits) ... ok
+test_shared_large_extent_verifies_but_cannot_be_expanded (test_compact_history_budget.CompactExtentTests.test_shared_large_extent_verifies_but_cannot_be_expanded) ... ok
+test_complete_values_not_identity_and_signed_zero (test_compact_history_budget.FlatMemoTests.test_complete_values_not_identity_and_signed_zero) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 2.933s
+
+OK

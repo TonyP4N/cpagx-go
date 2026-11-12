@@ -1,0 +1,9 @@
+{
+  "version": "r21-online-backup-refusal-1",
+  "passed": true,
+  "returncode": 1,
+  "reason": "maintenance requires stopped Go service and Worker",
+  "source_database": "cpag_app",
+  "valid_bundle_published": false,
+  "failure_receipt_retained": true
+}

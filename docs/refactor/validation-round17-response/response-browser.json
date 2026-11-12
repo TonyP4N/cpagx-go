@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "synthetic_only": true,
+  "scope": "generated response-clock boundary; no industrial validation",
+  "checks": {
+    "source_unknown_visible_without_candidates": true,
+    "source_operation_two_original_network_refs": true,
+    "source_separate_change_two_original_process_refs": true,
+    "source_combined_original_refs": 4,
+    "source_controlled_download_matches_verified_artifact": true,
+    "restored_unknown_visible_without_candidates": true,
+    "restored_operation_two_original_network_refs": true,
+    "restored_separate_change_two_original_process_refs": true,
+    "restored_combined_original_refs": 4,
+    "restored_controlled_download_matches_verified_artifact": true,
+    "source_and_restore_sessions_isolated": true
+  },
+  "page_errors": [],
+  "screenshot_files": [
+    "source-unknown-no-candidate.png",
+    "source-operation-original-network.png",
+    "source-change-original-process.png",
+    "restored-unknown-no-candidate.png",
+    "restored-operation-original-network.png",
+    "restored-change-original-process.png"
+  ]
+}

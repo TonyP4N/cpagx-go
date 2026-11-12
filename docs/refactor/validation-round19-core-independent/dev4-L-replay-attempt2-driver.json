@@ -1,0 +1,24 @@
+{
+  "command": [
+    "/Library/Frameworks/Python.framework/Versions/3.11/bin/python3",
+    "-B",
+    "$CORE_SCRATCH/cpag-r19-core-frozen-view-56-2fbc-20261029/scripts/validation/round19_core_matrix_l.py",
+    "--output",
+    "$WORKSPACE/outputs/cpag-r19-core-matrix-dev4-L-replay-attempt2",
+    "--scratch-root",
+    "$CORE_SCRATCH/cpag-r19-core-matrix-dev4-L-replay-attempt2-20261029",
+    "--fixture",
+    "$WORKSPACE/outputs/cpag-r19-core-cached-generator-L6-attempt1",
+    "--profile",
+    "$WORKSPACE/outputs/cpag-r19-core-cached-generator-L6-attempt1/replay-profile.json",
+    "--image",
+    "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+    "--mode",
+    "replay"
+  ],
+  "exit_code": 1,
+  "image_id": "sha256:eb80e205306c0463eede21e546b8a4fb1be4fa9e51deb8bd7652cdee6e615f8c",
+  "source_view": "$CORE_SCRATCH/cpag-r19-core-frozen-view-56-2fbc-20261029",
+  "status": "finished",
+  "whole_driver_seconds": 1802.110375624994
+}

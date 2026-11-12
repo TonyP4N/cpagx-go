@@ -1,0 +1,1028 @@
+[
+  {
+    "run_directory": "cpag-r19-formal-s100-20261028-attempt1",
+    "scope": "sampled Docker usage, not process peak RSS or cumulative CPU seconds",
+    "samples": [
+      {
+        "source": "stats-10-856c7379361d.stdout",
+        "MemUsage": "444.2MiB / 2GiB",
+        "MemPerc": "21.69%",
+        "CPUPerc": "113.10%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-11-856c7379361d.stdout",
+        "MemUsage": "449.9MiB / 2GiB",
+        "MemPerc": "21.97%",
+        "CPUPerc": "104.97%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-119-04c647311511.stdout",
+        "MemUsage": "0B / 0B",
+        "MemPerc": "0.00%",
+        "CPUPerc": "0.00%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "0"
+      },
+      {
+        "source": "stats-12-856c7379361d.stdout",
+        "MemUsage": "449.8MiB / 2GiB",
+        "MemPerc": "21.96%",
+        "CPUPerc": "105.81%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-120-04c647311511.stdout",
+        "MemUsage": "20.75MiB / 2GiB",
+        "MemPerc": "1.01%",
+        "CPUPerc": "109.81%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-121-04c647311511.stdout",
+        "MemUsage": "29.12MiB / 2GiB",
+        "MemPerc": "1.42%",
+        "CPUPerc": "108.42%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-122-04c647311511.stdout",
+        "MemUsage": "35.62MiB / 2GiB",
+        "MemPerc": "1.74%",
+        "CPUPerc": "106.55%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-123-04c647311511.stdout",
+        "MemUsage": "93.64MiB / 2GiB",
+        "MemPerc": "4.57%",
+        "CPUPerc": "106.39%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-124-04c647311511.stdout",
+        "MemUsage": "199.3MiB / 2GiB",
+        "MemPerc": "9.73%",
+        "CPUPerc": "105.08%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-125-04c647311511.stdout",
+        "MemUsage": "240.5MiB / 2GiB",
+        "MemPerc": "11.74%",
+        "CPUPerc": "104.89%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-126-04c647311511.stdout",
+        "MemUsage": "363.1MiB / 2GiB",
+        "MemPerc": "17.73%",
+        "CPUPerc": "108.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-127-04c647311511.stdout",
+        "MemUsage": "421.9MiB / 2GiB",
+        "MemPerc": "20.60%",
+        "CPUPerc": "105.04%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-128-04c647311511.stdout",
+        "MemUsage": "428MiB / 2GiB",
+        "MemPerc": "20.90%",
+        "CPUPerc": "105.23%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-129-04c647311511.stdout",
+        "MemUsage": "435.6MiB / 2GiB",
+        "MemPerc": "21.27%",
+        "CPUPerc": "105.27%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-13-856c7379361d.stdout",
+        "MemUsage": "452.6MiB / 2GiB",
+        "MemPerc": "22.10%",
+        "CPUPerc": "105.35%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-130-04c647311511.stdout",
+        "MemUsage": "436.3MiB / 2GiB",
+        "MemPerc": "21.30%",
+        "CPUPerc": "105.03%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-131-04c647311511.stdout",
+        "MemUsage": "439.1MiB / 2GiB",
+        "MemPerc": "21.44%",
+        "CPUPerc": "104.76%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-132-04c647311511.stdout",
+        "MemUsage": "440.2MiB / 2GiB",
+        "MemPerc": "21.49%",
+        "CPUPerc": "104.49%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-133-04c647311511.stdout",
+        "MemUsage": "440.7MiB / 2GiB",
+        "MemPerc": "21.52%",
+        "CPUPerc": "104.65%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-134-04c647311511.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "4.06%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-135-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.97%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-136-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.08%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-137-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-138-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-139-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-14-856c7379361d.stdout",
+        "MemUsage": "453.8MiB / 2GiB",
+        "MemPerc": "22.16%",
+        "CPUPerc": "104.56%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-140-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-141-04c647311511.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.08%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-15-856c7379361d.stdout",
+        "MemUsage": "454.1MiB / 2GiB",
+        "MemPerc": "22.18%",
+        "CPUPerc": "105.37%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-16-856c7379361d.stdout",
+        "MemUsage": "402.3MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "6.97%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-17-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "2.93%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-18-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-19-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "0.07%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-2-856c7379361d.stdout",
+        "MemUsage": "36.53MiB / 2GiB",
+        "MemPerc": "1.78%",
+        "CPUPerc": "100.97%",
+        "BlockIO": "16.7MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-20-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "0.12%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-21-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "0.10%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-22-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-23-856c7379361d.stdout",
+        "MemUsage": "402.2MiB / 2GiB",
+        "MemPerc": "19.64%",
+        "CPUPerc": "1.57%",
+        "BlockIO": "17MB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-24-856c7379361d.stdout",
+        "MemUsage": "0B / 0B",
+        "MemPerc": "0.00%",
+        "CPUPerc": "0.00%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "0"
+      },
+      {
+        "source": "stats-3-856c7379361d.stdout",
+        "MemUsage": "45.49MiB / 2GiB",
+        "MemPerc": "2.22%",
+        "CPUPerc": "104.87%",
+        "BlockIO": "16.7MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-4-856c7379361d.stdout",
+        "MemUsage": "69.55MiB / 2GiB",
+        "MemPerc": "3.40%",
+        "CPUPerc": "105.21%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-5-856c7379361d.stdout",
+        "MemUsage": "187.8MiB / 2GiB",
+        "MemPerc": "9.17%",
+        "CPUPerc": "104.51%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-57-ac7817a672cc.stdout",
+        "MemUsage": "0B / 0B",
+        "MemPerc": "0.00%",
+        "CPUPerc": "0.00%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "0"
+      },
+      {
+        "source": "stats-58-ac7817a672cc.stdout",
+        "MemUsage": "20.5MiB / 2GiB",
+        "MemPerc": "1.00%",
+        "CPUPerc": "110.83%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-59-ac7817a672cc.stdout",
+        "MemUsage": "25.63MiB / 2GiB",
+        "MemPerc": "1.25%",
+        "CPUPerc": "106.98%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-6-856c7379361d.stdout",
+        "MemUsage": "215.2MiB / 2GiB",
+        "MemPerc": "10.51%",
+        "CPUPerc": "104.80%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-60-ac7817a672cc.stdout",
+        "MemUsage": "30.93MiB / 2GiB",
+        "MemPerc": "1.51%",
+        "CPUPerc": "107.18%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-61-ac7817a672cc.stdout",
+        "MemUsage": "33.66MiB / 2GiB",
+        "MemPerc": "1.64%",
+        "CPUPerc": "104.66%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-62-ac7817a672cc.stdout",
+        "MemUsage": "36.59MiB / 2GiB",
+        "MemPerc": "1.79%",
+        "CPUPerc": "109.27%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-63-ac7817a672cc.stdout",
+        "MemUsage": "51.2MiB / 2GiB",
+        "MemPerc": "2.50%",
+        "CPUPerc": "109.27%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-64-ac7817a672cc.stdout",
+        "MemUsage": "68.06MiB / 2GiB",
+        "MemPerc": "3.32%",
+        "CPUPerc": "123.32%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-65-ac7817a672cc.stdout",
+        "MemUsage": "110MiB / 2GiB",
+        "MemPerc": "5.37%",
+        "CPUPerc": "107.66%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-66-ac7817a672cc.stdout",
+        "MemUsage": "188.5MiB / 2GiB",
+        "MemPerc": "9.20%",
+        "CPUPerc": "105.03%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-67-ac7817a672cc.stdout",
+        "MemUsage": "199.7MiB / 2GiB",
+        "MemPerc": "9.75%",
+        "CPUPerc": "114.78%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-68-ac7817a672cc.stdout",
+        "MemUsage": "229.7MiB / 2GiB",
+        "MemPerc": "11.21%",
+        "CPUPerc": "107.38%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-69-ac7817a672cc.stdout",
+        "MemUsage": "335.2MiB / 2GiB",
+        "MemPerc": "16.37%",
+        "CPUPerc": "106.60%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-7-856c7379361d.stdout",
+        "MemUsage": "323.6MiB / 2GiB",
+        "MemPerc": "15.80%",
+        "CPUPerc": "105.43%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-70-ac7817a672cc.stdout",
+        "MemUsage": "423.8MiB / 2GiB",
+        "MemPerc": "20.69%",
+        "CPUPerc": "106.35%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-71-ac7817a672cc.stdout",
+        "MemUsage": "424.5MiB / 2GiB",
+        "MemPerc": "20.73%",
+        "CPUPerc": "104.73%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "8"
+      },
+      {
+        "source": "stats-72-ac7817a672cc.stdout",
+        "MemUsage": "430.5MiB / 2GiB",
+        "MemPerc": "21.02%",
+        "CPUPerc": "104.56%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-73-ac7817a672cc.stdout",
+        "MemUsage": "436.3MiB / 2GiB",
+        "MemPerc": "21.30%",
+        "CPUPerc": "104.91%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-74-ac7817a672cc.stdout",
+        "MemUsage": "436.2MiB / 2GiB",
+        "MemPerc": "21.30%",
+        "CPUPerc": "104.34%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-75-ac7817a672cc.stdout",
+        "MemUsage": "439MiB / 2GiB",
+        "MemPerc": "21.44%",
+        "CPUPerc": "104.44%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-76-ac7817a672cc.stdout",
+        "MemUsage": "440.5MiB / 2GiB",
+        "MemPerc": "21.51%",
+        "CPUPerc": "105.32%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-77-ac7817a672cc.stdout",
+        "MemUsage": "443.4MiB / 2GiB",
+        "MemPerc": "21.65%",
+        "CPUPerc": "105.07%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "8"
+      },
+      {
+        "source": "stats-78-ac7817a672cc.stdout",
+        "MemUsage": "389MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "10.18%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-79-ac7817a672cc.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "2.41%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-8-856c7379361d.stdout",
+        "MemUsage": "435.3MiB / 2GiB",
+        "MemPerc": "21.25%",
+        "CPUPerc": "104.98%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-80-ac7817a672cc.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-81-ac7817a672cc.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-82-ac7817a672cc.stdout",
+        "MemUsage": "388.6MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-83-ac7817a672cc.stdout",
+        "MemUsage": "389MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-84-ac7817a672cc.stdout",
+        "MemUsage": "389MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "0.10%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-85-ac7817a672cc.stdout",
+        "MemUsage": "389MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "0.10%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-9-856c7379361d.stdout",
+        "MemUsage": "437.7MiB / 2GiB",
+        "MemPerc": "21.37%",
+        "CPUPerc": "105.36%",
+        "BlockIO": "16.8MB / 0B",
+        "PIDs": "2"
+      }
+    ]
+  },
+  {
+    "run_directory": "cpag-r19-formal-s100-20261028-attempt2",
+    "scope": "sampled Docker usage, not process peak RSS or cumulative CPU seconds",
+    "samples": [
+      {
+        "source": "stats-10-1841d79f4327.stdout",
+        "MemUsage": "436.3MiB / 2GiB",
+        "MemPerc": "21.30%",
+        "CPUPerc": "104.95%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-11-1841d79f4327.stdout",
+        "MemUsage": "436.6MiB / 2GiB",
+        "MemPerc": "21.32%",
+        "CPUPerc": "104.98%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-12-1841d79f4327.stdout",
+        "MemUsage": "439.5MiB / 2GiB",
+        "MemPerc": "21.46%",
+        "CPUPerc": "104.95%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-13-1841d79f4327.stdout",
+        "MemUsage": "440.2MiB / 2GiB",
+        "MemPerc": "21.50%",
+        "CPUPerc": "110.77%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-14-1841d79f4327.stdout",
+        "MemUsage": "440.5MiB / 2GiB",
+        "MemPerc": "21.51%",
+        "CPUPerc": "105.98%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-15-1841d79f4327.stdout",
+        "MemUsage": "388.8MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "7.23%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-16-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "2.20%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-17-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-18-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-19-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-2-1841d79f4327.stdout",
+        "MemUsage": "25.45MiB / 2GiB",
+        "MemPerc": "1.24%",
+        "CPUPerc": "104.27%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-20-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-21-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-22-1841d79f4327.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-23-1841d79f4327.stdout",
+        "MemUsage": "0B / 0B",
+        "MemPerc": "0.00%",
+        "CPUPerc": "0.00%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "0"
+      },
+      {
+        "source": "stats-3-1841d79f4327.stdout",
+        "MemUsage": "34.53MiB / 2GiB",
+        "MemPerc": "1.69%",
+        "CPUPerc": "104.60%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-4-1841d79f4327.stdout",
+        "MemUsage": "87.85MiB / 2GiB",
+        "MemPerc": "4.29%",
+        "CPUPerc": "104.00%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-5-1841d79f4327.stdout",
+        "MemUsage": "200.2MiB / 2GiB",
+        "MemPerc": "9.78%",
+        "CPUPerc": "104.54%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-6-1841d79f4327.stdout",
+        "MemUsage": "235.4MiB / 2GiB",
+        "MemPerc": "11.49%",
+        "CPUPerc": "104.48%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-7-1841d79f4327.stdout",
+        "MemUsage": "360MiB / 2GiB",
+        "MemPerc": "17.58%",
+        "CPUPerc": "104.54%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-8-1841d79f4327.stdout",
+        "MemUsage": "421.6MiB / 2GiB",
+        "MemPerc": "20.59%",
+        "CPUPerc": "104.58%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-9-1841d79f4327.stdout",
+        "MemUsage": "427.9MiB / 2GiB",
+        "MemPerc": "20.89%",
+        "CPUPerc": "104.77%",
+        "BlockIO": "69.6kB / 0B",
+        "PIDs": "2"
+      }
+    ]
+  },
+  {
+    "run_directory": "cpag-r19-formal-resource-only-20261028-attempt1",
+    "scope": "sampled Docker usage, not process peak RSS or cumulative CPU seconds",
+    "samples": [
+      {
+        "source": "stats-1-50b3dc4a6e1b.stdout",
+        "MemUsage": "0B / 0B",
+        "MemPerc": "0.00%",
+        "CPUPerc": "0.00%",
+        "BlockIO": "0B / 0B",
+        "PIDs": "0"
+      },
+      {
+        "source": "stats-10-50b3dc4a6e1b.stdout",
+        "MemUsage": "311.7MiB / 2GiB",
+        "MemPerc": "15.22%",
+        "CPUPerc": "104.28%",
+        "BlockIO": "246kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-11-50b3dc4a6e1b.stdout",
+        "MemUsage": "424.9MiB / 2GiB",
+        "MemPerc": "20.75%",
+        "CPUPerc": "104.26%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-12-50b3dc4a6e1b.stdout",
+        "MemUsage": "425.2MiB / 2GiB",
+        "MemPerc": "20.76%",
+        "CPUPerc": "104.50%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-13-50b3dc4a6e1b.stdout",
+        "MemUsage": "430.8MiB / 2GiB",
+        "MemPerc": "21.03%",
+        "CPUPerc": "104.44%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-14-50b3dc4a6e1b.stdout",
+        "MemUsage": "434.4MiB / 2GiB",
+        "MemPerc": "21.21%",
+        "CPUPerc": "103.71%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-15-50b3dc4a6e1b.stdout",
+        "MemUsage": "436.3MiB / 2GiB",
+        "MemPerc": "21.30%",
+        "CPUPerc": "103.99%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-16-50b3dc4a6e1b.stdout",
+        "MemUsage": "761.1MiB / 2GiB",
+        "MemPerc": "37.16%",
+        "CPUPerc": "103.54%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-17-50b3dc4a6e1b.stdout",
+        "MemUsage": "1.06GiB / 2GiB",
+        "MemPerc": "52.99%",
+        "CPUPerc": "104.25%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-18-50b3dc4a6e1b.stdout",
+        "MemUsage": "830.3MiB / 2GiB",
+        "MemPerc": "40.54%",
+        "CPUPerc": "104.64%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-19-50b3dc4a6e1b.stdout",
+        "MemUsage": "830MiB / 2GiB",
+        "MemPerc": "40.53%",
+        "CPUPerc": "104.58%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-2-50b3dc4a6e1b.stdout",
+        "MemUsage": "24.36MiB / 2GiB",
+        "MemPerc": "1.19%",
+        "CPUPerc": "107.52%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-20-50b3dc4a6e1b.stdout",
+        "MemUsage": "1021MiB / 2GiB",
+        "MemPerc": "49.85%",
+        "CPUPerc": "104.81%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-21-50b3dc4a6e1b.stdout",
+        "MemUsage": "1.347GiB / 2GiB",
+        "MemPerc": "67.33%",
+        "CPUPerc": "104.79%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-22-50b3dc4a6e1b.stdout",
+        "MemUsage": "389.3MiB / 2GiB",
+        "MemPerc": "19.01%",
+        "CPUPerc": "95.18%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-23-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.8MiB / 2GiB",
+        "MemPerc": "18.99%",
+        "CPUPerc": "4.39%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-24-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.10%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-25-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.08%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-26-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-27-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.11%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-28-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-29-50b3dc4a6e1b.stdout",
+        "MemUsage": "388.7MiB / 2GiB",
+        "MemPerc": "18.98%",
+        "CPUPerc": "0.09%",
+        "BlockIO": "250kB / 0B",
+        "PIDs": "1"
+      },
+      {
+        "source": "stats-3-50b3dc4a6e1b.stdout",
+        "MemUsage": "30.71MiB / 2GiB",
+        "MemPerc": "1.50%",
+        "CPUPerc": "103.95%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-4-50b3dc4a6e1b.stdout",
+        "MemUsage": "33.59MiB / 2GiB",
+        "MemPerc": "1.64%",
+        "CPUPerc": "104.19%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-5-50b3dc4a6e1b.stdout",
+        "MemUsage": "36.3MiB / 2GiB",
+        "MemPerc": "1.77%",
+        "CPUPerc": "104.12%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-6-50b3dc4a6e1b.stdout",
+        "MemUsage": "38.8MiB / 2GiB",
+        "MemPerc": "1.89%",
+        "CPUPerc": "105.40%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-7-50b3dc4a6e1b.stdout",
+        "MemUsage": "204.9MiB / 2GiB",
+        "MemPerc": "10.00%",
+        "CPUPerc": "104.78%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      },
+      {
+        "source": "stats-8-50b3dc4a6e1b.stdout",
+        "MemUsage": "204.7MiB / 2GiB",
+        "MemPerc": "10.00%",
+        "CPUPerc": "103.82%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "8"
+      },
+      {
+        "source": "stats-9-50b3dc4a6e1b.stdout",
+        "MemUsage": "203.2MiB / 2GiB",
+        "MemPerc": "9.92%",
+        "CPUPerc": "104.65%",
+        "BlockIO": "242kB / 0B",
+        "PIDs": "2"
+      }
+    ]
+  }
+]

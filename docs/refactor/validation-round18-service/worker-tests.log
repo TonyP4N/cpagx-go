@@ -1,0 +1,20 @@
+test_private_worker_credentials_only (test_service.ServiceConfig.test_private_worker_credentials_only) ... ok
+test_abnormal_supervisor_no_terminal_state (test_worker.WorkerTests.test_abnormal_supervisor_no_terminal_state) ... ok
+test_ambiguous_completion_does_not_send_fail (test_worker.WorkerTests.test_ambiguous_completion_does_not_send_fail) ... ok
+test_api_unavailable_stops_child_without_terminal_write (test_worker.WorkerTests.test_api_unavailable_stops_child_without_terminal_write) ... ok
+test_cancel_ack_after_exit (test_worker.WorkerTests.test_cancel_ack_after_exit) ... ok
+test_core_does_not_receive_control_credentials (test_worker.WorkerTests.test_core_does_not_receive_control_credentials) ... ok
+test_cpu_and_file_resource_limits (test_worker.WorkerTests.test_cpu_and_file_resource_limits) ... ok
+test_duplicate_invocation_does_not_fail_existing_attempt (test_worker.WorkerTests.test_duplicate_invocation_does_not_fail_existing_attempt) ... ok
+test_invalid_input_is_not_retryable (test_worker.WorkerTests.test_invalid_input_is_not_retryable) ... ok
+test_lost_lease_stops_without_terminal_write (test_worker.WorkerTests.test_lost_lease_stops_without_terminal_write) ... ok
+test_once_cli_reports_unavailable_dependency (test_worker.WorkerTests.test_once_cli_reports_unavailable_dependency) ... ok
+test_real_core_publication (test_worker.WorkerTests.test_real_core_publication) ... ok
+test_timeout_real_process_and_bounded_logs (test_worker.WorkerTests.test_timeout_real_process_and_bounded_logs) ... ok
+test_worker_graceful_stop_stops_child (test_worker.WorkerTests.test_worker_graceful_stop_stops_child) ... ok
+test_worker_sigkill_parent_pipe_stops_child (test_worker.WorkerTests.test_worker_sigkill_parent_pipe_stops_child) ... ok
+
+----------------------------------------------------------------------
+Ran 15 tests in 3.864s
+
+OK

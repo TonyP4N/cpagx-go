@@ -1,0 +1,10 @@
+test_early_response_and_expired_supported_candidate_are_rejected (test_round18_acceptance.ReplayAcceptanceOracleTests.test_early_response_and_expired_supported_candidate_are_rejected) ... ok
+test_future_record_and_full_file_identity_cannot_enter_prefix (test_round18_acceptance.ReplayAcceptanceOracleTests.test_future_record_and_full_file_identity_cannot_enter_prefix) ... ok
+test_lifecycle_command_bootstraps_without_inherited_pythonpath (test_round18_acceptance.ReplayAcceptanceOracleTests.test_lifecycle_command_bootstraps_without_inherited_pythonpath) ... ok
+test_normal_and_unknown_independent_answers (test_round18_acceptance.ReplayAcceptanceOracleTests.test_normal_and_unknown_independent_answers) ... ok
+test_open_window_backlog_is_distinct_from_missing_prerequisites (test_round18_acceptance.ReplayAcceptanceOracleTests.test_open_window_backlog_is_distinct_from_missing_prerequisites) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.105s
+
+OK

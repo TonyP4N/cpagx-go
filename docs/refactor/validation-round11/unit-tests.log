@@ -1,0 +1,13 @@
+test_actual_child_failure_timeout_and_missing_measurement (test_scaling.ScalingTests.test_actual_child_failure_timeout_and_missing_measurement) ... ok
+test_all_samples_summary_and_rss_units (test_scaling.ScalingTests.test_all_samples_summary_and_rss_units) ... ok
+test_changed_results_rejected (test_scaling.ScalingTests.test_changed_results_rejected) ... ok
+test_cross_phase_input_mismatch_rejected (test_scaling.ScalingTests.test_cross_phase_input_mismatch_rejected) ... ok
+test_measurement_and_budget_failures (test_scaling.ScalingTests.test_measurement_and_budget_failures) ... ok
+test_missing_duplicate_and_unverified_samples (test_scaling.ScalingTests.test_missing_duplicate_and_unverified_samples) ... ok
+test_tampered_publication_rejected (test_scaling.ScalingTests.test_tampered_publication_rejected) ... ok
+test_three_different_measurements_use_all_samples (test_scaling.ScalingTests.test_three_different_measurements_use_all_samples) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.291s
+
+OK

@@ -1,0 +1,34 @@
+{
+  "validation_type": "synthetic_software_only",
+  "real_industrial_validation": false,
+  "output_root": "runs/m1-final-20261024",
+  "runs": [
+    {
+      "attempt": 1,
+      "result_hashes": {
+        "events": "6bc5c305fb6170d032e1f6e23b3d85960a4289d4024cdee9e64ae4b993fcc3f8",
+        "graph": "52e39af52264b5235f02f0e44d0ac8d10996ff3847d44b4734d52857aae6695d"
+      },
+      "status": "succeeded_with_warnings"
+    },
+    {
+      "attempt": 2,
+      "result_hashes": {
+        "events": "6bc5c305fb6170d032e1f6e23b3d85960a4289d4024cdee9e64ae4b993fcc3f8",
+        "graph": "52e39af52264b5235f02f0e44d0ac8d10996ff3847d44b4734d52857aae6695d"
+      },
+      "status": "succeeded_with_warnings"
+    },
+    {
+      "attempt": 3,
+      "result_hashes": {
+        "events": "6bc5c305fb6170d032e1f6e23b3d85960a4289d4024cdee9e64ae4b993fcc3f8",
+        "graph": "52e39af52264b5235f02f0e44d0ac8d10996ff3847d44b4734d52857aae6695d"
+      },
+      "status": "succeeded_with_warnings"
+    }
+  ],
+  "node_count": 8,
+  "edge_count": 0,
+  "claim_count": 0
+}

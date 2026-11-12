@@ -1,0 +1,17 @@
+test_admission_filter_never_uses_rejected_tcp_segment_or_compresses_csv_ordinals (test_arrived_inputs.ArrivalInputTests.test_admission_filter_never_uses_rejected_tcp_segment_or_compresses_csv_ordinals) ... ok
+test_constructor_and_complete_frame_never_read_future_byte_all_containers (test_arrived_inputs.ArrivalInputTests.test_constructor_and_complete_frame_never_read_future_byte_all_containers) ... ok
+test_cross_file_out_of_order_segments_retransmission_and_original_slices (test_arrived_inputs.ArrivalInputTests.test_cross_file_out_of_order_segments_retransmission_and_original_slices) ... ok
+test_csv_bom_quoted_multiline_crlf_and_no_read_ahead (test_arrived_inputs.ArrivalInputTests.test_csv_bom_quoted_multiline_crlf_and_no_read_ahead) ... ok
+test_explicit_eof_and_final_gap_source_close_does_not_flush_other_file (test_arrived_inputs.ArrivalInputTests.test_explicit_eof_and_final_gap_source_close_does_not_flush_other_file) ... ok
+test_fin_reset_and_current_record_resource_failures (test_arrived_inputs.ArrivalInputTests.test_fin_reset_and_current_record_resource_failures) ... ok
+test_finish_is_pure_prefix_and_explicit_eof_gate_requires_every_source (test_arrived_inputs.ArrivalInputTests.test_finish_is_pure_prefix_and_explicit_eof_gate_requires_every_source) ... ok
+test_mutated_and_appended_future_capture_csv_prefix_bytes_identical (test_arrived_inputs.ArrivalInputTests.test_mutated_and_appended_future_capture_csv_prefix_bytes_identical) ... ok
+test_offline_full_scan_is_a_real_future_read_negative_control (test_arrived_inputs.ArrivalInputTests.test_offline_full_scan_is_a_real_future_read_negative_control) ... ok
+test_retransmission_expands_evidence_without_changing_pdu_identity (test_arrived_inputs.ArrivalInputTests.test_retransmission_expands_evidence_without_changing_pdu_identity) ... ok
+test_tcp_conflicting_arrived_bytes_keep_two_real_refs_and_csv_conflicting_values (test_arrived_inputs.ArrivalInputTests.test_tcp_conflicting_arrived_bytes_keep_two_real_refs_and_csv_conflicting_values) ... ok
+test_unverified_duplicate_claim_cannot_fabricate_second_original (test_arrived_inputs.ArrivalInputTests.test_unverified_duplicate_claim_cannot_fabricate_second_original) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.019s
+
+OK

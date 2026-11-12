@@ -1,0 +1,20 @@
+{
+  "dataset_id": "example-batch-001",
+  "synthetic": true,
+  "authorization": {
+    "allowed_use": "offline research review",
+    "evidence_ref": "local authorization record ID; no credential or URL",
+    "reviewer": "person responsible for confirming permitted use"
+  },
+  "time_basis": {
+    "timezone": "declared zone for each source",
+    "precision": "declared precision for each source",
+    "synchronization": "method or known offset and drift",
+    "evidence_ref": "local clock evidence record ID"
+  },
+  "mapping": {
+    "field_units_ref": "local field and unit dictionary ID",
+    "device_map_ref": "local IP, PLC, tag and path mapping ID",
+    "effective_period_ref": "local mapping validity period ID"
+  }
+}

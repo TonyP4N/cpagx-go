@@ -1,0 +1,265 @@
+[
+  {
+    "scan": 1,
+    "called_good_after_bad": true,
+    "outcomes": [
+      {
+        "id": "isolated-after_create-155805c9daed4c50a57fcad90fc6bc41",
+        "attempt": 1,
+        "not_started": true
+      },
+      {
+        "id": "isolated-capacity-reject-3ce799275dd0443c99c453052f89931c",
+        "attempt": 1,
+        "not_started": true
+      },
+      {
+        "id": "00-missing-6d04f8ed0d1e46c3856f1bc10105390d",
+        "attempt": 1,
+        "pending": "missing_container_without_exit_proof",
+        "retryable": true,
+        "error_type": "CalledProcessError"
+      },
+      {
+        "id": "01-corrupt",
+        "attempt": null,
+        "pending": "malformed_execution_record",
+        "retryable": true,
+        "error_type": "ValueError"
+      },
+      {
+        "id": "02-foreign",
+        "attempt": 1,
+        "pending": "foreign_daemon",
+        "retryable": false
+      },
+      {
+        "id": "isolated-after_create-155805c9daed4c50a57fcad90fc6bc41",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-bare-upgrade-aee615461f9645f580a59825bc376e96",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-cancel-7a834b301552476bb924ec2f309611c9",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-disk-4f0649377e514b9a816b03966f21ccf1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-exit-56dc5d029cee44c9ab853d1abacf69a1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-forged-packet-27e48d6fe8904d579a61eee2bf183000",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-handoff-enospc-6650ed1ae0da452aa491cffa57db303d",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-lost-complete-f8ca8dbe63c14b7fa5d661a885493e48",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-packet-d14245358af1401ea2a14fd310341d4b",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-publication-marker-failure-43e0d0fe2a494f9e8c4c39c21b11cf28",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-success-a15e074e694944a09515db61948371fd",
+        "attempt": 1,
+        "exited": true
+      }
+    ]
+  },
+  {
+    "scan": 2,
+    "called_good_after_bad": true,
+    "outcomes": [
+      {
+        "id": "isolated-capacity-reject-3ce799275dd0443c99c453052f89931c",
+        "attempt": 1,
+        "not_started": true
+      },
+      {
+        "id": "00-missing-6d04f8ed0d1e46c3856f1bc10105390d",
+        "attempt": 1,
+        "pending": "missing_container_without_exit_proof",
+        "retryable": true,
+        "error_type": "CalledProcessError"
+      },
+      {
+        "id": "01-corrupt",
+        "attempt": null,
+        "pending": "malformed_execution_record",
+        "retryable": true,
+        "error_type": "ValueError"
+      },
+      {
+        "id": "02-foreign",
+        "attempt": 1,
+        "pending": "foreign_daemon",
+        "retryable": false
+      },
+      {
+        "id": "isolated-after_create-155805c9daed4c50a57fcad90fc6bc41",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-bare-upgrade-aee615461f9645f580a59825bc376e96",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-cancel-7a834b301552476bb924ec2f309611c9",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-disk-4f0649377e514b9a816b03966f21ccf1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-exit-56dc5d029cee44c9ab853d1abacf69a1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-forged-packet-27e48d6fe8904d579a61eee2bf183000",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-handoff-enospc-6650ed1ae0da452aa491cffa57db303d",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-lost-complete-f8ca8dbe63c14b7fa5d661a885493e48",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-packet-d14245358af1401ea2a14fd310341d4b",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-publication-marker-failure-43e0d0fe2a494f9e8c4c39c21b11cf28",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-success-a15e074e694944a09515db61948371fd",
+        "attempt": 1,
+        "exited": true
+      }
+    ]
+  },
+  {
+    "scan": 3,
+    "called_good_after_bad": true,
+    "outcomes": [
+      {
+        "id": "isolated-capacity-reject-3ce799275dd0443c99c453052f89931c",
+        "attempt": 1,
+        "not_started": true
+      },
+      {
+        "id": "00-missing-6d04f8ed0d1e46c3856f1bc10105390d",
+        "attempt": 1,
+        "pending": "missing_container_without_exit_proof",
+        "retryable": true,
+        "error_type": "CalledProcessError"
+      },
+      {
+        "id": "01-corrupt",
+        "attempt": null,
+        "pending": "malformed_execution_record",
+        "retryable": true,
+        "error_type": "ValueError"
+      },
+      {
+        "id": "02-foreign",
+        "attempt": 1,
+        "pending": "foreign_daemon",
+        "retryable": false
+      },
+      {
+        "id": "isolated-after_create-155805c9daed4c50a57fcad90fc6bc41",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-bare-upgrade-aee615461f9645f580a59825bc376e96",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-cancel-7a834b301552476bb924ec2f309611c9",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-disk-4f0649377e514b9a816b03966f21ccf1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-exit-56dc5d029cee44c9ab853d1abacf69a1",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-forged-packet-27e48d6fe8904d579a61eee2bf183000",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-handoff-enospc-6650ed1ae0da452aa491cffa57db303d",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-lost-complete-f8ca8dbe63c14b7fa5d661a885493e48",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-packet-d14245358af1401ea2a14fd310341d4b",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-publication-marker-failure-43e0d0fe2a494f9e8c4c39c21b11cf28",
+        "attempt": 1,
+        "exited": true
+      },
+      {
+        "id": "isolated-success-a15e074e694944a09515db61948371fd",
+        "attempt": 1,
+        "exited": true
+      }
+    ]
+  }
+]

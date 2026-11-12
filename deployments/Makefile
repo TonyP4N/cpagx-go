@@ -105,24 +105,17 @@ deps-update:
 
 # Build all Docker images
 docker-build-all:
-	@echo "Building all Docker images..."
-	docker build -f Dockerfile -t $(GO_IMAGE) $(PROJECT_ROOT)
-	docker build -f $(PROJECT_ROOT)/services/python-cpag-generator/Dockerfile -t $(PYTHON_IMAGE) $(PROJECT_ROOT)/services/python-cpag-generator
-	docker build -f $(PROJECT_ROOT)/webui/Dockerfile -t $(WEBUI_IMAGE) $(PROJECT_ROOT)/webui
-	@echo "All Docker images built successfully"
+	docker compose -f $(COMPOSE_FILE) build
 
 # Build individual service images
 docker-build-go:
-	@echo "Building Go service image..."
-	docker build -f Dockerfile -t $(GO_IMAGE) $(PROJECT_ROOT)
+	docker compose -f $(COMPOSE_FILE) build api
 
 docker-build-python:
-	@echo "Building Python service image..."
-	docker build -f $(PROJECT_ROOT)/services/python-cpag-generator/Dockerfile -t $(PYTHON_IMAGE) $(PROJECT_ROOT)/services/python-cpag-generator
+	docker compose -f $(COMPOSE_FILE) build resident-worker
 
 docker-build-webui:
-	@echo "Building WebUI image..."
-	docker build -f $(PROJECT_ROOT)/webui/Dockerfile -t $(WEBUI_IMAGE) $(PROJECT_ROOT)/webui
+	docker compose -f $(COMPOSE_FILE) build api
 
 # ================================================================================
 # Docker Compose Commands
@@ -130,72 +123,60 @@ docker-build-webui:
 
 # Start all services (detached)
 up:
-	@echo "Starting all services..."
-	docker-compose -f $(COMPOSE_FILE) up -d
-	@echo "All services started"
+	docker compose -f $(COMPOSE_FILE) up -d --build
 
 # Start services in foreground
 up-fg:
 	@echo "Starting all services in foreground..."
-	docker-compose -f $(COMPOSE_FILE) up
+	docker compose -f $(COMPOSE_FILE) up
 
 # Stop all services
 down:
 	@echo "Stopping all services..."
-	docker-compose -f $(COMPOSE_FILE) down
+	docker compose -f $(COMPOSE_FILE) down
 	@echo "All services stopped"
 
 # Stop services and clean volumes
 down-clean:
 	@echo "Stopping services and cleaning up..."
-	docker-compose -f $(COMPOSE_FILE) down -v --remove-orphans
+	docker compose -f $(COMPOSE_FILE) down -v --remove-orphans
 	@echo "Services stopped and cleaned"
 
 # Build services with Docker Compose
 docker-compose-build:
 	@echo "Building services with Docker Compose..."
-	docker-compose -f $(COMPOSE_FILE) build --parallel
+	docker compose -f $(COMPOSE_FILE) build --parallel
 
 # Restart all services
 restart:
 	@echo "Restarting all services..."
-	docker-compose -f $(COMPOSE_FILE) restart
+	docker compose -f $(COMPOSE_FILE) restart
 
 # View all service logs
 logs:
-	docker-compose -f $(COMPOSE_FILE) logs -f
+	docker compose -f $(COMPOSE_FILE) logs -f
 
 # View specific service logs
 logs-go:
-	docker-compose -f $(COMPOSE_FILE) logs -f go-app
+	docker compose -f $(COMPOSE_FILE) logs -f api
 
 logs-python:
-	docker-compose -f $(COMPOSE_FILE) logs -f python-cpag-generator
+	docker compose -f $(COMPOSE_FILE) logs -f resident-worker
 
 logs-webui:
-	docker-compose -f $(COMPOSE_FILE) logs -f webui
+	docker compose -f $(COMPOSE_FILE) logs -f relay api
 
-logs-celery:
-	docker-compose -f $(COMPOSE_FILE) logs -f celery-worker
 
-logs-neo4j:
-	docker-compose -f $(COMPOSE_FILE) logs -f neo4j
 
-logs-redis:
-	docker-compose -f $(COMPOSE_FILE) logs -f redis
 
 # Check service status
 status:
 	@echo "Service status:"
-	docker-compose -f $(COMPOSE_FILE) ps
+	docker compose -f $(COMPOSE_FILE) ps
 
 # Health check for all services
 health:
-	@echo "Checking service health..."
-	@curl -f http://localhost:8080/api/health 2>/dev/null && echo "Go API: OK" || echo "Go API: FAILED"
-	@curl -f http://localhost:8000/health 2>/dev/null && echo "Python v1: OK" || echo "Python v1: FAILED"
-	@curl -f http://localhost:8002/health 2>/dev/null && echo "Python v2: OK" || echo "Python v2: FAILED"
-	@curl -f http://localhost:3000 2>/dev/null && echo "WebUI: OK" || echo "WebUI: FAILED"
+	curl -fsS http://127.0.0.1:$(or $(CPAG_HTTP_PORT),3000)/health/ready
 
 # ================================================================================
 # Environment Management
@@ -219,7 +200,7 @@ dev-check:
 	@python --version || echo "ERROR: Python not installed"
 	@node --version || echo "ERROR: Node.js not installed"
 	@docker --version || echo "ERROR: Docker not installed"
-	@docker-compose --version || echo "ERROR: Docker Compose not installed"
+	@docker compose version || echo "ERROR: Docker Compose not installed"
 
 # Start development services locally
 dev-start:
@@ -243,17 +224,10 @@ init-env:
 # ================================================================================
 
 # Backup application data
-backup:
-	@echo "Creating backup..."
-	mkdir -p $(PROJECT_ROOT)/backups/$(shell date +%Y%m%d_%H%M%S)
-	docker-compose -f $(COMPOSE_FILE) exec neo4j neo4j-admin dump --to=/backups/neo4j-backup.dump 2>/dev/null || echo "Neo4j backup failed"
-	docker cp $$(docker-compose -f $(COMPOSE_FILE) ps -q redis):/data $(PROJECT_ROOT)/backups/$(shell date +%Y%m%d_%H%M%S)/redis-data 2>/dev/null || echo "Redis backup failed"
 
 # Clean data volumes
 clean-data:
-	@echo "Cleaning data volumes..."
-	docker-compose -f $(COMPOSE_FILE) down -v
-	docker volume prune -f
+	docker compose -f $(COMPOSE_FILE) down -v
 
 # ================================================================================
 # Monitoring and Debug
@@ -266,16 +240,12 @@ stats:
 
 # Enter container shells
 shell-go:
-	docker-compose -f $(COMPOSE_FILE) exec go-app sh
+	docker compose -f $(COMPOSE_FILE) exec api sh
 
 shell-python:
-	docker-compose -f $(COMPOSE_FILE) exec python-cpag-generator bash
+	docker compose -f $(COMPOSE_FILE) exec resident-worker sh
 
-shell-neo4j:
-	docker-compose -f $(COMPOSE_FILE) exec neo4j cypher-shell -u neo4j
 
-shell-redis:
-	docker-compose -f $(COMPOSE_FILE) exec redis redis-cli
 
 # ================================================================================
 # Cleanup Commands
@@ -304,9 +274,7 @@ clean-all: clean clean-images clean-data
 
 # Deploy to production
 deploy-prod:
-	@echo "Deploying to production..."
-	docker-compose -f $(COMPOSE_FILE) -f docker-compose.prod.yml up -d
-	@echo "Production deployment complete"
+	docker compose -f $(COMPOSE_FILE) up -d --build
 
 # Check application configuration
 config-check:
@@ -392,7 +360,7 @@ help:
 	@echo "  init-env            - Create environment file from template"
 	@echo ""
 	@echo "Data Management:"
-	@echo "  backup              - Backup application data"
+	@echo "  Upgrade and backups - see docs/deployment/compose-upgrade.md"
 	@echo "  clean-data          - Clean data volumes"
 	@echo ""
 	@echo "Monitoring & Debug:"
@@ -423,8 +391,8 @@ help:
 .PHONY: build build-prod build-cross run run-prod test test-coverage benchmark \
         lint fmt deps-update docker-build-all docker-build-go docker-build-python \
         docker-build-webui up up-fg down down-clean restart docker-compose-build \
-        logs logs-go logs-python logs-webui logs-celery logs-neo4j logs-redis \
-        status health dev-setup dev-check dev-start init-env backup clean-data \
-        stats shell-go shell-python shell-neo4j shell-redis clean clean-images \
+        logs logs-go logs-python logs-webui  \
+        status health dev-setup dev-check dev-start init-env clean-data \
+        stats shell-go shell-python clean clean-images \
         clean-all deploy-prod config-check config-validate version install-tools \
         docs security-scan help

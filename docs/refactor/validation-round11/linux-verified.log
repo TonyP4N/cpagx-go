@@ -1,0 +1,49 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 541B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for mirror.gcr.io/library/python:3.11.17-slim
+#2 DONE 0.7s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/7] FROM mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377
+#4 resolve mirror.gcr.io/library/python:3.11.17-slim@sha256:b7a9e5f6a93d6d4a31f129bbd4bdee69efccb6ded0fb230d78aafaf37af98377 0.0s done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 40.29kB 0.0s done
+#5 DONE 0.0s
+
+#6 [2/7] WORKDIR /app
+#6 CACHED
+
+#7 [3/7] COPY services/analysis/src /app/services/analysis/src
+#7 CACHED
+
+#8 [4/7] COPY schemas /app/schemas
+#8 CACHED
+
+#9 [5/7] COPY scripts/benchmarks /app/scripts/benchmarks
+#9 DONE 0.0s
+
+#10 [6/7] COPY profiles/synthetic-demo.json /app/profiles/synthetic-demo.json
+#10 DONE 0.0s
+
+#11 [7/7] COPY tests/fixtures/synthetic/network.normalized.jsonl /app/tests/fixtures/synthetic/network.normalized.jsonl
+#11 DONE 0.0s
+
+#12 exporting to image
+#12 exporting layers 0.0s done
+#12 exporting manifest sha256:b8fcaf175fc2a286bbe46c004a86693dfa09b329a2bfe2b3f2ba7d3b53fee7ef done
+#12 exporting config sha256:957418dc0453e9e7478a6275ac80332064d408aa90126e94724e52fa8e4742ef done
+#12 exporting attestation manifest sha256:39e19c318de787c27cb6763d7537b9c55af52287daff3e87c38b16fcb322655e done
+#12 exporting manifest list sha256:15c0146419d1a7c0fb17b1374875d3502f27218a33aaeb861012bd12c186074f done
+#12 naming to docker.io/library/cpag-synthetic-scaling:round11 done
+#12 unpacking to docker.io/library/cpag-synthetic-scaling:round11 0.0s done
+#12 DONE 0.1s
+{"status": "passed", "output": "docs/refactor/validation-round11/linux-verified.json"}

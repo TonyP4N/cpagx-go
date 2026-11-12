@@ -1,0 +1,16 @@
+{
+  "before_differences": {
+    "ctime_ns": {
+      "current": 1793197469871011712,
+      "stored": 1793197466797392860
+    }
+  },
+  "bytes_sha_unchanged": true,
+  "interpretation": "retained CSV ctime changed on bind-host path while byte SHA/dev/inode/size/mtime remained identical; origin of metadata update not proven",
+  "native_error": "ContractError:evidence file changed",
+  "only_changed_signature_fields": [
+    "ctime_ns"
+  ],
+  "source_log_sha256": "c451cfd44bda5f3da560fb82e24b967c2c21460835979539a0560871f878be58",
+  "status": "strict_verifier_refusal_reproduced"
+}

@@ -1,0 +1,288 @@
+{
+  "status": "passed",
+  "history_format": "replay-history-checkpoint-delta-2",
+  "scope": "generated small formal Worker/history/empty-db restore; no scale performance claim",
+  "full_business_oracle": "R18 prefix, pending, late, response-clock, graph, evidence and pacing assertions",
+  "checks": [
+    {
+      "run_id": "f49f3ec34bf791672974abf48dfb922c",
+      "attempt": 1,
+      "stage": "original",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "61e70bfc5c8a299989b44d9d5c74fbaece0999b1988a0b810139e63afdc61c6a",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "ff07e36502b6fab04ecc0f21c7547b7d",
+      "attempt": 1,
+      "stage": "original",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "852e5aed10ce253429fe56a6f74096e3bb740d9bca9f7e4484b1ed317131b7e7",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "a7f728670f24c8759a114abf07786f98",
+      "attempt": 1,
+      "stage": "original",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "e787c7a55c648e1addfe98d8125a1153255bf0dd84dee7adc5eeb9619c22f01b",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "bad3850365cabae311da7357ab51ef85",
+      "attempt": 1,
+      "stage": "original",
+      "case": "response_expired",
+      "logical_hashes": {
+        "analysis.json": "c2de0d9260d4024a1ce1359c29170a8753f6450c75c386b4b70622d7bdf9f675",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "5c5c947c6563eec825c96b0adb4842d9632ca740d8b5db8ab182d46d0043a8ba",
+        "metrics.json": "60a0b75a12b72d010a9c15860b855a5ff41d3feb7efe3c74a2d7f22672702ebc",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "21dc475ffa8282a03aad2e2b2541b48a4d5ef9f671c5a16deb3e580298040831",
+        "logical_revisions": "bf0ef32e46a8678b572447fc676c04882027b380ab7bb47b8b779c6a311448eb"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "af8e236f2ad55f23b4439c74c2a176a88e55138196f4c482dc492391c9c36316",
+        "history/history.sqlite3": "b4683b5fbb626f59b177ea62010a214a609259045948c23acc0a253a2930c527",
+        "analysis.json": "c2de0d9260d4024a1ce1359c29170a8753f6450c75c386b4b70622d7bdf9f675"
+      }
+    },
+    {
+      "run_id": "11a4f2d269fc369c3c6fc0b018a78ba6",
+      "attempt": 1,
+      "stage": "original",
+      "case": "allowed_late",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "862c6f18908d1fe5f4c0643a2fdd08f7f42c24f53fb7a30e38953995925a5154",
+        "arrivals.jsonl": "006c3beda2f40d11f1d67b44fe1aa2c551dfb3e1681282601ce2e16404a91944",
+        "logical_snapshots": "50aa926e787fc11088baa95cf09c87c23a76c9737264d7dd51ac6cecb388be10",
+        "logical_revisions": "852f75cc2ac4510b36d44c61baa60d4932b35304325e18d81ebf33535d8e00b1"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "74feecb86176d622f9ef2855ea0f66ff345fb8bac0ae3bf097d664b88dcca19e",
+        "history/history.sqlite3": "dfb1ca65e615d50edc95c931acebba63561331f2bf11fb6931cd29e362726e84",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "b7a29c7c0ac9fe95a4cb6960ab3e7e7a",
+      "attempt": 1,
+      "stage": "original",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "d8f8eb8d3a0035d1004d2dd206dbb144c81dc900c0c6bee755bd61a0b2cf97f0",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "9e6bcc16c9eb260f0230670d3c13f921",
+      "attempt": 1,
+      "stage": "original",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "80d0325bc042a2101b58a30af013e2ebded23ca97c6337ccf498ed330a00a2cb",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "f49f3ec34bf791672974abf48dfb922c",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "61e70bfc5c8a299989b44d9d5c74fbaece0999b1988a0b810139e63afdc61c6a",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "ff07e36502b6fab04ecc0f21c7547b7d",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "852e5aed10ce253429fe56a6f74096e3bb740d9bca9f7e4484b1ed317131b7e7",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "a7f728670f24c8759a114abf07786f98",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "e787c7a55c648e1addfe98d8125a1153255bf0dd84dee7adc5eeb9619c22f01b",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "bad3850365cabae311da7357ab51ef85",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "response_expired",
+      "logical_hashes": {
+        "analysis.json": "c2de0d9260d4024a1ce1359c29170a8753f6450c75c386b4b70622d7bdf9f675",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "5c5c947c6563eec825c96b0adb4842d9632ca740d8b5db8ab182d46d0043a8ba",
+        "metrics.json": "60a0b75a12b72d010a9c15860b855a5ff41d3feb7efe3c74a2d7f22672702ebc",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "21dc475ffa8282a03aad2e2b2541b48a4d5ef9f671c5a16deb3e580298040831",
+        "logical_revisions": "bf0ef32e46a8678b572447fc676c04882027b380ab7bb47b8b779c6a311448eb"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "af8e236f2ad55f23b4439c74c2a176a88e55138196f4c482dc492391c9c36316",
+        "history/history.sqlite3": "b4683b5fbb626f59b177ea62010a214a609259045948c23acc0a253a2930c527",
+        "analysis.json": "c2de0d9260d4024a1ce1359c29170a8753f6450c75c386b4b70622d7bdf9f675"
+      }
+    },
+    {
+      "run_id": "11a4f2d269fc369c3c6fc0b018a78ba6",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "allowed_late",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "862c6f18908d1fe5f4c0643a2fdd08f7f42c24f53fb7a30e38953995925a5154",
+        "arrivals.jsonl": "006c3beda2f40d11f1d67b44fe1aa2c551dfb3e1681282601ce2e16404a91944",
+        "logical_snapshots": "50aa926e787fc11088baa95cf09c87c23a76c9737264d7dd51ac6cecb388be10",
+        "logical_revisions": "852f75cc2ac4510b36d44c61baa60d4932b35304325e18d81ebf33535d8e00b1"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "74feecb86176d622f9ef2855ea0f66ff345fb8bac0ae3bf097d664b88dcca19e",
+        "history/history.sqlite3": "dfb1ca65e615d50edc95c931acebba63561331f2bf11fb6931cd29e362726e84",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "b7a29c7c0ac9fe95a4cb6960ab3e7e7a",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "d8f8eb8d3a0035d1004d2dd206dbb144c81dc900c0c6bee755bd61a0b2cf97f0",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    },
+    {
+      "run_id": "9e6bcc16c9eb260f0230670d3c13f921",
+      "attempt": 1,
+      "stage": "restored",
+      "case": "normal",
+      "logical_hashes": {
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384",
+        "events.json": "4b35ca5389f37a678c9db97f75a397996a97ed54ed7cdd81483f14138534f3ef",
+        "graph.json": "bb9d0ccd50d0e90b5b4e0cff354e72312e538b01400f70fb08d7b01ef7556c93",
+        "metrics.json": "30cb0b08ba61b8cce656271b579ea26a3c4e13655d94501e6a2cc5547c2874f2",
+        "arrivals.jsonl": "a7e01ee3a390d8e84e580ea00544b9ac2a20f0e1c8a9caca69b5c9946c1a5f4a",
+        "logical_snapshots": "d743c44e11edd33d0f807fa1e39a8167f4e2d5be13cf07b53e778b4990adcca0",
+        "logical_revisions": "f04ff6f3823da242c7ff38394fdb2fb85a257b61006c67759a629c417dc9263b"
+      },
+      "physical_history_hashes": {
+        "history/manifest.json": "80d0325bc042a2101b58a30af013e2ebded23ca97c6337ccf498ed330a00a2cb",
+        "history/history.sqlite3": "11e24618f6bde7295548a9ecf49ae8449cac612fe588aedc186a27a3befcd5a6",
+        "analysis.json": "14f71dcd8c062277ca715e3b64456bcfda5c86e54bc2bb4bb7efb17995b7d384"
+      }
+    }
+  ]
+}

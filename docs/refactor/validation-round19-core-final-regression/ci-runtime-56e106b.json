@@ -1,0 +1,96 @@
+{
+  "head_sha": "56e106b2a44d88a0c67280d5d9e6a1e13aa79a75",
+  "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256",
+  "status": "completed",
+  "conclusion": "success",
+  "jobs": [
+    {
+      "name": "m4-worker-integration",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914815147"
+    },
+    {
+      "name": "service-regression",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914815831"
+    },
+    {
+      "name": "celery-live-compatibility",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914815852"
+    },
+    {
+      "name": "synthetic-scaling",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914815967"
+    },
+    {
+      "name": "linux-isolation",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914815977"
+    },
+    {
+      "name": "m4-postgres-prototype",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816008"
+    },
+    {
+      "name": "core",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816019"
+    },
+    {
+      "name": "go",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816103"
+    },
+    {
+      "name": "frontend",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816117"
+    },
+    {
+      "name": "backup-restore",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816180"
+    },
+    {
+      "name": "isolated-executor",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816249"
+    },
+    {
+      "name": "dual-source-analysis",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816326"
+    },
+    {
+      "name": "engineering-acceptance",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122914816351"
+    },
+    {
+      "name": "dual-source-persistent",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122915323336"
+    },
+    {
+      "name": "dual-source-celery",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122915323355"
+    },
+    {
+      "name": "unified-catalog",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122915323485"
+    },
+    {
+      "name": "replay-persistent",
+      "conclusion": "success",
+      "url": "https://github.com/TonyP4N/cpagx-go/actions/runs/40716302256/job/122915323637"
+    }
+  ],
+  "raw_evidence": "FYP/outputs/cpag-r19-ci-56e106b-latest.json",
+  "raw_sha256": "33384ce2041ac38f1c25cf203cc99ac0d2e212cb327dd235a50f4ca5097fb487",
+  "boundary": "runtime regression only; not six-cell capacity acceptance"
+}

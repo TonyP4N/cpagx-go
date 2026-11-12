@@ -1,0 +1,19 @@
+{
+  "schema_version": "r19-density-capacity-2",
+  "scale": "L",
+  "operations": 10000,
+  "request_frames": 10000,
+  "response_frames": 10000,
+  "logical_process_records": 10000,
+  "arrival_steps": 30004,
+  "replay_profile_bytes": 2810696,
+  "bytes": {
+    "network": 2340024,
+    "process": 300010
+  },
+  "claim": "raw density preserved; static admission checks only, not runtime or reference-environment acceptance",
+  "capacity_profile": "engineering-capacity-1",
+  "history_format": "replay-history-checkpoint-delta-2",
+  "preflight": "preflight.json",
+  "matrix": "matrix.json"
+}

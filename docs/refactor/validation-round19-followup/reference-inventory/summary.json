@@ -1,0 +1,49 @@
+{
+  "scope": "generated synthetic software chain; no reference-hardware capacity or industrial validation",
+  "status": "passed",
+  "git_head": "e1ca1a71d12e95178f1e9564d6c3c0bdb2fedc40",
+  "source_state": "uncommitted stage pending parent commit",
+  "worker_image": "cpag-isolated:r19-s100-dev2",
+  "worker_image_id": "sha256:a2dfa3af7bfbc78054d0d4e8bbcc6867b85a4f7a9f72656a4211790b05c808ed",
+  "replay_chain_runs": 7,
+  "evaluation_checks": 12,
+  "evaluation_ids": 6,
+  "stages": [
+    "original",
+    "restored"
+  ],
+  "modes": [
+    "offline",
+    "replay"
+  ],
+  "empty_database_new_directory_restore": true,
+  "declared_record_locator_verified": false,
+  "external_annotation_independence_proven": false,
+  "credential_exact_match_scan": {
+    "selected_files": 6,
+    "private_values_checked": 5,
+    "found": false
+  },
+  "source_sha256": {
+    "services/analysis/src/cpag_core/evaluation_bundle.py": "8aea21e152458db0f64a84f2c0e5ccabc4132202b11405626721eff950cb31bb",
+    "services/analysis/src/cpag_core/reference_inventory.py": "f4a861d240b1792c720cee30916d1b4703f674628a5b61878b32a8a457e4ae71",
+    "services/analysis/src/cpag_core/single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+    "services/analysis/src/cpag_core/evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "services/analysis/src/cpag_core/evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "internal/catalog/evaluation.go": "02bf3d71088c6932e427bc1f77f5e12866daac71a8d3bebe3f6ef31d757b3977",
+    "internal/catalog/evaluation_store.go": "79e859f4c1f7bef9ff873996a3eb9d5346cf23d860205ebd8185d1c94ba8874e",
+    "internal/jobs/migrations/012_v3_evaluation_reference_inventory.sql": "1272742feea9b5edce77c34d88b1537334e235c83cefd763523a54abcaf2c119",
+    "scripts/backup/bundle.py": "b5a51b23dd9af42bb519fa56aa5053ff4158daab9c7b78c43b854e3c919c0eeb",
+    "scripts/validation/round19_evaluation_acceptance.py": "0918b4a41c8d9d93bd9053557f76cb77987b7952b76b30d7d0a36d8966e8392a"
+  },
+  "failures_retained": [
+    {
+      "attempt": 1,
+      "reason": "Go build intermediate replay_validate undefined p; no DB started"
+    },
+    {
+      "attempt": 2,
+      "reason": "acceptance harness variable shadowing; corrected; not a published evaluation"
+    }
+  ]
+}

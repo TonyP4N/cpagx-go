@@ -1,0 +1,23 @@
+{
+  "scope": "core-only DAG6 offline/replay final-value source verification and local bounded query; no Worker/service/backup integration or S/M/L acceptance",
+  "status": "ready_for_independent_small_fixture_and_fixed_core_matrix",
+  "test_results": {
+    "core": {
+      "tests": 26,
+      "wall_seconds": 6.725,
+      "status": "PASS"
+    },
+    "contracts": "PASS (see raw log)"
+  },
+  "files_sha256": {
+    "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "52e6be8fadc757eda254b238a408f177820494b84ecc7b501fd3614552d6a8bf",
+    "services/analysis/src/cpag_core/shared_export.py": "6d3d58b2835b32321e2e8ab0ca1873098d1c78ba52cc3b42a53158ab5ead4dab",
+    "services/analysis/src/cpag_core/shared_cli.py": "fe711c4c4be621a06c173aa85dac3200583ff91d0732a37341cf4ba56dd8e5d5",
+    "services/analysis/src/cpag_core/shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+    "services/analysis/src/cpag_core/dual_source_export.py": "f0094ff164a24d7a7af347390d6f5efac44eb4a779f33798335bc6234094d4e6",
+    "schemas/CompactStoreRunManifest.schema.json": "cd221fa6460088c505d6a4ae4d70978c5e9a30574a1df821c63961f27cecf958",
+    "tests/core/test_shared_artifact_store_compact.py": "706d6064016f399da964afe2f4bb1273ced56f4535ae47954e30cebe4a2d943d",
+    "tests/core/test_shared_export.py": "37fbee38fffe650d9ef699f0558d2ded4b8c86a8c123404c091cbd1aced02e5b",
+    "tests/contracts/test_contracts.py": "5a5e520b9a3486744469b2637a9d7a8207e0266da03a20b9eec274591a9ca9a3"
+  }
+}

@@ -1,0 +1,2 @@
+{"record_type":"synthetic_normalized_network","synthetic":true,"raw_time":"2026-01-01T00:00:00Z","source":"synthetic-controller","destination":"synthetic-device","protocol":"synthetic-demo","operation":"set_state","correlation_id":"demo-1","response_status":null}
+{"record_type":"synthetic_normalized_network","synthetic":true,"raw_time":"2026-01-01T00:00:01Z","source":"synthetic-device","destination":"synthetic-controller","protocol":"synthetic-demo","operation":"response","correlation_id":"demo-1","response_status":"synthetic-accepted"}

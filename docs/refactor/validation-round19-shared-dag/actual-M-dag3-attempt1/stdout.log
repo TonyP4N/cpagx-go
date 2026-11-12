@@ -1,0 +1,60 @@
+{
+  "scope": "actual local synthetic M core and isolated store only; not formal M pipeline, new storage publication, evaluation or L acceptance",
+  "source_sha256_before": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "0cc628073f297881c5489d20171aac2d2d1f1345ce8b8687e313b2c9fa6a326a",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff"
+  },
+  "status": "failed",
+  "fixture": "<workspace>/outputs/cpag-r19-density-generator-aa16a4d/capacity-v2-M",
+  "samples": [
+    {
+      "name": "actual_core_analysis",
+      "event": "completed",
+      "wall_at_start": 0.0020079579844605178,
+      "wall_seconds": 39.16076670799521,
+      "cpu_seconds": 38.888124000000005
+    },
+    {
+      "name": "actual_standard_graph_and_events",
+      "event": "completed",
+      "wall_at_start": 39.1636383330042,
+      "wall_seconds": 52.60830449999776,
+      "cpu_seconds": 52.147949000000004
+    },
+    {
+      "name": "store_analysis.json",
+      "event": "entered",
+      "wall_at_start": 91.77719612501096
+    }
+  ],
+  "input_sha256": {
+    "network.pcap": "dbff44ef84c282825e67b3ec891bd4cd4598c99da2530f901a6bdafb8fba3e77",
+    "process.csv": "f1a9e817245b416781da470e48a052501c280bdb5fad9185bb970664bc5e411c",
+    "offline-profile.json": "fff5f2ee703925262748eff552f493f3744cbfd86e0c9fdda4db4dadf4a87b8a"
+  },
+  "wall_seconds": 145.9994618750061,
+  "process_peak_rss_bytes": 296894464,
+  "actual_counts": {
+    "network": 2000,
+    "process": 1000,
+    "operations": 1000,
+    "changes": 999,
+    "candidates": 31801
+  },
+  "roots": {},
+  "error_type": "ValueError",
+  "error": "shared_storage_failed:SQLITE_FULL",
+  "node_count_at_failure": 516929,
+  "sqlite_bytes_at_failure": 12288,
+  "source_sha256_after": {
+    "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "dual_source_export.py": "24e3016ef332860fdd503f2813c27f24f5e40419748ad70c2d733bc0e2be108a",
+    "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "capacity.py": "0cc628073f297881c5489d20171aac2d2d1f1345ce8b8687e313b2c9fa6a326a",
+    "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff"
+  },
+  "fixed_source_during_measurement": true
+}

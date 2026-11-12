@@ -1,0 +1,10 @@
+test_labels_profile_errors_and_empty_source_rejected (test_dual_source.DualSourceTests.test_labels_profile_errors_and_empty_source_rejected) ... ok
+test_preregistered_scenarios_and_both_source_queries (test_dual_source.DualSourceTests.test_preregistered_scenarios_and_both_source_queries) ... ok
+test_repeatability_config_binding_and_unknown_query (test_dual_source.DualSourceTests.test_repeatability_config_binding_and_unknown_query) ... ok
+test_tamper_missing_and_rehashed_false_analysis (test_dual_source.DualSourceTests.test_tamper_missing_and_rehashed_false_analysis) ... ok
+test_unknown_mapping_and_duplicate_time_not_forced (test_dual_source.DualSourceTests.test_unknown_mapping_and_duplicate_time_not_forced) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.218s
+
+OK

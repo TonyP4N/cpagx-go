@@ -103,20 +103,12 @@ def generate_cpag(
     custom_params: Optional[Dict[str, Any]] = None
 ):
     """Generate CPAG Celery task with concurrency control"""
+    acquired = False
     try:
-        # Check concurrency limits
-        if redis_client:
-            try:
-                current_active = len(redis_client.smembers("v2_active_tasks"))
-                if current_active >= MAX_CONCURRENT_TASKS:
-                    raise Exception(f"Too many concurrent tasks. Maximum allowed: {MAX_CONCURRENT_TASKS}")
-                
-                # Add to active task set
-                redis_client.sadd("v2_active_tasks", task_id)
-                redis_client.expire("v2_active_tasks", 3600)
-            except Exception as e:
-                print(f"Redis concurrency check failed: {e}")
-        
+        from infrastructure.slots import acquire
+        acquire(redis_client, task_id, MAX_CONCURRENT_TASKS)
+        acquired = True
+
         # Update task status to Redis
         if redis_client:
             try:
@@ -176,7 +168,7 @@ def generate_cpag(
         # Process file
         processing_result = processor.process_file(
             file_path=input_file,
-            output_dir=os.path.join(os.getenv("OUTPUT_DIR", "outputs/v2"), task_id),
+            output_dir=os.path.join(OUTPUT_BASE_DIR, task_id),
             device_map=device_map,
             rules=rules,
             max_pkts=120000,  # Extract from kwargs or use default
@@ -358,7 +350,7 @@ def generate_cpag(
         raise
     finally:
         # Remove from active task set
-        if redis_client:
+        if redis_client and acquired:
             try:
                 redis_client.srem("v2_active_tasks", task_id)
             except Exception as e:

@@ -1,0 +1,15 @@
+test_budget_version_is_explicit_and_keeps_physical_and_read_limits (test_compact_history_budget.CompactExtentTests.test_budget_version_is_explicit_and_keeps_physical_and_read_limits) ... ok
+test_shared_large_extent_verifies_but_cannot_be_expanded (test_compact_history_budget.CompactExtentTests.test_shared_large_extent_verifies_but_cannot_be_expanded) ... ERROR
+
+======================================================================
+ERROR: test_shared_large_extent_verifies_but_cannot_be_expanded (test_compact_history_budget.CompactExtentTests.test_shared_large_extent_verifies_but_cannot_be_expanded)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "<repository>/tests/core/test_compact_history_budget.py", line 32, in test_shared_large_extent_verifies_but_cannot_be_expanded
+    with SharedArtifactReader(root,expected_manifest_sha256=sealed['manifest_sha256'],expected_context=CONTEXT) as reader:
+TypeError: 'SharedArtifactReader' object does not support the context manager protocol
+
+----------------------------------------------------------------------
+Ran 2 tests in 0.049s
+
+FAILED (errors=1)

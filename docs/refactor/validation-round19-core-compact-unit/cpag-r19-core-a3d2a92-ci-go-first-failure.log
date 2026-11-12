@@ -1,0 +1,19 @@
+go	Run go test ./...	﻿2026-10-28T13:41:03.9517639Z ##[group]Run go test ./...
+go	Run go test ./...	2026-10-28T13:41:03.9517851Z ^[[36;1mgo test ./...^[[0m
+go	Run go test ./...	2026-10-28T13:41:03.9546863Z shell: /usr/bin/bash -e {0}
+go	Run go test ./...	2026-10-28T13:41:03.9547038Z ##[endgroup]
+go	Run go test ./...	2026-10-28T13:41:04.2221893Z ok  	github.com/TonyP4N/cpagx-go/api	(cached)
+go	Run go test ./...	2026-10-28T13:41:04.5661212Z ok  	github.com/TonyP4N/cpagx-go/cmd/cpagctl	0.149s
+go	Run go test ./...	2026-10-28T13:41:04.5673408Z ?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+go	Run go test ./...	2026-10-28T13:41:04.5674115Z ok  	github.com/TonyP4N/cpagx-go/internal/capacity	0.004s
+go	Run go test ./...	2026-10-28T13:41:19.8755063Z ok  	github.com/TonyP4N/cpagx-go/internal/catalog	13.971s
+go	Run go test ./...	2026-10-28T13:41:19.8755685Z ?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+go	Run go test ./...	2026-10-28T13:41:19.8756030Z --- FAIL: TestSharedSchemas (0.00s)
+go	Run go test ./...	2026-10-28T13:41:19.8756754Z     contracts_test.go:20: explicit baseline and replay schema set required: <nil>; got 37 want 31
+go	Run go test ./...	2026-10-28T13:41:19.8757182Z FAIL
+go	Run go test ./...	2026-10-28T13:41:19.8757450Z FAIL	github.com/TonyP4N/cpagx-go/internal/contracts	0.058s
+go	Run go test ./...	2026-10-28T13:41:19.8757889Z ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	4.413s
+go	Run go test ./...	2026-10-28T13:41:19.8758271Z ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.002s
+go	Run go test ./...	2026-10-28T13:41:19.8758638Z ?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]
+go	Run go test ./...	2026-10-28T13:41:19.8758942Z FAIL
+go	Run go test ./...	2026-10-28T13:41:19.9050423Z ##[error]Process completed with exit code 1.

@@ -1,0 +1,122 @@
+InfluxDB client initialized successfully: http://127.0.0.1:1
+ 
+ -------------- round9@MacBook-Pro-TP3.local v5.3.4 (emerald-rush)
+--- ***** ----- 
+-- ******* ---- macOS-27.0-arm64-arm-64bit 2026-10-26 11:31:44
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         cpag_generator:0x107893090
+- ** ---------- .> transport:   amqp://cpag_round9:**@127.0.0.1:59434//
+- ** ---------- .> results:     redis://127.0.0.1:59435/0
+- *** --- * --- .> concurrency: 1 (prefork)
+-- ******* ---- .> task events: ON
+--- ***** ----- 
+ -------------- [queues]
+                .> cpag_generation  exchange=cpag_generation(direct) key=cpag_generation
+                
+
+[tasks]
+  . api.v1.tasks.generate_cpag
+  . api.v2.synthetic.execute_synthetic
+  . api.v2.tasks.cleanup_old_tasks
+  . api.v2.tasks.collect_metrics
+  . api.v2.tasks.generate_cpag
+  . api.v2.tasks.health_check
+
+[2026-10-26 11:31:44,361: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:31:44,369: INFO/MainProcess] Connected to amqp://cpag_round9:**@127.0.0.1:59434//
+[2026-10-26 11:31:44,369: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:31:44,374: INFO/MainProcess] mingle: searching for neighbors
+[2026-10-26 11:31:45,404: INFO/MainProcess] mingle: all alone
+[2026-10-26 11:31:45,427: INFO/MainProcess] round9@MacBook-Pro-TP3.local ready.
+[2026-10-26 11:31:45,428: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[811b0ea4-43a7-48bf-8453-d702f7291d4e] received
+[2026-10-26 11:31:45,563: INFO/ForkPoolWorker-1] Task api.v2.synthetic.execute_synthetic[811b0ea4-43a7-48bf-8453-d702f7291d4e] succeeded in 0.030855542001518188s: {'task_id': '811b0ea4-43a7-48bf-8453-d702f7291d4e', 'id': '811b0ea4-43a7-48bf-8453-d702f7291d4e', 'status': 'completed', 'synthetic': True, 'version': 'v2', 'created_at': '2026-10-26T03:31:39.737036Z', 'files': ['graph.json', 'events.json', 'dataset.json', 'quality.json', 'run_manifest.json'], 'file_name': 'synthetic inputs', 'retained_inputs': [{'path': 'sources/network.jsonl', 'sha256': 'bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99', 'size_bytes': 543}, {'path': 'sources/process.csv', 'sha256': 'd855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666', 'size_bytes': 153}, {'path': 'sources/profile.json', 'sha256': 'f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164', 'size_bytes': 351}], 'core_status': 'succeeded_with_warnings', 'completed_at': '2026-10-26T03:31:45.559320Z', 'warnings': ['network: missing_response_status', 'process: missing_value', 'process: nonfinite_value'], 'run_manifest_sha256': 'd265b5fac719d5090c5f7722ba9441b442eacbacc053a2c72ff493d76801b142', ...
+[2026-10-26 11:31:45,675: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[176b31c6-757f-40b6-a64e-65e410614ca4] received
+[2026-10-26 11:31:45,685: ERROR/ForkPoolWorker-1] Task api.v2.synthetic.execute_synthetic[176b31c6-757f-40b6-a64e-65e410614ca4] raised unexpected: ValueError('network: unsupported or malformed synthetic input: invalid_jsonl_record:1:Expecting property name enclosed in double quotes: line 1 column 2 (char 1)')
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 477, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 760, in __protected_call__
+    return self.run(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/python-cpag-generator/api/v2/synthetic.py", line 141, in execute_synthetic
+    result = run(sources/'network.jsonl', sources/'process.csv', sources/'profile.json',
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/analysis/src/cpag_core/pipeline.py", line 61, in run
+    raise ValueError(kind + ': unsupported or malformed synthetic input: ' + '; '.join(quality['reasons'] or ['no_events']))
+ValueError: network: unsupported or malformed synthetic input: invalid_jsonl_record:1:Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+[2026-10-26 11:31:45,953: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[4cb3a755-9ce7-4bbd-ad56-229638739c68] received
+[2026-10-26 11:31:45,968: ERROR/ForkPoolWorker-1] Task api.v2.synthetic.execute_synthetic[4cb3a755-9ce7-4bbd-ad56-229638739c68] raised unexpected: ValueError('process: unsupported or malformed synthetic input: no_events')
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 477, in trace_task
+    R = retval = fun(*args, **kwargs)
+                 ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 760, in __protected_call__
+    return self.run(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/python-cpag-generator/api/v2/synthetic.py", line 141, in execute_synthetic
+    result = run(sources/'network.jsonl', sources/'process.csv', sources/'profile.json',
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/analysis/src/cpag_core/pipeline.py", line 61, in run
+    raise ValueError(kind + ': unsupported or malformed synthetic input: ' + '; '.join(quality['reasons'] or ['no_events']))
+ValueError: process: unsupported or malformed synthetic input: no_events
+[2026-10-26 11:31:46,233: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[811b0ea4-43a7-48bf-8453-d702f7291d4e] received
+[2026-10-26 11:31:46,236: INFO/ForkPoolWorker-1] Task api.v2.synthetic.execute_synthetic[811b0ea4-43a7-48bf-8453-d702f7291d4e] succeeded in 0.0019124590035062283s: {'task_id': '811b0ea4-43a7-48bf-8453-d702f7291d4e', 'id': '811b0ea4-43a7-48bf-8453-d702f7291d4e', 'status': 'completed', 'synthetic': True, 'version': 'v2', 'created_at': '2026-10-26T03:31:39.737036Z', 'files': ['graph.json', 'events.json', 'dataset.json', 'quality.json', 'run_manifest.json'], 'file_name': 'synthetic inputs', 'retained_inputs': [{'path': 'sources/network.jsonl', 'sha256': 'bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99', 'size_bytes': 543}, {'path': 'sources/process.csv', 'sha256': 'd855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666', 'size_bytes': 153}, {'path': 'sources/profile.json', 'sha256': 'f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164', 'size_bytes': 351}], 'core_status': 'succeeded_with_warnings', 'completed_at': '2026-10-26T03:31:45.559320Z', 'warnings': ['network: missing_response_status', 'process: missing_value', 'process: nonfinite_value'], 'run_manifest_sha256': 'd265b5fac719d5090c5f7722ba9441b442eacbacc053a2c72ff493d76801b142', ...
+
+worker: Warm shutdown (MainProcess)
+InfluxDB client initialized successfully: http://127.0.0.1:1
+ 
+ -------------- round9@MacBook-Pro-TP3.local v5.3.4 (emerald-rush)
+--- ***** ----- 
+-- ******* ---- macOS-27.0-arm64-arm-64bit 2026-10-26 11:31:48
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         cpag_generator:0x106f56c90
+- ** ---------- .> transport:   amqp://cpag_round9:**@127.0.0.1:59434//
+- ** ---------- .> results:     redis://127.0.0.1:59435/0
+- *** --- * --- .> concurrency: 1 (prefork)
+-- ******* ---- .> task events: ON
+--- ***** ----- 
+ -------------- [queues]
+                .> cpag_generation  exchange=cpag_generation(direct) key=cpag_generation
+                
+
+[tasks]
+  . api.v1.tasks.generate_cpag
+  . api.v2.synthetic.execute_synthetic
+  . api.v2.tasks.cleanup_old_tasks
+  . api.v2.tasks.collect_metrics
+  . api.v2.tasks.generate_cpag
+  . api.v2.tasks.health_check
+
+[2026-10-26 11:31:48,127: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:31:48,133: INFO/MainProcess] Connected to amqp://cpag_round9:**@127.0.0.1:59434//
+[2026-10-26 11:31:48,133: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:31:48,137: INFO/MainProcess] mingle: searching for neighbors
+[2026-10-26 11:31:49,156: INFO/MainProcess] mingle: all alone
+[2026-10-26 11:31:49,174: INFO/MainProcess] round9@MacBook-Pro-TP3.local ready.
+[2026-10-26 11:31:49,195: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[d031c44f-7739-4938-a360-f68c1654b8c0] received
+[2026-10-26 11:31:49,218: INFO/ForkPoolWorker-1] Task api.v2.synthetic.execute_synthetic[d031c44f-7739-4938-a360-f68c1654b8c0] succeeded in 0.021665667001798283s: {'task_id': 'd031c44f-7739-4938-a360-f68c1654b8c0', 'id': 'd031c44f-7739-4938-a360-f68c1654b8c0', 'status': 'completed', 'synthetic': True, 'version': 'v2', 'created_at': '2026-10-26T03:31:49.193891Z', 'files': ['graph.json', 'events.json', 'dataset.json', 'quality.json', 'run_manifest.json'], 'file_name': 'synthetic inputs', 'retained_inputs': [{'path': 'sources/network.jsonl', 'sha256': 'bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99', 'size_bytes': 543}, {'path': 'sources/process.csv', 'sha256': 'd855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666', 'size_bytes': 153}, {'path': 'sources/profile.json', 'sha256': 'f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164', 'size_bytes': 351}], 'core_status': 'succeeded_with_warnings', 'completed_at': '2026-10-26T03:31:49.214600Z', 'warnings': ['network: missing_response_status', 'process: missing_value', 'process: nonfinite_value'], 'run_manifest_sha256': '6839f5f5337a0679a5070f3ddc6c7655c9a7cf32142b90941e7170d641272567', ...
+
+worker: Warm shutdown (MainProcess)

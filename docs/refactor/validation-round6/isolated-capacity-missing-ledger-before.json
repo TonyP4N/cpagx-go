@@ -1,0 +1,11 @@
+{
+  "synthetic": true,
+  "docker_not_used": true,
+  "missing_capacity_ledger": true,
+  "existing_execution_json": false,
+  "existing_create_intent_and_staged_inputs": true,
+  "budget_bytes": 3000000,
+  "actual_bytes_after": 4000147,
+  "new_reservation_accepted": true,
+  "error_type": null
+}

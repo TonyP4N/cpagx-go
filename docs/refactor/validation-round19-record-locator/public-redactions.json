@@ -1,0 +1,15 @@
+{
+  "scope": "only absolute home prefix in public copies; complete raw failure/output copies retained privately",
+  "files": [
+    {
+      "file": "go-first-tests.log",
+      "original_sha256": "5636588abf030d02c512dcbd9a0569f186815f62b43f0988f1f424d0371315bc",
+      "public_sha256": "2e871550c89fd52ce73176b92337248a49fb41954e471be9549bbb7e27317de7"
+    },
+    {
+      "file": "formal-attempt1-public/results.json",
+      "original_sha256": "c4b8a0f733e66c82e7db7cc3bba78bf65f49b544b2a8bfd69295e65772e8df10",
+      "public_sha256": "22f630c5b5f81feb857024b457830ce6a9a3fe59447bba78908b4a5007bcb218"
+    }
+  ]
+}

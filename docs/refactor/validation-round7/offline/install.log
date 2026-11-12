@@ -1,0 +1,17 @@
+INSTALL.txt: OK
+OPERATIONS.zh-CN.md: OK
+baseline-release.json: OK
+config.env.example: OK
+cpag.sh: OK
+dependencies.lock.json: OK
+images.tar: OK
+lab-engine.tar: OK
+release.json: OK
+validate-upgrade-rollback.sh: OK
+Loaded image: cpag-isolated:baseline-1386a4f
+Loaded image: mirror.gcr.io/library/postgres:17.6-alpine
+Loaded image: cpag-engineering:rc1
+Loaded image: cpag-isolated:round7
+Loaded image: cpag-engineering:baseline-1386a4f
+initialized /cpag-root/data
+

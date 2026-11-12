@@ -1,0 +1,13 @@
+NAME:
+   cpagx - Cyber-Physical Attack Graph Analysis Tool
+
+USAGE:
+   cpagx [global options] command [command options]
+
+COMMANDS:
+   server   Start the API server
+   config   Configuration management
+   help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h  show help

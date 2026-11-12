@@ -1,0 +1,8 @@
+test_explicit_1001_record_export_keeps_all_and_legacy_rejects_without_partial (test_single_source_capacity.SingleSourceCapacityTests.test_explicit_1001_record_export_keeps_all_and_legacy_rejects_without_partial) ... ok
+test_per_file_aggregate_process_and_configuration_byte_guards (test_single_source_capacity.SingleSourceCapacityTests.test_per_file_aggregate_process_and_configuration_byte_guards) ... ok
+test_small_observation_projection_and_query_statistics_stay_equal (test_single_source_capacity.SingleSourceCapacityTests.test_small_observation_projection_and_query_statistics_stay_equal) ... ok
+
+----------------------------------------------------------------------
+Ran 3 tests in 0.734s
+
+OK

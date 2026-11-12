@@ -1,0 +1,82 @@
+{
+  "synthetic_only": true,
+  "python_tests": 168,
+  "suites": {
+    "core": {
+      "tests": 12,
+      "passed": true,
+      "log": "core-regression.log"
+    },
+    "contracts": {
+      "tests": 6,
+      "passed": true,
+      "log": "contracts-regression.log"
+    },
+    "integration": {
+      "tests": 2,
+      "passed": true,
+      "log": "integration-regression.log"
+    },
+    "parsers": {
+      "tests": 13,
+      "passed": true,
+      "log": "parsers-regression.log"
+    },
+    "packets": {
+      "tests": 37,
+      "passed": true,
+      "log": "packets-regression.log"
+    },
+    "worker": {
+      "tests": 14,
+      "passed": true,
+      "log": "worker-regression.log"
+    },
+    "legacy": {
+      "tests": 5,
+      "passed": true,
+      "log": "legacy-regression.log"
+    },
+    "service": {
+      "tests": 11,
+      "passed": true,
+      "log": "service-regression.log"
+    },
+    "replay": {
+      "tests": 5,
+      "passed": true,
+      "log": "replay-regression.log"
+    },
+    "evidence_web": {
+      "tests": 2,
+      "passed": true,
+      "log": "evidence-web-permitted-regression.log"
+    },
+    "backup": {
+      "tests": 28,
+      "passed": true,
+      "log": "backup-regression.log"
+    },
+    "isolated": {
+      "tests": 16,
+      "passed": true,
+      "log": "isolated-regression.log"
+    },
+    "consistency": {
+      "tests": 6,
+      "passed": true,
+      "log": "consistency-regression.log"
+    },
+    "ops": {
+      "tests": 11,
+      "passed": true,
+      "log": "ops-regression.log"
+    }
+  },
+  "go": {
+    "test": "passed",
+    "build": "passed",
+    "vet": "passed"
+  },
+  "environment_note": "Initial evidence_web run could not bind localhost in sandbox; identical tests passed with localhost permission. Dependency file hydration required for service imports."
+}

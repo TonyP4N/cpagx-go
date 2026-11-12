@@ -1,0 +1,22 @@
+test_budget2_accepts_above_legacy_boundary_without_materializing_content (test_compact_extent_contract.CompactExtentContractTests.test_budget2_accepts_above_legacy_boundary_without_materializing_content) ... ok
+test_full_outer_manifest_each_version_exact_boundary_and_one_above (test_compact_extent_contract.CompactExtentContractTests.test_full_outer_manifest_each_version_exact_boundary_and_one_above) ... ok
+test_independent_jsonschema_and_runtime_agree_on_full_manifest_boundaries (test_compact_extent_contract.CompactExtentContractTests.test_independent_jsonschema_and_runtime_agree_on_full_manifest_boundaries) ... ok
+test_missing_and_unknown_budget_versions_are_rejected (test_compact_extent_contract.CompactExtentContractTests.test_missing_and_unknown_budget_versions_are_rejected) ... ok
+test_session_does_not_reuse_pass_after_nested_extent_or_version_changes (test_compact_extent_contract.CompactExtentContractTests.test_session_does_not_reuse_pass_after_nested_extent_or_version_changes) ... ok
+test_version_and_declared_extent_budget_cannot_be_crossed (test_compact_extent_contract.CompactExtentContractTests.test_version_and_declared_extent_budget_cannot_be_crossed) ... ok
+test_absent_then_or_else_does_not_make_if_a_rejection_rule (test_compact_extent_contract.ConditionalSubsetTests.test_absent_then_or_else_does_not_make_if_a_rejection_rule) ... ok
+test_allof_checks_every_branch (test_compact_extent_contract.ConditionalSubsetTests.test_allof_checks_every_branch) ... ok
+test_condition_ref_error_is_not_hidden_as_an_else_match (test_compact_extent_contract.ConditionalSubsetTests.test_condition_ref_error_is_not_hidden_as_an_else_match) ... ok
+test_matching_missing_and_nonmatching_condition_use_the_correct_branch (test_compact_extent_contract.ConditionalSubsetTests.test_matching_missing_and_nonmatching_condition_use_the_correct_branch) ... ok
+test_evaluation_independence_required (test_contracts.ContractTests.test_evaluation_independence_required) ... ok
+test_reject_invalid_contracts (test_contracts.ContractTests.test_reject_invalid_contracts) ... ok
+test_strict_schema_documents (test_contracts.ContractTests.test_strict_schema_documents) ... ok
+test_export_against_independent_jsonschema (test_contracts.IndependentSchemaTests.test_export_against_independent_jsonschema) ... ok
+test_all_ten_examples_shared_with_go (test_contracts.SharedExampleTests.test_all_ten_examples_shared_with_go) ... ok
+test_shared_packet_mutations_rejected_by_runtime_and_independent_schema (test_contracts.SharedPacketNegativeTests.test_shared_packet_mutations_rejected_by_runtime_and_independent_schema) ... ok
+test_shared_source_only_manifest_and_negative_variants (test_contracts.SingleSourceManifestContractTests.test_shared_source_only_manifest_and_negative_variants) ... ok
+
+----------------------------------------------------------------------
+Ran 17 tests in 0.356s
+
+OK

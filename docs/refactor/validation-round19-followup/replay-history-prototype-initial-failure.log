@@ -1,0 +1,15 @@
+test_actual_small_snapshots_revisions_and_business_fields_equal_v1 (test_history_spool.HistorySpoolTests.test_actual_small_snapshots_revisions_and_business_fields_equal_v1) ... FAIL
+
+======================================================================
+FAIL: test_actual_small_snapshots_revisions_and_business_fields_equal_v1 (test_history_spool.HistorySpoolTests.test_actual_small_snapshots_revisions_and_business_fields_equal_v1)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/replay/test_history_spool.py", line 76, in test_actual_small_snapshots_revisions_and_business_fields_equal_v1
+    self.assertEqual(history.snapshot(index, projection=True), expected)
+AssertionError: {'arrival_seq': 3, 'available_at': '2026-01[17453 chars]g'}]} != {'schema_version': '1.0.0', 'synthetic': Tr[17453 chars]]}}]}
+Diff is 44323 characters long. Set self.maxDiff to None to see it.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.374s
+
+FAILED (failures=1)

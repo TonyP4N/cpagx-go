@@ -1,0 +1,40 @@
+{
+  "web": {
+    "status": 200
+  },
+  "go": {
+    "status": 200
+  },
+  "v1": {
+    "status": 200
+  },
+  "v2": {
+    "status": 200
+  },
+  "versions": {
+    "status": 200
+  },
+  "containers": [
+    {
+      "name": "influxdb",
+      "state": "running",
+      "health": "healthy"
+    },
+    {
+      "name": "neo4j",
+      "state": "running",
+      "health": "healthy"
+    },
+    {
+      "name": "rabbitmq",
+      "state": "running",
+      "health": "healthy"
+    },
+    {
+      "name": "redis",
+      "state": "running",
+      "health": "healthy"
+    }
+  ],
+  "browser_download_matches": true
+}

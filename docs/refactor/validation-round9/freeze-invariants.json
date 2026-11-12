@@ -1,0 +1,15 @@
+{
+  "baseline": "f859a8bdeb07a5a4d067566f23eb5fa035ab362f",
+  "frozen_tag": "49e998545b9b7b47f2b1dc9b19e6d8562f780765",
+  "frozen_archive_sha256": "c199dd417e1c59c55563c5535e32d26197b164c95ae17c0ef3bb621f7228b49e",
+  "unchanged_paths": [
+    "api/routes.go",
+    "cmd",
+    "deployments/engineering",
+    "services/python-cpag-generator/infrastructure/celery_app.py",
+    "services/python-cpag-generator/core/config.py",
+    "services/analysis/src/cpag_core",
+    "services/worker"
+  ],
+  "changes_boundary": "v2 synthetic publication read integrity only; no default entry switch"
+}

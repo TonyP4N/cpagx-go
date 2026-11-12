@@ -1,0 +1,14 @@
+test_changed_preflight_source_profile_schedule_and_case_are_refused (test_round19_scale_fixture.CapacityDensityFixtureTests.test_changed_preflight_source_profile_schedule_and_case_are_refused) ... ok
+test_explicit_version_preserves_raw_and_emits_bound_formal_matrix (test_round19_scale_fixture.CapacityDensityFixtureTests.test_explicit_version_preserves_raw_and_emits_bound_formal_matrix) ... ok
+test_generator_digest_is_declared_provenance_not_current_code_requirement (test_round19_scale_fixture.CapacityDensityFixtureTests.test_generator_digest_is_declared_provenance_not_current_code_requirement) ... ok
+test_independent_interval_arithmetic_and_required_flat_bytes (test_round19_scale_fixture.CapacityDensityFixtureTests.test_independent_interval_arithmetic_and_required_flat_bytes) ... ok
+test_legacy_default_profiles_and_raw_remain_byte_identical (test_round19_scale_fixture.CapacityDensityFixtureTests.test_legacy_default_profiles_and_raw_remain_byte_identical) ... ok
+test_shared_capacity_matrix_preserves_density_without_claiming_physical_fit (test_round19_scale_fixture.CapacityDensityFixtureTests.test_shared_capacity_matrix_preserves_density_without_claiming_physical_fit) ... ok
+test_unknown_generator_version_refuses_before_writing (test_round19_scale_fixture.CapacityDensityFixtureTests.test_unknown_generator_version_refuses_before_writing) ... ok
+test_all_scales_preserve_raw_request_response_and_csv_density (test_round19_scale_fixture.ScaleFixtureTests.test_all_scales_preserve_raw_request_response_and_csv_density) ... ok
+test_existing_fixture_is_never_overwritten (test_round19_scale_fixture.ScaleFixtureTests.test_existing_fixture_is_never_overwritten) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 6.099s
+
+OK

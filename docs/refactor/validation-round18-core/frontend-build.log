@@ -1,0 +1,42 @@
+
+> cpagx-webui@1.0.0 build
+> next build
+
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+  ▲ Next.js 14.2.35
+
+   Linting and checking validity of types ...
+   Creating an optimized production build ...
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+ ⚠ Specified "rewrites" will not automatically work with "output: export". See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+Browserslist: browsers data (caniuse-lite) is 14 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+ ✓ Compiled successfully
+   Collecting page data ...
+   Generating static pages (0/7) ...
+   Generating static pages (1/7) 
+   Generating static pages (3/7) 
+   Generating static pages (5/7) 
+ ✓ Generating static pages (7/7)
+   Finalizing page optimization ...
+   Collecting build traces ...
+ ⚠ rewrites, redirects, and headers are not applied when exporting your application, detected (rewrites). See more info here: https://nextjs.org/docs/messages/export-no-custom-routes
+
+Route (pages)                             Size     First Load JS
+┌ ○ /                                     44.6 kB         132 kB
+├   /_app                                 0 B            85.3 kB
+├ ○ /404                                  181 B          85.5 kB
+├ ○ /dual-source                          9.44 kB        97.2 kB
+├ ○ /graph                                215 kB          300 kB
+├ ○ /replay                               3.24 kB          91 kB
+└ ○ /workspace                            7.61 kB        95.4 kB
++ First Load JS shared by all             91.5 kB
+  ├ chunks/framework-64ad27b21261a9ce.js  44.9 kB
+  ├ chunks/main-90ae43f61599f565.js       38.5 kB
+  └ other shared chunks (total)           8.16 kB
+
+○  (Static)  prerendered as static content
+

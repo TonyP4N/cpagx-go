@@ -1,0 +1,22 @@
+{
+  "baseline": {
+    "events": 2,
+    "edges": 1,
+    "unsupported": []
+  },
+  "fin_ack": {
+    "events": 2,
+    "edges": 1,
+    "unsupported": []
+  },
+  "full_close": {
+    "events": 2,
+    "edges": 1,
+    "unsupported": []
+  },
+  "half_close_response": {
+    "events": 2,
+    "edges": 1,
+    "unsupported": []
+  }
+}

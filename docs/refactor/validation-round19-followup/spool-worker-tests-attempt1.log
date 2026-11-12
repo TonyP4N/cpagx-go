@@ -1,0 +1,7 @@
+test_old_payload_cannot_receive_new_spool_tar (test_spool_worker.SpoolWorkerTests.test_old_payload_cannot_receive_new_spool_tar) ... ok
+test_spool_inventory_schema_and_removed_container_recovery_are_bound (test_spool_worker.SpoolWorkerTests.test_spool_inventory_schema_and_removed_container_recovery_are_bound) ... ok
+
+----------------------------------------------------------------------
+Ran 2 tests in 1.764s
+
+OK

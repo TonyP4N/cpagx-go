@@ -1,0 +1,18 @@
+{
+  "recorded_at": "2026-10-28T06:53:40.517094+00:00",
+  "baseline": "8b3ae837eb7f5ac431d8e8a7099be9620a5ed594",
+  "scope": "CSV locator and service bundle bridge source at first formal invocation; concurrent parent performance work is separately recorded, not a fixed whole-repository runtime identity",
+  "files": {
+    "services/analysis/src/cpag_core/reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+    "services/analysis/src/cpag_core/evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+    "services/analysis/src/cpag_core/contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+    "schemas/EvaluationCSVRecordLocator.schema.json": "3336c3b5a48e3ca803574e0d7c09810730a16099e37ca4d614bf1175ea1192e7",
+    "schemas/EvaluationLocatedReference.schema.json": "fc60768eca060af754df5cdd0bfd62a4f701b20728d4eda3e7dea3016f6b0cd1",
+    "internal/catalog/evaluation_store.go": "9cf055efb633b45d75b6c86a9c945e0ff14c1915c1a80f9dd3dff7eb43eec5e7",
+    "internal/contracts/contracts.go": "7cc2bed330b73201a10224b10ede1067591a893b434e036b553919e56727bd12",
+    "internal/jobs/migrations/013_v3_evaluation_record_locator.sql": "8507d554d34823cd90b35d95dbe222c21e9d9bbd28b025106b7060d1fa59e27f",
+    "scripts/validation/round19_evaluation_acceptance.py": "6f726da8adf161d15efa98536964f5063a46dac4d89b7ac0f63e6cb7b3dd8d1d"
+  },
+  "worker_image_tag": "cpag-isolated:spool-final-1",
+  "worker_short_image_id": "5979b0d9e5ad"
+}

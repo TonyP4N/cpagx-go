@@ -1,0 +1,169 @@
+test_actual_core_empty_source_is_failed_without_artifacts (test_synthetic_http.SyntheticHTTP.test_actual_core_empty_source_is_failed_without_artifacts) ... ok
+test_capacity_rejection_and_redis_failure_are_not_swallowed (test_synthetic_http.SyntheticHTTP.test_capacity_rejection_and_redis_failure_are_not_swallowed) ... ok
+test_completed_delivery_is_verified_and_idempotent (test_synthetic_http.SyntheticHTTP.test_completed_delivery_is_verified_and_idempotent) ... ok
+test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) ... 
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/artifacts/30b5eea9-52b9-4db1-94d4-9302780c3231') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231/json') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/download/30b5eea9-52b9-4db1-94d4-9302780c3231/graph.json') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/artifacts/30b5eea9-52b9-4db1-94d4-9302780c3231') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231') ... FAIL
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231/json') ... ERROR
+  test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/download/30b5eea9-52b9-4db1-94d4-9302780c3231/graph.json') ... FAIL
+test_core_failure_visible (test_synthetic_http.SyntheticHTTP.test_core_failure_visible) ... ok
+test_duplicate_active_preserves_status_and_staging (test_synthetic_http.SyntheticHTTP.test_duplicate_active_preserves_status_and_staging) ... ok
+test_invalid_identifier_bounded (test_synthetic_http.SyntheticHTTP.test_invalid_identifier_bounded) ... ok
+test_legacy_empty_submission_is_rejected (test_synthetic_http.SyntheticHTTP.test_legacy_empty_submission_is_rejected) ... ok
+test_opt_in_and_profile_required (test_synthetic_http.SyntheticHTTP.test_opt_in_and_profile_required) ... ok
+test_queue_failure_explicit (test_synthetic_http.SyntheticHTTP.test_queue_failure_explicit) ... ok
+test_real_core_http_artifacts_and_batch (test_synthetic_http.SyntheticHTTP.test_real_core_http_artifacts_and_batch) ... ok
+test_recoverable_records_publish_warning_and_correct_raw_evidence (test_synthetic_http.SyntheticHTTP.test_recoverable_records_publish_warning_and_correct_raw_evidence) ... ok
+
+======================================================================
+ERROR: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231/json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+                     ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/testclient.py", line 499, in get
+    return super().get(
+           ^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1066, in get
+    return self.request(
+           ^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/testclient.py", line 465, in request
+    return super().request(
+           ^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 837, in request
+    return self.send(request, auth=auth, follow_redirects=follow_redirects)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 926, in send
+    response = self._send_handling_auth(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 954, in _send_handling_auth
+    response = self._send_handling_redirects(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 991, in _send_handling_redirects
+    response = self._send_single_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/httpx/_client.py", line 1027, in _send_single_request
+    response = transport.handle_request(request)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/testclient.py", line 342, in handle_request
+    raise exc
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/testclient.py", line 339, in handle_request
+    portal.call(self.app, scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/anyio/from_thread.py", line 277, in call
+    return cast(T_Retval, self.start_task_soon(func, *args).result())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/anyio/from_thread.py", line 217, in _call_func
+    retval = await retval
+             ^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/fastapi/applications.py", line 1106, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/applications.py", line 122, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 184, in __call__
+    raise exc
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/middleware/errors.py", line 162, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/middleware/cors.py", line 83, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 79, in __call__
+    raise exc
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/middleware/exceptions.py", line 68, in __call__
+    await self.app(scope, receive, sender)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 20, in __call__
+    raise e
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/fastapi/middleware/asyncexitstack.py", line 17, in __call__
+    await self.app(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/routing.py", line 718, in __call__
+    await route.handle(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/starlette/routing.py", line 66, in app
+    response = await func(request)
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 274, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/fastapi/routing.py", line 191, in run_endpoint_function
+    return await dependant.call(**values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/python-cpag-generator/api/v2/app.py", line 258, in get_task_result_json
+    data = {name: json.loads(artifact_path(task_id, name + '.json').read_text())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/python-cpag-generator/api/v2/app.py", line 258, in <dictcomp>
+    data = {name: json.loads(artifact_path(task_id, name + '.json').read_text())
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/python-cpag-generator/api/v2/synthetic.py", line 41, in artifact_path
+    raise FileNotFoundError(filename)
+FileNotFoundError: graph.json
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/artifacts/30b5eea9-52b9-4db1-94d4-9302780c3231')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231/json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='tamper', endpoint='/cpag/download/30b5eea9-52b9-4db1-94d4-9302780c3231/graph.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/artifacts/30b5eea9-52b9-4db1-94d4-9302780c3231')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/result/30b5eea9-52b9-4db1-94d4-9302780c3231')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 200 != 409
+
+======================================================================
+FAIL: test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) (fault='missing', endpoint='/cpag/download/30b5eea9-52b9-4db1-94d4-9302780c3231/graph.json')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/service/test_synthetic_http.py", line 182, in test_completed_publication_reads_reject_corruption
+    self.assertEqual(client.get(endpoint).status_code, 409)
+AssertionError: 404 != 409
+
+----------------------------------------------------------------------
+Ran 12 tests in 4.323s
+
+FAILED (failures=7, errors=1)
+InfluxDB client initialized successfully: http://localhost:8086

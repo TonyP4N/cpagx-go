@@ -1,0 +1,73 @@
+{
+  "business_bytes_unchanged": true,
+  "bytes": 161318,
+  "completed_owner_new_file": "denied",
+  "completed_root_mode": "0555",
+  "files": 9,
+  "filesystem": "native Linux container tmpfs; no host bind for artifact data",
+  "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+  "inventory": {
+    "1f6e3c4a233941e1f58265c631124f1e2b1a2a47c230a4b2a9f22fc0f9530bc8.json": {
+      "sha256": "1f6e3c4a233941e1f58265c631124f1e2b1a2a47c230a4b2a9f22fc0f9530bc8",
+      "size": 1726
+    },
+    "manifest.json": {
+      "sha256": "1f6e3c4a233941e1f58265c631124f1e2b1a2a47c230a4b2a9f22fc0f9530bc8",
+      "size": 1726
+    },
+    "run_manifest.json": {
+      "sha256": "5a3443ce8d59296c81edfb4a9fc025d83a8a8a8771cf76abb357afabe7edb517",
+      "size": 5253
+    },
+    "shared/manifest.json": {
+      "sha256": "e9e8617c495f00eb152f10fd5f9bc2e6bab83da5db2e72ebe5711831b031e8b6",
+      "size": 863
+    },
+    "shared/shared.sqlite3": {
+      "sha256": "dcaa8042fcc818df3edfa4f04513e04bde2c3b5c50b84d85a519b1f76a21f1f3",
+      "size": 147456
+    },
+    "sources/network-001.pcap": {
+      "sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+      "size": 138
+    },
+    "sources/network.pcap": {
+      "sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+      "size": 144
+    },
+    "sources/process.csv": {
+      "sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+      "size": 132
+    },
+    "sources/profile.json": {
+      "sha256": "862171960241287be2baba20f4867259072e9bc2ff5401e82703e7794e36d5df",
+      "size": 3880
+    }
+  },
+  "legacy0400_anchor_other_uid_read": "denied",
+  "migrated0444_anchor_other_uid_read": "passed",
+  "original_artifact_identity": {
+    "attempt_id": 1,
+    "config_fingerprint": "862171960241287be2baba20f4867259072e9bc2ff5401e82703e7794e36d5df",
+    "input_fingerprint": "7b2421c61453ebd6b85185b257586b36974d9890566471022d6dadeda97976eb",
+    "result_hashes": {
+      "events": "6da9401fd381342bcb309e480315f4e8e308ec43b3e2fdd991fbcd7ea44f418f",
+      "graph": "e67e8a4e7a1c87cd5904af3b9290e9555d8eeb628b7f8bed515ef501a5ab66e3"
+    },
+    "run_id": "30487b3a21731005a000e987dccef3a1",
+    "source_fingerprint": "6bfdfe59ed2dc0c8d265d8ed821721c9badc5f0906d55ac530c637a3cd27ecbe",
+    "storage_format": "shared-observation-dag-6"
+  },
+  "owner_anchor_create": "passed",
+  "owner_uid": 1001,
+  "prepared_root_mode": "0755",
+  "private0700_other_uid_read": "denied",
+  "scope": "post-run permissions and retained-byte inventory impact only; no analysis, no performance acceptance",
+  "source_inventory_unchanged": true,
+  "status": "passed",
+  "valid": true,
+  "verifier_read_and_full_hash_inventory": "passed",
+  "verifier_root_and_payload_write": "denied",
+  "verifier_uid": 65532,
+  "worker_helper_sha256": "04b6093bf513dc53d6583a0a08f59be0742e7f72a6e59a34cefd831e6aae61df"
+}

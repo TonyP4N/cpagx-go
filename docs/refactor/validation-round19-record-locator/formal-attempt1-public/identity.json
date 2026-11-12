@@ -1,0 +1,10 @@
+{
+  "host_binary_sha256": {
+    "cpagx-v3": "df945234ce4315ab35139712c775dba67802e9b9b228160f3165a4ce9f6e0a6d",
+    "cpagctl": "d0aaa08d3a349c44742fd9eaa39e414b98c59119c434dcc41a2daf009a54d6b6"
+  },
+  "worker_image_tag": "cpag-isolated:spool-final-1",
+  "worker_scope": "existing fixed image used only for prior analysis protocol; new locator verification executes in host Python/service",
+  "outcome": "passed",
+  "source_mode": "working-tree bounded locator integration; not a fixed whole-repository measurement"
+}

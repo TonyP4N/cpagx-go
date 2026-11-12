@@ -1,0 +1,20 @@
+{
+  "version": "actual-linux-closed-file-retention-1",
+  "checks": {
+    "live_cleanup_refused_without_file_deletion": true,
+    "cross_volume_control_link_rejected_by_os": true,
+    "actual_open_descriptor_prevents_cleanup": true,
+    "closed_preview_only_deleted_with_root_audit": true,
+    "current_log_unknown_runtime_and_control_evidence_preserved": true,
+    "hard_link_to_current_log_preserved": true
+  },
+  "scope": "unique synthetic log/runtime fixtures only; no business inventory reclamation",
+  "validation_scripts": {
+    "stopped": "377668e6e6b253a0ffe794a6d36487b027f0b153f28d00d7e63791e0d18158ca",
+    "live": "cff8823e648cade24b2776ee4241831e2481a1e5014ff2c277ce9c9607d17fef"
+  },
+  "production_ops_package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+  "audit": "/var/backups/cpag/r21-retention-eb279a08a795-stopped-cleanup-audit.json",
+  "deleted_count": 3,
+  "status": "passed"
+}

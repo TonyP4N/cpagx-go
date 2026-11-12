@@ -1,0 +1,4 @@
+=== RUN   TestSiteCapacityPolicySerializesAllUnexitedAttempts
+--- PASS: TestSiteCapacityPolicySerializesAllUnexitedAttempts (0.18s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/jobs/integration	0.626s

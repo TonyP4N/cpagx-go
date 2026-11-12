@@ -6,12 +6,14 @@ import (
 	"fmt"
 	"io"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"os"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,6 +31,7 @@ type Config struct {
 
 // VersionInfo 版本信息
 type VersionInfo struct {
+	ServiceURL  string `json:"service_url"`
 	Port        int    `json:"port"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -46,14 +49,14 @@ func NewVersionProxy(config *Config) *VersionProxy {
 	for version, info := range config.Versions {
 		if info.Enabled {
 			// 在Docker环境中使用容器名称
-			targetURL := fmt.Sprintf("http://python-cpag-generator:%d", info.Port)
+			targetURL := versionServiceURL(version, info)
 			target, err := url.Parse(targetURL)
 			if err != nil {
 				continue
 			}
 
 			reverseProxy := httputil.NewSingleHostReverseProxy(target)
-			reverseProxy.ModifyResponse = proxy.modifyResponse
+			reverseProxy.ModifyResponse = func(resp *http.Response) error { resp.Header.Set("X-Cpag-Version", version); return nil }
 			reverseProxy.ErrorHandler = proxy.errorHandler
 
 			proxy.versions[version] = reverseProxy
@@ -61,13 +64,6 @@ func NewVersionProxy(config *Config) *VersionProxy {
 	}
 
 	return proxy
-}
-
-// modifyResponse 修改响应
-func (p *VersionProxy) modifyResponse(resp *http.Response) error {
-	// 添加版本信息到响应头
-	resp.Header.Set("X-Cpag-Version", "v1") // 这里需要根据实际版本设置
-	return nil
 }
 
 // errorHandler 错误处理
@@ -105,7 +101,10 @@ func (p *VersionProxy) ProxyToVersion(version string) gin.HandlerFunc {
 			c.Request.URL.Path = strings.TrimPrefix(originalPath, "/api/v1")
 		} else if strings.HasPrefix(originalPath, "/api/v2") {
 			c.Request.URL.Path = strings.TrimPrefix(originalPath, "/api/v2")
+		} else {
+			c.Request.URL.Path = strings.TrimPrefix(originalPath, "/api")
 		}
+		c.Request.URL.RawPath = ""
 
 		// 对于 v2 版本的 CPAG 生成请求，添加 Neo4j 配置参数
 		fmt.Printf("Proxy check: version=%s, method=%s, path=%s\n", version, c.Request.Method, c.Request.URL.Path)
@@ -134,8 +133,8 @@ func (p *VersionProxy) HealthCheck() gin.HandlerFunc {
 		}
 
 		// 检查服务健康状态
-		healthURL := fmt.Sprintf("http://python-cpag-generator:%d/health", info.Port)
-		resp, err := http.Get(healthURL)
+		healthURL := versionServiceURL(version, info) + "/health"
+		resp, err := upstreamClient.Get(healthURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -189,8 +188,8 @@ func (p *VersionProxy) SwitchVersion() gin.HandlerFunc {
 		}
 
 		// 检查服务健康状态
-		healthURL := fmt.Sprintf("http://python-cpag-generator:%d/health", info.Port)
-		resp, err := http.Get(healthURL)
+		healthURL := versionServiceURL(req.Version, info) + "/health"
+		resp, err := upstreamClient.Get(healthURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -200,6 +199,11 @@ func (p *VersionProxy) SwitchVersion() gin.HandlerFunc {
 			return
 		}
 		defer resp.Body.Close()
+
+		if resp.StatusCode != http.StatusOK {
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Service Unavailable", "status_code": resp.StatusCode})
+			return
+		}
 
 		// 返回版本信息
 		c.JSON(http.StatusOK, gin.H{
@@ -219,8 +223,8 @@ func (p *VersionProxy) GetVersions() gin.HandlerFunc {
 
 		for version, info := range p.config.Versions {
 			// 检查服务健康状态
-			healthURL := fmt.Sprintf("http://python-cpag-generator:%d/health", info.Port)
-			resp, err := http.Get(healthURL)
+			healthURL := versionServiceURL(version, info) + "/health"
+			resp, err := upstreamClient.Get(healthURL)
 
 			status := "unhealthy"
 			if err == nil && resp.StatusCode == http.StatusOK {
@@ -253,26 +257,33 @@ func (p *VersionProxy) GetTaskList() gin.HandlerFunc {
 
 		// 如果没有指定版本，则获取所有版本的任务
 		if version == "" {
-			var allTasks []interface{}
+			allTasks := make([]interface{}, 0)
+			failed := make([]string, 0)
 
 			// 遍历所有可用版本
-			for _, info := range p.config.Versions {
+			for version, info := range p.config.Versions {
 				if !info.Enabled {
 					continue
 				}
 
 				// 获取该版本的任务列表
-				taskListURL := fmt.Sprintf("http://python-cpag-generator:%d/cpag/tasks", info.Port)
-				resp, err := http.Get(taskListURL)
+				taskListURL := versionServiceURL(version, info) + "/cpag/tasks"
+				resp, err := upstreamClient.Get(taskListURL)
 
 				if err != nil {
-					// 如果某个版本不可用，继续处理其他版本
+					failed = append(failed, version)
 					continue
 				}
 
+				if resp.StatusCode != http.StatusOK {
+					resp.Body.Close()
+					failed = append(failed, version)
+					continue
+				}
 				var tasks []interface{}
 				if err := json.NewDecoder(resp.Body).Decode(&tasks); err != nil {
 					resp.Body.Close()
+					failed = append(failed, version)
 					continue
 				}
 				resp.Body.Close()
@@ -310,6 +321,13 @@ func (p *VersionProxy) GetTaskList() gin.HandlerFunc {
 				return createdAtI > createdAtJ
 			})
 
+			if len(failed) > 0 {
+				c.Header("X-Cpag-Unavailable-Versions", strings.Join(failed, ","))
+				if len(allTasks) == 0 {
+					c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Task services unavailable", "versions": failed})
+					return
+				}
+			}
 			// 返回所有版本的任务
 			c.JSON(http.StatusOK, allTasks)
 			return
@@ -326,8 +344,8 @@ func (p *VersionProxy) GetTaskList() gin.HandlerFunc {
 		}
 
 		// 代理到对应版本的任务列表端点
-		taskListURL := fmt.Sprintf("http://python-cpag-generator:%d/cpag/tasks", info.Port)
-		resp, err := http.Get(taskListURL)
+		taskListURL := versionServiceURL(version, info) + "/cpag/tasks"
+		resp, err := upstreamClient.Get(taskListURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -339,7 +357,7 @@ func (p *VersionProxy) GetTaskList() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// 转发响应
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, forwardedHeaders(resp))
 	}
 }
 
@@ -364,8 +382,8 @@ func (p *VersionProxy) DownloadFile() gin.HandlerFunc {
 		}
 
 		// 代理到对应版本的文件下载端点
-		downloadURL := fmt.Sprintf("http://python-cpag-generator:%d/cpag/download/%s/%s", info.Port, taskID, filename)
-		resp, err := http.Get(downloadURL)
+		downloadURL := versionServiceURL(version, info) + "/cpag/download/" + url.PathEscape(taskID) + "/" + url.PathEscape(filename)
+		resp, err := upstreamClient.Get(downloadURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -377,7 +395,7 @@ func (p *VersionProxy) DownloadFile() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// 转发响应
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, forwardedHeaders(resp))
 	}
 }
 
@@ -410,8 +428,8 @@ func (p *VersionProxy) GetBatchTaskStatus() gin.HandlerFunc {
 		}
 
 		// 代理到对应版本的批量状态查询端点
-		batchStatusURL := fmt.Sprintf("http://python-cpag-generator:%d/cpag/status/batch?task_ids=%s", info.Port, taskIds)
-		resp, err := http.Get(batchStatusURL)
+		batchStatusURL := versionServiceURL(version, info) + "/cpag/status/batch?" + url.Values{"task_ids": {taskIds}}.Encode()
+		resp, err := upstreamClient.Get(batchStatusURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -423,7 +441,7 @@ func (p *VersionProxy) GetBatchTaskStatus() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// 转发响应
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, forwardedHeaders(resp))
 	}
 }
 
@@ -446,8 +464,8 @@ func (p *VersionProxy) GetQueueStatus() gin.HandlerFunc {
 		}
 
 		// 代理到对应版本的队列状态端点
-		queueStatusURL := fmt.Sprintf("http://python-cpag-generator:%d/cpag/queue/status", info.Port)
-		resp, err := http.Get(queueStatusURL)
+		queueStatusURL := versionServiceURL(version, info) + "/cpag/queue/status"
+		resp, err := upstreamClient.Get(queueStatusURL)
 
 		if err != nil {
 			c.JSON(http.StatusServiceUnavailable, gin.H{
@@ -459,7 +477,7 @@ func (p *VersionProxy) GetQueueStatus() gin.HandlerFunc {
 		defer resp.Body.Close()
 
 		// 转发响应
-		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, nil)
+		c.DataFromReader(resp.StatusCode, resp.ContentLength, resp.Header.Get("Content-Type"), resp.Body, forwardedHeaders(resp))
 	}
 }
 
@@ -552,4 +570,38 @@ func (p *VersionProxy) enhanceV2Request(c *gin.Context) {
 	c.Request.Body = io.NopCloser(&buf)
 	c.Request.ContentLength = int64(buf.Len())
 	c.Request.Header.Set("Content-Type", writer.FormDataContentType())
+}
+
+var upstreamClient = &http.Client{Timeout: 30 * time.Second}
+
+// Explicit version endpoints take precedence; the legacy URL supplies the host.
+func versionServiceURL(version string, info VersionInfo) string {
+	if endpoint := os.Getenv("PYTHON_" + strings.ToUpper(version) + "_SERVICE_URL"); endpoint != "" {
+		return strings.TrimRight(endpoint, "/")
+	}
+	if info.ServiceURL != "" {
+		return strings.TrimRight(info.ServiceURL, "/")
+	}
+	base := os.Getenv("PYTHON_SERVICE_URL")
+	if base == "" {
+		base = "http://python-cpag-generator:8000"
+	}
+	parsed, err := url.Parse(base)
+	if err != nil || parsed.Hostname() == "" {
+		return base
+	}
+	if version != "v1" {
+		parsed.Host = net.JoinHostPort(parsed.Hostname(), fmt.Sprint(info.Port))
+	}
+	return strings.TrimRight(parsed.String(), "/")
+}
+
+func forwardedHeaders(resp *http.Response) map[string]string {
+	headers := make(map[string]string)
+	for _, key := range []string{"Content-Disposition", "Cache-Control", "ETag", "Last-Modified", "Content-Range", "Accept-Ranges"} {
+		if value := resp.Header.Get(key); value != "" {
+			headers[key] = value
+		}
+	}
+	return headers
 }

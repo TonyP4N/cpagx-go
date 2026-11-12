@@ -1,0 +1,30 @@
+[Unit]
+Description=CPAG authenticated isolated-compute Worker
+After=cpag-api.service docker.service
+Requires=cpag-api.service docker.service
+
+[Service]
+Type=simple
+User=cpag
+Group=cpag
+SupplementaryGroups=docker
+WorkingDirectory=/opt/cpag/current
+Environment=PYTHONPATH=/opt/cpag/current/services/worker:/opt/cpag/current/services/analysis/src
+Environment=PYTHONDONTWRITEBYTECODE=1
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 -m cpag_worker.service --config /etc/cpag/worker.json
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=35
+UMask=0077
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/cpag /var/log/cpag /run/cpag
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

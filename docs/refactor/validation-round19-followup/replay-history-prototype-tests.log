@@ -1,0 +1,12 @@
+test_actual_small_snapshots_revisions_and_business_fields_equal_v1 (test_history_spool.HistorySpoolTests.test_actual_small_snapshots_revisions_and_business_fields_equal_v1) ... ok
+test_delta_checkpoint_restore_and_disk_sharing_with_bounded_ram_catalog (test_history_spool.HistorySpoolTests.test_delta_checkpoint_restore_and_disk_sharing_with_bounded_ram_catalog) ... ok
+test_expired_and_late_history_remains_field_equivalent (test_history_spool.HistorySpoolTests.test_expired_and_late_history_remains_field_equivalent) ... ok
+test_future_source_edits_do_not_change_prefix_snapshots (test_history_spool.HistorySpoolTests.test_future_source_edits_do_not_change_prefix_snapshots) ... ok
+test_limits_do_not_publish_partial_history_or_change_v1_limits (test_history_spool.HistorySpoolTests.test_limits_do_not_publish_partial_history_or_change_v1_limits) ... ok
+test_missing_changed_inventory_and_wrong_run_are_rejected (test_history_spool.HistorySpoolTests.test_missing_changed_inventory_and_wrong_run_are_rejected) ... ok
+test_rehashed_missing_object_still_fails_logical_restore (test_history_spool.HistorySpoolTests.test_rehashed_missing_object_still_fails_logical_restore) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 3.720s
+
+OK

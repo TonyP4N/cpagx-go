@@ -1,0 +1,11 @@
+PASS offline install
+PASS offline start
+Preserved target: cpag-offline-rc1
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/release/validate-offline.py", line 44, in <module>
+    cpag('start');cpag('demo');cpag('check')
+                  ^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/scripts/release/validate-offline.py", line 17, in cpag
+    if result.returncode:raise RuntimeError('offline '+command+' failed; see '+command+'.log')
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: offline demo failed; see demo.log

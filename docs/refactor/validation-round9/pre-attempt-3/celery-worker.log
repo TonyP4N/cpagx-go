@@ -1,0 +1,69 @@
+InfluxDB client initialized successfully: http://127.0.0.1:1
+ 
+ -------------- round9@MacBook-Pro-TP3.local v5.3.4 (emerald-rush)
+--- ***** ----- 
+-- ******* ---- macOS-27.0-arm64-arm-64bit 2026-10-26 11:25:06
+- *** --- * --- 
+- ** ---------- [config]
+- ** ---------- .> app:         cpag_generator:0x10294e950
+- ** ---------- .> transport:   amqp://cpag_round9:**@127.0.0.1:57854//
+- ** ---------- .> results:     redis://127.0.0.1:57853/0
+- *** --- * --- .> concurrency: 1 (prefork)
+-- ******* ---- .> task events: ON
+--- ***** ----- 
+ -------------- [queues]
+                .> cpag_generation  exchange=cpag_generation(direct) key=cpag_generation
+                
+
+[tasks]
+  . api.v1.tasks.generate_cpag
+  . api.v2.synthetic.execute_synthetic
+  . api.v2.tasks.cleanup_old_tasks
+  . api.v2.tasks.collect_metrics
+  . api.v2.tasks.generate_cpag
+  . api.v2.tasks.health_check
+
+[2026-10-26 11:25:06,601: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:25:06,606: INFO/MainProcess] Connected to amqp://cpag_round9:**@127.0.0.1:57854//
+[2026-10-26 11:25:06,607: WARNING/MainProcess] /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/worker/consumer/consumer.py:507: CPendingDeprecationWarning: The broker_connection_retry configuration setting will no longer determine
+whether broker connection retries are made during startup in Celery 6.0 and above.
+If you wish to retain the existing behavior for retrying connections on startup,
+you should set broker_connection_retry_on_startup to True.
+  warnings.warn(
+
+[2026-10-26 11:25:06,611: INFO/MainProcess] mingle: searching for neighbors
+[2026-10-26 11:25:06,709: INFO/SpawnPoolWorker-1] child process 58987 calling self.run()
+InfluxDB client initialized successfully: http://127.0.0.1:1
+[2026-10-26 11:25:07,631: INFO/MainProcess] mingle: all alone
+[2026-10-26 11:25:07,661: INFO/MainProcess] round9@MacBook-Pro-TP3.local ready.
+[2026-10-26 11:25:07,661: INFO/MainProcess] Task api.v2.synthetic.execute_synthetic[15f02ec3-8d3e-4f8e-bfb8-221f4e8a722f] received
+[2026-10-26 11:25:08,818: ERROR/MainProcess] Task handler raised error: ValueError('not enough values to unpack (expected 3, got 0)')
+billiard.einfo.RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/billiard/pool.py", line 364, in workloop
+    result = (True, prepare_result(fun(*args, **kwargs)))
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 664, in fast_trace_task
+    tasks, accept, hostname = _loc
+    ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 0)
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/billiard/pool.py", line 364, in workloop
+    result = (True, prepare_result(fun(*args, **kwargs)))
+                                   ^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/lib/python3.11/site-packages/celery/app/trace.py", line 664, in fast_trace_task
+    tasks, accept, hostname = _loc
+    ^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: not enough values to unpack (expected 3, got 0)
+
+worker: Warm shutdown (MainProcess)

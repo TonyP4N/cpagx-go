@@ -1,0 +1,54 @@
+{
+  "run_id": "effe8246d5110a032a76ba8fd49b3eaf",
+  "status": "passed",
+  "browser": "156.0.8078.80",
+  "platform": "darwin/arm64",
+  "page_errors": [],
+  "four_original_references": [
+    {
+      "column": "pump",
+      "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+      "frame_number": null,
+      "raw_time": "2026-01-01T00:00:10.500000Z",
+      "record_number": 2
+    },
+    {
+      "column": "pump",
+      "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+      "frame_number": null,
+      "raw_time": "2026-01-01T00:00:12Z",
+      "record_number": 3
+    },
+    {
+      "column": null,
+      "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+      "frame_number": 1,
+      "raw_time": "1767225611000000",
+      "record_number": null
+    },
+    {
+      "column": null,
+      "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+      "frame_number": 1,
+      "raw_time": "1767225610000000",
+      "record_number": null
+    }
+  ],
+  "controlled_manifest_sha256": "b5eaf786e1089a5edf1f1e5997b36bfdfe508c04c038ecc15600f9f75f061853",
+  "counts": {
+    "candidates": 1,
+    "changes": 1,
+    "network": 2,
+    "operations": 1,
+    "process": 5,
+    "revisions": 0,
+    "snapshots": 0
+  },
+  "attempt_id": 2,
+  "first_attempt": "fenced after lease expiry at publication",
+  "negative_checks": [
+    "wrong attempt: service_binding_mismatch:attempt_id",
+    "same-size original change: service_publication_artifact_changed"
+  ],
+  "windows": "pending"
+}

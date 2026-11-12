@@ -1,0 +1,11 @@
+test_evidence_mutation_and_unbound_filename_are_rejected (test_round7_consistency.ConsistencyTests.test_evidence_mutation_and_unbound_filename_are_rejected) ... ok
+test_exact_common_content_and_bounded_metadata_differences (test_round7_consistency.ConsistencyTests.test_exact_common_content_and_bounded_metadata_differences) ... ok
+test_rehashed_manifest_warning_is_not_ignored (test_round7_consistency.ConsistencyTests.test_rehashed_manifest_warning_is_not_ignored) ... ok
+test_rehashed_quality_change_is_not_ignored (test_round7_consistency.ConsistencyTests.test_rehashed_quality_change_is_not_ignored) ... ok
+test_same_core_source_requires_exact_bytes_and_schema_membership (test_round7_consistency.ConsistencyTests.test_same_core_source_requires_exact_bytes_and_schema_membership) ... ok
+test_unobserved_runtime_version_and_wrapper_hash_are_rejected (test_round7_consistency.ConsistencyTests.test_unobserved_runtime_version_and_wrapper_hash_are_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.085s
+
+OK

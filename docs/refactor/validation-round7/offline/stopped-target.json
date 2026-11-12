@@ -1,0 +1,6 @@
+{
+  "inner_running_containers": 0,
+  "outer_lab_running": false,
+  "outer_lab_exit_code": 137,
+  "volumes_preserved": true
+}

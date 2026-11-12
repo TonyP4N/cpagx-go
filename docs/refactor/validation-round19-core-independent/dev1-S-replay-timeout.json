@@ -1,0 +1,452 @@
+{
+  "complete_attempt_file_bytes": 85152944,
+  "error_type": "TimeoutError",
+  "fixed_inputs": {
+    "network.pcap": {
+      "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+      "size_bytes": 23424
+    },
+    "process.csv": {
+      "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+      "size_bytes": 3010
+    },
+    "profile.json": {
+      "sha256": "2bd7dcc4ff4682f1d0a201d88ad7f84fc902f96e6538df8d794f52e4ede029d0",
+      "size_bytes": 30525
+    }
+  },
+  "image": {
+    "immutable_id": "sha256:f810c8163b2e69df3e8b51f28c86c785ba15d367df4000a83fedeac3ae6b1c8a",
+    "requested_tag": "cpag-r19-core-dag6:dev1"
+  },
+  "limits": {
+    "complete_output_bytes": 1073741824,
+    "cpus": 4,
+    "memory_bytes": 8589934592,
+    "query_bytes": 8388608,
+    "query_items": 100,
+    "query_seconds": 10,
+    "tmp_bytes": 4294967296,
+    "wall_seconds": 1800
+  },
+  "mode": "replay",
+  "os_cache": "unverified",
+  "output_budget_enforcement": "native complete publisher budget and final/sampled complete attempt file checks; bind mount has no independent filesystem size quota",
+  "phases": [
+    {
+      "actual_host_config": {
+        "Memory": 8589934592,
+        "MemorySwap": 8589934592,
+        "NanoCpus": 4000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 128,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/tmp": "rw,nosuid,nodev,size=4294967296,mode=1777"
+        }
+      },
+      "container_id": "b9016eb3b015ea3d46c713047cc716a6e61c9e58db473acd294ebb05026b49bf",
+      "container_image_id": "sha256:f810c8163b2e69df3e8b51f28c86c785ba15d367df4000a83fedeac3ae6b1c8a",
+      "container_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 0,
+        "FinishedAt": "2026-10-28T14:06:19.487972009Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-10-28T13:44:19.800909384Z",
+        "Status": "exited"
+      },
+      "phase": "export",
+      "result": {
+        "action": "export",
+        "actual_image_runtime_sha256": {
+          "__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+          "__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+          "capacity.py": "22076fe8fc32d577349736a570b26613c4456f80e61892593292eec72d267616",
+          "compact_replay.py": "4e62294194045886f4f8d13b169e1d01e58dbbd4d1da69e503a450779a185184",
+          "contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+          "dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+          "dual_source_export.py": "f0094ff164a24d7a7af347390d6f5efac44eb4a779f33798335bc6234094d4e6",
+          "dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+          "evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+          "evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+          "evaluation_artifacts.py": "49e22bd3f595d718073d6949976479de98268cf3d95d445adce73eb93e5f8539",
+          "evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+          "evaluation_context.py": "6929b62c8a118739fa5d5befd6da30a78622a30ce5f30efc2de6a03d0580a78a",
+          "evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+          "evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+          "evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+          "evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+          "evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+          "intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+          "measurement.py": "2d5f06ba2e353f4a19304c502d3205e8d3fb24358f0cc7b745bab90146ae5f43",
+          "measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+          "packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+          "packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+          "pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+          "reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+          "replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+          "replay_core.py": "2acbd389423d5f6566f57c3d44f9ab0d06f0a0eaed42f6f2f96f948c9dc62f54",
+          "replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+          "replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+          "replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+          "replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+          "replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+          "replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+          "shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+          "shared_artifact_store_compact.py": "52e6be8fadc757eda254b238a408f177820494b84ecc7b501fd3614552d6a8bf",
+          "shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1",
+          "shared_cli.py": "fe711c4c4be621a06c173aa85dac3200583ff91d0732a37341cf4ba56dd8e5d5",
+          "shared_export.py": "6d3d58b2835b32321e2e8ab0ca1873098d1c78ba52cc3b42a53158ab5ead4dab",
+          "shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+          "single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a"
+        },
+        "cpu_seconds": 1179.138955,
+        "manifest": {
+          "artifacts": [
+            {
+              "path": "shared/manifest.json",
+              "sha256": "fd0bc4b45090bd3844e7170ed2600141e54d540415f81b10a0748df8b75cb010",
+              "size_bytes": 854
+            },
+            {
+              "path": "shared/shared.sqlite3",
+              "sha256": "898dbf2024b5c7f75dce3d541cb15236def68fd314e621408ae41c21ba7ddc48",
+              "size_bytes": 84537344
+            },
+            {
+              "path": "sources/network.pcap",
+              "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+              "size_bytes": 23424
+            },
+            {
+              "path": "sources/process.csv",
+              "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+              "size_bytes": 3010
+            },
+            {
+              "path": "sources/profile.json",
+              "sha256": "2bd7dcc4ff4682f1d0a201d88ad7f84fc902f96e6538df8d794f52e4ede029d0",
+              "size_bytes": 30525
+            }
+          ],
+          "attempt_id": 1,
+          "config_fingerprint": "dbae0d137039a1844568d494935e97f7a740ce749c04c5533fa511544d709937",
+          "counts": {
+            "candidates": 2596,
+            "changes": 99,
+            "network": 200,
+            "operations": 100,
+            "process": 100,
+            "revisions": 306,
+            "snapshots": 310
+          },
+          "final_snapshot_id": "snapshot-d4b2387202137ad8064d7a74cc94d2a65ee90370ff2f4bc222b26b28d92318ee",
+          "final_snapshot_number": 309,
+          "graph_identity_strategy": "merkle-json-dag-1",
+          "history_format": "shared-observation-dag-6",
+          "identity_strategy": "merkle-json-dag-1",
+          "input_fingerprint": "9c67065455325b17989086f5758d26ff3e2e52f084a98b40c3c9e8db3883f75b",
+          "limitations": [
+            "synthetic_only",
+            "no_attack_or_causality_decision",
+            "response_success_is_not_physical_effect",
+            "endpoint_not_authenticated_actor",
+            "configured_offsets_not_estimated",
+            "existing_bounded_protocol_subset"
+          ],
+          "logical_artifacts": [
+            {
+              "digest": "70ce3103d26ebb3ae2bc171cde3b50268d9841fb801b31d014490d53b9a15449",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "analysis.json"
+            },
+            {
+              "digest": "70ce3103d26ebb3ae2bc171cde3b50268d9841fb801b31d014490d53b9a15449",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "dual/analysis.json"
+            },
+            {
+              "digest": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 342214,
+              "name": "events.json"
+            },
+            {
+              "digest": "c61148689ece2f71b133f840a22809bd2e207ad07cc3ac0a7315e3a085f1fa85",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 70877473,
+              "name": "graph.json"
+            },
+            {
+              "digest": "933814065c57fdb5406d39ea750a43eb7eacd0d981345cd70149f0867eaf01b8",
+              "items": 8,
+              "kind": "dict",
+              "logical_bytes": 289,
+              "name": "quality.json"
+            },
+            {
+              "digest": "3847f5a0d2c474db686a0b2d80ca1200c2903c1762ad17c180d51e9c81846cd6",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            {
+              "digest": "d9f2c809344691042a6e1ede18e63f4259e2d4d4d1531a3beb4848a63efcf5ca",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            {
+              "digest": "225339c3efdfdd416d32a68cca0dcad5143b466a8e57fa95bb856d5a19be9a6f",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            {
+              "digest": "1530b2ebc1aa7858702eef5226cf7131a59a7781c3ea469d150d8c42df8c39b9",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            {
+              "digest": "f01408d42f4a63c5bff8e0142c54453be7ca347e3c8694820e49320d2237ec3c",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 5783,
+              "name": "indices/network_by_frame"
+            },
+            {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            {
+              "digest": "212611a5348544da32108061353a0951a5ada5e5d78f0a28a8d112c384d40643",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 1445468,
+              "name": "metrics.json"
+            },
+            {
+              "digest": "69478d7050654c4b8fb4de5f8b58d1e373774ec3550e046bbe6817853de190b4",
+              "items": 8,
+              "kind": "dict",
+              "logical_bytes": 77939,
+              "name": "runtime_metrics.json"
+            },
+            {
+              "digest": "5ed427fa716c14b3c537e845fcd63dfbbbd5f1dd6e1fe1e3f8725c1fa0af1a3e",
+              "items": 304,
+              "kind": "array_branch",
+              "logical_bytes": 100523,
+              "name": "arrivals.json"
+            },
+            {
+              "digest": "7a5b42290f23b211196740a767bec0d8e3844906284a58f153c638045dd9b24a",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 350,
+              "name": "replay.json"
+            },
+            {
+              "digest": "e7f5312208810a3518637958274f2843364109ea37ffd3e036a38ce68e6df9fe",
+              "items": 310,
+              "kind": "array_branch",
+              "logical_bytes": 11828345888,
+              "name": "history/snapshots"
+            },
+            {
+              "digest": "17da386ea95dc3804715c0b4b65ece42472502a8b596abc0d29a78d3f88da21b",
+              "items": 306,
+              "kind": "array_branch",
+              "logical_bytes": 12199391,
+              "name": "history/revisions"
+            }
+          ],
+          "mode": "replay",
+          "network_count": 1,
+          "prefix_digest_strategy": "incremental-prefix-digest-2",
+          "replay_version": "dual-source-replay-1",
+          "result_hash_kind": "merkle-json-dag-1",
+          "result_hashes": {
+            "events": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+            "graph": "c61148689ece2f71b133f840a22809bd2e207ad07cc3ac0a7315e3a085f1fa85"
+          },
+          "run_id": "core-S-replay-b35d39a3",
+          "schema_version": "1.0.0",
+          "semantic_config_fingerprint": "c92e4c7bb961466ec398b28a9b4214ca3ef7dc312ab2cd9b199752f21dbab53f",
+          "shared_manifest_sha256": "fd0bc4b45090bd3844e7170ed2600141e54d540415f81b10a0748df8b75cb010",
+          "source_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+          "status": "succeeded",
+          "storage_budget": {
+            "cache_bytes": 16777216,
+            "max_dict_items": 4096,
+            "max_logical_root_bytes": 549755813888,
+            "max_node_bytes": 8388608,
+            "max_nodes": 8000000,
+            "max_roots": 160000,
+            "physical_bytes": 1073741824,
+            "query_bytes": 8388608,
+            "query_items": 100,
+            "version": "shared-storage-budget-1"
+          },
+          "storage_format": "shared-observation-dag-6",
+          "synthetic": true,
+          "tool_versions": {
+            "core": "0.1.1",
+            "python": "3.12.12"
+          },
+          "warnings": []
+        },
+        "process_rss_high_water_bytes": 98885632,
+        "python_version": "3.12.12 (main, Feb  4 2026, 20:20:16) [GCC 14.2.0]",
+        "rss_definition": "process cumulative high-water; not phase allocation or cgroup memory",
+        "status": "passed",
+        "wall_seconds": 1319.322976933
+      },
+      "status": "passed",
+      "whole_phase_seconds": 1320.0397455000202
+    },
+    {
+      "actual_host_config": {
+        "Memory": 8589934592,
+        "MemorySwap": 8589934592,
+        "NanoCpus": 4000000000,
+        "NetworkMode": "none",
+        "PidsLimit": 128,
+        "ReadonlyRootfs": true,
+        "Tmpfs": {
+          "/tmp": "rw,nosuid,nodev,size=4294967296,mode=1777"
+        }
+      },
+      "container_id": "4867461f0f2fb142b2a03f3a9e463c3fd8c3db4eb02c75ba43ebd6d2add86476",
+      "container_image_id": "sha256:f810c8163b2e69df3e8b51f28c86c785ba15d367df4000a83fedeac3ae6b1c8a",
+      "container_state": {
+        "Dead": false,
+        "Error": "",
+        "ExitCode": 137,
+        "FinishedAt": "2026-10-28T14:14:21.34373426Z",
+        "OOMKilled": false,
+        "Paused": false,
+        "Pid": 0,
+        "Restarting": false,
+        "Running": false,
+        "StartedAt": "2026-10-28T14:06:20.049684134Z",
+        "Status": "exited"
+      },
+      "phase": "verify",
+      "status": "running",
+      "whole_phase_seconds": 481.48814716597553
+    }
+  ],
+  "reason": "core_chain_1800_seconds",
+  "run_id": "core-S-replay-b35d39a3",
+  "runtime_source_sha256": {
+    "schemas/Asset.schema.json": "1fcd14211a5ecb186746308d3ea5d7d0dc94d03d6b4460bb312b32b0eef4d5e6",
+    "schemas/Claim.schema.json": "99bf0d73463e4f2129be8ac0927b157b1b7f2f3da993528a6185e928d74e7271",
+    "schemas/CompactStoreRunManifest.schema.json": "cd221fa6460088c505d6a4ae4d70978c5e9a30574a1df821c63961f27cecf958",
+    "schemas/DatasetManifest.schema.json": "e0a3b5f96ecc2c533313149646c44c5604e18e8635fd1c994e580f81b13f6ce4",
+    "schemas/DerivedEvent.schema.json": "37cc762e26d56002230c6907741869739e08da63ece5d147b002936bc3399e29",
+    "schemas/DualCompactProfile.schema.json": "bd3d8de36cc02a641e36c13751b5c846bf302b0e98027eeb33d2209aad4e24f5",
+    "schemas/DualSharedProfile.schema.json": "657ead64d0594b2caeb9d463ca3b0d709af9dcf42395ddd6d99f0cd860894be3",
+    "schemas/DualSourceProfile.schema.json": "2062b71e3aad4e9fc722658b2991aaeafa896dd0ccc6a594312a9a6cfa4ae236",
+    "schemas/DualSpoolProfile.schema.json": "dd28544f14ba437378bf967f8513c4bc656db42e8d61c15bcc1bc7f07ae61710",
+    "schemas/EvaluationAnnotations.schema.json": "3c291f790d478959ee94206ef8056d1fd0a6f0c69f56d73b1dc542aa1f3435ad",
+    "schemas/EvaluationCSVRecordLocator.schema.json": "3336c3b5a48e3ca803574e0d7c09810730a16099e37ca4d614bf1175ea1192e7",
+    "schemas/EvaluationLocatedReference.schema.json": "fc60768eca060af754df5cdd0bfd62a4f701b20728d4eda3e7dea3016f6b0cd1",
+    "schemas/EvaluationPredictions.schema.json": "967387278d68f3f6e8640604394febe281abfa35261e150c698bfc2750467374",
+    "schemas/EvaluationRecord.schema.json": "339be51a1a9553650beb768df758bda91e4ef63d603c71c5b08d358f3d931ba9",
+    "schemas/EvaluationRegistration.schema.json": "96d94e9c6d03375c5cb106b55dd64d7cdb8d3c7a03fd04889a9477a8eaea00c7",
+    "schemas/EvaluationSplit.schema.json": "b38cb4f46a81362e1471a37e133d4922298609c450966d26b75775ec17a6dffe",
+    "schemas/GraphArtifact.schema.json": "6640c4226b22cfd7c9c1680a0abab60736fdd7489048cefeaa0eb15bd4c386a7",
+    "schemas/NetworkEvent.schema.json": "55033cddafdec97e4d12a52c70878c1bae3d2abefc47fa6a08f601ab407e22cd",
+    "schemas/PacketObservationArtifact.schema.json": "3756039ca20b83b5160782278dd72ac852fa04fbff98f9ddd5456da7dc002187",
+    "schemas/ProcessObservation.schema.json": "b6b92cdfff80418261f6c39e3a85eb63652811f51b9750933bc902e47d88b040",
+    "schemas/ReplayClaim.schema.json": "d53e9a0d57d9f53813d3dbe7cae829b929355c13efd1adb80ea65322e774db5b",
+    "schemas/ReplayCompactProfile.schema.json": "d4a9a1befafc8e18b31d622b0f9de42e22d2771a78a716d73103284cd28623ef",
+    "schemas/ReplayDerivedEvent.schema.json": "4ba784a3d345ce4ffc7f8e17c3276a68b066ddbde0ccaa81466f78fe74dbb9c3",
+    "schemas/ReplayGraphArtifact.schema.json": "2189cc635ff2f0b7648901e800d5a351c16eff37b1c5656fbba9bcfffc342205",
+    "schemas/ReplayHistorySpoolManifest.schema.json": "2f4ca72bf3abd9e5c55fc7a24abd9fab3aaeb8743451a08c5a935dbd31007a51",
+    "schemas/ReplayNetworkEvent.schema.json": "9823c5369eee8f406113aeee464b8ec97677deccf25b96964f06d1a467dac191",
+    "schemas/ReplayProcessObservation.schema.json": "b7157588bfde39b9ba3657fc7fe211d62a8a6c945e55e1ad87c263b79b087b7a",
+    "schemas/ReplayProfile.schema.json": "a48d20f49348e90b6e27c1b656a9628d719322c6188ed57957690f129e843a30",
+    "schemas/ReplayRevision.schema.json": "4abbf1854b2df1e5c3d26c57db6acf60bb532154191b8625c02d73796e3e326d",
+    "schemas/ReplayRunManifest.schema.json": "2317b4607e0105fdd2e27e875fac88f60be2b6713e4fe72085657be074972ba2",
+    "schemas/ReplaySharedProfile.schema.json": "fae69e51fe97ccbcee531752fa4045d5e253096963a2c19aec0044ba1c7132db",
+    "schemas/ReplaySourceRef.schema.json": "04e13070c95898ac4760b5c3032f76a146efcdea108d6735baa87db306b08009",
+    "schemas/ReplaySpoolProfile.schema.json": "07328cdf2627a19f0a016414ba3dd248ac96cbeb3dfcfafa6ac6dffcae9e58c8",
+    "schemas/ReplaySpoolRunManifest.schema.json": "af28298552c22db3cfdd441f79df03ce26c13f8ff34091bdafe2d70dc12a3136",
+    "schemas/RunManifest.schema.json": "05ce3fac8c6809dd2841eb066c8c05f705fe08d3c64bc76ff489052a656f908c",
+    "schemas/SharedStoreRunManifest.schema.json": "72307ac23485deab0de8543ffd02c76f750b658608148dfa91e826018e335aac",
+    "schemas/SingleSourceRunManifest.schema.json": "93afaaaaa9a9e5f7047638adec21ea45d395fad8ae9d0a2fcf8af8e0dc1bb484",
+    "scripts/validation/round19_core_cell.py": "77a1463bdce4dea1e9187b8722d5d033c1728baf857667622bca8e4d3c1bb4c8",
+    "scripts/validation/round19_core_matrix.py": "9dc10303a0760e6ecec44498ab240041869183049b57f44461b9d39e8f0b3b61",
+    "scripts/validation/round19_core_oracle.py": "cd7430bea60d2a57cf788c6c8ec3f7d8762ec0ff630f20d6612e797f6a88ee3a",
+    "services/analysis/src/cpag_core/__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+    "services/analysis/src/cpag_core/__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+    "services/analysis/src/cpag_core/capacity.py": "22076fe8fc32d577349736a570b26613c4456f80e61892593292eec72d267616",
+    "services/analysis/src/cpag_core/compact_replay.py": "4e62294194045886f4f8d13b169e1d01e58dbbd4d1da69e503a450779a185184",
+    "services/analysis/src/cpag_core/contracts.py": "f33535a02afb47d35c9842d1c584549d00dfa1b9387d94661a85281eebeb775f",
+    "services/analysis/src/cpag_core/dual_source.py": "9b502a3cd5686aa8809f0b73861f092d65577927a01681ad387f85588a96753b",
+    "services/analysis/src/cpag_core/dual_source_export.py": "f0094ff164a24d7a7af347390d6f5efac44eb4a779f33798335bc6234094d4e6",
+    "services/analysis/src/cpag_core/dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+    "services/analysis/src/cpag_core/evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+    "services/analysis/src/cpag_core/evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+    "services/analysis/src/cpag_core/evaluation_artifacts.py": "49e22bd3f595d718073d6949976479de98268cf3d95d445adce73eb93e5f8539",
+    "services/analysis/src/cpag_core/evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+    "services/analysis/src/cpag_core/evaluation_context.py": "6929b62c8a118739fa5d5befd6da30a78622a30ce5f30efc2de6a03d0580a78a",
+    "services/analysis/src/cpag_core/evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+    "services/analysis/src/cpag_core/evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+    "services/analysis/src/cpag_core/evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+    "services/analysis/src/cpag_core/evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+    "services/analysis/src/cpag_core/evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+    "services/analysis/src/cpag_core/intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+    "services/analysis/src/cpag_core/measurement.py": "2d5f06ba2e353f4a19304c502d3205e8d3fb24358f0cc7b745bab90146ae5f43",
+    "services/analysis/src/cpag_core/measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+    "services/analysis/src/cpag_core/packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+    "services/analysis/src/cpag_core/packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+    "services/analysis/src/cpag_core/parsers/__init__.py": "83e31dfa6f7c1611a1ef2b575be174cf7c284082f8e3b93880f2b6fa6264c638",
+    "services/analysis/src/cpag_core/parsers/packet_envelope.py": "f00edc2537e674a50171ce0ee912b1eafacc9a832019bc0bc285bb1371c9469b",
+    "services/analysis/src/cpag_core/parsers/packet_protocol.py": "319215e3e1f0cd223e82f1db1de0bd8b7c42e1e25013689641c8d363e7f3d2b2",
+    "services/analysis/src/cpag_core/pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+    "services/analysis/src/cpag_core/reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+    "services/analysis/src/cpag_core/replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+    "services/analysis/src/cpag_core/replay_core.py": "2acbd389423d5f6566f57c3d44f9ab0d06f0a0eaed42f6f2f96f948c9dc62f54",
+    "services/analysis/src/cpag_core/replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+    "services/analysis/src/cpag_core/replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+    "services/analysis/src/cpag_core/replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+    "services/analysis/src/cpag_core/replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+    "services/analysis/src/cpag_core/replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+    "services/analysis/src/cpag_core/replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+    "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+    "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "52e6be8fadc757eda254b238a408f177820494b84ecc7b501fd3614552d6a8bf",
+    "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "2f5a453717b501ce7ebb2508f5e126b46ac5ad880c32bdb30768c0a523d599d1",
+    "services/analysis/src/cpag_core/shared_cli.py": "fe711c4c4be621a06c173aa85dac3200583ff91d0732a37341cf4ba56dd8e5d5",
+    "services/analysis/src/cpag_core/shared_export.py": "6d3d58b2835b32321e2e8ab0ca1873098d1c78ba52cc3b42a53158ab5ead4dab",
+    "services/analysis/src/cpag_core/shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+    "services/analysis/src/cpag_core/single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a"
+  },
+  "scale": "S",
+  "scope": "new whole core output/source verification/reader query only; no formal service or industrial/reference-environment acceptance",
+  "source_and_capability_definition": "fresh complete source verification followed by private per-attempt HMAC; approval is not external independence proof",
+  "status": "failed",
+  "version": "r19-core-fixed-quota-matrix-1",
+  "whole_chain_seconds": 1802.0060570409987
+}

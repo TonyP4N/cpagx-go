@@ -3,7 +3,10 @@ package api
 import (
 	"encoding/json"
 	"log"
+	"net"
+	"net/url"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/TonyP4N/cpagx-go/internal/config"
@@ -28,6 +31,22 @@ func NewServer(cfg *config.Config) *gin.Engine {
 
 	// 加载版本配置
 	versionsConfig := loadVersionsConfig()
+
+	for version, info := range cfg.Versions.Versions {
+		versionsConfig.Versions[version] = VersionInfo{Port: info.Port, Name: info.Name, Description: info.Description, Enabled: info.Enabled, ServiceURL: info.ServiceURL}
+	}
+	for version, info := range versionsConfig.Versions {
+		if info.ServiceURL == "" && cfg.Python.ServiceURL != "" {
+			base, err := url.Parse(cfg.Python.ServiceURL)
+			if err == nil {
+				if version != "v1" {
+					base.Host = net.JoinHostPort(base.Hostname(), strconv.Itoa(info.Port))
+				}
+				info.ServiceURL = base.String()
+				versionsConfig.Versions[version] = info
+			}
+		}
+	}
 
 	// 创建版本代理
 	proxy := NewVersionProxy(versionsConfig)

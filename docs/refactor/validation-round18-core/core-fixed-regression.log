@@ -1,0 +1,6 @@
+command: /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/bin/python -m unittest discover -s tests/replay -p test_replay_core.py -q
+exit_code: 0
+----------------------------------------------------------------------
+Ran 23 tests in 1.790s
+
+OK

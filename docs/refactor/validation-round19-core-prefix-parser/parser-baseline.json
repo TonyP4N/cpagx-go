@@ -1,0 +1,34 @@
+{
+  "version": "r19-core-prefix-parse-cost-1",
+  "scope": "S100 parser only; no ReplayCore/analysis/export/verify/capacity acceptance",
+  "status": "completed",
+  "reference_accepted": false,
+  "source_sha256": "9bf66f70c443f524ac7b5311555add3b340b4df99a3dd44a25957ff5c38ff0a0",
+  "wall_seconds": 11.27265958301723,
+  "cpu_user_seconds": 10.000641,
+  "cpu_system_seconds": 0.281118,
+  "rss_peak_bytes": 43122688,
+  "snapshots": 607,
+  "stats": {
+    "network": {
+      "calls": 607,
+      "frames": 63624,
+      "seconds": 4.446985038317507
+    },
+    "process": {
+      "calls": 607,
+      "data_records": 28176,
+      "bytes": 851350,
+      "seconds": 0.2052804628328886
+    }
+  },
+  "last_events": {
+    "network": 200,
+    "process": 100
+  },
+  "host": {
+    "system": "Darwin",
+    "machine": "arm64"
+  },
+  "limits_enforced": false
+}

@@ -1,0 +1,7 @@
+{
+  "context": "exact frozen image input before CLI fix",
+  "returncode": 2,
+  "stderr": "usage: replay_export.py [-h] [--network NETWORK] [--process PROCESS]\n                        [--profile PROFILE] --output OUTPUT [--run-id RUN_ID]\n                        [--attempt-id ATTEMPT_ID]\n                        [--replay-version REPLAY_VERSION] [--verify]\n                        [--revision REVISION] [--operation OPERATION]\n                        [--change CHANGE]\nreplay_export.py: error: unrecognized arguments: --synthetic\n",
+  "stdout": "",
+  "output_exists": false
+}

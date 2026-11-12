@@ -1,0 +1,34 @@
+{
+  "version": "r19-standard-projection-microbenchmark-1",
+  "scope": "one-request small replay, complete content equal; no S/M/L performance acceptance",
+  "reference_accepted": false,
+  "fields": {
+    "network": 2,
+    "process": 5,
+    "changes": 1,
+    "candidates": 1
+  },
+  "timing_profiled": {
+    "logical_identity_seconds": 0.07618241407908499,
+    "schema_validation_seconds": 0.05988742192857899,
+    "logical_identity_calls": 30,
+    "schema_validation_calls": 270,
+    "projection_total_seconds": 0.13817287498386577
+  },
+  "writer_micro": {
+    "existing": {
+      "seconds": 0.11994962499011308,
+      "rounds": 15,
+      "nodes": 356
+    },
+    "compose_prototype": {
+      "seconds": 0.11924470798112452,
+      "rounds": 15,
+      "nodes": 357
+    }
+  },
+  "source": {
+    "services/analysis/src/cpag_core/dual_source_export.py": "f0094ff164a24d7a7af347390d6f5efac44eb4a779f33798335bc6234094d4e6"
+  },
+  "projection_sha256": "76331e334be1ead923ea8063a726b967fce92ff446b2b8a82a93ff5278c4b3e8"
+}

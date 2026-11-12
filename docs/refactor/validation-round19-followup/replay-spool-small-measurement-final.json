@@ -1,0 +1,74 @@
+{
+  "scope": "local small synthetic actual artifacts only; no Worker/reference hardware or S/M/L replay acceptance",
+  "platform": "macOS-27.0-arm64-arm-64bit",
+  "python": "3.11.9",
+  "source_sha256": {
+    "replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+    "replay_export.py": "de53478cd2fc3ae2d82c87f35e3bc7ed6a6f7723c285fe32be16e4346349026a",
+    "replay_inputs.py": "e154a9647384d252789938b68fcf72ee4ed56c4d535cb821fa5d9f545e64d403",
+    "replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+    "replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+    "replay_core.py": "2bd400577f2d9bf0260fc44a1dcadf3d289d3d3e8a4cbbebf19a420047cdb54c",
+    "replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c"
+  },
+  "phases": [
+    {
+      "phase": "old_jsonl_export_including_verification",
+      "wall_seconds": 0.28775662498082966,
+      "cpu_seconds": 0.28692
+    },
+    {
+      "phase": "spool_export_including_verification",
+      "wall_seconds": 0.5171579159796238,
+      "cpu_seconds": 0.5127410000000001
+    },
+    {
+      "phase": "spool_independent_verify",
+      "wall_seconds": 0.38058554200688377,
+      "cpu_seconds": 0.37540299999999993
+    },
+    {
+      "phase": "spool_original_evidence_query",
+      "wall_seconds": 0.38142587497713976,
+      "cpu_seconds": 0.3780810000000001
+    }
+  ],
+  "logical_snapshots_equal": true,
+  "semantic_config_equal": true,
+  "snapshot_count": 16,
+  "verified_original_count": 1,
+  "old_history_bytes": 514402,
+  "spool_history_bytes": 217871,
+  "spool_history_manifest": {
+    "context": {
+      "attempt_id": 1,
+      "replay_version": "dual-source-replay-1",
+      "run_id": "small",
+      "semantic_config_fingerprint": "1da91faec2ffdf27a091f61949716917a65e723343076fa642f6f0b37781b9c2"
+    },
+    "database": {
+      "path": "history.sqlite3",
+      "sha256": "80e2e11966a1cbf0013199ecd9fef77fa3eb1bb073b61c543583eefb9e9c4a11",
+      "size_bytes": 217088
+    },
+    "last_snapshot_id": "snapshot-1fe649857f254dae40903e7c9e5c76096ff9a2af3298971c05ecd257601f92f6",
+    "limits": {
+      "checkpoint_interval": 128,
+      "max_bytes": 16641952,
+      "max_object_bytes": 8388608,
+      "max_objects": 1000000,
+      "max_revisions": 8192,
+      "max_snapshots": 4096,
+      "max_working_bytes": 49925856
+    },
+    "object_count": 188,
+    "revision_count": 11,
+    "schema_version": "1.0.0",
+    "snapshot_count": 16,
+    "status": "sealed_storage_not_source_verified",
+    "synthetic": true,
+    "version": "replay-history-checkpoint-delta-2"
+  },
+  "process_lifetime_peak_rss_bytes": 46235648,
+  "memory_scope": "lifetime high-water includes both formats; not exclusive per-stage memory"
+}

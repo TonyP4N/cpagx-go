@@ -11,6 +11,7 @@ import (
 
 // VersionConfig 版本配置
 type VersionConfig struct {
+	ServiceURL  string `json:"service_url"`
 	Port        int    `json:"port"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -190,7 +191,7 @@ func LoadConfig(configPath string) (*Config, error) {
 			WriteTimeout: configWithDuration.Server.WriteTimeout.Duration(),
 		},
 		Python: PythonConfig{
-			ServiceURL: getEnvOrDefault("PYTHON_SERVICE_URL", "http://python-cpag-generator:8000"),
+			ServiceURL: getEnvOrDefault("PYTHON_SERVICE_URL", getEnvOrDefaultValue(configWithDuration.Python.ServiceURL, "http://python-cpag-generator:8000")),
 			Timeout:    configWithDuration.Python.Timeout.Duration(),
 			Retries:    configWithDuration.Python.Retries,
 		},
@@ -422,4 +423,11 @@ func (c *Config) String() string {
 	}
 	return fmt.Sprintf("Server: %s:%s, Python: %s, DB: %s, Cache: %s, Neo4j: %s",
 		c.Server.Host, c.Server.Port, c.Python.ServiceURL, c.Database.Type, c.Cache.Type, neo4jStatus)
+}
+
+func getEnvOrDefaultValue(value, fallback string) string {
+	if value != "" {
+		return value
+	}
+	return fallback
 }

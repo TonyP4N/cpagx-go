@@ -1,0 +1,19 @@
+2026-10-28T07:42:58.1505708Z ERROR: test_preparation_guard (unittest.loader._FailedTest.test_preparation_guard)
+2026-10-28T07:42:58.1505976Z ----------------------------------------------------------------------
+2026-10-28T07:42:58.1506217Z ImportError: Failed to import test module: test_preparation_guard
+2026-10-28T07:42:58.1506424Z Traceback (most recent call last):
+2026-10-28T07:42:58.1513935Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/unittest/loader.py", line 419, in _find_test_path
+2026-10-28T07:42:58.1514282Z     module = self._get_module_from_name(name)
+2026-10-28T07:42:58.1514450Z              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+2026-10-28T07:42:58.1514761Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/unittest/loader.py", line 362, in _get_module_from_name
+2026-10-28T07:42:58.1515038Z     __import__(name)
+2026-10-28T07:42:58.1515306Z   File "/home/runner/work/cpagx-go/cpagx-go/tests/evaluation/test_preparation_guard.py", line 10, in <module>
+2026-10-28T07:42:58.1515571Z     import pytest
+2026-10-28T07:42:58.1515716Z ModuleNotFoundError: No module named 'pytest'
+2026-10-28T07:42:58.1515835Z 
+2026-10-28T07:42:58.1515838Z 
+2026-10-28T07:42:58.1515925Z ----------------------------------------------------------------------
+2026-10-28T07:42:58.1516115Z Ran 92 tests in 14.107s
+2026-10-28T07:42:58.1516198Z 
+2026-10-28T07:42:58.1516245Z FAILED (errors=1)
+2026-10-28T07:42:58.1720598Z ##[error]Process completed with exit code 1.

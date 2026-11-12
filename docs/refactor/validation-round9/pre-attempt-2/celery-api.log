@@ -1,0 +1,12 @@
+InfluxDB client initialized successfully: http://127.0.0.1:1
+INFO:     Started server process [58944]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:57759 (Press CTRL+C to quit)
+INFO:     127.0.0.1:57767 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:57768 - "POST /cpag/synthetic HTTP/1.1" 202 Accepted
+INFO:     127.0.0.1:57771 - "GET /cpag/status/e24c04ee-f6e5-4ced-9bad-da8a7046ed46 HTTP/1.1" 200 OK
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [58944]

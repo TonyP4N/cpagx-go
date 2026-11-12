@@ -1,0 +1,68 @@
+{
+  "scope": "synthetic dual-source software-flow backup and restore; no real industrial data validation",
+  "branch": "refactor/m1-evidence-core",
+  "base_commit": "23635e9",
+  "commands": [
+    ".venv/bin/python -m unittest discover -s tests/backup -q",
+    ".venv/bin/python scripts/backup/validate_dual.py --isolated --work-dir /private/tmp/cpag-r14-dual-backup-isolated-final"
+  ],
+  "unit_tests": {
+    "passed": 30
+  },
+  "disposable_postgresql": {
+    "source": "m4_validation",
+    "restored": "m4_restore_validation",
+    "restore_target_database_absent_before": true,
+    "task_rows_equal": true,
+    "attempt_history_equal": true,
+    "file_inventory_equal": true
+  },
+  "restored_api": {
+    "job": "r14-dual-backup",
+    "state": "succeeded",
+    "source_result_equal_to_restored_result": true,
+    "operation_original_references": 4,
+    "change_original_references": 2,
+    "missing_or_tampered_refusals": {
+      "missing_original_capture": {
+        "rejected": true,
+        "http_status": 409
+      },
+      "tampered_original_process": {
+        "rejected": true,
+        "http_status": 409
+      },
+      "missing_nested_artifact": {
+        "rejected": true,
+        "http_status": 409
+      }
+    },
+    "retry": {
+      "job": "r14-dual-retry-backup",
+      "attempts": [
+        1,
+        2
+      ],
+      "first_exit_reason": "timeout",
+      "second_exit_reason": "exited",
+      "guardian_exit_proofs_bound_to_history_and_equal_after_restore": true,
+      "source_result_equal_to_restored_result": true,
+      "restored_operation_original_references": 4
+    },
+    "main_executor": {
+      "kind": "isolated-v2",
+      "database_attempt_history": {
+        "attempt": 1,
+        "executor_kind": "isolated-v2",
+        "publication_state": "published",
+        "exit_recorded": true,
+        "exit_scope": "container",
+        "container_removed": true
+      },
+      "database_exit_receipt_equal_after_restore": true
+    }
+  },
+  "credential_note": "private state file mode 0600 contains disposable credentials; API and database stopped after this non-serving drill; no credentials included here",
+  "private_state_file": "/private/tmp/cpag-r14-dual-backup-isolated-final/state.json",
+  "boundary": "Terminal-only database task and attempt history, original inputs, and published artifacts are in this bundle. The isolated host control directory is outside this bundle and was not restored; its container exit receipt is recorded in PostgreSQL attempt history."
+}

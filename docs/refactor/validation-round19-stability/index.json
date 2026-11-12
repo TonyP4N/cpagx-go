@@ -1,0 +1,2101 @@
+{
+  "version": "r19-fixed-stability-1",
+  "baseline": "4c1057c5296395aaa40754d16d461e0ded73e11f",
+  "status": "six_formal_samples_passed_final_candidate_ci_required",
+  "planned_groups": 3,
+  "modes": [
+    "offline",
+    "replay"
+  ],
+  "fixture_sha256": {
+    "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+    "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+    "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+    "replay-profile.json": "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52",
+    "fixture.json": "ecb7deea6e9e3c6954c3162e9d967a775499ba78253823a060ef1bdf469b2b1f"
+  },
+  "samples": [
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 26.341184469707237,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 0,
+        "snapshots": 0
+      },
+      "evidence_report_sha256": "03d72d8c4615a6ae63830799a65c36e22c9f031277d816bff99c581739a31606",
+      "host_observation": {
+        "disk_free_bytes": 69501743104,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 424883052544,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          4.0029296875,
+          4.96142578125,
+          4.2607421875
+        ],
+        "observed_at_epoch_seconds": 1793593035.5417228,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 1.7818476233408589,
+      "run_id": "96144124cda04104fdd510b8fc6527f0",
+      "selected_query_seconds": 1.7225677967071533,
+      "service_seconds": 28.123032093048096,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "96144124cda04104fdd510b8fc6527f0"
+        },
+        "retained_telemetry_descriptors": [],
+        "sha256": "a59fd9c018919d95fae398b039687a08205cf10d3aa42f422fd0a9b3705eceac",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 0,
+              "snapshots": 0
+            },
+            "input_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "graph": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d"
+            },
+            "semantic_config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "analysis.json"
+            },
+            "dataset.json": {
+              "digest": "99affa8ec06785fea88ec5539c59e3b0723845e7bafec994b5b6c46fa2634425",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 324390,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 61570521,
+              "name": "graph.json"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "34558194765c3abdea4c722a1c1afdf69f608c5a5410155112bc8c2892d3f0de",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "e9860aadf61c5af4330609c539767c0bad1ebdd9157984c2f44f1db53afef548",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "8c8a99df60678588425f583539625d40e34ce57797ce4f1b465234a4ea0f3660",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 16783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "a0225479b53b8c7ce3621c35593f15cc504f5d5901e696cac3f411668e0a4f07",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "quality.json": {
+              "digest": "f075a9086f9dc5591b9468512a3096117dbf51d7b39ae76d982a13abbffb2f17",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 268,
+              "name": "quality.json"
+            }
+          },
+          "mode": "offline"
+        }
+      },
+      "status": "passed",
+      "group": 1,
+      "mode": "offline",
+      "export_seconds": 13.387954673000081,
+      "verification_container_seconds": 11.230662,
+      "compute_usage": {
+        "cpu_system_seconds": 1.8945379999999998,
+        "cpu_user_seconds": 11.429312,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 55250944,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 13.387954673000081
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 23334912,
+        "cgroup_memory_peak_bytes": 64454656,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 138,
+          "nr_throttled": 0,
+          "system_usec": 2073527,
+          "throttled_usec": 0,
+          "usage_usec": 14164419,
+          "user_usec": 12090891
+        },
+        "output_bytes": 7611054,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 11009545,
+        "cgroup_memory_peak_bytes": 62382080,
+        "ended_at": 1793593061.7641332,
+        "max_rss_bytes": 64159744,
+        "process_cpu_seconds": 10.707773334,
+        "started_at": 1793593050.997712,
+        "wall_seconds": 10.765492504999997
+      },
+      "individual_selected_query_seconds": [
+        0.1358509063720703,
+        0.1070868968963623,
+        0.08915901184082031,
+        0.10554814338684082,
+        0.09359908103942871,
+        0.11223912239074707,
+        0.10282588005065918,
+        0.09207487106323242
+      ],
+      "selected_history": null,
+      "last_power_observation": {
+        "Amperage": 4393,
+        "ExternalConnected": true,
+        "IsCharging": true,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-1/offline/report.json",
+      "report_sha256": "03d72d8c4615a6ae63830799a65c36e22c9f031277d816bff99c581739a31606",
+      "verification_receipt_sha256": "4346869f669754fefd9702a10a36f80047729fe1b4b05431b62226883c63e519",
+      "wall_monotonic_gap_seconds": 6.427046173484996e-06
+    },
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 1472.6111022317314,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 306,
+        "snapshots": 310
+      },
+      "evidence_report_sha256": "e6071529f07dd329b5f26de2e50502b0a9620e03e21200c2977b07f7f79d6e63",
+      "host_observation": {
+        "disk_free_bytes": 69466193920,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 424918601728,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          3.55712890625,
+          4.72998046875,
+          4.20263671875
+        ],
+        "observed_at_epoch_seconds": 1793593069.218034,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 2.513419739017536,
+      "run_id": "d962550cb7c2bfde901623dad671d99f",
+      "selected_query_seconds": 5.505545377731323,
+      "service_seconds": 1475.124521970749,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "d962550cb7c2bfde901623dad671d99f"
+        },
+        "retained_telemetry_descriptors": [
+          {
+            "digest": "99b3acb326a3681b91eaccedcd7759e3b3bd32f27ce2eb8dd85fb54099b9f21b",
+            "items": 8,
+            "kind": "dict",
+            "logical_bytes": 78241,
+            "name": "runtime_metrics.json"
+          }
+        ],
+        "sha256": "155f90639a351cf2e894836bad8c8dfe8841c51be8fb8928a1936f50f9946f43",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "a0f6bcf1d535cbd60c3730f38a6824c6d7fa4feab611823a3e22ff2b4b7e0fce",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 306,
+              "snapshots": 310
+            },
+            "final_snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d",
+            "final_snapshot_number": 309,
+            "input_fingerprint": "9c67065455325b17989086f5758d26ff3e2e52f084a98b40c3c9e8db3883f75b",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "graph": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c"
+            },
+            "semantic_config_fingerprint": "b1b9ad9654c0f5e1649c365a06aca2e29ad41b586310b4ced092359508397ae7",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "analysis.json"
+            },
+            "arrivals.json": {
+              "digest": "5ed427fa716c14b3c537e845fcd63dfbbbd5f1dd6e1fe1e3f8725c1fa0af1a3e",
+              "items": 304,
+              "kind": "array_branch",
+              "logical_bytes": 100523,
+              "name": "arrivals.json"
+            },
+            "dataset.json": {
+              "digest": "3847f5a0d2c474db686a0b2d80ca1200c2903c1762ad17c180d51e9c81846cd6",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 342214,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 70877473,
+              "name": "graph.json"
+            },
+            "history/revisions": {
+              "digest": "be08f4593f5df5c2881db0b1cfdf16a170d51607e366d7100f9a4113fffda14a",
+              "items": 306,
+              "kind": "array_branch",
+              "logical_bytes": 12199391,
+              "name": "history/revisions"
+            },
+            "history/snapshots": {
+              "digest": "5a84cbc9950142d277b11a4f698ae2927836ba07503336774bd69860dc2f8b8a",
+              "items": 310,
+              "kind": "array_branch",
+              "logical_bytes": 16326764034,
+              "name": "history/snapshots"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "1530b2ebc1aa7858702eef5226cf7131a59a7781c3ea469d150d8c42df8c39b9",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "225339c3efdfdd416d32a68cca0dcad5143b466a8e57fa95bb856d5a19be9a6f",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "f01408d42f4a63c5bff8e0142c54453be7ca347e3c8694820e49320d2237ec3c",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 5783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "d9f2c809344691042a6e1ede18e63f4259e2d4d4d1531a3beb4848a63efcf5ca",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "metrics.json": {
+              "digest": "942da8d5a037ad594fe23add108e6d31297534c9c05fb0706634c844361c1d9e",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 1445468,
+              "name": "metrics.json"
+            },
+            "quality.json": {
+              "digest": "933814065c57fdb5406d39ea750a43eb7eacd0d981345cd70149f0867eaf01b8",
+              "items": 8,
+              "kind": "dict",
+              "logical_bytes": 289,
+              "name": "quality.json"
+            },
+            "replay.json": {
+              "digest": "d05baccd02230145691a5e1d749cc3cb08731e5995986b54b95de3c0628c6f4e",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 350,
+              "name": "replay.json"
+            }
+          },
+          "mode": "replay"
+        }
+      },
+      "status": "passed",
+      "group": 1,
+      "mode": "replay",
+      "export_seconds": 770.8605408540001,
+      "verification_container_seconds": 696.245016,
+      "compute_usage": {
+        "cpu_system_seconds": 47.874647,
+        "cpu_user_seconds": 720.227859,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 111910912,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 770.8605408540001
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 101523456,
+        "cgroup_memory_peak_bytes": 201084928,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 7713,
+          "nr_throttled": 0,
+          "system_usec": 54633676,
+          "throttled_usec": 0,
+          "usage_usec": 802223377,
+          "user_usec": 747589700
+        },
+        "output_bytes": 85845707,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 694754429,
+        "cgroup_memory_peak_bytes": 273551360,
+        "ended_at": 1793594538.781853,
+        "max_rss_bytes": 190365696,
+        "process_cpu_seconds": 694.400998544,
+        "started_at": 1793593843.016463,
+        "wall_seconds": 695.7614304859999
+      },
+      "individual_selected_query_seconds": [
+        0.36864781379699707,
+        0.3232109546661377,
+        0.30960679054260254,
+        0.31107521057128906,
+        0.29573988914489746,
+        0.3144059181213379,
+        0.2919740676879883,
+        0.28969502449035645,
+        0.29178380966186523,
+        0.285930871963501,
+        0.28852415084838867,
+        0.32309412956237793,
+        0.29367494583129883
+      ],
+      "selected_history": [
+        {
+          "number": 0,
+          "snapshot_id": "snapshot-3382732460d4b97138b0cb195bffef07d30a6d92dd01d401a531eed937af8cc4"
+        },
+        {
+          "number": 155,
+          "snapshot_id": "snapshot-3ee9f2b10452c0b3e7dabf3b26c46437ed87faebcf51ba1b0e5137efed7e37c0"
+        },
+        {
+          "number": 309,
+          "snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d"
+        }
+      ],
+      "last_power_observation": {
+        "Amperage": 3319,
+        "ExternalConnected": true,
+        "IsCharging": true,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-1/replay/report.json",
+      "report_sha256": "e6071529f07dd329b5f26de2e50502b0a9620e03e21200c2977b07f7f79d6e63",
+      "verification_receipt_sha256": "15e91efc6355f445a3ee612c297354748d2b846bb42fb6b81ff546d516dd4c88",
+      "wall_monotonic_gap_seconds": 0.0041665537501103245
+    },
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 27.262807475841385,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 0,
+        "snapshots": 0
+      },
+      "evidence_report_sha256": "d4b2e80cc1dc112a55ac543736bd3256e0edf2f0d2b7bc51ec8948b3d467e722",
+      "host_observation": {
+        "disk_free_bytes": 69238214656,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 425146580992,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          3.21484375,
+          3.56494140625,
+          3.8134765625
+        ],
+        "observed_at_epoch_seconds": 1793594550.771163,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 2.1033984548684543,
+      "run_id": "573e94e37efa166adae9ef301a3c1bf8",
+      "selected_query_seconds": 1.7597250938415527,
+      "service_seconds": 29.36620593070984,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "573e94e37efa166adae9ef301a3c1bf8"
+        },
+        "retained_telemetry_descriptors": [],
+        "sha256": "a59fd9c018919d95fae398b039687a08205cf10d3aa42f422fd0a9b3705eceac",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 0,
+              "snapshots": 0
+            },
+            "input_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "graph": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d"
+            },
+            "semantic_config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "analysis.json"
+            },
+            "dataset.json": {
+              "digest": "99affa8ec06785fea88ec5539c59e3b0723845e7bafec994b5b6c46fa2634425",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 324390,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 61570521,
+              "name": "graph.json"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "34558194765c3abdea4c722a1c1afdf69f608c5a5410155112bc8c2892d3f0de",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "e9860aadf61c5af4330609c539767c0bad1ebdd9157984c2f44f1db53afef548",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "8c8a99df60678588425f583539625d40e34ce57797ce4f1b465234a4ea0f3660",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 16783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "a0225479b53b8c7ce3621c35593f15cc504f5d5901e696cac3f411668e0a4f07",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "quality.json": {
+              "digest": "f075a9086f9dc5591b9468512a3096117dbf51d7b39ae76d982a13abbffb2f17",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 268,
+              "name": "quality.json"
+            }
+          },
+          "mode": "offline"
+        }
+      },
+      "status": "passed",
+      "group": 2,
+      "mode": "offline",
+      "export_seconds": 14.006662381999831,
+      "verification_container_seconds": 11.49642,
+      "compute_usage": {
+        "cpu_system_seconds": 1.9639129999999998,
+        "cpu_user_seconds": 11.970662,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 55160832,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 14.006662381999831
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 22872064,
+        "cgroup_memory_peak_bytes": 64651264,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 144,
+          "nr_throttled": 0,
+          "system_usec": 2162323,
+          "throttled_usec": 0,
+          "usage_usec": 14828806,
+          "user_usec": 12666483
+        },
+        "output_bytes": 7611054,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 11292415,
+        "cgroup_memory_peak_bytes": 62369792,
+        "ended_at": 1793594578.2736306,
+        "max_rss_bytes": 64253952,
+        "process_cpu_seconds": 10.9640926,
+        "started_at": 1793594567.2369707,
+        "wall_seconds": 11.036659963000147
+      },
+      "individual_selected_query_seconds": [
+        0.12067818641662598,
+        0.10473012924194336,
+        0.14822673797607422,
+        0.09650111198425293,
+        0.0925450325012207,
+        0.11955094337463379,
+        0.09734797477722168,
+        0.09557008743286133
+      ],
+      "selected_history": null,
+      "last_power_observation": {
+        "Amperage": 2738,
+        "ExternalConnected": true,
+        "IsCharging": true,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-2/offline/report.json",
+      "report_sha256": "d4b2e80cc1dc112a55ac543736bd3256e0edf2f0d2b7bc51ec8948b3d467e722",
+      "verification_receipt_sha256": "07f8829cea57142c308d6f2ab8205f0b625f08cb5aa8d15c69eb24b6d17b8a26",
+      "wall_monotonic_gap_seconds": 2.3680710000917315e-05
+    },
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 1492.5607384763002,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 306,
+        "snapshots": 310
+      },
+      "evidence_report_sha256": "709e97e930d23a81030bf8417863699fb808f488e0fd8ee61478284990093e83",
+      "host_observation": {
+        "disk_free_bytes": 69202677760,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 425182117888,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          4.94677734375,
+          3.9072265625,
+          3.92529296875
+        ],
+        "observed_at_epoch_seconds": 1793594586.0236192,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 2.6030016817808246,
+      "run_id": "b776c06de0f48008b83c27ea9020c35b",
+      "selected_query_seconds": 5.474407911300659,
+      "service_seconds": 1495.163740158081,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "b776c06de0f48008b83c27ea9020c35b"
+        },
+        "retained_telemetry_descriptors": [
+          {
+            "digest": "b88c9a55a830a023f8995e2007762dd08b630d26960f574b47c6852f8a418ea0",
+            "items": 8,
+            "kind": "dict",
+            "logical_bytes": 78299,
+            "name": "runtime_metrics.json"
+          }
+        ],
+        "sha256": "155f90639a351cf2e894836bad8c8dfe8841c51be8fb8928a1936f50f9946f43",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "a0f6bcf1d535cbd60c3730f38a6824c6d7fa4feab611823a3e22ff2b4b7e0fce",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 306,
+              "snapshots": 310
+            },
+            "final_snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d",
+            "final_snapshot_number": 309,
+            "input_fingerprint": "9c67065455325b17989086f5758d26ff3e2e52f084a98b40c3c9e8db3883f75b",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "graph": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c"
+            },
+            "semantic_config_fingerprint": "b1b9ad9654c0f5e1649c365a06aca2e29ad41b586310b4ced092359508397ae7",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "analysis.json"
+            },
+            "arrivals.json": {
+              "digest": "5ed427fa716c14b3c537e845fcd63dfbbbd5f1dd6e1fe1e3f8725c1fa0af1a3e",
+              "items": 304,
+              "kind": "array_branch",
+              "logical_bytes": 100523,
+              "name": "arrivals.json"
+            },
+            "dataset.json": {
+              "digest": "3847f5a0d2c474db686a0b2d80ca1200c2903c1762ad17c180d51e9c81846cd6",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 342214,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 70877473,
+              "name": "graph.json"
+            },
+            "history/revisions": {
+              "digest": "be08f4593f5df5c2881db0b1cfdf16a170d51607e366d7100f9a4113fffda14a",
+              "items": 306,
+              "kind": "array_branch",
+              "logical_bytes": 12199391,
+              "name": "history/revisions"
+            },
+            "history/snapshots": {
+              "digest": "5a84cbc9950142d277b11a4f698ae2927836ba07503336774bd69860dc2f8b8a",
+              "items": 310,
+              "kind": "array_branch",
+              "logical_bytes": 16326764034,
+              "name": "history/snapshots"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "1530b2ebc1aa7858702eef5226cf7131a59a7781c3ea469d150d8c42df8c39b9",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "225339c3efdfdd416d32a68cca0dcad5143b466a8e57fa95bb856d5a19be9a6f",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "f01408d42f4a63c5bff8e0142c54453be7ca347e3c8694820e49320d2237ec3c",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 5783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "d9f2c809344691042a6e1ede18e63f4259e2d4d4d1531a3beb4848a63efcf5ca",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "metrics.json": {
+              "digest": "942da8d5a037ad594fe23add108e6d31297534c9c05fb0706634c844361c1d9e",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 1445468,
+              "name": "metrics.json"
+            },
+            "quality.json": {
+              "digest": "933814065c57fdb5406d39ea750a43eb7eacd0d981345cd70149f0867eaf01b8",
+              "items": 8,
+              "kind": "dict",
+              "logical_bytes": 289,
+              "name": "quality.json"
+            },
+            "replay.json": {
+              "digest": "d05baccd02230145691a5e1d749cc3cb08731e5995986b54b95de3c0628c6f4e",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 350,
+              "name": "replay.json"
+            }
+          },
+          "mode": "replay"
+        }
+      },
+      "status": "passed",
+      "group": 2,
+      "mode": "replay",
+      "export_seconds": 780.6853265649997,
+      "verification_container_seconds": 706.401004,
+      "compute_usage": {
+        "cpu_system_seconds": 48.588005,
+        "cpu_user_seconds": 729.087132,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 111591424,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 780.6853265649997
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 102227968,
+        "cgroup_memory_peak_bytes": 200712192,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 7811,
+          "nr_throttled": 0,
+          "system_usec": 55447709,
+          "throttled_usec": 0,
+          "usage_usec": 812562691,
+          "user_usec": 757114982
+        },
+        "output_bytes": 85862091,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 704831830,
+        "cgroup_memory_peak_bytes": 269721600,
+        "ended_at": 1793596075.4340127,
+        "max_rss_bytes": 190636032,
+        "process_cpu_seconds": 704.4695846940001,
+        "started_at": 1793595369.539311,
+        "wall_seconds": 705.8906535290002
+      },
+      "individual_selected_query_seconds": [
+        0.36640167236328125,
+        0.31951069831848145,
+        0.2918877601623535,
+        0.29721689224243164,
+        0.29326415061950684,
+        0.3226351737976074,
+        0.2994568347930908,
+        0.2965550422668457,
+        0.314190149307251,
+        0.2958662509918213,
+        0.30042409896850586,
+        0.29518795013427734,
+        0.28664183616638184
+      ],
+      "selected_history": [
+        {
+          "number": 0,
+          "snapshot_id": "snapshot-3382732460d4b97138b0cb195bffef07d30a6d92dd01d401a531eed937af8cc4"
+        },
+        {
+          "number": 155,
+          "snapshot_id": "snapshot-3ee9f2b10452c0b3e7dabf3b26c46437ed87faebcf51ba1b0e5137efed7e37c0"
+        },
+        {
+          "number": 309,
+          "snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d"
+        }
+      ],
+      "last_power_observation": {
+        "Amperage": 0,
+        "ExternalConnected": true,
+        "IsCharging": false,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-2/replay/report.json",
+      "report_sha256": "709e97e930d23a81030bf8417863699fb808f488e0fd8ee61478284990093e83",
+      "verification_receipt_sha256": "992044a864302ce952b9d9c0e3ad3f7884217d9a9a263aef623a03afe631b1bc",
+      "wall_monotonic_gap_seconds": 0.0077421160822268575
+    },
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 26.852681747234136,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 0,
+        "snapshots": 0
+      },
+      "evidence_report_sha256": "5569ff8f57d1d0e0b405a1a3abad154ed38c763a100b8e4efe3d15bca7d787ef",
+      "host_observation": {
+        "disk_free_bytes": 69058207744,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 425326587904,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          4.72705078125,
+          4.00244140625,
+          3.96728515625
+        ],
+        "observed_at_epoch_seconds": 1793596087.987078,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 2.114677080356806,
+      "run_id": "1034db822fca0a22bc552d8c4ff52274",
+      "selected_query_seconds": 1.7263319492340088,
+      "service_seconds": 28.967358827590942,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "1034db822fca0a22bc552d8c4ff52274"
+        },
+        "retained_telemetry_descriptors": [],
+        "sha256": "a59fd9c018919d95fae398b039687a08205cf10d3aa42f422fd0a9b3705eceac",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 0,
+              "snapshots": 0
+            },
+            "input_fingerprint": "60b29f4c9d0fe729b6eca2203c2cc71fdc8c9c5d36240461a30da40f60fafb5a",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "graph": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d"
+            },
+            "semantic_config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "analysis.json"
+            },
+            "dataset.json": {
+              "digest": "99affa8ec06785fea88ec5539c59e3b0723845e7bafec994b5b6c46fa2634425",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "35d5cda279d2978cd437aef43b622f4b6dc4e27e7fd151038bfb1896e5e2c1d9",
+              "items": 20,
+              "kind": "dict",
+              "logical_bytes": 168329190,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "c6d91c2d0e9e0672e51acbe430cb1db72f5a239339b85af2fc2028c82dd5bbc9",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 324390,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "c9a8fecff2a05a502455306491332d03e2fbf40a47c4d4258a44777b6c98910d",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 61570521,
+              "name": "graph.json"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "34558194765c3abdea4c722a1c1afdf69f608c5a5410155112bc8c2892d3f0de",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "e9860aadf61c5af4330609c539767c0bad1ebdd9157984c2f44f1db53afef548",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "8c8a99df60678588425f583539625d40e34ce57797ce4f1b465234a4ea0f3660",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 16783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "a0225479b53b8c7ce3621c35593f15cc504f5d5901e696cac3f411668e0a4f07",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "quality.json": {
+              "digest": "f075a9086f9dc5591b9468512a3096117dbf51d7b39ae76d982a13abbffb2f17",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 268,
+              "name": "quality.json"
+            }
+          },
+          "mode": "offline"
+        }
+      },
+      "status": "passed",
+      "group": 3,
+      "mode": "offline",
+      "export_seconds": 13.71211479800013,
+      "verification_container_seconds": 11.414235,
+      "compute_usage": {
+        "cpu_system_seconds": 1.962542,
+        "cpu_user_seconds": 11.685048,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 55345152,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 13.71211479800013
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 23089152,
+        "cgroup_memory_peak_bytes": 64647168,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 142,
+          "nr_throttled": 0,
+          "system_usec": 2132281,
+          "throttled_usec": 0,
+          "usage_usec": 14508936,
+          "user_usec": 12376655
+        },
+        "output_bytes": 7611054,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 11222224,
+        "cgroup_memory_peak_bytes": 62341120,
+        "ended_at": 1793596114.9396393,
+        "max_rss_bytes": 64413696,
+        "process_cpu_seconds": 10.931457962,
+        "started_at": 1793596103.9478242,
+        "wall_seconds": 10.991587213000003
+      },
+      "individual_selected_query_seconds": [
+        0.11762213706970215,
+        0.13060402870178223,
+        0.0916588306427002,
+        0.09261417388916016,
+        0.10824704170227051,
+        0.10944509506225586,
+        0.10369205474853516,
+        0.10032510757446289
+      ],
+      "selected_history": null,
+      "last_power_observation": {
+        "Amperage": 0,
+        "ExternalConnected": true,
+        "IsCharging": false,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-3/offline/report.json",
+      "report_sha256": "5569ff8f57d1d0e0b405a1a3abad154ed38c763a100b8e4efe3d15bca7d787ef",
+      "verification_receipt_sha256": "9c51931692b16be405f9665cc98a3b38ba297569d8c968c5d1e701ba835c0750",
+      "wall_monotonic_gap_seconds": 5.3577590733766556e-05
+    },
+    {
+      "attempt": 1,
+      "binary_sha256": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663",
+      "core_seconds": 1497.3847653497446,
+      "counts": {
+        "candidates": 2596,
+        "changes": 99,
+        "network": 200,
+        "operations": 100,
+        "process": 100,
+        "revisions": 306,
+        "snapshots": 310
+      },
+      "evidence_report_sha256": "915090ca8fd09abf86cf3a49f8ced0ee8bcf7f3df186437e887766a29b901370",
+      "host_observation": {
+        "disk_free_bytes": 69020618752,
+        "disk_total_bytes": 494384795648,
+        "disk_used_bytes": 425364176896,
+        "hardware": {
+          "hw.logicalcpu": "10",
+          "hw.memsize": "17179869184",
+          "hw.model": "Mac14,9",
+          "hw.physicalcpu": "10",
+          "logical_cpus": 10,
+          "machdep.cpu.brand_string": "Apple M2 Pro",
+          "machine": "arm64",
+          "system": "Darwin"
+        },
+        "load_average_1_5_15_minutes": [
+          7.6923828125,
+          4.92138671875,
+          4.30859375
+        ],
+        "observed_at_epoch_seconds": 1793596122.71036,
+        "scope": "observed host conditions only; no hardware identifiers or serial numbers; not a resource quota"
+      },
+      "overhead_seconds": 2.870544470430559,
+      "run_id": "f90316e1a68097d0fe6a7e1bf1adb3e6",
+      "selected_query_seconds": 5.206376075744629,
+      "service_seconds": 1500.2553098201752,
+      "signature": {
+        "original_identity": {
+          "attempt_id": 1,
+          "run_id": "f90316e1a68097d0fe6a7e1bf1adb3e6"
+        },
+        "retained_telemetry_descriptors": [
+          {
+            "digest": "8f719c091f0286a9656c8a92210ce4b2678418c93384a7a5f84677313279e524",
+            "items": 8,
+            "kind": "dict",
+            "logical_bytes": 78361,
+            "name": "runtime_metrics.json"
+          }
+        ],
+        "sha256": "155f90639a351cf2e894836bad8c8dfe8841c51be8fb8928a1936f50f9946f43",
+        "value": {
+          "business_summary": {
+            "config_fingerprint": "a0f6bcf1d535cbd60c3730f38a6824c6d7fa4feab611823a3e22ff2b4b7e0fce",
+            "counts": {
+              "candidates": 2596,
+              "changes": 99,
+              "network": 200,
+              "operations": 100,
+              "process": 100,
+              "revisions": 306,
+              "snapshots": 310
+            },
+            "final_snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d",
+            "final_snapshot_number": 309,
+            "input_fingerprint": "9c67065455325b17989086f5758d26ff3e2e52f084a98b40c3c9e8db3883f75b",
+            "limitations": [
+              "synthetic_only",
+              "no_attack_or_causality_decision",
+              "response_success_is_not_physical_effect",
+              "endpoint_not_authenticated_actor",
+              "configured_offsets_not_estimated",
+              "existing_bounded_protocol_subset"
+            ],
+            "result_hashes": {
+              "events": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "graph": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c"
+            },
+            "semantic_config_fingerprint": "b1b9ad9654c0f5e1649c365a06aca2e29ad41b586310b4ced092359508397ae7",
+            "status": "succeeded",
+            "warnings": []
+          },
+          "complete_business_roots": {
+            "analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "analysis.json"
+            },
+            "arrivals.json": {
+              "digest": "5ed427fa716c14b3c537e845fcd63dfbbbd5f1dd6e1fe1e3f8725c1fa0af1a3e",
+              "items": 304,
+              "kind": "array_branch",
+              "logical_bytes": 100523,
+              "name": "arrivals.json"
+            },
+            "dataset.json": {
+              "digest": "3847f5a0d2c474db686a0b2d80ca1200c2903c1762ad17c180d51e9c81846cd6",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 711,
+              "name": "dataset.json"
+            },
+            "dual/analysis.json": {
+              "digest": "3b80f0c04977c7ea07a93d914ea17e019ee3322b64fd2b7c2a6bf1921462ea82",
+              "items": 23,
+              "kind": "dict",
+              "logical_bytes": 190540770,
+              "name": "dual/analysis.json"
+            },
+            "events.json": {
+              "digest": "1a98c6e8b5f950460e0686dab8b46474eb8dc98dc58a8553cdfa187bb3b120f7",
+              "items": 399,
+              "kind": "array_branch",
+              "logical_bytes": 342214,
+              "name": "events.json"
+            },
+            "graph.json": {
+              "digest": "e8190f5d62eda20f0773167e051ccccf7cc14a64d5a2cc7e6bb3c99e055b020c",
+              "items": 10,
+              "kind": "dict",
+              "logical_bytes": 70877473,
+              "name": "graph.json"
+            },
+            "history/revisions": {
+              "digest": "be08f4593f5df5c2881db0b1cfdf16a170d51607e366d7100f9a4113fffda14a",
+              "items": 306,
+              "kind": "array_branch",
+              "logical_bytes": 12199391,
+              "name": "history/revisions"
+            },
+            "history/snapshots": {
+              "digest": "5a84cbc9950142d277b11a4f698ae2927836ba07503336774bd69860dc2f8b8a",
+              "items": 310,
+              "kind": "array_branch",
+              "logical_bytes": 16326764034,
+              "name": "history/snapshots"
+            },
+            "indices/candidates_by_operation": {
+              "digest": "1530b2ebc1aa7858702eef5226cf7131a59a7781c3ea469d150d8c42df8c39b9",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 19671,
+              "name": "indices/candidates_by_operation"
+            },
+            "indices/changes": {
+              "digest": "225339c3efdfdd416d32a68cca0dcad5143b466a8e57fa95bb856d5a19be9a6f",
+              "items": 99,
+              "kind": "array_branch",
+              "logical_bytes": 7812,
+              "name": "indices/changes"
+            },
+            "indices/network_by_frame": {
+              "digest": "f01408d42f4a63c5bff8e0142c54453be7ca347e3c8694820e49320d2237ec3c",
+              "items": 200,
+              "kind": "array_branch",
+              "logical_bytes": 5783,
+              "name": "indices/network_by_frame"
+            },
+            "indices/operations": {
+              "digest": "d9f2c809344691042a6e1ede18e63f4259e2d4d4d1531a3beb4848a63efcf5ca",
+              "items": 100,
+              "kind": "array_branch",
+              "logical_bytes": 7891,
+              "name": "indices/operations"
+            },
+            "indices/rule_findings": {
+              "digest": "f263c055fba8640e524b88e7e27e59ea49541370bb0ccc5ed171499371e15f4a",
+              "items": 0,
+              "kind": "array_leaf",
+              "logical_bytes": 2,
+              "name": "indices/rule_findings"
+            },
+            "metrics.json": {
+              "digest": "942da8d5a037ad594fe23add108e6d31297534c9c05fb0706634c844361c1d9e",
+              "items": 9,
+              "kind": "dict",
+              "logical_bytes": 1445468,
+              "name": "metrics.json"
+            },
+            "quality.json": {
+              "digest": "933814065c57fdb5406d39ea750a43eb7eacd0d981345cd70149f0867eaf01b8",
+              "items": 8,
+              "kind": "dict",
+              "logical_bytes": 289,
+              "name": "quality.json"
+            },
+            "replay.json": {
+              "digest": "d05baccd02230145691a5e1d749cc3cb08731e5995986b54b95de3c0628c6f4e",
+              "items": 7,
+              "kind": "dict",
+              "logical_bytes": 350,
+              "name": "replay.json"
+            }
+          },
+          "mode": "replay"
+        }
+      },
+      "status": "passed",
+      "group": 3,
+      "mode": "replay",
+      "export_seconds": 787.5031242740001,
+      "verification_container_seconds": 704.675265,
+      "compute_usage": {
+        "cpu_system_seconds": 47.928714,
+        "cpu_user_seconds": 736.730649,
+        "measurement_version": "compute-process-resources-1",
+        "returncode": 0,
+        "rss_peak_bytes": 111267840,
+        "scope": "Linux waited compute process and waited descendants; excludes host transfer/verification and tmpfs pages; not exit proof",
+        "wall_seconds": 787.5031242740001
+      },
+      "compute_cgroup": {
+        "cgroup_memory_current_bytes": 101326848,
+        "cgroup_memory_peak_bytes": 200876032,
+        "cpu_stat": {
+          "burst_usec": 0,
+          "nice_usec": 0,
+          "nr_bursts": 0,
+          "nr_periods": 7879,
+          "nr_throttled": 0,
+          "system_usec": 55080375,
+          "throttled_usec": 0,
+          "usage_usec": 819706910,
+          "user_usec": 764626534
+        },
+        "output_bytes": 85849803,
+        "tmp_bytes": 0
+      },
+      "verification_metrics": {
+        "cgroup_cpu_usage_usec": 703066483,
+        "cgroup_memory_peak_bytes": 270909440,
+        "ended_at": 1793597617.2631106,
+        "max_rss_bytes": 190889984,
+        "process_cpu_seconds": 702.6387979479999,
+        "started_at": 1793596913.1449265,
+        "wall_seconds": 704.1164832799996
+      },
+      "individual_selected_query_seconds": [
+        0.4067342281341553,
+        0.29153013229370117,
+        0.26746487617492676,
+        0.30759096145629883,
+        0.2744922637939453,
+        0.2885000705718994,
+        0.27661895751953125,
+        0.28304409980773926,
+        0.2724747657775879,
+        0.2747840881347656,
+        0.26656579971313477,
+        0.2787320613861084,
+        0.277188777923584
+      ],
+      "selected_history": [
+        {
+          "number": 0,
+          "snapshot_id": "snapshot-3382732460d4b97138b0cb195bffef07d30a6d92dd01d401a531eed937af8cc4"
+        },
+        {
+          "number": 155,
+          "snapshot_id": "snapshot-3ee9f2b10452c0b3e7dabf3b26c46437ed87faebcf51ba1b0e5137efed7e37c0"
+        },
+        {
+          "number": 309,
+          "snapshot_id": "snapshot-388c1d7a9f729ecade74f8d58f4f92b7c12e27b04525104a1c150f840cf0af3d"
+        }
+      ],
+      "last_power_observation": {
+        "Amperage": 0,
+        "ExternalConnected": true,
+        "IsCharging": false,
+        "lid_open": true,
+        "platform": "Darwin",
+        "pmset_AC": true,
+        "status": "AC_power_open_lid_observed",
+        "temporary_caffeinate_only": true
+      },
+      "report_path": "/private/tmp/cpag-r19-fixed-stability-1-20261102/group-3/replay/report.json",
+      "report_sha256": "915090ca8fd09abf86cf3a49f8ced0ee8bcf7f3df186437e887766a29b901370",
+      "verification_receipt_sha256": "62f4398263751734db6fa8370a6b96885ff6a97e0b86dc67cb9da4a1bca8a885",
+      "wall_monotonic_gap_seconds": 0.005110029178467812
+    }
+  ],
+  "r19_software_closed": false,
+  "power_precondition": "Every long cell passed AC/external-connected/open-lid gate; suite initial preflight battery observation is not a long sample. Temporary caffeinate only.",
+  "short_linux_health": {
+    "status": "passed",
+    "files": 8,
+    "bytes": 1621,
+    "evidence": "/private/tmp/cpag-r19-stability-linux-preflight-20261102/report.json"
+  },
+  "independent_expectations": {
+    "offline": {
+      "network": 200,
+      "process": 100,
+      "operations": 100,
+      "changes": 99,
+      "candidate_range_inclusive": [
+        2594,
+        2596
+      ],
+      "basis": "frozen preflight integer density geometry; no new output used"
+    },
+    "replay": {
+      "network": 200,
+      "process": 100,
+      "operations": 100,
+      "changes": 99,
+      "candidates": 2596,
+      "snapshots": 310,
+      "revisions": 306,
+      "basis": "user fixed acceptance requirement"
+    }
+  },
+  "short_faults": {
+    "status": "actual_cases_passed_saved_evidence_reaudit",
+    "evidence": "short-fault-reaudit.json",
+    "runtime_changed": false,
+    "attempt1": "observer docker top after pause timeout; original retained",
+    "attempt2": "actual cases passed; aggregate initially failed short/full container ID mismatch; original retained, read-only normalized evidence passes",
+    "not_repeated": [
+      "full backup restore",
+      "browser",
+      "source tamper/restart unchanged4c evidence"
+    ],
+    "remaining_scope": "no new natural lease-expiry or failed verification scenario; unchanged component and prior real evidence separately cited",
+    "raw_attempt1": "/private/tmp/cpag-r19-short-formal-faults-1-20261102/report.json",
+    "raw_attempt2": "/private/tmp/cpag-r19-short-formal-faults-2-20261102/report.json",
+    "observer_version": "a21dfc3b46c06e8fb7f9ecab397465c2dc28eedd",
+    "observer_sha256": "2186257dfb2295417728dc43ea5fbcd8d2e54ccffda0a781b65e454b60aef57d",
+    "controlled_archive_attempts": [
+      "../outputs/cpag-r19-fixed-stability-20261102/short-fault-attempt1",
+      "../outputs/cpag-r19-fixed-stability-20261102/short-fault-attempt2"
+    ],
+    "unit_tests_passed": 3
+  },
+  "measurement_unit_tests": {
+    "passed": 8,
+    "seconds": 0.455
+  },
+  "runtime_commit": "a21dfc3b46c06e8fb7f9ecab397465c2dc28eedd",
+  "freeze_sha256": "0476ce9aa6f2930f1e07832e37012c94eebaf9cb727fa5a01bb8e3f15d627bba",
+  "fixed_identity": {
+    "binary_metadata": {
+      "cpagctl": "/private/tmp/cpag-r19-fixed-stability-1-20261102/build/cpagctl: go1.26.5\n\tpath\tgithub.com/TonyP4N/cpagx-go/cmd/cpagctl\n\tmod\tgithub.com/TonyP4N/cpagx-go\tv1.2.2-0.20261102041155-a21dfc3b46c0+dirty\t\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,tlssecpmlkem=0,tlssha1=1,updatemaxprocs=0,urlstrictcolons=0,x509sha256skid=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=a21dfc3b46c06e8fb7f9ecab397465c2dc28eedd\n\tbuild\tvcs.time=2026-11-02T04:11:55Z\n\tbuild\tvcs.modified=true\n",
+      "cpagx-v3": "/private/tmp/cpag-r19-fixed-stability-1-20261102/build/cpagx-v3: go1.26.5\n\tpath\tgithub.com/TonyP4N/cpagx-go/internal/jobs/integration/cmd/cpagx-v3\n\tmod\tgithub.com/TonyP4N/cpagx-go/internal/jobs/integration\tv0.0.0-20261102041155-a21dfc3b46c0+dirty\t\n\tdep\tgithub.com/TonyP4N/cpagx-go\tv0.0.0\n\t=>\t../../..\t(devel)\t\n\t\n\tdep\tgithub.com/jackc/pgpassfile\tv1.0.0\th1:/6Hmqy13Ss2zCq62VdNG8tM1wchn8zjSGOBJ6icpsIM=\n\tdep\tgithub.com/jackc/pgservicefile\tv0.0.0-20240606120523-5a60cdf6a761\th1:iCEnooe7UlwOQYpKFhBabPMi4aNAfoODPEFNiAnClxo=\n\tdep\tgithub.com/jackc/pgx/v5\tv5.7.6\th1:rWQc5FwZSPX58r1OQmkuaNicxdmExaEz5A2DO2hUuTk=\n\tdep\tgithub.com/jackc/puddle/v2\tv2.2.2\th1:PR8nw+E/1w0GLuRFSmiioY6UooMp6KJv0/61nB7icHo=\n\tdep\tgolang.org/x/crypto\tv0.45.0\th1:jMBrvKuj23MTlT0bQEOBcAE0mjg8mK9RXFhRH6nyF3Q=\n\tdep\tgolang.org/x/sync\tv0.18.0\th1:kr88TuHDroi+UVf+0hZnirlk8o8T+4MrK6mr60WkH/I=\n\tdep\tgolang.org/x/text\tv0.31.0\th1:aC8ghyu4JhP8VojJ2lEHBnochRno1sgL6nEi9WGFGMM=\n\tbuild\t-buildmode=exe\n\tbuild\t-compiler=gc\n\tbuild\tDefaultGODEBUG=containermaxprocs=0,cryptocustomrand=1,decoratemappings=0,tlssecpmlkem=0,tlssha1=1,updatemaxprocs=0,urlstrictcolons=0,x509sha256skid=0\n\tbuild\tCGO_ENABLED=1\n\tbuild\tCGO_CFLAGS=\n\tbuild\tCGO_CPPFLAGS=\n\tbuild\tCGO_CXXFLAGS=\n\tbuild\tCGO_LDFLAGS=\n\tbuild\tGOARCH=arm64\n\tbuild\tGOOS=darwin\n\tbuild\tGOARM64=v8.0\n\tbuild\tvcs=git\n\tbuild\tvcs.revision=a21dfc3b46c06e8fb7f9ecab397465c2dc28eedd\n\tbuild\tvcs.time=2026-11-02T04:11:55Z\n\tbuild\tvcs.modified=true\n"
+    },
+    "binary_sha256": {
+      "cpagctl": "e8339ea16bde4fad117eafcd1fc6fb4f212db149868965a920f35e6fea46d550",
+      "cpagx-v3": "1ea94e73f07a91aab867c4e28515376e0a5caa3ec92d7f727f36d3949d79f663"
+    },
+    "policy_sha256": "56ace6c5e9890835d2ee09458ea4cb2c7c04d294d6934ebf78e9cf69237d0113",
+    "version": {
+      "docker_host": {
+        "Architecture": "aarch64",
+        "MemTotal": 8217448448,
+        "NCPU": 10,
+        "OSType": "linux",
+        "ServerVersion": "29.1.3"
+      },
+      "fixture": {
+        "configs": {
+          "offline": {
+            "config_fingerprint": "e3cbfb04e47b9b56149d321f5845c42b7924b74f8995a621d751de7f2c4b713a",
+            "sha256": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2"
+          },
+          "replay": {
+            "config_fingerprint": "a0f6bcf1d535cbd60c3730f38a6824c6d7fa4feab611823a3e22ff2b4b7e0fce",
+            "sha256": "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52"
+          }
+        },
+        "declaration": {
+          "arrival_steps": 304,
+          "bytes": {
+            "network": 23424,
+            "process": 3010
+          },
+          "capacity_profile": "engineering-core-capacity-3",
+          "claim": "raw density preserved; static admission checks only, not runtime or reference-environment acceptance",
+          "execution_scope": "core_only",
+          "history_format": "shared-observation-dag-6",
+          "integration_ready": false,
+          "judgement_strategy": "prepared-prefix-cache-1",
+          "logical_process_records": 100,
+          "matrix": "matrix.json",
+          "operations": 100,
+          "preflight": "preflight.json",
+          "replay_profile_bytes": 30671,
+          "request_frames": 100,
+          "response_frames": 100,
+          "scale": "S",
+          "schema_version": "r19-density-capacity-6",
+          "standard_projection": "standard-graph-events-1",
+          "storage_budget_version": "shared-storage-budget-2",
+          "storage_format": "shared-observation-dag-6",
+          "upgrade": {
+            "semantic_change_scope": "versioned transport/storage/budget only; raw bytes/window/density/schedule unchanged",
+            "source_files": {
+              "network.pcap": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+              "offline-profile.json": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+              "process.csv": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+              "replay-profile.json": "328c9217267d865a5bd264966359c6f292f099b7d503f684c96cb525793f9e31"
+            },
+            "source_fixture_version": "r19-density-capacity-5"
+          }
+        },
+        "files": {
+          "dual_source-1.json": {
+            "sha256": "8b1f627f9b822ca1acd4ecfed63e5ad16b7a6d03d64aac8abbe6a7d1d11e1571",
+            "size_bytes": 278
+          },
+          "dual_source-2.json": {
+            "sha256": "31a3ca4a388051fbf2977cba7a98e2ea1753277123fe616423b15da870d55c63",
+            "size_bytes": 267
+          },
+          "dual_source-3.json": {
+            "sha256": "00eb0618ee2793898afb50e7d46614b33d415dcfc28c92382b1c005e2b2b568c",
+            "size_bytes": 267
+          },
+          "dual_source_replay-1.json": {
+            "sha256": "8e1718d6c95bb7215bb3ed102a9f54ee0879ff62d2f24584169000a3e14410a0",
+            "size_bytes": 291
+          },
+          "dual_source_replay-2.json": {
+            "sha256": "0dd6cba0c620cb25c6e20300cb1af8bae75a18fb4c8eb3ce26e9dc767451cc1c",
+            "size_bytes": 280
+          },
+          "dual_source_replay-3.json": {
+            "sha256": "4c9e39de6d28bdb2150b5d61f4fc31187ee8fc05ddbf861bbe426a729b203d4d",
+            "size_bytes": 280
+          },
+          "fixture.json": {
+            "sha256": "ecb7deea6e9e3c6954c3162e9d967a775499ba78253823a060ef1bdf469b2b1f",
+            "size_bytes": 1428
+          },
+          "matrix.json": {
+            "sha256": "932e715db5f7ed2195affdecc2c57712086899834d89373e6be283c0fa6fd5b8",
+            "size_bytes": 2206
+          },
+          "network.pcap": {
+            "sha256": "cc88eb70769587ae38cc40828a37fa55abc988981b1497302b956394be40dd85",
+            "size_bytes": 23424
+          },
+          "offline-profile.json": {
+            "sha256": "ec63b8d6f292c045dd4f09301b53ce84b336cab5397c1ec4f65201a6199ff3b2",
+            "size_bytes": 2189
+          },
+          "preflight.json": {
+            "sha256": "775ac3e3a547f79185a7767d018a3c0c384d5b47230f5a82fec9d5fa2260aa1f",
+            "size_bytes": 6513
+          },
+          "process.csv": {
+            "sha256": "9d933fd88020df0172cbd12fd58ac1ee63f71b83ebfb901f5ea500c42c856c55",
+            "size_bytes": 3010
+          },
+          "replay-profile.json": {
+            "sha256": "aeeffab9722c2628d4bc5a959f360de7bcfc6e41a6edb9fd8493079fed3afa52",
+            "size_bytes": 30671
+          }
+        },
+        "offline_expected": {
+          "candidate_lower_bound": 2594,
+          "candidate_upper_bound": 2596,
+          "changes": 99,
+          "network": 200,
+          "operations": 100,
+          "process": 100
+        }
+      },
+      "git_head": "a21dfc3b46c06e8fb7f9ecab397465c2dc28eedd",
+      "go_environment": {
+        "CGO_CFLAGS": "-O2 -g",
+        "CGO_CPPFLAGS": "",
+        "CGO_ENABLED": "1",
+        "CGO_LDFLAGS": "-O2 -g",
+        "GOARCH": "arm64",
+        "GOEXPERIMENT": "",
+        "GOFLAGS": "",
+        "GOOS": "darwin",
+        "GOTOOLCHAIN": "auto"
+      },
+      "go_version": "go version go1.26.5 darwin/arm64",
+      "host": {
+        "hw.logicalcpu": "10",
+        "hw.memsize": "17179869184",
+        "hw.model": "Mac14,9",
+        "hw.physicalcpu": "10",
+        "logical_cpus": 10,
+        "machdep.cpu.brand_string": "Apple M2 Pro",
+        "machine": "arm64",
+        "system": "Darwin"
+      },
+      "image_runtime_sha256": {
+        "schemas/Asset.schema.json": "1fcd14211a5ecb186746308d3ea5d7d0dc94d03d6b4460bb312b32b0eef4d5e6",
+        "schemas/Claim.schema.json": "99bf0d73463e4f2129be8ac0927b157b1b7f2f3da993528a6185e928d74e7271",
+        "schemas/CompactStoreRunManifest.schema.json": "eca17890b8494b9e6b29a7d4f1c5b10f58afe7ad82a70b1d108b4be1d1590fa6",
+        "schemas/DatasetManifest.schema.json": "e0a3b5f96ecc2c533313149646c44c5604e18e8635fd1c994e580f81b13f6ce4",
+        "schemas/DerivedEvent.schema.json": "37cc762e26d56002230c6907741869739e08da63ece5d147b002936bc3399e29",
+        "schemas/DualCompactProfile.schema.json": "d0a822f4d502321748e6967976ed7395bdf69f51b425ac1c6e56a7603c183689",
+        "schemas/DualSharedProfile.schema.json": "657ead64d0594b2caeb9d463ca3b0d709af9dcf42395ddd6d99f0cd860894be3",
+        "schemas/DualSourceProfile.schema.json": "2062b71e3aad4e9fc722658b2991aaeafa896dd0ccc6a594312a9a6cfa4ae236",
+        "schemas/DualSpoolProfile.schema.json": "dd28544f14ba437378bf967f8513c4bc656db42e8d61c15bcc1bc7f07ae61710",
+        "schemas/EvaluationAnnotations.schema.json": "3c291f790d478959ee94206ef8056d1fd0a6f0c69f56d73b1dc542aa1f3435ad",
+        "schemas/EvaluationCSVRecordLocator.schema.json": "3336c3b5a48e3ca803574e0d7c09810730a16099e37ca4d614bf1175ea1192e7",
+        "schemas/EvaluationLocatedReference.schema.json": "fc60768eca060af754df5cdd0bfd62a4f701b20728d4eda3e7dea3016f6b0cd1",
+        "schemas/EvaluationPredictions.schema.json": "967387278d68f3f6e8640604394febe281abfa35261e150c698bfc2750467374",
+        "schemas/EvaluationRecord.schema.json": "339be51a1a9553650beb768df758bda91e4ef63d603c71c5b08d358f3d931ba9",
+        "schemas/EvaluationRegistration.schema.json": "96d94e9c6d03375c5cb106b55dd64d7cdb8d3c7a03fd04889a9477a8eaea00c7",
+        "schemas/EvaluationSplit.schema.json": "b38cb4f46a81362e1471a37e133d4922298609c450966d26b75775ec17a6dffe",
+        "schemas/GraphArtifact.schema.json": "6640c4226b22cfd7c9c1680a0abab60736fdd7489048cefeaa0eb15bd4c386a7",
+        "schemas/NetworkEvent.schema.json": "55033cddafdec97e4d12a52c70878c1bae3d2abefc47fa6a08f601ab407e22cd",
+        "schemas/PacketObservationArtifact.schema.json": "3756039ca20b83b5160782278dd72ac852fa04fbff98f9ddd5456da7dc002187",
+        "schemas/ProcessObservation.schema.json": "b6b92cdfff80418261f6c39e3a85eb63652811f51b9750933bc902e47d88b040",
+        "schemas/ReplayClaim.schema.json": "d53e9a0d57d9f53813d3dbe7cae829b929355c13efd1adb80ea65322e774db5b",
+        "schemas/ReplayCompactProfile.schema.json": "ccee4d35151e597275b67054b498df7eb5916b1b1a7c0b050d08b77397394c4c",
+        "schemas/ReplayDerivedEvent.schema.json": "4ba784a3d345ce4ffc7f8e17c3276a68b066ddbde0ccaa81466f78fe74dbb9c3",
+        "schemas/ReplayGraphArtifact.schema.json": "2189cc635ff2f0b7648901e800d5a351c16eff37b1c5656fbba9bcfffc342205",
+        "schemas/ReplayHistorySpoolManifest.schema.json": "2f4ca72bf3abd9e5c55fc7a24abd9fab3aaeb8743451a08c5a935dbd31007a51",
+        "schemas/ReplayNetworkEvent.schema.json": "9823c5369eee8f406113aeee464b8ec97677deccf25b96964f06d1a467dac191",
+        "schemas/ReplayProcessObservation.schema.json": "b7157588bfde39b9ba3657fc7fe211d62a8a6c945e55e1ad87c263b79b087b7a",
+        "schemas/ReplayProfile.schema.json": "a48d20f49348e90b6e27c1b656a9628d719322c6188ed57957690f129e843a30",
+        "schemas/ReplayRevision.schema.json": "4abbf1854b2df1e5c3d26c57db6acf60bb532154191b8625c02d73796e3e326d",
+        "schemas/ReplayRunManifest.schema.json": "2317b4607e0105fdd2e27e875fac88f60be2b6713e4fe72085657be074972ba2",
+        "schemas/ReplaySharedProfile.schema.json": "fae69e51fe97ccbcee531752fa4045d5e253096963a2c19aec0044ba1c7132db",
+        "schemas/ReplaySourceRef.schema.json": "04e13070c95898ac4760b5c3032f76a146efcdea108d6735baa87db306b08009",
+        "schemas/ReplaySpoolProfile.schema.json": "07328cdf2627a19f0a016414ba3dd248ac96cbeb3dfcfafa6ac6dffcae9e58c8",
+        "schemas/ReplaySpoolRunManifest.schema.json": "af28298552c22db3cfdd441f79df03ce26c13f8ff34091bdafe2d70dc12a3136",
+        "schemas/RunManifest.schema.json": "05ce3fac8c6809dd2841eb066c8c05f705fe08d3c64bc76ff489052a656f908c",
+        "schemas/SharedStoreRunManifest.schema.json": "72307ac23485deab0de8543ffd02c76f750b658608148dfa91e826018e335aac",
+        "schemas/SingleSourceRunManifest.schema.json": "93afaaaaa9a9e5f7047638adec21ea45d395fad8ae9d0a2fcf8af8e0dc1bb484",
+        "services/analysis/src/cpag_core/__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+        "services/analysis/src/cpag_core/__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+        "services/analysis/src/cpag_core/capacity.py": "8ef91e883e645735b6e5ef7dfccbe1fca0af36b794dedb6deb3ffc80c06f0571",
+        "services/analysis/src/cpag_core/compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+        "services/analysis/src/cpag_core/compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+        "services/analysis/src/cpag_core/contracts.py": "611c22510c2824b8ede5b24c48279b50e98352ec450fb5ba5fc9c48320110484",
+        "services/analysis/src/cpag_core/dual_source.py": "62f0ee709eaec8edd2ca1722e8db0f98647bcf5e7809f4139f356045df2ed7bc",
+        "services/analysis/src/cpag_core/dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+        "services/analysis/src/cpag_core/dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+        "services/analysis/src/cpag_core/evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+        "services/analysis/src/cpag_core/evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+        "services/analysis/src/cpag_core/evaluation_artifacts.py": "15be834eb74ca39e851461cc21999aa664bac84676ed4c77553746310a6232d7",
+        "services/analysis/src/cpag_core/evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+        "services/analysis/src/cpag_core/evaluation_context.py": "82774d5bcbcb5fe800e7cce025d165bb1e1f3547e5903adba9271e8c9c37bade",
+        "services/analysis/src/cpag_core/evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+        "services/analysis/src/cpag_core/evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+        "services/analysis/src/cpag_core/evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+        "services/analysis/src/cpag_core/evaluation_shared.py": "6a5226b2df4365de53b8093148ac79f677e0094be1e39e32385b6f9e1cef6aad",
+        "services/analysis/src/cpag_core/evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+        "services/analysis/src/cpag_core/evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+        "services/analysis/src/cpag_core/intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+        "services/analysis/src/cpag_core/measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+        "services/analysis/src/cpag_core/measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+        "services/analysis/src/cpag_core/measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+        "services/analysis/src/cpag_core/packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+        "services/analysis/src/cpag_core/packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+        "services/analysis/src/cpag_core/parsers/__init__.py": "83e31dfa6f7c1611a1ef2b575be174cf7c284082f8e3b93880f2b6fa6264c638",
+        "services/analysis/src/cpag_core/parsers/packet_envelope.py": "f00edc2537e674a50171ce0ee912b1eafacc9a832019bc0bc285bb1371c9469b",
+        "services/analysis/src/cpag_core/parsers/packet_protocol.py": "319215e3e1f0cd223e82f1db1de0bd8b7c42e1e25013689641c8d363e7f3d2b2",
+        "services/analysis/src/cpag_core/pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+        "services/analysis/src/cpag_core/reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+        "services/analysis/src/cpag_core/replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+        "services/analysis/src/cpag_core/replay_core.py": "91c07886404f059854a1081697bb26e3880afe66c20b47996a1937f95bbfce2b",
+        "services/analysis/src/cpag_core/replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+        "services/analysis/src/cpag_core/replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+        "services/analysis/src/cpag_core/replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+        "services/analysis/src/cpag_core/replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+        "services/analysis/src/cpag_core/replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+        "services/analysis/src/cpag_core/replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+        "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+        "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "2db4b7a132ff65d5593a3fc7365fde5986fcb6043708424c4c8bfa678228c877",
+        "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "625365c969e9631368ece22ebfea28918e29fa1c15ca9b3e252873e93c0576f2",
+        "services/analysis/src/cpag_core/shared_cli.py": "92c6a9d8159504002ac248b0886a7fb84f0b8441a701d7ae33375e048525c620",
+        "services/analysis/src/cpag_core/shared_export.py": "15e68729933f8222864393cdb415142f8a1367225cb838f7aaaa289819b87648",
+        "services/analysis/src/cpag_core/shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+        "services/analysis/src/cpag_core/shared_service.py": "a0de05133bd930d1b3a7cafca8185444b4725c8106c1cb11962f5be276ad49b8",
+        "services/analysis/src/cpag_core/single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+        "services/analysis/src/cpag_core/source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29",
+        "services/worker/cpag_worker/container_entry.py": "a0165a254cd7da673cae897df31bfe445eceb19d43dfb537e894576697edfc16"
+      },
+      "pip_freeze": "attrs==26.1.0\njsonschema==4.23.0\njsonschema-specifications==2025.9.1\nreferencing==0.37.0\nrpds-py==2026.9.1\ntyping_extensions==4.16.0\n",
+      "pip_freeze_sha256": "d369a31d6612734edb4fd87c8ad12610429e2086cf43305a6d3a1c47848dae2b",
+      "python_executable_sha256": "4e28e811a89aeac6eed668ae641c7f85f5831e42e8dc6cd9a85a3bcc032ec46a",
+      "python_version": "3.11.9 (v3.11.9:de54cf5be3, Apr  2 2024, 07:12:50) [Clang 13.0.0 (clang-1300.0.29.30)]",
+      "resolved_image_id": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "resource_interpretation": "container8GiB is an upper quota; actual Docker host memory is retained as observed, never increased or silently assumed",
+      "source_sha256": {
+        "cmd/cpagctl/main.go": "287f123b625988c9a6e35415ea9b8051503877918536b42722cd092865da3d44",
+        "cmd/cpagctl/main_test.go": "840f462ea282bcf64c6a356acc1d749f3f7d928dce9ef77891cb60344c486dce",
+        "cmd/cpagx/main.go": "a2c664b0817b3ca7045ed1b06d75a3c08b342276c19e8693b9ef1a66886a6a10",
+        "deployments/isolated-executor/Dockerfile": "60e8d6563528c0b62e1301e66fe900156a054cec15990e77cf5baa7f3108b631",
+        "go.mod": "aea324c6a95a609c3f4e4ab37a2f24611a199b23a493df6d71c548607ad1352b",
+        "go.sum": "01350d856e510f9c7c21340b1beb15b7b3b756db9c43a4e9dfb5cbd038c898a0",
+        "internal/capacity/budget.go": "ac3135bc4cb684fb998fd3d2d7a1729eaa97a457b7b9912ccda923839983f980",
+        "internal/capacity/budget_test.go": "94e0fcd6f4c6cbf2667d55f0f51761260c4afe60bed49ba91b729baa2d77f666",
+        "internal/capacity/http.go": "194dccbafe5ded190bf9f98f946a39a8994127c06ecc826aa461ce3c255894b9",
+        "internal/capacity/http_test.go": "35477f6e977ee8d9cab78d268de24236880bb8b3a93bba4c8cd6fedfafe39f1e",
+        "internal/catalog/backfill.go": "f73e08a742322a953f048b3fef33fff159e8314bf852ab77f6edfdadb6f36360",
+        "internal/catalog/capacity.go": "468e7a3c7841f4fe8a280b5223af344a051f28038c83b4716abe483c84b6313f",
+        "internal/catalog/capacity_test.go": "62afcf511f1d09e88d48dcf37349b8ea33afb437046116fe5e39aa6045968883",
+        "internal/catalog/compact.go": "e3d0938aa12314a3186b4655d98a38734cebbd9bb4a52724132fc60aea1d05ed",
+        "internal/catalog/compact_test.go": "c5b204a3f980f8a93b2188545b3abe2303546aed4cd53e0fb8a203f9c021a265",
+        "internal/catalog/datasets.go": "d2771398f3bbf44012011112015a05b5ab5ea9c64b96d1b10492fbe4f8f9b3c6",
+        "internal/catalog/evaluation.go": "88ead58ea00e4bd198228bb26aeae2cf6255ac603881a5ba192a7492b9a8cb56",
+        "internal/catalog/evaluation_preparation.go": "8837bd50c4c400db8b4d8eef7c43af9b20cde20b5ead029b5f5e248d05ea2e9f",
+        "internal/catalog/evaluation_preparation_test.go": "2bfa6f421895ee3dd020eac492b58b0ebf341cb07b399d07875f008fbc7763ac",
+        "internal/catalog/evaluation_store.go": "ef4ddf5a9f61efbf4f802a6d42767f3ea7ea5a1ce049e31644c1fa6fe68f16aa",
+        "internal/catalog/evaluation_store_test.go": "fadc1766c1807d820619540c64e436eb8c311d95f2316d3d165a83cb66bca297",
+        "internal/catalog/evaluation_test.go": "72ea7ffecd88c1118003652aba31abe11e1abb5958085f17f7c83f56aff54d9a",
+        "internal/catalog/gate.go": "3ee7b7a8b4bc95252e2302147ded148e161d4de46d23f4d3a8bffd579af0d7ec",
+        "internal/catalog/preflight.go": "2cbfe76965a626776a5149be9a90e0b65762d182c0d29fce4b984fb7f051dfe5",
+        "internal/catalog/replay.go": "d197e864c9f526ff94bf4a77590cbcffeaa30e7159f436ce76ac97d0ba1c690a",
+        "internal/catalog/replay_test.go": "f00c22b47bf7afbcf0333db96a28033ebbf52b3a43f0ce405f63d1064f500741",
+        "internal/catalog/run_binding_test.go": "7811808dcbb1ff244f06b42dd36dc95b486cfc90dc01a0ae8a199f6f58cd7d5b",
+        "internal/catalog/runs.go": "1000b4d0464fc51a43ba96a0bc81980a37e2818a40010e567aa92f0679ef789e",
+        "internal/catalog/server.go": "6d5295ef432490eb60c084d3b72e9ae8302e106fcd3f0a90e4662ea32c01c70d",
+        "internal/catalog/server_test.go": "c8e6906d9b92cac8c15e952ec6a329ff9818fb1fee01682a35799c745c2cd03f",
+        "internal/catalog/snapshot.go": "4cfb5e010bd933ae041ea04a1d8bb8577650274628ff61069dde974aaf7d28ea",
+        "internal/catalog/snapshot_test.go": "f01474209a1026489cb1fcba735471674807dd1f80a8d8ee6b09e71cb3ba40a8",
+        "internal/config/config.go": "927fd0fb4db8ac7d78836ed2986db3ef26029b1f72f13ef65a17fb1df31e9f86",
+        "internal/contracts/contracts.go": "7cc2bed330b73201a10224b10ede1067591a893b434e036b553919e56727bd12",
+        "internal/contracts/contracts_test.go": "da7ed096a3977c07da5ce554466f6ce56000c93ac36945fa36b0c91e0da8dd77",
+        "internal/jobapi/analysis_version.go": "122b7dfe2ec9e596d35ccbe7af971b920eeaf413c2039339cd6a6611d1582b5c",
+        "internal/jobapi/analysis_version_test.go": "29f5f4b758062e4118f6623abbb85644382a3b8f4174907081976e61bded351f",
+        "internal/jobapi/capacity.go": "afb98a1e0f5cdcd28f65f6d85efe2f8b07992fce606f3d3bf231515588a303ea",
+        "internal/jobapi/capacity_test.go": "0bf804fc791da2855d36d1396030fa6f2aa7bd2a63fde588d986380ee4d242ed",
+        "internal/jobapi/compact.go": "5506a9d8548f7ee412d251c4302f682da4763c3aa307c6ba2a61b4db731167d7",
+        "internal/jobapi/compact_docker.go": "a2075551441ceb88707c3841d1582f03e685cab0aa3287686fa3d3480978d399",
+        "internal/jobapi/compact_errors.go": "950ef3fe727ef98ae77129e41af0dad98ee75539d81271f7948877c5640ea927",
+        "internal/jobapi/compact_test.go": "57b8ed159d1a2bda00f9eb31d4fc57f308ea2ba87208bf0edd51197d2679984a",
+        "internal/jobapi/dual.go": "4cfa843aba7fc17dc6527ca3a80bfcc1c353b6fcf9605c23cb25351e48fa4561",
+        "internal/jobapi/dual_test.go": "e256400155041436c5f2370cf26962647db211bc2697f082b23b4e3535caeaba",
+        "internal/jobapi/multi.go": "49b95a48d00e9111cceb3fba8014d4b66605921c6a33dd32295a64554bfaa2bb",
+        "internal/jobapi/multi_test.go": "f3e687e5d1a0f08e5e39f1707cf748b6724160408aecdb99589cd825d3644d89",
+        "internal/jobapi/packet.go": "c038669d4141cf7415d20ed5b3cd058dc1a415cf9252658e3e985a393e2b2388",
+        "internal/jobapi/packet_test.go": "0d621b009fd5fbc11dcddfb07c0619702ffc3930ea2f361e2090eca4e14b7dd8",
+        "internal/jobapi/preparation_execution.go": "e735ef69ffe78b8ea81810cc404477926df14fb62638c73ee243366bfd8b1bef",
+        "internal/jobapi/preparation_execution_test.go": "5bb09828f4537121162a1517c40467424af9d62efe1e1f0a3431f8650e5f586d",
+        "internal/jobapi/publication_snapshot.go": "7e5269688bbcaf05d8818f7ea378980754536c62694da593c69666b9f3b15573",
+        "internal/jobapi/replay.go": "8f9c6da058f4bd251c5b2f33bb1e038cdd28a1ed98ffc602e30772de7aaadd29",
+        "internal/jobapi/replay_original.go": "436c2783eef0e0fadcc279e4968e720a44fbd448a62d29318c7c8ba5871a67ae",
+        "internal/jobapi/replay_projection.go": "66e4c232526d7593924ff9950698f0188743633303dc54cc6d97ab85c2fb8898",
+        "internal/jobapi/replay_query.go": "67d598ba08bf0a5ecdb65c70e868dfa581b4567c76a55c7617725583fff64402",
+        "internal/jobapi/replay_spool.go": "10a1d331afac52d0beb46e73310903dc15e095f4a4a7ade8d20c91c26e09aef0",
+        "internal/jobapi/replay_spool_test.go": "d66ef66cbc33cd32e1911fe583b91bc035879d358c5a5311b571b7ed6ff0955a",
+        "internal/jobapi/replay_test.go": "197f4a94b412b3d97cdc4d8c0d0547de4965084c26cf4b917948692aaac139b8",
+        "internal/jobapi/replay_validate.go": "3d3d06614adc4a39ecb0ef4e795de5a22cc347f75dfcb48e967a6c1198245c6b",
+        "internal/jobapi/server.go": "cc52d0cebf707f87bd4e6f51aced99d2eecc18badb2388858c8f2b5e30d3e06b",
+        "internal/jobapi/server_test.go": "e5b275e4a339da9da0661df88f4c7bc8e7e8fcbcb4e360e97dffcb693db137e3",
+        "internal/jobs/capacity.go": "f01db7278e10fa5942310aa38b505e49fba5d23aa1d278a036120bff8c3545cc",
+        "internal/jobs/compact.go": "559f9582afab8cc78cc75172a53ddabc134c74f7353033503358a3a4d69b136b",
+        "internal/jobs/history.go": "f8582d8b99a5766e567f80f93afa2aec08cd0ab2e204f019a885a91ff8c5ef92",
+        "internal/jobs/integration/capacity_test.go": "6045771dc55e5649bfb4b52998006948d1dae7527909d25a46f76b60e43fe4d8",
+        "internal/jobs/integration/cmd/cpagx-v3/main.go": "3d1a0959237616a0b6ff21f3ccdf99816940e2d1e1620267a0ba2951b8724dcc",
+        "internal/jobs/integration/cmd/m4-job-api/main.go": "83342ef7ffd18a7e05555a0ddddae94e14f8abac5563eacdf6d75c6b2bf40a8b",
+        "internal/jobs/integration/cmd/m4-recovery/main.go": "b597169b8cfcccc5c13d555530a007ba16b3871cf064c763c5cbfd4b88a5664f",
+        "internal/jobs/integration/compact_failure_test.go": "91c176b1565b5abe5a8932dc437b847f54dbe779e0a00d8260672061707ed085",
+        "internal/jobs/integration/compact_lease_test.go": "7589a03702805efe70a3a9e8fa251dfde184d50fc48be11f296a1cdc704e151f",
+        "internal/jobs/integration/go.mod": "0ab1c3d06839b53cad73784b8cf305b5de8f21cec5baec0fdf329961fa3076f6",
+        "internal/jobs/integration/go.sum": "e760e2ce978e4c6048744e11502e5b00cca02c89d0585309d173ea759c89813e",
+        "internal/jobs/integration/history_test.go": "9675935acdeec2ebac7c2a1633cc3b5c1812a34907f51859e674a03e725e21a6",
+        "internal/jobs/integration/migration007_test.go": "6474840cceeca841d0191fab4fb7d8cca5b6c01310bae61b8016343fd0d3e481",
+        "internal/jobs/integration/migration008_test.go": "5d93799beba3838330fdea6cba44ace87641cfb1fbf22a9d717b64061ad2d5ce",
+        "internal/jobs/integration/postgres_test.go": "a7551d8b25fbabf93d0bb50d8aa3a16d4c791fcab2901ce0d4de7997a18d0bff",
+        "internal/jobs/integration/recovery_test.go": "ff8addbb0dc406aa150c0a94360b6b278a2a138fe86813dd50f7d8961d1ba7a8",
+        "internal/jobs/jobs.go": "c1b8d5a6037932624d796e4204a13653420a236a623ad38f2216d4f97f623874",
+        "internal/jobs/jobs_test.go": "dcca85d1a5e7457d48be709d9571a8fdea8a114e25f884e466e3be4a922d4713",
+        "internal/jobs/recovery.go": "c9e187f9d2ba2ea5d6558d653a062e4ca03fad17063d866e5b5431e9c463b6fe",
+        "internal/services/cache_service.go": "51bedf32b2e159937a417386ab51914d75332d14a71b26c1ca0fe844602fc698",
+        "internal/services/message_queue.go": "f5cb1ed7f3d725a677ef04fe78e41f9ed18756b4c132f51a723655e9c5f11aa5",
+        "internal/services/neo4j_service.go": "a79e2be7349bf697c34b9799dc31c8b830023980febcce92be505f2c51c8af58",
+        "schemas/Asset.schema.json": "1fcd14211a5ecb186746308d3ea5d7d0dc94d03d6b4460bb312b32b0eef4d5e6",
+        "schemas/Claim.schema.json": "99bf0d73463e4f2129be8ac0927b157b1b7f2f3da993528a6185e928d74e7271",
+        "schemas/CompactStoreRunManifest.schema.json": "eca17890b8494b9e6b29a7d4f1c5b10f58afe7ad82a70b1d108b4be1d1590fa6",
+        "schemas/DatasetManifest.schema.json": "e0a3b5f96ecc2c533313149646c44c5604e18e8635fd1c994e580f81b13f6ce4",
+        "schemas/DerivedEvent.schema.json": "37cc762e26d56002230c6907741869739e08da63ece5d147b002936bc3399e29",
+        "schemas/DualCompactProfile.schema.json": "d0a822f4d502321748e6967976ed7395bdf69f51b425ac1c6e56a7603c183689",
+        "schemas/DualSharedProfile.schema.json": "657ead64d0594b2caeb9d463ca3b0d709af9dcf42395ddd6d99f0cd860894be3",
+        "schemas/DualSourceProfile.schema.json": "2062b71e3aad4e9fc722658b2991aaeafa896dd0ccc6a594312a9a6cfa4ae236",
+        "schemas/DualSpoolProfile.schema.json": "dd28544f14ba437378bf967f8513c4bc656db42e8d61c15bcc1bc7f07ae61710",
+        "schemas/EvaluationAnnotations.schema.json": "3c291f790d478959ee94206ef8056d1fd0a6f0c69f56d73b1dc542aa1f3435ad",
+        "schemas/EvaluationCSVRecordLocator.schema.json": "3336c3b5a48e3ca803574e0d7c09810730a16099e37ca4d614bf1175ea1192e7",
+        "schemas/EvaluationLocatedReference.schema.json": "fc60768eca060af754df5cdd0bfd62a4f701b20728d4eda3e7dea3016f6b0cd1",
+        "schemas/EvaluationPredictions.schema.json": "967387278d68f3f6e8640604394febe281abfa35261e150c698bfc2750467374",
+        "schemas/EvaluationRecord.schema.json": "339be51a1a9553650beb768df758bda91e4ef63d603c71c5b08d358f3d931ba9",
+        "schemas/EvaluationRegistration.schema.json": "96d94e9c6d03375c5cb106b55dd64d7cdb8d3c7a03fd04889a9477a8eaea00c7",
+        "schemas/EvaluationSplit.schema.json": "b38cb4f46a81362e1471a37e133d4922298609c450966d26b75775ec17a6dffe",
+        "schemas/GraphArtifact.schema.json": "6640c4226b22cfd7c9c1680a0abab60736fdd7489048cefeaa0eb15bd4c386a7",
+        "schemas/NetworkEvent.schema.json": "55033cddafdec97e4d12a52c70878c1bae3d2abefc47fa6a08f601ab407e22cd",
+        "schemas/PacketObservationArtifact.schema.json": "3756039ca20b83b5160782278dd72ac852fa04fbff98f9ddd5456da7dc002187",
+        "schemas/ProcessObservation.schema.json": "b6b92cdfff80418261f6c39e3a85eb63652811f51b9750933bc902e47d88b040",
+        "schemas/ReplayClaim.schema.json": "d53e9a0d57d9f53813d3dbe7cae829b929355c13efd1adb80ea65322e774db5b",
+        "schemas/ReplayCompactProfile.schema.json": "ccee4d35151e597275b67054b498df7eb5916b1b1a7c0b050d08b77397394c4c",
+        "schemas/ReplayDerivedEvent.schema.json": "4ba784a3d345ce4ffc7f8e17c3276a68b066ddbde0ccaa81466f78fe74dbb9c3",
+        "schemas/ReplayGraphArtifact.schema.json": "2189cc635ff2f0b7648901e800d5a351c16eff37b1c5656fbba9bcfffc342205",
+        "schemas/ReplayHistorySpoolManifest.schema.json": "2f4ca72bf3abd9e5c55fc7a24abd9fab3aaeb8743451a08c5a935dbd31007a51",
+        "schemas/ReplayNetworkEvent.schema.json": "9823c5369eee8f406113aeee464b8ec97677deccf25b96964f06d1a467dac191",
+        "schemas/ReplayProcessObservation.schema.json": "b7157588bfde39b9ba3657fc7fe211d62a8a6c945e55e1ad87c263b79b087b7a",
+        "schemas/ReplayProfile.schema.json": "a48d20f49348e90b6e27c1b656a9628d719322c6188ed57957690f129e843a30",
+        "schemas/ReplayRevision.schema.json": "4abbf1854b2df1e5c3d26c57db6acf60bb532154191b8625c02d73796e3e326d",
+        "schemas/ReplayRunManifest.schema.json": "2317b4607e0105fdd2e27e875fac88f60be2b6713e4fe72085657be074972ba2",
+        "schemas/ReplaySharedProfile.schema.json": "fae69e51fe97ccbcee531752fa4045d5e253096963a2c19aec0044ba1c7132db",
+        "schemas/ReplaySourceRef.schema.json": "04e13070c95898ac4760b5c3032f76a146efcdea108d6735baa87db306b08009",
+        "schemas/ReplaySpoolProfile.schema.json": "07328cdf2627a19f0a016414ba3dd248ac96cbeb3dfcfafa6ac6dffcae9e58c8",
+        "schemas/ReplaySpoolRunManifest.schema.json": "af28298552c22db3cfdd441f79df03ce26c13f8ff34091bdafe2d70dc12a3136",
+        "schemas/RunManifest.schema.json": "05ce3fac8c6809dd2841eb066c8c05f705fe08d3c64bc76ff489052a656f908c",
+        "schemas/SharedStoreRunManifest.schema.json": "72307ac23485deab0de8543ffd02c76f750b658608148dfa91e826018e335aac",
+        "schemas/SingleSourceRunManifest.schema.json": "93afaaaaa9a9e5f7047638adec21ea45d395fad8ae9d0a2fcf8af8e0dc1bb484",
+        "schemas/SourceReference.json": "95dfbff75670eb82859efb70a5109e47094475bfea57f033d3de73f790155aee",
+        "scripts/backup/bundle.py": "a45ad60819d5394bb0d4a7dc82db7fcec98748176b0d00210ab5f7e986040b8a",
+        "scripts/backup/dag6.py": "cb3c07708ec20b50f8fde3dc1acf0b7b2a31e27a5be65cc0651280b0611e85ab",
+        "scripts/backup/dag6_evaluation.py": "79576450895f7a81b67abb06b5ec5598715e44b285310c606aa4da86ec432d9c",
+        "scripts/backup/terminal_shared.py": "761067aee14b8628bae5a1fdd1c70ef1586924b9fa1730debda98ccb10cd123a",
+        "scripts/validation/dual_source_fixtures.py": "664fa26bc3a05be80deed182ad87fdb972e9609e42562b9452c8016af5c18eef",
+        "scripts/validation/round16_acceptance.py": "764b233f6b2b331c5f807f44ca51a29bb26b038664f03056a1e1a5cd1ba92809",
+        "scripts/validation/round16_supplement.py": "8284838f9c2183ee75b04b8edb439043898d426e37e6e6b9287ccc038c051cdf",
+        "scripts/validation/round17_profile.py": "9ffa8a56ee3a190404b6bca2619d280fb622d48c19d99959e63c96726f236d67",
+        "scripts/validation/round18_profile.py": "c09b8ea579d738ac36ba76c69a6339f31b3e4759d178e051a93922a52c92075c",
+        "scripts/validation/round19_core_oracle.py": "cd7430bea60d2a57cf788c6c8ec3f7d8762ec0ff630f20d6612e797f6a88ee3a",
+        "scripts/validation/round19_core_small.py": "c7409c4af780c3d4441f08f6f395d74ed10ed10409c9d48e0f90bd6ae8576d7f",
+        "scripts/validation/round19_formal_service_acceptance.py": "dc826d2540d286aeb648dbd777d4362f8b9cbe81df02d012fa9e74f38962fa5c",
+        "scripts/validation/round19_stability_acceptance.py": "7ffe48c7a749b1d6e6f271a7e32dddee751e08014505ce08a9dc6b2ff600fc6d",
+        "services/analysis/src/cpag_core/__init__.py": "98ed3f31d383323f90fcc1c691b556fc5f34ff70c202d8b63b75b5717500d26c",
+        "services/analysis/src/cpag_core/__main__.py": "8e3b426001f4b321319b50c127c4e54ff7a83c64551d699e8f0c5a9256ad634a",
+        "services/analysis/src/cpag_core/capacity.py": "8ef91e883e645735b6e5ef7dfccbe1fca0af36b794dedb6deb3ffc80c06f0571",
+        "services/analysis/src/cpag_core/compact_projection.py": "3af7419a3433e7fec5150ad8f474365588b423a8495787a777edadbac1ae3163",
+        "services/analysis/src/cpag_core/compact_replay.py": "598dd728c68684e668a6ae180618be5f3d88ba1cb8b8b7b745eee39b5480cd97",
+        "services/analysis/src/cpag_core/contracts.py": "611c22510c2824b8ede5b24c48279b50e98352ec450fb5ba5fc9c48320110484",
+        "services/analysis/src/cpag_core/dual_source.py": "62f0ee709eaec8edd2ca1722e8db0f98647bcf5e7809f4139f356045df2ed7bc",
+        "services/analysis/src/cpag_core/dual_source_export.py": "c192e6a8a895da9e3c670658d8ed08f5cb59642abcbc1d4e180e1f15d9a6abc9",
+        "services/analysis/src/cpag_core/dual_source_rules.py": "cd6c21952a6532c8bf918f56bb7403b95a780bf4d3895520e278c77a0ba59d62",
+        "services/analysis/src/cpag_core/evaluation.py": "db899edaba54740af4613583314b6f0e39ac61a2d3389249964a3d0c4fe3e508",
+        "services/analysis/src/cpag_core/evaluation_analysis.py": "fe099148a1cc0b71e317c292b5c6af9bcd8c0ff83b62df525c22e439cc5aad13",
+        "services/analysis/src/cpag_core/evaluation_artifacts.py": "15be834eb74ca39e851461cc21999aa664bac84676ed4c77553746310a6232d7",
+        "services/analysis/src/cpag_core/evaluation_bundle.py": "eb2ef769536676efa0acf8ce84748c77c87ec3873ba48e6192fbc6e6d8aba681",
+        "services/analysis/src/cpag_core/evaluation_context.py": "82774d5bcbcb5fe800e7cce025d165bb1e1f3547e5903adba9271e8c9c37bade",
+        "services/analysis/src/cpag_core/evaluation_details.py": "2eef9735f594bb8e1e695f8ab4a21da0c1a7b0d264e5aef7f1b3abe6293c5ca7",
+        "services/analysis/src/cpag_core/evaluation_indexed.py": "c7a9d74e3036f5c908d2830b53014648e2c7049983ae78217bfdee38c59e260f",
+        "services/analysis/src/cpag_core/evaluation_preparation_guard.py": "6bfa1d04e4701cd272d2fe22bd6240bfbb4be34bcc6a088bd33458537e5908bc",
+        "services/analysis/src/cpag_core/evaluation_shared.py": "6a5226b2df4365de53b8093148ac79f677e0094be1e39e32385b6f9e1cef6aad",
+        "services/analysis/src/cpag_core/evidence.py": "befcebb76c29daa2d2add18351c9b5ff3a7194d955d21d1776cd1810bb976beb",
+        "services/analysis/src/cpag_core/evidence_web.py": "0c4ffa0eb632e5190af117fba43e70cb573dae1fde659bd229f7215ec7dca0d7",
+        "services/analysis/src/cpag_core/intake.py": "b336d0e22bd6985da34381460543ac464030efbca36760c069147ba7cce2f171",
+        "services/analysis/src/cpag_core/measurement.py": "672586cb00d50c84746807bc391742c10d219d0bc092459645104dbeb6ba9aa0",
+        "services/analysis/src/cpag_core/measurement_v2.py": "f40c0c13950eb030bbe2a7964d81f8abab77d0f38ed042b61a2731af04ddc152",
+        "services/analysis/src/cpag_core/measurement_v3.py": "70d3b7bf65d83f436895dae6c347a91af5315bd2a997ac957b721cf7a925b158",
+        "services/analysis/src/cpag_core/packet_job.py": "49341950a3683d57702d332cab7ea8ae78a8d2c7b69449bd4c1b761199b1da9f",
+        "services/analysis/src/cpag_core/packet_pipeline.py": "664024081a8d167be79e61c0318b03c105ba6a7046ccbdcc16f006e359a5fab1",
+        "services/analysis/src/cpag_core/parsers/__init__.py": "83e31dfa6f7c1611a1ef2b575be174cf7c284082f8e3b93880f2b6fa6264c638",
+        "services/analysis/src/cpag_core/parsers/packet_envelope.py": "f00edc2537e674a50171ce0ee912b1eafacc9a832019bc0bc285bb1371c9469b",
+        "services/analysis/src/cpag_core/parsers/packet_protocol.py": "319215e3e1f0cd223e82f1db1de0bd8b7c42e1e25013689641c8d363e7f3d2b2",
+        "services/analysis/src/cpag_core/pipeline.py": "65130be0bb891c58d1bd646a8a7bf236b7a48e54d60b9fab6b69fce664f59fe0",
+        "services/analysis/src/cpag_core/reference_inventory.py": "5c868de75249c4fb4397975c64475df2cda8d0edcf503cb503c4ca86a5c9a12b",
+        "services/analysis/src/cpag_core/replay.py": "40ab8fd97a8a74b71e147ec20860bb7649e24ab57170f5cde5e93dd3d9ade6ef",
+        "services/analysis/src/cpag_core/replay_core.py": "91c07886404f059854a1081697bb26e3880afe66c20b47996a1937f95bbfce2b",
+        "services/analysis/src/cpag_core/replay_export.py": "8555e343cd6f56d79211572bab8cf58c079f86e11f830a59fef3f995bf4e1e5c",
+        "services/analysis/src/cpag_core/replay_history.py": "f5a195e6512dde80fa867043743e9a8f1de8b75d28a4711dd39d310e44b9f914",
+        "services/analysis/src/cpag_core/replay_inputs.py": "cdc108ead8761c41cb0dc685bd7220c513f156eb1494597fe71f46602af0adc1",
+        "services/analysis/src/cpag_core/replay_inputs_compact.py": "e0bc7a0ed11a56e9f1a02ddf82267e61b4d6cb4c1b3baba03c75f5443cc8eee5",
+        "services/analysis/src/cpag_core/replay_spool_cli.py": "dcb81d2d239715d0229e2927f1f414b4fedeb8460ea94185e1be1696f6eb6aff",
+        "services/analysis/src/cpag_core/replay_spool_export.py": "371141da8ec0431209768dff4b47be03723dbf2fe317f31fd31579d4b9afdc8c",
+        "services/analysis/src/cpag_core/shared_artifact_store.py": "cf051ee6bc323d936131fbf5901014edba619556a7e70d3f941f311a90cdafff",
+        "services/analysis/src/cpag_core/shared_artifact_store_compact.py": "2db4b7a132ff65d5593a3fc7365fde5986fcb6043708424c4c8bfa678228c877",
+        "services/analysis/src/cpag_core/shared_artifact_store_compressed.py": "625365c969e9631368ece22ebfea28918e29fa1c15ca9b3e252873e93c0576f2",
+        "services/analysis/src/cpag_core/shared_cli.py": "92c6a9d8159504002ac248b0886a7fb84f0b8441a701d7ae33375e048525c620",
+        "services/analysis/src/cpag_core/shared_export.py": "15e68729933f8222864393cdb415142f8a1367225cb838f7aaaa289819b87648",
+        "services/analysis/src/cpag_core/shared_query_replay.py": "11febf1877d05b2fe074b54e5c2e745ed009d2b5e75245a4fcd39edd6da6272b",
+        "services/analysis/src/cpag_core/shared_service.py": "a0de05133bd930d1b3a7cafca8185444b4725c8106c1cb11962f5be276ad49b8",
+        "services/analysis/src/cpag_core/single_source_export.py": "cb4d54759b23b88adb9bec553d791eb03bb9c4f5b74a086edd4422475e98034a",
+        "services/analysis/src/cpag_core/source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29",
+        "services/worker/cpag_worker/__init__.py": "c8f14996e31309b1a4c2d548deffda8c82375aee0eacab0b5458db9518c15b01",
+        "services/worker/cpag_worker/__main__.py": "037140071793b73eb7bd85b517c6f3a7eb8d2ce72a3f5dd6f78828b98634d4d4",
+        "services/worker/cpag_worker/capacity_rebuild.py": "f6b32ae2f8ec050372001dc975a45ab82ed843eebf207794eb6c48fe7f8dcd7f",
+        "services/worker/cpag_worker/container_entry.py": "a0165a254cd7da673cae897df31bfe445eceb19d43dfb537e894576697edfc16",
+        "services/worker/cpag_worker/guardian.py": "d3e8a1fc9895c9420ebe4f2099bfadbccae6af66ba91659070fa2f73583ba43f",
+        "services/worker/cpag_worker/isolated.py": "04b6093bf513dc53d6583a0a08f59be0742e7f72a6e59a34cefd831e6aae61df",
+        "services/worker/cpag_worker/resources.py": "3d3582221ebac6cdd452d1a32ea61597f8bcd6e830e5c4ec2fe409d213454d4f",
+        "services/worker/cpag_worker/service.py": "b9146fd40d985a6f25dfc723b6a541e3ebe6bfbf42c72865ec09ccc72e0dfde5",
+        "services/worker/cpag_worker/worker.py": "f6408bf6e9129d9dd5791a06a5969c267d9b1825b3c11c6da18b46e4ee0c4e64",
+        "webui/out/404.html": "158e8a4c3eadfb53f994411f5c018650afb584415cb2e222303f9f6dcd17cd77",
+        "webui/out/404/index.html": "158e8a4c3eadfb53f994411f5c018650afb584415cb2e222303f9f6dcd17cd77",
+        "webui/out/_next/static/TvxbDpQmWxflJ1-kxRBgU/_buildManifest.js": "3595dec1100d4e3ed8bb10d5b0ec74d79a282df0b7ff3ffa9c5930f85da8d7d2",
+        "webui/out/_next/static/TvxbDpQmWxflJ1-kxRBgU/_ssgManifest.js": "6f5b4aa00d2f8d6aed9935b471806bf7acef464d0c1d390260e5fe27f800c67e",
+        "webui/out/_next/static/chunks/54.7066c8a1b349f246.js": "d6aecdf3254ba665f5beef8228aeeb5866ec6c832c7800a4f9f0d2e3dd37cf22",
+        "webui/out/_next/static/chunks/617-0971da99a0791915.js": "0cbb7922cc6bdc8d2039f7c67cb8403238e4dbf733d1e1cadf911de8d009eec7",
+        "webui/out/_next/static/chunks/664-d254d21a6fe56bff.js": "8a3afc87f1ee1192a4f4c34398fefda8f0f7382749799486bdc25909bb633020",
+        "webui/out/_next/static/chunks/753-5b39100baf716fcf.js": "a9f82cb42b506703292b0c1a2e93d6a5406ab76fa95d58d4c39e0da59feaa5d7",
+        "webui/out/_next/static/chunks/90912e1b-4b9e162ba12de102.js": "010fa3aa6a52b0fa34884b9d389463307611e7a321404328d36b0163e03a411b",
+        "webui/out/_next/static/chunks/framework-64ad27b21261a9ce.js": "4250d53f0bc756ece2ddd690a008add1d7fdc887528c671f4dfe8d916d7787b7",
+        "webui/out/_next/static/chunks/main-90ae43f61599f565.js": "2ae6f5d5aeac4419928e05e631edabfe7f4246db825fef1a912e435df418663b",
+        "webui/out/_next/static/chunks/pages/_app-e22a8941863cf478.js": "3958258aac9b1b3b23034e9a746489077ccfc59e4b06e5a644fab2db15094d61",
+        "webui/out/_next/static/chunks/pages/_error-7a92967bea80186d.js": "7cfc86aa0707acc8128068bbd5b8b2dcac41a306679b51c5c67cd02c689b9538",
+        "webui/out/_next/static/chunks/pages/dual-source-a23feb355162e3f6.js": "03d706eb8b32cd490ba48623b24f46985492b338ca2f94609a43e8470203ac15",
+        "webui/out/_next/static/chunks/pages/graph-d2cbab69eb1611cf.js": "3d11fbf5604b9c52f1f0483edc4d9ca6e8e67b555ef65a19e70644938052022d",
+        "webui/out/_next/static/chunks/pages/index-4052e4d97b418451.js": "c1132c1d4b7a37051dd7be0e6ace7e17ea3fc1f65595e1a9643056eed983c123",
+        "webui/out/_next/static/chunks/pages/replay-a47a374cd8d018ff.js": "a3fa60906a9ecb47e8f496cfe76163a32443b3634076f6452536b3b2a9b4f9ef",
+        "webui/out/_next/static/chunks/pages/workspace-3ef35e663bc9c0e8.js": "6b00605545148374c8ec06705e9d03ccdf69f46bfcc5f4f8722db3ba9f3b8d09",
+        "webui/out/_next/static/chunks/polyfills-42372ed130431b0a.js": "0973c1d64c88adc8e3c950410cb58b288f72118d5965b78049438deb8f2f9683",
+        "webui/out/_next/static/chunks/webpack-31050c826d9a45f6.js": "0ce327dd919d63edb83387b4656181ddd4c319df0f75d8c9f20bfabb40863f3f",
+        "webui/out/_next/static/css/f5c5e24798fdc5e4.css": "4ef8b3856e92169e790d5034864a1a2c03ce33411988b5ea3a87945685427c95",
+        "webui/out/dual-source/index.html": "96eca3459251463d1fa0a45779929f2fae17362970c4a58c9ab634233a8d1ad7",
+        "webui/out/graph/index.html": "a7766c222d484e0ce935e57fed7efd8d42380723213a346e6bf39f9579416e73",
+        "webui/out/index.html": "a7186e6c7503dd1aef105fa81dcffe9bbca20cfa47a61ae1eba73721d606e9b7",
+        "webui/out/replay/index.html": "3fbb75dab7232b4c3dbcb9b5c477127c9eba59157e6666a777c765109dfb73ba",
+        "webui/out/workspace/index.html": "3a552882a93a80eac706ef1137ef2accccddd41f2bf3dcc6230971e61859939d"
+      }
+    }
+  },
+  "runtime_files_unchanged_after_measurement": true,
+  "raw_evidence_root": "/private/tmp/cpag-r19-fixed-stability-1-20261102",
+  "controlled_archive_root": "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/outputs/cpag-r19-fixed-stability-20261102",
+  "formal_failures": [],
+  "formal_invalid_samples": [],
+  "measurement_limits": [
+    "tmp_bytes is an end-of-compute observation, not a sampled temporary-space peak; actual 4GiB tmpfs quota checked",
+    "RSS is waited process high-water; cgroup memory peak includes container charges; CPU seconds are cumulative not quota",
+    "nested phase samples must not be summed; full phase samples retained in private report",
+    "OS caches not cleared; every task has fresh process, directory, database and no reused verification permit",
+    "fixed S100 fixture only; not arbitrary same-count input capacity guarantee"
+  ],
+  "maximums": {
+    "core_seconds": 1497.3847653497446,
+    "service_seconds": 1500.2553098201752,
+    "overhead_seconds": 2.870544470430559,
+    "single_query_seconds": 0.4067342281341553
+  },
+  "same_mode_business_roots_equal": {
+    "offline": true,
+    "replay": true
+  },
+  "controlled_archive_suite": "../outputs/cpag-r19-fixed-stability-20261102/formal-suite",
+  "closure_decision": "All local adjusted R19 software gates passed; closure conditional on exact final candidate full CI, linked in delivery reply without another documentation-only CI cycle."
+}

@@ -1,0 +1,7 @@
+{
+  "tested_final_image_id": "sha256:6a44c15c25f6c9e9040053735b190fa07e7d9b126b246ac80ef1095954979b55",
+  "isolated_future_test_tag": "cpag-isolated:r18-acceptance",
+  "shared_test_tag_used_during_local_runs": "cpag-isolated:round5",
+  "pre_R18_shared_tag_id": "not independently captured; no guess-based restoration performed",
+  "scope": "Only a new unique test alias was added; no source or algorithm change"
+}

@@ -1,0 +1,14 @@
+{
+  "scope": "optional standard-graph-events-1 history fields; old DAG6 default retained",
+  "tests": {
+    "count": 5,
+    "configurations": 14,
+    "wall_seconds": 11.592,
+    "status": "PASS"
+  },
+  "files_sha256": {
+    "services/analysis/src/cpag_core/compact_replay.py": "edbdc44a581a98751efac8fbae9cb3186945a15df59f2d3cdb76fe15abe8c0c9",
+    "schemas/ReplayCompactProfile.schema.json": "dad172fb18297e2d82d16fb962d70dc64a22f6884baa3b2ae82a54c9ce149339",
+    "tests/replay/test_compact_semantic_regression.py": "ca059feee154c79085b9a267cb54f6fd29eb713294e04caaac7f7a7fac9cb58f"
+  }
+}

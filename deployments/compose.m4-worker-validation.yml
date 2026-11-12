@@ -1,0 +1,18 @@
+# Disposable persisted test database for restart checks; never a default deployment.
+services:
+  postgres:
+    image: mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
+    environment:
+      POSTGRES_DB: m4_validation
+      POSTGRES_PASSWORD: m4-disposable-only
+    ports:
+      - '127.0.0.1:${CPAG_M4_PG_PORT:-55440}:5432'
+    volumes:
+      - validation_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d m4_validation']
+      interval: 1s
+      timeout: 3s
+      retries: 30
+volumes:
+  validation_data:

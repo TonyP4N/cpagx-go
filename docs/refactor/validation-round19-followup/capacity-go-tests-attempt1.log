@@ -1,0 +1,27 @@
+# github.com/TonyP4N/cpagx-go/internal/jobs
+internal/jobs/jobs_test.go:6:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobs [setup failed]
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/capacity.go:4:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+internal/jobapi/dual.go:25:2: open /Users/nbtechx-pyf/Library/Caches/go-build/49/4933c78496b9827e21ddc6bae470a06dd331ecc7483dec37b2e19c5ced5b0935-d: operation not permitted
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+/usr/local/go/src/crypto/x509/root_darwin.go:8:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/jobapi
+/usr/local/go/src/net/interface_bsd.go:10:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+FAIL	github.com/TonyP4N/cpagx-go/internal/jobapi [setup failed]
+# github.com/TonyP4N/cpagx-go/internal/catalog
+internal/jobapi/capacity.go:4:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/catalog
+internal/jobapi/dual.go:25:2: open /Users/nbtechx-pyf/Library/Caches/go-build/49/4933c78496b9827e21ddc6bae470a06dd331ecc7483dec37b2e19c5ced5b0935-d: operation not permitted
+# github.com/TonyP4N/cpagx-go/internal/catalog
+/usr/local/go/src/crypto/x509/root_darwin.go:8:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/catalog
+/usr/local/go/src/net/interface_bsd.go:10:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/catalog
+internal/catalog/replay.go:6:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+# github.com/TonyP4N/cpagx-go/internal/catalog
+internal/catalog/evaluation.go:14:2: github.com/bytedance/sonic@v1.13.3: Get "https://proxy.golang.org/github.com/bytedance/sonic/@v/v1.13.3.mod": dial tcp: lookup proxy.golang.org: no such host
+FAIL	github.com/TonyP4N/cpagx-go/internal/catalog [setup failed]
+?   	github.com/TonyP4N/cpagx-go/internal/capacity	[no test files]
+FAIL

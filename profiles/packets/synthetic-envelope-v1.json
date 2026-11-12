@@ -1,0 +1,1 @@
+{"profile_version":"1.0.0","synthetic":true,"adapter":"cpag_core.parsers.packet_envelope","container_subset":["pcap-2.4-ethernet","pcapng-1.0-shb-idb-epb-no-options"],"protocol_semantics":"unsupported","max_bytes":16777216,"max_frames":10000,"max_frame_bytes":262144}

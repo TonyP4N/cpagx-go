@@ -1,0 +1,56 @@
+test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) ...
+  test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='corrupt') ... ERROR
+  test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='foreign') ... ERROR
+  test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='missing') ... ERROR
+
+======================================================================
+ERROR: test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='corrupt')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/worker/test_isolated_recovery.py", line 45, in test_bad_records_do_not_block_good
+    outcomes=self.worker.recover()
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/worker/cpag_worker/isolated.py", line 118, in recover
+    record=json.loads(path.read_text())
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/decoder.py", line 337, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.11/lib/python3.11/json/decoder.py", line 353, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+
+======================================================================
+ERROR: test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='foreign')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/worker/test_isolated_recovery.py", line 45, in test_bad_records_do_not_block_good
+    outcomes=self.worker.recover()
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/worker/cpag_worker/isolated.py", line 119, in recover
+    if record['location']!=daemon: raise ValueError('execution belongs to another daemon')
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: execution belongs to another daemon
+
+======================================================================
+ERROR: test_bad_records_do_not_block_good (test_isolated_recovery.RecoveryIsolation.test_bad_records_do_not_block_good) (fault='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/worker/test_isolated_recovery.py", line 45, in test_bad_records_do_not_block_good
+    outcomes=self.worker.recover()
+             ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/services/worker/cpag_worker/isolated.py", line 127, in recover
+    self.stop_container(record)
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/worker/test_isolated_recovery.py", line 42, in stop
+    if record['id']=='bad':raise subprocess.CalledProcessError(1,['docker','inspect'],stderr=b'No such container')
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+subprocess.CalledProcessError: Command '['docker', 'inspect']' returned non-zero exit status 1.
+
+----------------------------------------------------------------------
+Ran 1 test in 0.007s
+
+FAILED (errors=3)

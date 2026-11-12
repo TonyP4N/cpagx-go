@@ -1,0 +1,494 @@
+[
+  {
+    "layout": "single",
+    "case": "normal",
+    "expected": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "actual": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "matches_expected": true,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225610.0,
+        1767225610.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225611.0,
+        1767225611.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 2,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "operation_unknown_reasons": [],
+    "candidate_unknown_reasons": [
+      []
+    ],
+    "graph_candidate_states": [
+      "supported_candidate"
+    ],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  },
+  {
+    "layout": "single",
+    "case": "request_outside_validity",
+    "expected": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "actual": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "matches_expected": true,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": null,
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:10.500000Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "unknown",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": [
+        "clock_validity_outside"
+      ]
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225611.0,
+        1767225611.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:10.500000Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 2,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "operation_unknown_reasons": [
+      "mapping_validity_uncertain",
+      "time_basis_missing"
+    ],
+    "candidate_unknown_reasons": [],
+    "graph_candidate_states": [],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  },
+  {
+    "layout": "single",
+    "case": "response_outside_validity",
+    "expected": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "actual": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "matches_expected": false,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225610.0,
+        1767225610.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:00:10.500000Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": null,
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:00:10.500000Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+          "frame_number": 2,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "unknown",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": [
+        "clock_validity_outside"
+      ]
+    },
+    "operation_unknown_reasons": [],
+    "candidate_unknown_reasons": [
+      []
+    ],
+    "graph_candidate_states": [
+      "supported_candidate"
+    ],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  },
+  {
+    "layout": "split",
+    "case": "normal",
+    "expected": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "actual": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "matches_expected": true,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225610.0,
+        1767225610.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225611.0,
+        1767225611.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+          "frame_number": 1,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "operation_unknown_reasons": [],
+    "candidate_unknown_reasons": [
+      []
+    ],
+    "graph_candidate_states": [
+      "supported_candidate"
+    ],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  },
+  {
+    "layout": "split",
+    "case": "request_outside_validity",
+    "expected": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "actual": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "matches_expected": true,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": null,
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:10.500000Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "unknown",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": [
+        "clock_validity_outside"
+      ]
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225611.0,
+        1767225611.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:10.500000Z",
+        "valid_to": "2026-01-01T00:01:00Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+          "frame_number": 1,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "operation_unknown_reasons": [
+      "mapping_validity_uncertain",
+      "time_basis_missing"
+    ],
+    "candidate_unknown_reasons": [],
+    "graph_candidate_states": [],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  },
+  {
+    "layout": "split",
+    "case": "response_outside_validity",
+    "expected": {
+      "candidate_count": 0,
+      "candidate_states": []
+    },
+    "actual": {
+      "candidate_count": 1,
+      "candidate_states": [
+        "supported_candidate"
+      ]
+    },
+    "matches_expected": false,
+    "request_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": [
+        1767225610.0,
+        1767225610.0
+      ],
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:00:10.500000Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+          "frame_number": 1,
+          "raw_timestamp": 1767225610000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "configured",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": []
+    },
+    "response_time": {
+      "basis": "independent synthetic UTC fixture clock",
+      "interval": null,
+      "model": {
+        "drift_anchor": "2026-01-01T00:00:00Z",
+        "drift_basis": "generated fixed UTC clock",
+        "drift_ppm": 0,
+        "precision_basis": "generated exact timestamp reference",
+        "precision_seconds": 0,
+        "valid_from": "2026-01-01T00:00:00Z",
+        "valid_to": "2026-01-01T00:00:10.500000Z",
+        "version": "generated-clock-v1"
+      },
+      "offset_seconds": 0,
+      "raw": [
+        {
+          "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+          "frame_number": 1,
+          "raw_timestamp": 1767225611000000,
+          "ticks_per_second": 1000000
+        }
+      ],
+      "status": "unknown",
+      "uncertainty_seconds": 0,
+      "unknown_reasons": [
+        "clock_validity_outside"
+      ]
+    },
+    "operation_unknown_reasons": [],
+    "candidate_unknown_reasons": [
+      []
+    ],
+    "graph_candidate_states": [
+      "supported_candidate"
+    ],
+    "manifest_status": "succeeded",
+    "manifest_warnings": [],
+    "artifact_verification_passed": true
+  }
+]

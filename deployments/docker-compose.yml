@@ -1,304 +1,197 @@
+name: ${CPAG_PROJECT_NAME:-cpag-v3}
+
+x-runtime: &runtime
+  image: ${CPAG_IMAGE:-cpag-v3:local}
+  build:
+    context: ..
+    dockerfile: deployments/v3/Dockerfile
+    target: runtime
+
 services:
-  # Go API Service
-  go-app:
-    image: tonyp4n/cpagx-go:latest
-    ports:
-      - "8080:8080"
+  bootstrap:
+    <<: *runtime
+    entrypoint: [python3, /opt/cpag/deploy/bootstrap.py]
+    network_mode: none
     environment:
-      - RABBITMQ_URL=${RABBITMQ_URL}
-      - REDIS_URL=${REDIS_URL}
-      - NEO4J_URI=${NEO4J_URI}
-      - NEO4J_USER=${NEO4J_USER}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - INFLUXDB_URL=${INFLUXDB_URL}
-      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
-      - INFLUXDB_ORG=${INFLUXDB_ORG}
-      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
-      - SERVER_PORT=${SERVER_PORT}
-      - SERVER_HOST=${SERVER_HOST}
-      - PYTHON_SERVICE_URL=http://python-cpag-generator:8000
+      CPAG_HTTP_PORT: ${CPAG_HTTP_PORT:-3000}
+      CPAG_EXTERNAL_ORIGIN: ${CPAG_EXTERNAL_ORIGIN:-}
+    volumes:
+      - app-config:/bootstrap/api
+      - worker-config:/bootstrap/worker
+      - relay-config:/bootstrap/relay
+      - postgres-secret:/bootstrap/postgres
+      - shared:/bootstrap/shared
+      - control:/bootstrap/control
+      - verify-channel:/bootstrap/verify
+      - verifier-config:/bootstrap/verifier
+    read_only: true
+    restart: 'no'
+
+  postgres:
+    image: mirror.gcr.io/library/postgres@sha256:ef257d85f76e48da1c64832459b59fcaba1a4dac97bf5d7450c77753542eee94
     depends_on:
-      rabbitmq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
-      influxdb:
-        condition: service_healthy
-    networks:
-      - cpagx-network
-    volumes:
-      - ../data:/app/data
-      - ../configs:/app/configs
-    restart: unless-stopped
-
-
-  # Python CPAG Generation Service
-  python-cpag-generator:
-    image: tonyp4n/cpagx-python:latest
-    ports:
-      - "8000:8000"
-      - "8002:8002"
+      bootstrap: {condition: service_completed_successfully}
     environment:
-      - PYTHONPATH=/app
-      - LOG_LEVEL=${LOG_LEVEL}
-      - RABBITMQ_URL=${RABBITMQ_URL}
-      - REDIS_URL=${REDIS_URL}
-      - NEO4J_URI=${NEO4J_URI}
-      - NEO4J_USER=${NEO4J_USER}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - INFLUXDB_URL=${INFLUXDB_URL}
-      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
-      - INFLUXDB_ORG=${INFLUXDB_ORG}
-      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
-    networks:
-      - cpagx-network
+      POSTGRES_DB: cpag_v3
+      POSTGRES_PASSWORD_FILE: /run/cpag-postgres/password
+      PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
-      - ../data:/app/data
-      - ../uploads:/app/uploads
-      - ../services/python-cpag-generator/outputs:/app/outputs
-    restart: unless-stopped
+      - postgres-secret:/run/cpag-postgres:ro
+      - postgres-data:/var/lib/postgresql/data
+    networks: [private]
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
+      test: [CMD-SHELL, pg_isready -h 127.0.0.1 -U postgres -d cpag_v3]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
 
-  # Celery Worker
-  celery-worker:
-    image: tonyp4n/cpagx-python:latest
-    container_name: deployments-celery-worker-1
-    environment:
-      - RABBITMQ_URL=${RABBITMQ_URL}
-      - REDIS_URL=${REDIS_URL}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - NEO4J_URI=${NEO4J_URI}
-      - NEO4J_USER=${NEO4J_USER}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - INFLUXDB_URL=${INFLUXDB_URL}
-      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
-      - INFLUXDB_ORG=${INFLUXDB_ORG}
-      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
-    volumes:
-      - ../services/python-cpag-generator:/app
-      - ../uploads:/app/uploads
+  migrate:
+    <<: *runtime
+    entrypoint: [/opt/cpag/bin/cpag-migrate]
     depends_on:
-      redis:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
-      influxdb:
-        condition: service_healthy
-    command: celery -A infrastructure.celery_app worker --loglevel=info -Q celery,cpag_generation,network_analysis,graph_building --concurrency=2
-    networks:
-      - cpagx-network
-    deploy:
-      resources:
-        limits:
-          memory: 2G
-        reservations:
-          memory: 1G
+      postgres: {condition: service_healthy}
+    volumes:
+      - app-config:/etc/cpag:ro
+    networks: [private]
+    read_only: true
+    cap_drop: [ALL]
+    restart: 'no'
 
-  # Celery Beat Scheduler
-  celery-beat:
-    image: tonyp4n/cpagx-python:latest
-    command: celery -A infrastructure.celery_app beat --loglevel=info
-    environment:
-      - PYTHONPATH=/app
-      - RABBITMQ_URL=${RABBITMQ_URL}
-      - REDIS_URL=${REDIS_URL}
-      - NEO4J_URI=${NEO4J_URI}
-      - NEO4J_USER=${NEO4J_USER}
-      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
-      - INFLUXDB_URL=${INFLUXDB_URL}
-      - INFLUXDB_TOKEN=${INFLUXDB_TOKEN}
-      - INFLUXDB_ORG=${INFLUXDB_ORG}
-      - INFLUXDB_BUCKET=${INFLUXDB_BUCKET}
+  source-verifier:
+    <<: *runtime
+    entrypoint: [python3, /opt/cpag/source-verifier.py]
     depends_on:
-      - rabbitmq
-      - redis
-      - neo4j
-      - influxdb
-    networks:
-      - cpagx-network
-    volumes:
-      - ../data:/app/data
-      - celery-beat-data:/app/celerybeat-schedule.db
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "celery", "-A", "infrastructure.celery_app", "inspect", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-
-  # Web UI Static Site (Nginx)
-  webui:
-    image: tonyp4n/cpagx-webui:latest
-    ports:
-      - "3000:80"
+      bootstrap: {condition: service_completed_successfully}
     environment:
-      - NEXT_PUBLIC_API_URL=http://localhost:8080
+      CPAG_VERIFY_BACKEND: compose-file-sidecar-v1
+      CPAG_VERIFIER_IDENTITY_FILE: /etc/cpag-verifier/source.identity
+      PYTHONPATH: /opt/cpag/services/analysis/src
+    network_mode: none
+    volumes:
+      - verifier-config:/etc/cpag-verifier:ro
+      - shared:/state/shared:ro
+      - verify-channel:/verify-channel
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=4g,mode=1777
+    mem_limit: 8g
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python3, -c, "import os,stat; assert stat.S_ISSOCK(os.stat('/verify-channel/source.sock').st_mode)"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+
+  api:
+    <<: *runtime
     depends_on:
-      - go-app
-    networks:
-      - cpagx-network
-    restart: unless-stopped
-
-  # RabbitMQ Message Queue
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5672:5672"   # AMQP protocol port
-      - "15672:15672" # Management interface port
+      migrate: {condition: service_completed_successfully}
+      source-verifier: {condition: service_healthy}
     environment:
-      - RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}
-      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASSWORD}
-    networks:
-      - cpagx-network
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Redis Cache Service
-  redis:
-    image: redis:7-alpine
+      CPAG_VERIFY_BACKEND: compose-file-sidecar-v1
+      CPAG_HTTP_PORT: ${CPAG_HTTP_PORT:-3000}
+      CPAG_EXTERNAL_ORIGIN: ${CPAG_EXTERNAL_ORIGIN:-}
     ports:
-      - "6379:6379"
+      - '127.0.0.1:${CPAG_HTTP_PORT:-3000}:8080'
     networks:
-      - cpagx-network
+      frontend: {}
+      private:
+        aliases: [cpag-resident-internal]
     volumes:
-      - redis_data:/data
-    restart: unless-stopped
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+      - app-config:/etc/cpag:ro
+      - shared:/state/shared
+      - control:/state/control
+      - verify-channel:/verify-channel
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
     healthcheck:
-      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Neo4j Graph Database
-  neo4j:
-    image: neo4j:5.15
-    ports:
-      - "7476:7474"   # HTTP port
-      - "7689:7687"   # Bolt port
-    environment:
-      - NEO4J_AUTH=neo4j/${NEO4J_PASSWORD}
-      - NEO4J_PLUGINS=["apoc"]
-      - NEO4J_dbms_memory_heap_initial__size=512m
-      - NEO4J_dbms_memory_heap_max__size=2G
-      - NEO4J_dbms_memory_pagecache_size=1G
-    networks:
-      - cpagx-network
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
-      - neo4j_import:/var/lib/neo4j/import
-      - neo4j_plugins:/plugins
+      test: [CMD, python3, -c, "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8095/health/ready',timeout=2).read()"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "${NEO4J_PASSWORD}", "RETURN 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 60s
 
-  # InfluxDB Time Series Database
-  influxdb:
-    image: influxdb:2.7
-    ports:
-      - "8086:8086"
-    environment:
-      - DOCKER_INFLUXDB_INIT_MODE=setup
-      - DOCKER_INFLUXDB_INIT_USERNAME=${INFLUXDB_USERNAME}
-      - DOCKER_INFLUXDB_INIT_PASSWORD=${INFLUXDB_PASSWORD}
-      - DOCKER_INFLUXDB_INIT_ORG=${INFLUXDB_ORG}
-      - DOCKER_INFLUXDB_INIT_BUCKET=${INFLUXDB_BUCKET}
-      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=${INFLUXDB_TOKEN}
-    networks:
-      - cpagx-network
-    volumes:
-      - influxdb_data:/var/lib/influxdb2
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "influx", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # Flower Monitoring Interface
-  flower:
-    image: mher/flower:latest
-    ports:
-      - "5555:5555"
-    environment:
-      - CELERY_BROKER_URL=${RABBITMQ_URL}
-      - CELERY_RESULT_BACKEND=${REDIS_URL}
+  private-relay:
+    <<: *runtime
+    entrypoint: [python3, /opt/cpag/private_relay.py]
     depends_on:
-      - rabbitmq
-      - redis
-      - celery-worker
-    networks:
-      - cpagx-network
+      api: {condition: service_healthy}
+    network_mode: service:api
+    volumes:
+      - relay-config:/etc/cpag:ro
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    healthcheck:
+      test: [CMD, python3, -c, "import socket; s=socket.create_connection(('127.0.0.1',8096),2); s.close()"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     restart: unless-stopped
 
-  # Prometheus Monitoring
-  prometheus:
-    image: prom/prometheus:v2.45.0
-    ports:
-      - "9090:9090"
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/etc/prometheus/console_libraries'
-      - '--web.console.templates=/etc/prometheus/consoles'
-      - '--storage.tsdb.retention.time=200h'
-      - '--web.enable-lifecycle'
-    networks:
-      - cpagx-network
-    volumes:
-      - prometheus_data:/prometheus
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
-    restart: unless-stopped
-
-  # Grafana Monitoring Dashboard
-  grafana:
-    image: grafana/grafana:10.2.0
-    ports:
-      - "3001:3000"
-    environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin123
-    networks:
-      - cpagx-network
-    volumes:
-      - grafana_data:/var/lib/grafana
-    restart: unless-stopped
+  resident-worker:
+    <<: *runtime
+    entrypoint: [python3, -m, cpag_worker.resident_service]
+    command: [--config, /private/config.json, --work-root, /resident-work, --dispatch-mode, poll]
+    init: false
     depends_on:
-      - influxdb
-      - prometheus
+      private-relay: {condition: service_healthy}
+    networks: [private]
+    volumes:
+      - worker-config:/private:ro
+      - shared:/state/shared
+      - control:/state/control
+    tmpfs:
+      - /resident-work:rw,nosuid,nodev,size=4g,mode=0711
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    read_only: true
+    cap_drop: [ALL]
+    cap_add: [SETUID, SETGID, CHOWN, DAC_OVERRIDE, KILL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 13g
+    pids_limit: 96
+    stop_grace_period: 60s
+    restart: unless-stopped
+
+  relay:
+    image: ${CPAG_RELAY_IMAGE:-cpag-v3-relay:local}
+    build:
+      context: ..
+      dockerfile: deployments/v3/Dockerfile
+      target: relay
+    depends_on:
+      api: {condition: service_healthy}
+    network_mode: service:api
+    user: '101:101'
+    healthcheck:
+      test: [CMD, /usr/local/bin/cpag-http-health]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=256m,mode=1777
+    restart: unless-stopped
 
 networks:
-  cpagx-network:
-    driver: bridge
+  frontend: {}
+  private: {internal: true}
 
 volumes:
-  rabbitmq_data:
-  redis_data:
-  neo4j_data:
-  neo4j_logs:
-  neo4j_import:
-  neo4j_plugins:
-  influxdb_data:
-  grafana_data:
-  celery-beat-data:
-  prometheus_data: 
+  app-config: {}
+  worker-config: {}
+  relay-config: {}
+  postgres-secret: {}
+  verifier-config: {}
+  postgres-data: {}
+  shared: {}
+  control: {}
+  verify-channel: {}

@@ -1,0 +1,18 @@
+{
+  "scope": "new DAG6 full-source typed-Merkle sink only; no physical artifact writer or cached-root acceptance",
+  "strategy": "dag6-full-source-merkle-sink-1",
+  "tests": {
+    "count": 5,
+    "wall_seconds": 0.703,
+    "status": "PASS"
+  },
+  "tested_module_and_test_sha256": {
+    "services/analysis/src/cpag_core/source_merkle_sink.py": "596d0c7e63785d9a739756118b016078d6bc6f66de5350f0599fbd8e79c95d29",
+    "tests/core/test_source_merkle_sink.py": "8665d06e4a2c1c2de3f0b4e8ece4f628a9494b57b77acadd8512243e1d8adc97"
+  },
+  "original_log_sha256": "908f5bdf869ec5968b059cd4ef83227b9ba5bddca317ae39ec1c17cd70a4b110",
+  "public_log_sha256": "908f5bdf869ec5968b059cd4ef83227b9ba5bddca317ae39ec1c17cd70a4b110",
+  "original_log_relative_to_FYP": "outputs/cpag-r19-source-merkle-sink-unit-20261028T152327Z/unit.raw.log",
+  "public_log_transformation": "absolute workspace prefix replacement and ASCII line-end whitespace cleanup only",
+  "integration_state": "root-owned shared_export integration/full suite and fixed-image performance measured separately"
+}

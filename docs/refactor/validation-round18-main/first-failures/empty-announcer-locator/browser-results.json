@@ -1,0 +1,11 @@
+{
+  "status": "failed",
+  "scope": "synthetic replay history only; no industrial validation",
+  "checks": {},
+  "page_errors": [],
+  "screenshot_files": [
+    "source-failure.png"
+  ],
+  "ui_submitted_run_id": "1472f2509148be628ac9562eb15171c6",
+  "error": "Error: Submitted replay failed: "
+}

@@ -1,0 +1,9 @@
+{
+  "profile_id": "synthetic-demo-v1",
+  "synthetic": true,
+  "timestamp_column": "time",
+  "columns": {
+    "level": {"tag": "demo_level", "value_type": "analog", "unit": "synthetic_unit", "asset_id": "demo_tank"},
+    "pump": {"tag": "demo_pump", "value_type": "state", "unit": null, "asset_id": "demo_pump", "state_map": {"OFF": 0, "ON": 1}}
+  }
+}

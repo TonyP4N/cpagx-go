@@ -1,0 +1,23 @@
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	﻿2026-10-26T05:37:08.8889524Z ##[group]Run python scripts/validation/round9_celery.py --evidence docs/refactor/validation-round9/celery-live.json
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8890877Z ^[[36;1mpython scripts/validation/round9_celery.py --evidence docs/refactor/validation-round9/celery-live.json^[[0m
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8954043Z shell: /usr/bin/bash -e {0}
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8954295Z env:
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8954562Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.17/x64
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8954999Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib/pkgconfig
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8955431Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8955809Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8956193Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.11.17/x64
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8956576Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.11.17/x64/lib
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:08.8956896Z ##[endgroup]
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0653678Z Traceback (most recent call last):
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0661362Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/validation/round9_celery.py", line 484, in <module>
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0661958Z     main()
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0662450Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/validation/round9_celery.py", line 254, in main
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0663111Z     command(compose + ['up', '-d', '--wait', 'rabbitmq', 'redis'])
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0663692Z   File "/home/runner/work/cpagx-go/cpagx-go/scripts/validation/round9_celery.py", line 44, in command
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0664302Z     return subprocess.run(args, check=True, text=True, stdout=subprocess.PIPE,
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0664728Z            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0665239Z   File "/opt/hostedtoolcache/Python/3.11.17/x64/lib/python3.11/subprocess.py", line 571, in run
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0923470Z     raise CalledProcessError(retcode, process.args,
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.0924991Z subprocess.CalledProcessError: Command '['docker', 'compose', '-p', 'cpag-r9-582e00d8', '-f', '/home/runner/work/cpagx-go/cpagx-go/deployments/compose.round9-celery-validation.yml', 'up', '-d', '--wait', 'rabbitmq', 'redis']' returned non-zero exit status 1.
+celery-live-compatibility	Real RabbitMQ Celery Redis synthetic HTTP chain	2026-10-26T05:37:14.1029514Z ##[error]Process completed with exit code 1.

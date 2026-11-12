@@ -1,0 +1,6 @@
+#!/bin/sh
+set -eu
+# Intended for the owner of this CPAG proxy, e.g. a certbot deploy-hook.
+# A failed syntax/key check prevents a reload of the running proxy.
+nginx -t -c /etc/cpag/nginx.conf
+nginx -s reload -c /etc/cpag/nginx.conf

@@ -1,0 +1,140 @@
+[
+  {
+    "name": "core",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/core",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16
+  },
+  {
+    "name": "contracts",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/contracts",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.201
+  },
+  {
+    "name": "parsers",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/parsers",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.073
+  },
+  {
+    "name": "packets",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/packets",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.126
+  },
+  {
+    "name": "integration",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/integration",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.822
+  },
+  {
+    "name": "legacy",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/legacy",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 0.191
+  },
+  {
+    "name": "service",
+    "command": [
+      "<repository>/.venv/bin/python",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests/service",
+      "-v"
+    ],
+    "exit_code": 0,
+    "seconds": 1.911
+  },
+  {
+    "name": "go-test",
+    "command": [
+      "go",
+      "test",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.693
+  },
+  {
+    "name": "go-build",
+    "command": [
+      "go",
+      "build",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 1.832
+  },
+  {
+    "name": "go-vet",
+    "command": [
+      "go",
+      "vet",
+      "./..."
+    ],
+    "exit_code": 0,
+    "seconds": 0.518
+  },
+  {
+    "name": "diff-check",
+    "command": [
+      "git",
+      "diff",
+      "--check"
+    ],
+    "exit_code": 0,
+    "seconds": 0.024
+  }
+]

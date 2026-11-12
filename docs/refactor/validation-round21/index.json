@@ -1,0 +1,1629 @@
+{
+  "baseline": "9b213a0df88bd0019e2ff7ed04c8b692e3ad4880",
+  "scope": "single Linux deployment software; target domain and independent client require separate evidence",
+  "history": {
+    "normalized": {
+      "members": 5,
+      "graph_sha256": "28aab711312addbb598fc73b27804139c303c584a7d4544b41d1d9c552220ab1",
+      "events": 8,
+      "job_id": "r21-normalized-4360f2db4b",
+      "attempt": 1,
+      "tamper": 409,
+      "ungranted": 403,
+      "anonymous": 401,
+      "read_only": 405,
+      "unknown_member": 404,
+      "old_new_entry_rechecked": true
+    },
+    "packet": {
+      "members": 6,
+      "graph_sha256": "bcd98ebef48a1c5d5d79f8108697dcefcb12cb86f629d53299d51569c9436130",
+      "events": 2,
+      "job_id": "r21-packet-452e53018d",
+      "attempt": 1,
+      "tamper": 409,
+      "ungranted": 403,
+      "anonymous": 401,
+      "read_only": 405,
+      "unknown_member": 404,
+      "old_new_entry_rechecked": true
+    },
+    "dual_source": {
+      "job_id": "ba3b2d291ea820d48e56f63c02561f1a",
+      "attempt": 1,
+      "verified_downloads": {
+        "analysis.json": "f858730c466edc95d48a084979caf32e116f83b6c90dc40ad4be5f0f9a37bab6",
+        "dataset.json": "329fdadab842011381be12d6838d10d7fda059c7889849bee716f048cb4d1873",
+        "dual/analysis.json": "f858730c466edc95d48a084979caf32e116f83b6c90dc40ad4be5f0f9a37bab6",
+        "dual/manifest.json": "2b489dd9d817f2875ae16c47e08547b3392d772fc13b2b02ddf035b4f95c63bd",
+        "dual/sources/network.pcap": "fce4402854ff6a12309d5ab11c7bd786d773f8b8be88b1b8912ca8d25f2d22ce",
+        "dual/sources/process.csv": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "dual/sources/profile.json": "31b7ffcc762de2014de98bc3d604a8ef4dc9b2cd962b05d0708595b72382da38",
+        "events.json": "6666fe1f4338b060fa7a38de7c2c61a817b99a40854e734dcbbafba5d23489d5",
+        "graph.json": "ef7375ff05a5ec71799a28fd268a18347fea3575e2ddb652e529d4394c335c47",
+        "quality.json": "714952fd3a34b3c4c2667181ff5e02d025f34473fbcc96401d554b3ba414ede1",
+        "run_manifest.json": "94383e765c58af8d39a283839e3d66776848eaab7df6fbc1664880c1b659e822"
+      },
+      "retained_after_entry_switch": true
+    }
+  },
+  "commit_ack": {
+    "before": [
+      "--- FAIL: TestUploadDoesNotDeleteBytesWhenCommitAcknowledgmentIsLost (0.01s)",
+      "    commit_reply_test.go:52: status=409, response={\"error\":{\"code\":\"upload_conflict\",\"message\":\"upload catalog conflict\"}}",
+      "    commit_reply_test.go:56: lost potentially committed source: [] <nil>"
+    ],
+    "after": "TestUploadDoesNotDeleteBytesWhenCommitAcknowledgmentIsLost passed; ambiguous COMMIT leaves original and returns 503",
+    "method": "database/sql injected disconnect at commit"
+  },
+  "legacy_routes": {
+    "go_router": "TestR21LegacyRoutesRemainSeparateFromV3",
+    "upstream": "two synthetic HTTP upstreams",
+    "status": "passed",
+    "default": "v1",
+    "auth_boundary": "legacy gateway is not publicly exposed by the R21 proxy"
+  },
+  "history_final_reads": {
+    "passed": {
+      "normalized": true,
+      "packet": true,
+      "audited_actor_run_member_outcome": true
+    },
+    "binary_sha256": "8dbf73ae0262f1694d81405007732f82f55f47e05c8755a03f2221e203702842"
+  },
+  "observability": {
+    "status": "passed",
+    "scope": "actual isolated PG/Go/idle Worker plus explicit synthetic queue/lease records; not an analysis/industrial/reference acceptance",
+    "platform": "Darwin arm64",
+    "checks": {
+      "bad_worker_credential_no_observation": true,
+      "database_live_ready_split": {
+        "ready_status": 503,
+        "seconds": 2.00348374999885
+      },
+      "lease_and_missing_worker_alerts": true,
+      "real_idle_worker_poll": true,
+      "storage_live_ready_split_and_recovery": true,
+      "synthetic_queue_retry_and_parse_classification": true,
+      "unauthenticated_denied": true,
+      "valid_attempt_heartbeat": true,
+      "viewer_denied": true
+    },
+    "source_sha256": {
+      "internal/catalog/health.go": "88ae3d8f6a0b1705075b84b5d8ea738321a3d94e91b22b80ccd0c13cab503ce9",
+      "internal/catalog/operations.go": "b9b8f75ef309a3c515febe08f7735ea6e4623ee0d55a68f6b0361346e8fef327",
+      "internal/jobapi/worker_observation.go": "34bda50f90e9e1d8aa340da40d7ef83491a3a81c8097c9392330dbc7e2107e87",
+      "internal/jobs/migrations/017_worker_observability.sql": "b558c72498cb842aec3c5f112fc3a4e766cd7045ba9cdca04d46abd9ff425a4c",
+      "scripts/validation/round21_observability.py": "6f7c4ba9d33e514fe9572897894fc236337c984e4d6a9e683286419f5dc7205f"
+    },
+    "cleanup_completed": true,
+    "thresholds": {
+      "disk_low_bytes": 67108864,
+      "queue_warn_seconds": 60,
+      "worker_stale_seconds": 120
+    },
+    "observed_fault_alerts": [
+      "queue_wait_exceeded",
+      "workers_unavailable",
+      "worker_heartbeat_stale",
+      "lease_expired"
+    ],
+    "synthetic_retained_error_counts": {
+      "parse": 1
+    },
+    "synthetic_retry_queue": {
+      "additional_attempts": 1,
+      "delayed": 1,
+      "eligible": 1,
+      "expired_leases": 0,
+      "oldest_eligible_wait_seconds": 2.489815,
+      "retried_jobs": 1,
+      "retry_queued": 1,
+      "running": 0
+    },
+    "raw_private_evidence": "/private/tmp/cpag-r21-observability-20261104-attempt3",
+    "first_attempts": [
+      {
+        "attempt": 1,
+        "reason": "pg_isready initially observed temporary init socket; fixed TCP readiness wait",
+        "cleanup_completed": true
+      },
+      {
+        "attempt": 2,
+        "reason": "fixture passed static_root string instead of Path; corrected harness only",
+        "cleanup_completed": true
+      }
+    ],
+    "unit_verification": [
+      "go test ./internal/catalog ./internal/jobapi ./internal/jobs passed",
+      "nested integration cpagx-v3 build passed"
+    ],
+    "limits": [
+      "Queue/parse error records were explicit synthetic control-plane records, not a new parser execution.",
+      "No actual disk-full, OOM, PID exhaustion, partial SQLite write, or industrial material run in this short check."
+    ],
+    "actual_storage_faults": {
+      "scope": "actual Linux container filesystem checks only; not complete parser/write-publication or reference-environment acceptance",
+      "image": "sha256:64b6226a58f655c21441ff70f5f2891961fc271d62e6fe63f531d7f0f50f3400",
+      "architecture": "arm64",
+      "cases": [
+        {
+          "probe": "readonly",
+          "exit_code": 0,
+          "running": false,
+          "readonly_root": true,
+          "network": "none",
+          "memory_bytes": 134217728,
+          "pids_limit": 32,
+          "tmpfs": {
+            "/tmp": "rw,nosuid,size=32m,mode=1777"
+          },
+          "probe_mount_readonly": true,
+          "result": {
+            "actual_write_errno": "EROFS",
+            "before": {
+              "name": "disposable_probe",
+              "accessible": false,
+              "free_bytes": 0,
+              "total_bytes": 0,
+              "reason": "storage_access_unavailable"
+            },
+            "probe": "readonly"
+          },
+          "nano_cpus": 500000000
+        },
+        {
+          "probe": "small-full",
+          "exit_code": 0,
+          "running": false,
+          "readonly_root": true,
+          "network": "none",
+          "memory_bytes": 134217728,
+          "pids_limit": 32,
+          "tmpfs": {
+            "/probe": "rw,nosuid,size=8m,mode=0700,uid=65532,gid=65532",
+            "/tmp": "rw,nosuid,size=32m,mode=1777"
+          },
+          "probe_mount_readonly": false,
+          "result": {
+            "actual_write_errno": "ENOSPC",
+            "after": {
+              "name": "disposable_probe",
+              "accessible": true,
+              "free_bytes": 0,
+              "total_bytes": 8388608,
+              "reason": "storage_space_low"
+            },
+            "before": {
+              "name": "disposable_probe",
+              "accessible": true,
+              "free_bytes": 8388608,
+              "total_bytes": 8388608,
+              "reason": "storage_space_low"
+            },
+            "probe": "small-full",
+            "written_bytes": 8388608
+          },
+          "nano_cpus": 500000000
+        }
+      ],
+      "status": "passed",
+      "cleanup_completed": true,
+      "binary_sha256": "a16830a4596f044512564baa95b90f682720ae1c5ea970dd41fc005026676258",
+      "health_source_sha256": "88ae3d8f6a0b1705075b84b5d8ea738321a3d94e91b22b80ccd0c13cab503ce9",
+      "runtime_harness_snapshot": "/private/tmp/cpag-r21-storage-20261104-attempt1/harness-source.py"
+    },
+    "reused_busy_and_interruption": {
+      "path": "../validation-round19-stability/short-fault-reaudit.json",
+      "sha256": "69e1c1aae7d0c9181ed6679667af3c937e60fb15579e7f62549d8461c0cecdc1",
+      "original_git_head": "4c1057c5296395aaa40754d16d461e0ded73e11f",
+      "checks": {
+        "compute_interruption": {
+          "attempt": 1,
+          "competition_samples": [
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53044
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            },
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53044
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            },
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53044
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            }
+          ],
+          "docker_exit_code": 137,
+          "observed_phase": "actual exporter process executing before publication; write phase not asserted",
+          "retry_restriction": "no retry; API cancellation before resuming host Workers",
+          "run": "ed4e05471c4da50fdf309c5525b51efc",
+          "stale_complete_status": 409,
+          "terminal_state": "cancelled",
+          "trusted_query_status": 409
+        },
+        "post_fault_control": {
+          "attempt": 1,
+          "run": "461bbb89fbc36e58f29a1a74786a46b2",
+          "state": "succeeded"
+        },
+        "verifier_cancellation": {
+          "actual_container_removed": true,
+          "attempt": 1,
+          "cleanup_completed": true,
+          "competition_samples": [
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53988
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            },
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53988
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            },
+            {
+              "attempt": 0,
+              "state": "queued",
+              "workers": {
+                "A": {
+                  "alive": true,
+                  "pid": 53988
+                },
+                "B": {
+                  "alive": true,
+                  "pid": 53078
+                }
+              }
+            }
+          ],
+          "run": "8a547a7306753612e64f4af31e75b0f5",
+          "stale_complete_status": 409,
+          "terminal_state": "cancelled",
+          "trusted_query_status": 409,
+          "watcher_reason": "state_changed"
+        }
+      },
+      "runtime_not_rerun": true,
+      "scope": "existing two-real-Worker compute/verifier interruption, verified exits and busy queued competition; not exact parser or SQLite write interruption"
+    },
+    "runtime_harness_snapshot": "/private/tmp/cpag-r21-observability-20261104-attempt3/harness-source.py",
+    "portability_followup": "After retained runs: harness output guard permits system tempfile root and /tmp (canonicalized), rejects roots/outside/symlink escapes; cache uses system temporary directory or explicit GOCACHE. Operational source unchanged; these path-only harness edits were syntax/guard checked, not claimed as another runtime execution.",
+    "fault_sample_thresholds": {
+      "disk_low_bytes": 67108864,
+      "queue_warn_seconds": 1,
+      "worker_stale_seconds": 2
+    },
+    "fault_sample_note": "Short fault sample explicitly selected worker_stale_seconds=2 and queue_warn_seconds=1; does not claim default 120-second Worker detection in 2 seconds.",
+    "api_binary_sha256": "8dbf73ae0262f1694d81405007732f82f55f47e05c8755a03f2221e203702842",
+    "optional_schema_unit": "TestOperationsMissingObservationSchemaIsExplicit passed: missing017 gives503 operations_schema_not_ready while legacy readiness remains200"
+  },
+  "https_browser_external": {
+    "status": "passed",
+    "scope": "actual macOS Chromium client clicking isolated Linux Go/Nginx deployment over HTTPS; synthetic material only; not Windows/public-PKI/industrial acceptance",
+    "client": {
+      "browser": "156.0.8078.80",
+      "platform": "darwin/arm64"
+    },
+    "test_url": "https://127.0.0.1:44943",
+    "strict_chain_hostname_verification": {
+      "status": 200,
+      "authorized": true,
+      "protocol": "TLSv1.3",
+      "leaf_sha256": "9203952c29dae8bea45e89ec2b136b384a934772b4fedda3d23cafa3a463e162",
+      "leaf_spki_sha256_base64": "7cHh29wXiJicfq9Ndma+bAb48jNid9thtoDTrGmWdis=",
+      "test_ca_sha256": "e8cc0c41511764f21f3ae52be8617af1068be2ba760de7e7cafff7cd931af29d",
+      "hostname_checked": true
+    },
+    "strict_curl_and_node_same_leaf": true,
+    "default_browser_rejects_test_ca": true,
+    "browser_certificate_mode": "only the observed test leaf SPKI exception; certificate verification remains enabled for other keys; browser CA/system trust NOT established",
+    "system_keychain_modified": false,
+    "ordinary_checks": {
+      "browser_default_rejects_test_ca": true,
+      "ordinary_https_login": true,
+      "ordinary_upload_three_originals": true,
+      "ordinary_offline_single_submission": true,
+      "closed_page_relogin_same_run_recovered": true,
+      "four_original_records_opened": true,
+      "controlled_original_download": true,
+      "controlled_artifact_download": true
+    },
+    "observed_business_writes_across_attempts": {
+      "datasets": 1,
+      "uploads": 3,
+      "configs": 2,
+      "preflights": 1,
+      "runs": 1
+    },
+    "dataset_id": "253bcf5942373ae1a62594598eb95186",
+    "run_id": "52280551d6851436f1420efce9aeb339",
+    "four_original_references": [
+      {
+        "column": "pump",
+        "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:10.500000Z",
+        "record_number": 2
+      },
+      {
+        "column": "pump",
+        "file_sha256": "423f079bf9bd6041f1c762f62ecf68398013874f7102811b2917a3d52f420e31",
+        "frame_number": null,
+        "raw_time": "2026-01-01T00:00:12Z",
+        "record_number": 3
+      },
+      {
+        "column": null,
+        "file_sha256": "95d947a7837cad8f488268b8f5c278b39f07f96e12dffcb20f542beb12781801",
+        "frame_number": 1,
+        "raw_time": "1767225611000000",
+        "record_number": null
+      },
+      {
+        "column": null,
+        "file_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+        "frame_number": 1,
+        "raw_time": "1767225610000000",
+        "record_number": null
+      }
+    ],
+    "session_cookie": {
+      "secure": true,
+      "httpOnly": true,
+      "sameSite": "Strict"
+    },
+    "original_download_sha256": "ced5a0aa9011c6cccb494c7c47dcad323694b30f3fd68ba1dc425b19316795e8",
+    "manifest_download_sha256": "9a80851822fb7c91e5fe4b850598f901e7d28caf6393b4375c121b63d9dc4c88",
+    "task_ui_wait_ms": 3013,
+    "page_errors": [],
+    "temporary_browser_profile_removed": true,
+    "browser_closed": true,
+    "report": "output/playwright/r21-https-external/attempt-004/report.json",
+    "first_observer_failures": [
+      {
+        "attempt": "attempt-001",
+        "failures": [
+          {
+            "error": "Error: response.json: Protocol error (Network.getResponseBody): Request content was evicted from inspector cache\nResponse body is not available for a response that was navigated away from. Read response.body() before triggering any navigation."
+          }
+        ],
+        "report": "output/playwright/r21-https-external/attempt-001/report.json"
+      },
+      {
+        "attempt": "attempt-002",
+        "failures": [
+          {
+            "error": "Error: response.json: Protocol error (Network.getResponseBody): Request content was evicted from inspector cache\nResponse body is not available for a response that was navigated away from. Read response.body() before triggering any navigation."
+          }
+        ],
+        "report": "output/playwright/r21-https-external/attempt-002/report.json"
+      },
+      {
+        "attempt": "attempt-003",
+        "failures": [
+          {
+            "error": "TimeoutError: locator.waitFor: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('选择配置版本', { exact: true }).locator('option[value=\"c9beae867a040f9d0d855d99593fb71a\"]') to be visible\u001b[22m\n\u001b[2m    92 × locator resolved to hidden <option value=\"c9beae867a040f9d0d855d99593fb71a\">intake v1 · c9beae867a040f9d0d855d99593fb71a</option>\u001b[22m\n"
+          }
+        ],
+        "report": "output/playwright/r21-https-external/attempt-003/report.json"
+      }
+    ],
+    "certificate_setup_observer_limits": [
+      "Expected untrusted-certificate error led to asynchronous error-page navigation; first certificate-manager navigation was interrupted.",
+      "Profile-local certificate import uses a native file picker not exposed to headless DOM filechooser; native screenshot tool unavailable. No system/keychain change."
+    ],
+    "trust_reference": "https://chromium.googlesource.com/chromium/src/+/8402d3c5bc13e018fa75eba650ed881755e0223b",
+    "screenshots": [
+      {
+        "path": "https-four-original-evidence.png",
+        "sha256": "98c3c5adcf97bad802de3db07ea581d8efd8487ed03087bcb30f140820697fc8"
+      },
+      {
+        "path": "https-controlled-downloads.png",
+        "sha256": "d0634ca953254fd0c7a9dafce81857cebb6333ab7cb6fdea363ad9bec9324eb2"
+      }
+    ],
+    "replay_evaluation_followup": {
+      "status": "ordinary checks passed; raw harness terminal assertion failed and was adjudicated from retained response inventory",
+      "scope": "ordinary macOS Chromium HTTPS read-only UI on existing synthetic replay and evaluation; temporary test-leaf SPKI exception, not browser CA/Windows/industrial acceptance",
+      "client": {
+        "browser": "156.0.8078.80",
+        "platform": "darwin/arm64"
+      },
+      "strict_tls": {
+        "status": 200,
+        "authorized": true,
+        "leaf_sha256": "9203952c29dae8bea45e89ec2b136b384a934772b4fedda3d23cafa3a463e162",
+        "spki": "7cHh29wXiJicfq9Ndma+bAb48jNid9thtoDTrGmWdis="
+      },
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "run_id": "c1e32a791ec871c5d967bedfad5a822a",
+      "evaluation_id": "594d27c7b798fa59b312ef20f17e0da5",
+      "checks": {
+        "existing_replay_snapshot_and_original": true,
+        "existing_evaluation_tp_fp_fn": true,
+        "fp_originals": true,
+        "fn_independent_original": true
+      },
+      "replay": {
+        "snapshot": 15,
+        "revision": 11,
+        "verified_references": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225610000000",
+            "record_number": null,
+            "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504",
+            "source_slot": "network-0"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225611000000",
+            "record_number": null,
+            "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec",
+            "source_slot": "network-1"
+          }
+        ],
+        "url": "https://127.0.0.1:44943/workbench/?view=replay&dataset=253bcf5942373ae1a62594598eb95186&run=c1e32a791ec871c5d967bedfad5a822a&snapshot=15"
+      },
+      "FP": {
+        "verified_references": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          }
+        ]
+      },
+      "FN": {
+        "status": "reference_original_csv_record_verified",
+        "record_number": 2,
+        "values": {
+          "asset": "[\"synthetic-pump\",\"pump_state\"]",
+          "event_id": "manual-transition",
+          "kind": "process_change",
+          "time": "2026-01-01T00:00:14Z"
+        },
+        "original_sha256": "9e26ddd1ce7aee8cdd4683924cfd250854a76972410a4314d0cf77ca41696e5c",
+        "fragment_sha256": "39b0170f136e576560551d89f3695ac927c9bd09328addb491e5d5b44f875705"
+      },
+      "business_writes": [],
+      "session_login": [
+        {
+          "method": "POST",
+          "path": "/api/v3/session",
+          "status": 200
+        }
+      ],
+      "browser_closed": true,
+      "temporary_profile_removed": true,
+      "page_errors": [],
+      "adjudication": "Attempt 003 completed all four ordinary UI checks. Terminal no-business-write assertion misclassified POST /api/v3/session login as business data mutation. Exact retained response inventory contains only login POST and GETs; corrected script excludes only the exact session endpoint. No raw report was rewritten and no service rerun claimed.",
+      "attempts": [
+        {
+          "report": "output/playwright/r21-https-history/attempt-001/report.json",
+          "raw_status": "failed",
+          "failures": [
+            "Error: connect EPERM 127.0.0.1:44943 - Local (0.0.0.0:0)"
+          ],
+          "checks": {}
+        },
+        {
+          "report": "output/playwright/r21-https-history/attempt-002/report.json",
+          "raw_status": "failed",
+          "failures": [
+            "TimeoutError: locator.selectOption: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('查看类型', { exact: true })\u001b[22m\n"
+          ],
+          "checks": {
+            "existing_replay_snapshot_and_original": true,
+            "existing_evaluation_tp_fp_fn": true
+          }
+        },
+        {
+          "report": "output/playwright/r21-https-history/attempt-003/report.json",
+          "raw_status": "failed",
+          "failures": [
+            "AssertionError [ERR_ASSERTION]: unexpected business write\n\n1 !== 0\n"
+          ],
+          "checks": {
+            "existing_replay_snapshot_and_original": true,
+            "existing_evaluation_tp_fp_fn": true,
+            "fp_originals": true,
+            "fn_independent_original": true
+          }
+        }
+      ],
+      "screenshots": [
+        {
+          "path": "docs/refactor/validation-round21/https-replay-snapshot-original.png",
+          "sha256": "213d0bed7293e38a7707b44e95f23af5a17754f8accfd08df98aaf22ce44e155"
+        },
+        {
+          "path": "docs/refactor/validation-round21/https-evaluation-FP-originals.png",
+          "sha256": "abb9b9a1fd43c1951275803a63fb45335cf16f89f0de84b14eaa984280cfeae4"
+        },
+        {
+          "path": "docs/refactor/validation-round21/https-evaluation-FN-independent-original.png",
+          "sha256": "7954421de4e05aaff7aac8f4109e3132ec6799969f57eed778fe6d5435249763"
+        }
+      ]
+    },
+    "restored_replay_evaluation_followup": {
+      "status": "passed",
+      "scope": "ordinary macOS Chromium HTTPS read-only UI on existing synthetic replay and evaluation; temporary test-leaf SPKI exception, not browser CA/Windows/industrial acceptance",
+      "run_id": "c1e32a791ec871c5d967bedfad5a822a",
+      "evaluation_id": "594d27c7b798fa59b312ef20f17e0da5",
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "checks": {
+        "existing_replay_snapshot_and_original": true,
+        "existing_evaluation_tp_fp_fn": true,
+        "fp_originals": true,
+        "fn_independent_original": true,
+        "controlled_evaluation_download": true
+      },
+      "strict_tls": {
+        "status": 200,
+        "authorized": true,
+        "leaf_sha256": "1e187832299a7a9a214cad5a41d96545f4a6aa9000600c0d53d4b3040a112949",
+        "spki": "bhHd4B8EIV/dO7A3fGT4V6y8akdjY8cdOc0/cKSwn1Q="
+      },
+      "replay": {
+        "snapshot": 15,
+        "revision": 11,
+        "verified_references": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225610000000",
+            "record_number": null,
+            "record_sha256": "2f381fe70d7f1bc2ab1df29bdc4b0de6bf7e9c33871f416f347c2059c802a504",
+            "source_slot": "network-0"
+          },
+          {
+            "column": null,
+            "frame_number": 1,
+            "raw_time": "1767225611000000",
+            "record_number": null,
+            "record_sha256": "64116245601a241d5205a074883cbc299790e6e166658f824c5b65973f9268ec",
+            "source_slot": "network-1"
+          }
+        ],
+        "url": "https://127.0.0.1:44943/workbench/?view=replay&dataset=253bcf5942373ae1a62594598eb95186&run=c1e32a791ec871c5d967bedfad5a822a&snapshot=15"
+      },
+      "FP": {
+        "verified_references": [
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:10.500000Z",
+            "record_number": 3,
+            "record_sha256": "fdf15815e6c547e46e198e31fa0010a64788d360d3e6bc44ab0a5ba45893263b",
+            "source_slot": "process"
+          },
+          {
+            "column": "pump",
+            "frame_number": null,
+            "raw_time": "2026-01-01T00:00:12Z",
+            "record_number": 4,
+            "record_sha256": "9cb1a6c6a795d38fe2dbb857259075fc6052158343420be3c0ddbcef67f61e0e",
+            "source_slot": "process"
+          }
+        ]
+      },
+      "FN": {
+        "status": "reference_original_csv_record_verified",
+        "record_number": 2,
+        "values": {
+          "asset": "[\"synthetic-pump\",\"pump_state\"]",
+          "event_id": "manual-transition",
+          "kind": "process_change",
+          "time": "2026-01-01T00:00:14Z"
+        },
+        "original_sha256": "9e26ddd1ce7aee8cdd4683924cfd250854a76972410a4314d0cf77ca41696e5c",
+        "fragment_sha256": "39b0170f136e576560551d89f3695ac927c9bd09328addb491e5d5b44f875705"
+      },
+      "controlled_evaluation_download": {
+        "sha256": "486d75ef7d1dc011653c3eb20e61f509698ed2725fe52d5b35055a3374ef4c85",
+        "bytes": 20376,
+        "filename": "evaluation-594d27c7b798fa59b312ef20f17e0da5.json",
+        "frozen_document_components_equal": [
+          "adapted.json",
+          "annotations.json",
+          "freeze.json",
+          "manifest.json",
+          "reference_inventory.json",
+          "references.json",
+          "registration.json",
+          "result.json",
+          "split.json"
+        ],
+        "equality_basis": "offline semantic comparison of actual browser-downloaded nine-component document against existing source-phase frozen evaluation JSON; no extra service request"
+      },
+      "business_writes": [],
+      "page_errors": [],
+      "browser_closed": true,
+      "temporary_profile_removed": true,
+      "client": {
+        "browser": "156.0.8078.80",
+        "platform": "darwin/arm64"
+      },
+      "report": "output/playwright/r21-https-history/restored-attempt-001/report.json",
+      "harness": "scripts/validation/round21_https_history_browser.cjs",
+      "harness_sha256": "1bcdf880ecfd70a378ff3b028836c630724e0efc90dcf5a08c127a9d73a7eede",
+      "restored_instance": true,
+      "source_attempts_retained": true,
+      "screenshots": [
+        {
+          "path": "docs/refactor/validation-round21/restored-https-replay-snapshot-original.png",
+          "sha256": "213d0bed7293e38a7707b44e95f23af5a17754f8accfd08df98aaf22ce44e155"
+        },
+        {
+          "path": "docs/refactor/validation-round21/restored-https-evaluation-FP-originals.png",
+          "sha256": "abb9b9a1fd43c1951275803a63fb45335cf16f89f0de84b14eaa984280cfeae4"
+        },
+        {
+          "path": "docs/refactor/validation-round21/restored-https-evaluation-FN-independent-original.png",
+          "sha256": "7954421de4e05aaff7aac8f4109e3132ec6799969f57eed778fe6d5435249763"
+        },
+        {
+          "path": "docs/refactor/validation-round21/restored-https-restored-controlled-evaluation-download.png",
+          "sha256": "c0608d162b0cb17af9541a6d01c763f9af67aa0f65fe935b11e4fcffe9098aa4"
+        }
+      ]
+    }
+  },
+  "deployment_restore": {
+    "status": "passed_same_machine_isolated_linux_restore",
+    "scope": "Real PostgreSQL cpag_app to newly created cpag_restore and new shared/control directories in the R21 isolated Linux deployment; same retained synthetic dataset and service identity. Not a whole-machine or key-platform recovery.",
+    "operator_identity": {
+      "version": "independent-ops-install-1",
+      "package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+      "source_reference_commit": "914a0c35b08551bb2659d278616540894f42df20",
+      "runtime_manifest_sha256": "e0a18b4e5f13b4e5cfd9b97e4efc404b45d45aa1651e9c43de83086746bc22c6",
+      "installed_root": "/opt/cpag-ops/dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+      "files_verified": 10,
+      "effective_uid": 0,
+      "runtime_go_worker_replaced": false
+    },
+    "production_ops_manifest": {
+      "analysis_library_policy": "read-only symlink to the fixed runtime analysis source; no Go or Worker replacement",
+      "files": {
+        "scripts/backup/bundle.py": "2d1e8c2223d89c038645e2b069ff7a07cbffb17a6a35eb27858209502cf59f9c",
+        "scripts/backup/dag6.py": "cb3c07708ec20b50f8fde3dc1acf0b7b2a31e27a5be65cc0651280b0611e85ab",
+        "scripts/backup/dag6_evaluation.py": "79576450895f7a81b67abb06b5ec5598715e44b285310c606aa4da86ec432d9c",
+        "scripts/backup/deployment_ops.py": "437622a998f66f7aa90aaf810e4a89474900e94b4b67327006ccf3a9cbc24512",
+        "scripts/backup/engineering.py": "81814c001f862e2176cca6f7c0f684767966f0f820efaab73b349076f2846e03",
+        "scripts/backup/postgres_target.py": "14a45bc9d31e92885ab210d6a697e954757e0d94a8932fc260d6d27bf8523318",
+        "scripts/backup/retention.py": "64dbdb83649ef7b0658eaaa8cce58aa827410e9c9f8d174e8c17f2511cd72995",
+        "scripts/backup/terminal_shared.py": "761067aee14b8628bae5a1fdd1c70ef1586924b9fa1730debda98ccb10cd123a",
+        "scripts/validation/round21_retention_drill.py": "cff8823e648cade24b2776ee4241831e2481a1e5014ff2c277ce9c9607d17fef",
+        "tests/backup/test_operator.py": "56c95de2619247090a1cdba6047db8b9d721d5add75899b97f333552abf5023a"
+      },
+      "package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+      "runtime_manifest_path": "/opt/cpag-release/release.json",
+      "runtime_manifest_sha256": "e0a18b4e5f13b4e5cfd9b97e4efc404b45d45aa1651e9c43de83086746bc22c6",
+      "runtime_root": "/opt/cpag-release",
+      "source_reference_commit": "914a0c35b08551bb2659d278616540894f42df20",
+      "version": "r21-independent-backup-ops-1"
+    },
+    "validation_script_identity": {
+      "live": "cff8823e648cade24b2776ee4241831e2481a1e5014ff2c277ce9c9607d17fef",
+      "stopped": "377668e6e6b253a0ffe794a6d36487b027f0b153f28d00d7e63791e0d18158ca",
+      "change_scope": "validation-only same-log-filesystem hardlink plus actual cross-volume EXDEV; installed production ops and Go/Worker unchanged"
+    },
+    "unit_checks": {
+      "backup_suite": 119,
+      "linux_operator_temporary_directory_and_mock_pg_checks": 15,
+      "log": "deployment-restore/backup-tests.log"
+    },
+    "operator_execution": {
+      "online_backup_expected_refusal": {
+        "version": "r21-online-backup-refusal-1",
+        "passed": true,
+        "returncode": 1,
+        "reason": "maintenance requires stopped Go service and Worker",
+        "source_database": "cpag_app",
+        "valid_bundle_published": false,
+        "failure_receipt_retained": true
+      },
+      "backup": {
+        "action": "backup",
+        "actor": {
+          "effective_uid": 0,
+          "role": "deployment_root_operator",
+          "uid": 0
+        },
+        "bundle_sha256": "025165d5b231d31050172d84cb48d3243a2478d4b072ef36a71c19fa8820c920",
+        "control_files": 47,
+        "database": "cpag_app",
+        "deployment_id": "r21-linux-20261104",
+        "files": 29,
+        "format_version": 7,
+        "postgres_id": "588e551f4b1b4615831cbdf28ef9ebe4ec8a83af50f7673038a9c262b9e6f647",
+        "retention": "retain_source_bundle_controls_and_failed_attempts",
+        "source_trust": "reverify_in_restored_service",
+        "valid": true,
+        "version": "deployment-terminal-bundle-1"
+      },
+      "restore": {
+        "action": "restore",
+        "actor": {
+          "effective_uid": 0,
+          "role": "deployment_root_operator",
+          "uid": 0
+        },
+        "audit_path": "/var/backups/cpag/restore-1793778212494737885-cd9a441b-operation.json",
+        "bundle_sha256": "025165d5b231d31050172d84cb48d3243a2478d4b072ef36a71c19fa8820c920",
+        "control_inventory_equal_before_rebase": true,
+        "database": "cpag_restore",
+        "deployment_id": "r21-linux-20261104",
+        "file_inventory_equal": true,
+        "postgres_id": "588e551f4b1b4615831cbdf28ef9ebe4ec8a83af50f7673038a9c262b9e6f647",
+        "sessions_revoked": 11,
+        "source_trust": "pending_formal_service_reverification",
+        "valid": true,
+        "version": "deployment-terminal-bundle-1",
+        "worker_observations_cleared": {
+          "removed": 1,
+          "table_present": true
+        }
+      },
+      "storage_business_audit": {
+        "valid": true,
+        "phase": "completed",
+        "database": "cpag_restore",
+        "metadata_equal": true,
+        "file_inventory_equal": true,
+        "attempt_history_equal": true,
+        "catalog_equal": true,
+        "sessions_revoked": 11,
+        "control_inventory_equal_before_rebase": true,
+        "verifier_history_equal": true,
+        "capacity_rebase": {
+          "field": "capacity.json.root",
+          "old": "/var/lib/cpag/shared",
+          "new": "/var/lib/cpag-recovery/shared",
+          "reservations_preserved": true
+        },
+        "source_trust": "pending_formal_service_reverification",
+        "restored_authority_credentials": false,
+        "worker_observations_cleared": {
+          "table_present": true,
+          "removed": 1
+        }
+      },
+      "source_preservation": {
+        "version": "r21-original-preserved-fresh-restore-1",
+        "passed": true,
+        "checks": {
+          "original_shared_inventory_unchanged": true,
+          "original_control_inventory_unchanged": true,
+          "restored_shared_inventory_equal": true,
+          "original_job_and_attempt_rows_unchanged": true
+        },
+        "counts": {
+          "source": {
+            "active_sessions": 11,
+            "worker_observations": 1
+          },
+          "restored": {
+            "active_sessions": 0,
+            "worker_observations": 0
+          }
+        },
+        "source_database": "cpag_app",
+        "restore_database": "cpag_restore"
+      },
+      "post_cleanup_source_preservation": {
+        "passed": true,
+        "checks": {
+          "shared_originals_unchanged_after_cleanup": true,
+          "complete_original_control_unchanged_after_cleanup": true
+        }
+      }
+    },
+    "sizes_and_observed_time": {
+      "version": "r21-backup-restore-observed-size-time-1",
+      "sizes_bytes": {
+        "shared": 75745813,
+        "control": 217450,
+        "postgres_dump": 81006,
+        "complete_bundle_all_files": 76219265
+      },
+      "file_counts": {
+        "shared": 29,
+        "control": 47
+      },
+      "observed_intervals_seconds": {
+        "online_refusal_receipt_to_successful_backup_package": 62.034154176712036,
+        "restore_reserved_audit_to_complete_audit": 1.753718126
+      },
+      "timing_basis": {
+        "backup": "same Linux filesystem receipt timestamps; includes service stop and tool orchestration; not pure backup CPU/wall instrumentation",
+        "restore": "root restore audit filename time_ns at reservation to final atomic audit mtime_ns; wall-clock derived, not a monotonic benchmark"
+      },
+      "restore_raw_wall_timestamps_ns": {
+        "start": 1793778212494737885,
+        "end": 1793778214248456011
+      },
+      "current_ownership": {
+        "backup_root": {
+          "uid": 0,
+          "mode": "0o700"
+        },
+        "original_shared": {
+          "uid": 1001,
+          "mode": "0o700"
+        },
+        "original_control": {
+          "uid": 1001,
+          "mode": "0o700"
+        },
+        "restored_shared": {
+          "uid": 1001,
+          "mode": "0o700"
+        },
+        "restored_control": {
+          "uid": 1001,
+          "mode": "0o700"
+        }
+      }
+    },
+    "same_machine_configuration_boundary": {
+      "original_configurations_retained": [
+        "/etc/cpag/app.json",
+        "/etc/cpag/worker.json",
+        "/etc/cpag/operator.json"
+      ],
+      "explicit_recovery_configurations": "/etc/cpag/recovery/{app,worker,operator}.json",
+      "restored_data_ownership_uid": 1001,
+      "backup_root_owner_uid": 0,
+      "backup_root_mode": "0700",
+      "outside_business_bundle": [
+        "private app/worker/operator configuration",
+        "TLS certificate private keys",
+        "DNS/registrar accounts"
+      ],
+      "handoff": "root byte/catalog audit completed before only the two new data/control roots were handed to the retained non-root service identity; no original database or original data directory overwritten"
+    },
+    "formal_service_read_after_restore": {
+      "status": "passed",
+      "phase": "read",
+      "scope": "restored independent Linux target; same retained synthetic dataset",
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "checks": {
+        "real_pre_backup_session_invalidated": {
+          "status": "passed",
+          "source_status": 200,
+          "restored_status": 401
+        },
+        "retained_run_52280551d6851436f1420efce9aeb339": {
+          "status": "passed",
+          "attempt": 1,
+          "verification_statuses": [
+            409,
+            409,
+            200
+          ],
+          "counts": {
+            "candidates": 1,
+            "changes": 1,
+            "network": 2,
+            "operations": 1,
+            "process": 5,
+            "revisions": 0,
+            "snapshots": 0
+          }
+        },
+        "retained_run_c1e32a791ec871c5d967bedfad5a822a": {
+          "status": "passed",
+          "attempt": 1,
+          "verification_statuses": [
+            409,
+            409,
+            409,
+            200
+          ],
+          "counts": {
+            "candidates": 1,
+            "changes": 1,
+            "network": 2,
+            "operations": 1,
+            "process": 5,
+            "revisions": 11,
+            "snapshots": 16
+          }
+        },
+        "replay_four_originals_no_future_prefix_and_FP_FN": {
+          "status": "passed",
+          "verified_originals": 4,
+          "tp": 1,
+          "fp": 1,
+          "fn": 1,
+          "reference_record": 2
+        },
+        "viewer_restored_acl_download": {
+          "status": "passed",
+          "role": "viewer",
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        },
+        "analyst_restored_acl_download": {
+          "status": "passed",
+          "role": "analyst",
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        }
+      }
+    },
+    "linux_cleanup": {
+      "version": "actual-linux-closed-file-retention-1",
+      "checks": {
+        "live_cleanup_refused_without_file_deletion": true,
+        "cross_volume_control_link_rejected_by_os": true,
+        "actual_open_descriptor_prevents_cleanup": true,
+        "closed_preview_only_deleted_with_root_audit": true,
+        "current_log_unknown_runtime_and_control_evidence_preserved": true,
+        "hard_link_to_current_log_preserved": true
+      },
+      "scope": "unique synthetic log/runtime fixtures only; no business inventory reclamation",
+      "validation_scripts": {
+        "stopped": "377668e6e6b253a0ffe794a6d36487b027f0b153f28d00d7e63791e0d18158ca",
+        "live": "cff8823e648cade24b2776ee4241831e2481a1e5014ff2c277ce9c9607d17fef"
+      },
+      "production_ops_package_sha256": "dd37db61292694856bb53f7c290b9c600b302747f546f727c0548a991752097d",
+      "audit": "/var/backups/cpag/r21-retention-eb279a08a795-stopped-cleanup-audit.json",
+      "deleted_count": 3,
+      "status": "passed"
+    },
+    "retention_policy": {
+      "automatic_cleanup_categories": {
+        "closed_rotated_runtime_logs": "log_root *.log.*; configurable --log-days, default 14",
+        "explicitly_closed_temporary_files": "run_root *.tmp.closed; configurable --temporary-days, default 1"
+      },
+      "apply_guards": [
+        "root operator and exact deployment confirmation",
+        "private preview from controlled backup_root",
+        "stopped-service exclusive maintenance lock",
+        "Linux open-file inspection",
+        "single-link non-symlink file, unchanged inode/size/time/hash and age",
+        "per-file protected root audit"
+      ],
+      "never_enter_automatic_deletion": [
+        "shared originals and run artifacts",
+        "inputs/catalog including DB-unconfirmed orphans",
+        "all control attempts, unresolved/failed runs and exit proofs",
+        "backup packages and partial/failed backup or restore evidence"
+      ],
+      "backup_retention": "--keep only generates reviewable-old-complete preview; no bundle deletion",
+      "business_orphans": "previews from stopped bundle audit only; manual history/reference review, no automatic quarantine or deletion",
+      "actual_deleted_files": 3,
+      "actual_scope": "uniquely owned synthetic log/tmp drill fixtures only"
+    },
+    "timing_limit": "Backup interval includes stop and orchestration between receipts. Restore duration is wall-clock derived from root audit reservation filename to final audit mtime, not a monotonic/capacity benchmark.",
+    "artifacts": {
+      "backup-result.json": {
+        "path": "deployment-restore/backup-result.json",
+        "sha256": "4cbcf29aedb0993ce9808645210300c3ab4fc906dc189389d9183e06bb8a08ea"
+      },
+      "backup-root-ownership.json": {
+        "path": "deployment-restore/backup-root-ownership.json",
+        "sha256": "5048397d5538f847fdbd8361b9799b158daed001929af0b243d764517e81c71b"
+      },
+      "backup-tests.log": {
+        "path": "deployment-restore/backup-tests.log",
+        "sha256": "a7445206799d0d651bf5d3b728f87ca447873dc30e131c72572f4c8595af7d38"
+      },
+      "cleanup-root-audit.json": {
+        "path": "deployment-restore/cleanup-root-audit.json",
+        "sha256": "f75e6b7afdb487f2cc6294cfb642a67cd664649d53d515386d4923704cd71999"
+      },
+      "linux-retention-report.json": {
+        "path": "deployment-restore/linux-retention-report.json",
+        "sha256": "e5a5f1ec0faeca60d606772fa13c9e949cfb30a0ed94256b87e6a3982b2c6d15"
+      },
+      "observed-size-time.json": {
+        "path": "deployment-restore/observed-size-time.json",
+        "sha256": "1fffd4bbeac650ef0c7e4925370af0fbd23ecbf9997982b76d93b41e3b5831d3"
+      },
+      "online-backup-refusal.json": {
+        "path": "deployment-restore/online-backup-refusal.json",
+        "sha256": "fc53dead5dd4955dfc486fc1319ed5bf7765e796728366ea176d1fc17628b3dd"
+      },
+      "ops-installed.json": {
+        "path": "deployment-restore/ops-installed.json",
+        "sha256": "550f049d6d12dd031d35d497d3defb94041fe80bf834760256d531e3221631fc"
+      },
+      "ops-manifest.json": {
+        "path": "deployment-restore/ops-manifest.json",
+        "sha256": "032527630a1b16cc1e078e273f11db3e4518ab41acc7ceefce0649962d806056"
+      },
+      "original-preserved-restore.json": {
+        "path": "deployment-restore/original-preserved-restore.json",
+        "sha256": "58998e7caec66855485409735c61eb209c5fcebbbdad481373be4530af05166e"
+      },
+      "post-cleanup-source-preserved.json": {
+        "path": "deployment-restore/post-cleanup-source-preserved.json",
+        "sha256": "9cc7581b921f4bd892e7a4ebcd47764b83b2222e03893848aa16f715f8397cc4"
+      },
+      "restore-business-audit-summary.json": {
+        "path": "deployment-restore/restore-business-audit-summary.json",
+        "sha256": "d5666c7c7429cb9c6417a1fe58613992ad84cfa24bced5dea0953947da9e21d7"
+      },
+      "restore-result.json": {
+        "path": "deployment-restore/restore-result.json",
+        "sha256": "42248933228b493285a3d521704dca23f489bf3aeef5d1f7e07ab2a6c93cdd0c"
+      },
+      "restored-api-read.json": {
+        "path": "deployment-restore/restored-api-read.json",
+        "sha256": "8566a631679a5afd61e13a4dff5cb214f3a7554941c2b5d750a2fb2adf40202d"
+      },
+      "validation-manifest.json": {
+        "path": "deployment-restore/validation-manifest.json",
+        "sha256": "2e7a6940cff8d43752617f152aaf0360cd72163fdb579efffab255179e999fd8"
+      }
+    }
+  },
+  "linux_deployment": {
+    "status": "passed",
+    "scope": "isolated containerized single Linux/arm64 deployment; synthetic small workflow; process cold starts, not machine reboots",
+    "platform": {
+      "distribution": "Alpine 3.23",
+      "architecture": "arm64",
+      "kernel": "LinuxKit 6.12.54",
+      "manager": "native Linux process mode",
+      "service_uid": 1001,
+      "daemon": "dedicated nested Unix-socket Docker; no host socket mount",
+      "listeners": "only HTTPS44943/HTTP44080 published on host127.0.0.1; Go public/internal and PG loopback"
+    },
+    "runtime_identity": {
+      "binary_sha256": "159e5fc9e46c4dd54d846eb9516470f02ddf50cd6fdb9f54885620a71f2f0a9f",
+      "release_sha256": "e0a18b4e5f13b4e5cfd9b97e4efc404b45d45aa1651e9c43de83086746bc22c6",
+      "configs": {
+        "app.json": "195480e755d997746cd4ec495b0f0df4ea38e733587ac354856f6d0bce74986e",
+        "worker.json": "c3327259b28649a563239ac3268209b42abf84a2a14495f9f50046420ddd9bcc",
+        "operator.json": "7762e1a239bf37f03c962b373a3810c851ffda182cd7431ac5dd95cc4a55eb37"
+      },
+      "source_reference_commit": "833fbb3854a8dd363790cef93cd8f6c1832eb044",
+      "go_build_inputs_sha256": "b71f6fad26daa56829f590952dbc5a2335a6e6343ae2f25a496b8b40b2c80120",
+      "executor_image_id": "sha256:50f51c53d1acb3ce47ec679f999c921129b7bf3ae4ede67ddb5eb52b29338831"
+    },
+    "cold_starts": {
+      "initial_preflight_only": 3,
+      "supplemental_fixed_business_reads": [
+        {
+          "cycle": 1,
+          "started": {
+            "manager": "process",
+            "ready_status": 200,
+            "services": {
+              "api": {
+                "running": true,
+                "pid": 99161
+              },
+              "worker": {
+                "running": true,
+                "pid": 99173
+              }
+            }
+          },
+          "same_run_status": 200,
+          "run_id": "52280551d6851436f1420efce9aeb339",
+          "state": "succeeded",
+          "attempt": 1,
+          "dataset_id": "253bcf5942373ae1a62594598eb95186",
+          "config_version_id": "cd188122153e2432d288b4db28fcbd58",
+          "same_complete_run_detail": true,
+          "same_three_original_file_hashes": true,
+          "pre_restart_session_still_valid": true
+        },
+        {
+          "cycle": 2,
+          "started": {
+            "manager": "process",
+            "ready_status": 200,
+            "services": {
+              "api": {
+                "running": true,
+                "pid": 99283
+              },
+              "worker": {
+                "running": true,
+                "pid": 99295
+              }
+            }
+          },
+          "same_run_status": 200,
+          "run_id": "52280551d6851436f1420efce9aeb339",
+          "state": "succeeded",
+          "attempt": 1,
+          "dataset_id": "253bcf5942373ae1a62594598eb95186",
+          "config_version_id": "cd188122153e2432d288b4db28fcbd58",
+          "same_complete_run_detail": true,
+          "same_three_original_file_hashes": true,
+          "pre_restart_session_still_valid": true
+        },
+        {
+          "cycle": 3,
+          "started": {
+            "manager": "process",
+            "ready_status": 200,
+            "services": {
+              "api": {
+                "running": true,
+                "pid": 99403
+              },
+              "worker": {
+                "running": true,
+                "pid": 99414
+              }
+            }
+          },
+          "same_run_status": 200,
+          "run_id": "52280551d6851436f1420efce9aeb339",
+          "state": "succeeded",
+          "attempt": 1,
+          "dataset_id": "253bcf5942373ae1a62594598eb95186",
+          "config_version_id": "cd188122153e2432d288b4db28fcbd58",
+          "same_complete_run_detail": true,
+          "same_three_original_file_hashes": true,
+          "pre_restart_session_still_valid": true
+        }
+      ],
+      "fixed_run_id": "52280551d6851436f1420efce9aeb339",
+      "no_recomputation": true,
+      "same_binary_and_config": true
+    },
+    "business": {
+      "status": "passed",
+      "scope": "one retained small synthetic Linux deployment workflow; not capacity or industrial acceptance",
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "offline_run": "52280551d6851436f1420efce9aeb339",
+      "checks": {
+        "replay_attempt1_complete_four_originals_and_no_future_prefix": {
+          "status": "passed",
+          "counts": {
+            "candidates": 1,
+            "changes": 1,
+            "network": 2,
+            "operations": 1,
+            "process": 5,
+            "revisions": 11,
+            "snapshots": 16
+          },
+          "query_statuses": [
+            200
+          ],
+          "independent_raw_bytes": true
+        },
+        "valid_128MiB_evaluation_import_and_FP_FN_originals": {
+          "status": "passed",
+          "wire_bytes": 134217728,
+          "evaluation_id": "594d27c7b798fa59b312ef20f17e0da5",
+          "tp": 1,
+          "fp": 1,
+          "fn": 1,
+          "reference_record": 2
+        },
+        "viewer_role_and_download": {
+          "status": "passed",
+          "without_acl": 404,
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        },
+        "analyst_role_and_download": {
+          "status": "passed",
+          "without_acl": 404,
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        },
+        "anonymous_and_live_worker_observations": {
+          "status": "passed",
+          "anonymous_download": 401,
+          "worker_fresh": 1
+        }
+      },
+      "replay_run": "c1e32a791ec871c5d967bedfad5a822a",
+      "evaluation_id": "594d27c7b798fa59b312ef20f17e0da5"
+    },
+    "transport_byte_boundaries": {
+      "scope": "HTTPS byte-boundary receiving/downloading only; generated filler is never parsed or analyzed",
+      "checks": {
+        "network": {
+          "status": "passed",
+          "exact_limit_bytes": 67108864,
+          "upload_status": 201,
+          "download_status": 200,
+          "download_bytes": 67108864,
+          "sha256": "5ecca7253786ea6e8d59dbf194746ba9bed536069c92cbe51750413bc3895cd5",
+          "plus_one_status": 413,
+          "plus_one_error": "proxy_size_limit",
+          "plus_one_body_sent": false
+        },
+        "process": {
+          "status": "passed",
+          "exact_limit_bytes": 8388608,
+          "upload_status": 201,
+          "download_status": 200,
+          "download_bytes": 8388608,
+          "sha256": "4b5e9d2bc04cbb17ee5d1aa5c00286edf7b7961c4f0dc5ae514b9f1efe1002d5",
+          "plus_one_status": 413,
+          "plus_one_error": "size_limit",
+          "plus_one_body_sent": false
+        },
+        "evaluation_plus_one": {
+          "status": "passed",
+          "declared_bytes": 134217729,
+          "http_status": 413,
+          "error": "proxy_size_limit",
+          "body_sent": false
+        }
+      },
+      "dataset_id": "a8a68d1d4622d24d0f5e60f9b30a2323",
+      "status": "passed"
+    },
+    "tls_proxy": {
+      "scope": "actual TLS client with explicit temporary test CA; no OS/browser trust installation",
+      "checks": {
+        "explicit_CA_chain_and_hostname_verified": {
+          "status": 200,
+          "verify_mode": "2",
+          "check_hostname": true
+        },
+        "secure_cookie": {
+          "Secure": true,
+          "HttpOnly": true,
+          "SameSite": "Strict",
+          "Path": "/api/v3"
+        },
+        "bad_origin_with_forwarding_spoof_rejected": {
+          "status": 403,
+          "code": "origin_denied"
+        },
+        "https_bad_host_rejected": {
+          "status": 421,
+          "code": "unrecognized_host"
+        },
+        "http_bad_host_rejected": {
+          "status": 421
+        },
+        "fixed_https_redirect": {
+          "status": 308,
+          "location": "https://127.0.0.1:44943/workbench/?r21-probe=1"
+        },
+        "acme_webroot_local_readback": {
+          "status": 200,
+          "sha256": "059b9e093c31c96e79bcb3ac6eefde53c3c900acd71014747ddbb2b80656dcee",
+          "external_ACME_issuance_tested": false
+        },
+        "proxy_only_public_loopback_and_strips_forwarding_claims": true
+      },
+      "status": "passed"
+    },
+    "local_test_certificate_reload": {
+      "status": "passed",
+      "scope": "local test-CA leaf renewal and installed nginx syntax-check/reload hook; no external ACME issuance",
+      "previous_leaf_sha256": "9203952c29dae8bea45e89ec2b136b384a934772b4fedda3d23cafa3a463e162",
+      "renewed_leaf_sha256": "1e187832299a7a9a214cad5a41d96545f4a6aa9000600c0d53d4b3040a112949",
+      "same_explicit_test_CA": true,
+      "chain_and_hostname_verified": true,
+      "tls_version": "TLSv1.3"
+    },
+    "restored_target_reads": {
+      "status": "passed",
+      "phase": "read",
+      "scope": "restored independent Linux target; same retained synthetic dataset",
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "checks": {
+        "real_pre_backup_session_invalidated": {
+          "status": "passed",
+          "source_status": 200,
+          "restored_status": 401
+        },
+        "retained_run_52280551d6851436f1420efce9aeb339": {
+          "status": "passed",
+          "attempt": 1,
+          "verification_statuses": [
+            409,
+            409,
+            200
+          ],
+          "counts": {
+            "candidates": 1,
+            "changes": 1,
+            "network": 2,
+            "operations": 1,
+            "process": 5,
+            "revisions": 0,
+            "snapshots": 0
+          }
+        },
+        "retained_run_c1e32a791ec871c5d967bedfad5a822a": {
+          "status": "passed",
+          "attempt": 1,
+          "verification_statuses": [
+            409,
+            409,
+            409,
+            200
+          ],
+          "counts": {
+            "candidates": 1,
+            "changes": 1,
+            "network": 2,
+            "operations": 1,
+            "process": 5,
+            "revisions": 11,
+            "snapshots": 16
+          }
+        },
+        "replay_four_originals_no_future_prefix_and_FP_FN": {
+          "status": "passed",
+          "verified_originals": 4,
+          "tp": 1,
+          "fp": 1,
+          "fn": 1,
+          "reference_record": 2
+        },
+        "viewer_restored_acl_download": {
+          "status": "passed",
+          "role": "viewer",
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        },
+        "analyst_restored_acl_download": {
+          "status": "passed",
+          "role": "analyst",
+          "artifact_sha256": "29306bfde577bbdb588d8fa827ccb897269aaee18c56e1054d768c4e511fb1df"
+        }
+      }
+    },
+    "restored_analyst_actual_submission": {
+      "status": "passed",
+      "phase": "analyst",
+      "scope": "restored independent Linux target; same retained synthetic dataset",
+      "dataset_id": "253bcf5942373ae1a62594598eb95186",
+      "checks": {
+        "analyst_actual_submit_and_worker_attempt1": {
+          "status": "passed",
+          "state": "succeeded",
+          "attempt": 1,
+          "attempt_history": [
+            {
+              "attempt": 1,
+              "claimed_at": "2026-11-04T07:53:01.871131Z",
+              "exited_at": "2026-11-04T07:53:02.907601Z",
+              "location": "docker:b59c4960-7547-4d56-9809-41bbb33b466b:f9053a407c6e7eb682d16c6d",
+              "publication_state": "published"
+            }
+          ],
+          "verification_statuses": [
+            200
+          ]
+        },
+        "persisted_analyst_submission_audit": {
+          "status": "passed",
+          "event_id": 168,
+          "user_id": "4e7ea35d48a1ce222243e0d3ae7a2d24",
+          "action": "run_create",
+          "outcome": "ok"
+        }
+      },
+      "analyst_user_id": "4e7ea35d48a1ce222243e0d3ae7a2d24",
+      "analyst_role": "analyst",
+      "submission_status": 201,
+      "run_id": "4024fdfe98b6a7ecd0eda424773822ea",
+      "config_id": "cd188122153e2432d288b4db28fcbd58",
+      "preflight_id": "faa9e400844d866a968c83b0b2cb5117"
+    },
+    "raw_private_evidence": [
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/business-cold-starts.json",
+        "sha256": "ee8506eba1245eb15986c4a06ffc899170ca02f10867e0e691393763eaca0d59"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/cold-starts.json",
+        "sha256": "c28399d1bef42dbf1a85a10d5efa9cbe7c6ceabb90f725c8c14e647c8ba78517"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/business-smoke/verification.json",
+        "sha256": "272f0027993c8cdf6d6572b6f6f0de18a51fa038f323484553ac595083269cc8"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/transport-boundaries.json",
+        "sha256": "ced2c8039e206601061c675b6b81353143f2b178455a5ddce25d4a61a8abdff0"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/proxy-tls-client.json",
+        "sha256": "ebc6328bb4a4f4021dae7f3116747a5c04b30cbfb9ce33f2cf3073193ddbdaab"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/certificate-reload.json",
+        "sha256": "508812671628e8cc36d40a447a5dfe59dca51eac8bd275502ad5b06d5f3ba467"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/recovery-handoff.json",
+        "sha256": "3e4836790c79f8f258ffc4cb8812c5a3793ea49cf20109a60ca3bb717f15f86f"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/restored-read.json",
+        "sha256": "8566a631679a5afd61e13a4dff5cb214f3a7554941c2b5d750a2fb2adf40202d"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/restored-analyst-submit.json",
+        "sha256": "4b5385e15af5432411275a5f3caed8f78528d07f2ca900f9de80e6964c619eb7"
+      },
+      {
+        "path": "outputs/cpag-r21-linux-private-20261104/cleanup.json",
+        "sha256": "bf7896aebc022d5cf3322a050f5d34f20afad435c7281bc31d3416a1b986f477"
+      }
+    ],
+    "harnesses": [
+      {
+        "path": "deployments/r21/build-release.py",
+        "sha256": "b8aa868496f16ad000c3b0906bc7dee201a4e7deac0d64a8c9d9efd1dbf64616"
+      },
+      {
+        "path": "deployments/r21/verify-proxy.py",
+        "sha256": "39f9051f29cd8164c6aa30e44de38088fc954c0ccac5acff2ac6d8932900ff1a"
+      },
+      {
+        "path": "deployments/r21/verify-business.py",
+        "sha256": "060c4aaaf7a4122eceed659aef9abf3a4570e7b88c9781217c281e9bf8ff00f3"
+      },
+      {
+        "path": "deployments/r21/verify-transport.py",
+        "sha256": "1f3266c4a188fab9eec5f6a2c80736265c035a93388a64896094e48d75cf551f"
+      },
+      {
+        "path": "deployments/r21/verify-restored.py",
+        "sha256": "fa1f70172e823f2d9d77f76c814541c8a33c738118487f27aba001e55a6902f2"
+      }
+    ],
+    "limits": [
+      "Containerized Alpine Linux/arm64; not Ubuntu reference, bare-machine boot, amd64 or capacity acceptance.",
+      "Systemd units delivered but PID1-systemd activation/timer not exercised in this DinD environment.",
+      "Strict clients explicitly trusted a temporary local test CA and checked hostname. Chromium only used that verified leaf SPKI exception; OS/browser CA trust was not installed.",
+      "Local ACME webroot readback and test-leaf nginx reload passed; public domain DNS/ACME issuance/renewal and Windows client remain external gates.",
+      "64MiB network and8MiB process large fixtures tested receiving/download only and were never analyzed.",
+      "Limit+1 checks used actual declared Content-Length rejection before sending an overlimit body;128MiB evaluation import transmitted the complete valid padded body."
+    ],
+    "cleanup": {
+      "status": "passed",
+      "scope": "only owned R21 independent Linux processes; stopped outer and private volumes retained",
+      "at_utc": "2026-11-04T08:01:36.102323+00:00",
+      "manager_after": {
+        "manager": "process",
+        "ready_status": null,
+        "services": {
+          "api": {
+            "running": false,
+            "pid": null
+          },
+          "worker": {
+            "running": false,
+            "pid": null
+          }
+        }
+      },
+      "inner_running_containers": "",
+      "outer_state": "exited",
+      "loopback_ports_closed": {
+        "44943": true,
+        "44080": true
+      },
+      "retained_named_volumes": [
+        "cpag-r21-engine-20261104",
+        "cpag-r21-state-20261104"
+      ],
+      "retained_outer": "cpag-r21-linux-20261104",
+      "retained_backup_and_recovery": "original private container layer, unchanged; no additional credentials or private-key copies"
+    },
+    "retained_infrastructure_observations": [
+      {
+        "case": "first Docker internal bridge did not publish host ports",
+        "disposition": "recreated only the empty owned outer before business; retained original output",
+        "path": "outputs/cpag-r21-linux-private-20261104/initial-internal-network-ports.txt"
+      },
+      {
+        "case": "initial sandbox denied local curl socket",
+        "disposition": "normal approved strict --cacert client subsequently passed; not a server failure",
+        "path": "outputs/cpag-r21-linux-private-20261104/strict-curl-sandbox-denied.txt"
+      }
+    ]
+  },
+  "eu_kubernetes_fixes_20261105": {
+    "report": "eu-kubernetes-fixes-20261105.json",
+    "acceptance": "../round21-kubernetes-fixes-20261105.md",
+    "scope": "EU synthetic replay, cancellation and terminal format7 backup/restore; Windows and wider R21 gates remain pending"
+  }
+}

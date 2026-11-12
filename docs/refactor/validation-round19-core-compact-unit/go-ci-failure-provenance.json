@@ -1,0 +1,8 @@
+{
+  "commit": "a3d2a92f0c2f5dd71b69e050803fc1f7e1ba3cf2",
+  "run": "https://github.com/TonyP4N/cpagx-go/actions/runs/40698636579",
+  "original_sha256": "ae70b518224905392fcb08b43620643dff06b7fbb2adc0ce24de9b577d45d185",
+  "public_sha256": "ae70b518224905392fcb08b43620643dff06b7fbb2adc0ce24de9b577d45d185",
+  "change": "ANSI color removal only",
+  "cause": "37 schema files, explicit registry still 31; register exact new schema names; do not relax count"
+}

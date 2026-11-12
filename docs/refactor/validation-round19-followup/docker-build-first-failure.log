@@ -1,0 +1,1 @@
+ERROR: failed to build: Docker API /_ping returned 500 Internal Server Error. First build cpag-isolated:r19-s100-dev1 on 2026-10-28; no image success claimed.

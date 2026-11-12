@@ -1,0 +1,119 @@
+test_duplicate_output_does_not_overwrite (test_round19_bundle.BundleTests.test_duplicate_output_does_not_overwrite) ... ok
+test_freeze_completion_must_precede_opening_and_future_registration_refused (test_round19_bundle.BundleTests.test_freeze_completion_must_precede_opening_and_future_registration_refused) ... FAIL
+test_freeze_open_verify_query_and_portable_copy (test_round19_bundle.BundleTests.test_freeze_open_verify_query_and_portable_copy) ... ok
+test_frozen_policy_and_tolerance_changes_refused (test_round19_bundle.BundleTests.test_frozen_policy_and_tolerance_changes_refused) ... ok
+test_imported_bundle_rejects_late_freeze_even_when_rehashed (test_round19_bundle.BundleTests.test_imported_bundle_rejects_late_freeze_even_when_rehashed) ... FAIL
+test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) ... 
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='reference_status') ... FAIL
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='version') ... FAIL
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='unexpected') ... FAIL
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='freeze', field='custody') ... FAIL
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='freeze', field='unexpected') ... FAIL
+  test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='manifest', field='unexpected') ... FAIL
+test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) ... 
+  test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='missing') ... FAIL
+  test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='empty') ... FAIL
+  test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='bad_hash') ... FAIL
+  test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='extra') ... FAIL
+test_no_reference_or_tampered_result_is_trusted (test_round19_bundle.BundleTests.test_no_reference_or_tampered_result_is_trusted) ... ok
+
+======================================================================
+FAIL: test_freeze_completion_must_precede_opening_and_future_registration_refused (test_round19_bundle.BundleTests.test_freeze_completion_must_precede_opening_and_future_registration_refused)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 100, in test_freeze_completion_must_precede_opening_and_future_registration_refused
+    with self.assertRaisesRegex(ValueError,'freeze.*opening'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_late_freeze_even_when_rehashed (test_round19_bundle.BundleTests.test_imported_bundle_rejects_late_freeze_even_when_rehashed)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 113, in test_imported_bundle_rejects_late_freeze_even_when_rehashed
+    with self.assertRaisesRegex(ValueError,'freeze.*opening'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='reference_status')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='version')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='binding', field='unexpected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='freeze', field='custody')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='freeze', field='unexpected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields (test_round19_bundle.BundleTests.test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields) (target='manifest', field='unexpected')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 146, in test_imported_bundle_rejects_proof_claims_unknown_versions_and_extra_contract_fields
+    with self.assertRaises(ValueError):eb.verify_bundle(root,r/'artifact')
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='missing')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 126, in test_imported_bundle_revalidates_all_independent_reference_declarations
+    with self.assertRaisesRegex(ValueError,'reference'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='empty')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 126, in test_imported_bundle_revalidates_all_independent_reference_declarations
+    with self.assertRaisesRegex(ValueError,'reference'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='bad_hash')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 126, in test_imported_bundle_revalidates_all_independent_reference_declarations
+    with self.assertRaisesRegex(ValueError,'reference'):
+AssertionError: ValueError not raised
+
+======================================================================
+FAIL: test_imported_bundle_revalidates_all_independent_reference_declarations (test_round19_bundle.BundleTests.test_imported_bundle_revalidates_all_independent_reference_declarations) (mutation='extra')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/evaluation/test_round19_bundle.py", line 126, in test_imported_bundle_revalidates_all_independent_reference_declarations
+    with self.assertRaisesRegex(ValueError,'reference'):
+AssertionError: ValueError not raised
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.849s
+
+FAILED (failures=12)

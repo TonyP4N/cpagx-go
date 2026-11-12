@@ -1,0 +1,53 @@
+{
+  "results": [
+    {
+      "case": "offline_source_flag",
+      "entrypoint": "issue_approval",
+      "mutated_field": "synthetic",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "offline_source_flag",
+      "entrypoint": "open_reader",
+      "mutated_field": "synthetic",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_source_flag",
+      "entrypoint": "issue_approval",
+      "mutated_field": "synthetic",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_source_flag",
+      "entrypoint": "open_reader",
+      "mutated_field": "synthetic",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_final_number",
+      "entrypoint": "issue_approval",
+      "mutated_field": "final_snapshot_number",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_final_number",
+      "entrypoint": "open_reader",
+      "mutated_field": "final_snapshot_number",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_final_id",
+      "entrypoint": "issue_approval",
+      "mutated_field": "final_snapshot_id",
+      "outcome": "accepted_unbound_manifest"
+    },
+    {
+      "case": "replay_final_id",
+      "entrypoint": "open_reader",
+      "mutated_field": "final_snapshot_id",
+      "outcome": "accepted_unbound_manifest"
+    }
+  ],
+  "scope": "independent frozen-dev3 verifier defect reproduction; no authority token retained"
+}

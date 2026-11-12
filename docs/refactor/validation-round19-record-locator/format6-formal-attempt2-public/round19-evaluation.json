@@ -1,0 +1,351 @@
+{
+  "checks": [
+    {
+      "job": "6424c9eb949ecbd63de06f1e749ba031",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c931c99a09b6422c6a89fd1f18ec726b",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "3889aa6b1f4b80001f5d126ae8bf7d99",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "1479d36c937b03b3df32ad1da06f6d2d",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "a3515576ea1a7ad1f65982389ba9c036",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "244a30dd6a948c3b668db37e82eff422",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "2592cd473349ea72fb22cd88163dd58a",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c72ada8566c24198b4849c841bd7d7d6",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "c9a1c3575ed849ebf880f08fff21ef9c",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "15962c2097c1277f0e944b32bfb3581f",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "216db5ed0d2f6b66286f0529499bae7a",
+      "attempt": 1,
+      "stage": "original",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "2c17e25696e8f3da4e431ff00b955bd2",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "6424c9eb949ecbd63de06f1e749ba031",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c931c99a09b6422c6a89fd1f18ec726b",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "3889aa6b1f4b80001f5d126ae8bf7d99",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "offline",
+      "evaluation_id": "1479d36c937b03b3df32ad1da06f6d2d",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "a3515576ea1a7ad1f65982389ba9c036",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        1,
+        1,
+        1
+      ],
+      "label_changed": true,
+      "mode": "replay",
+      "evaluation_id": "244a30dd6a948c3b668db37e82eff422",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "2592cd473349ea72fb22cd88163dd58a",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "c72ada8566c24198b4849c841bd7d7d6",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "c9a1c3575ed849ebf880f08fff21ef9c",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "15962c2097c1277f0e944b32bfb3581f",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    },
+    {
+      "job": "216db5ed0d2f6b66286f0529499bae7a",
+      "attempt": 1,
+      "stage": "restored",
+      "expected_tp_fp_fn": [
+        2,
+        0,
+        0
+      ],
+      "label_changed": false,
+      "mode": "replay",
+      "evaluation_id": "2c17e25696e8f3da4e431ff00b955bd2",
+      "evidence_available": true,
+      "bundle_version": "evaluation-bundle-3",
+      "reference_original_sha256": "6114e100d75f4c23d64b02157377a93bba3abf23d70c5bac33bff773c28b9914",
+      "reference_original_status": "reference_original_csv_record_verified",
+      "reference_external_path_removed": true,
+      "invalid_reference_imports": {
+        "missing": 409,
+        "tampered": 409,
+        "out_of_range": 409,
+        "missing_column": 409,
+        "unknown_version": 409,
+        "wrong_file_hash": 409
+      },
+      "record_locator_status": "csv_logical_record_resolved",
+      "record_fragment_sha256": "0849e33dbb98d6b64035c43dbdf9bd0ac2cec795e482f6f3273f82805e0ce7cf"
+    }
+  ],
+  "roles": [
+    {
+      "ungranted_read": 404,
+      "ungranted_reference_original": 404,
+      "granted_reference_original": 200,
+      "granted_read": 200,
+      "viewer_write": 403,
+      "duplicate_same_id": true
+    }
+  ],
+  "scope": "formal synthetic task plus terminal PG/file restore; not capacity or industrial validation"
+}

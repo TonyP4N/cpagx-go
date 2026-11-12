@@ -1,0 +1,45 @@
+{
+  "scope": "public copies only; original failed measurements/raw responses retained byte-for-byte under controlled outputs, not committed",
+  "files": [
+    {
+      "public_file": "backup-format6-compatibility-unit.log",
+      "controlled_raw_file": "outputs/cpag-r19-reference-controlled-evidence/raw-public-source/backup-format6-compatibility-unit.log",
+      "original_sha256": "73e10fe0876d056eec2c1cedfa439d477d0383c16959c142a299894a1436d3f1",
+      "public_sha256": "96c6310383fcc00d94af7d9b22e5e7bae25040b7e48b06e2e69c7c4775a8a3a1",
+      "replacements": {
+        "workspace_root": "$WORKSPACE",
+        "other_user_home_paths": "$LOCAL_HOME"
+      }
+    },
+    {
+      "public_file": "backup-format6-first-tests.log",
+      "controlled_raw_file": "outputs/cpag-r19-reference-controlled-evidence/raw-public-source/backup-format6-first-tests.log",
+      "original_sha256": "339ff98f856350526759dbbedefbce44b8dd70d49aafdcb96818bfa76fcb7c13",
+      "public_sha256": "f931686fda4a7b592d6abb95502d525f2a93395b32762a6034c533f4105e8430",
+      "replacements": {
+        "workspace_root": "$WORKSPACE",
+        "other_user_home_paths": "$LOCAL_HOME"
+      }
+    },
+    {
+      "public_file": "format6-formal-attempt1.log",
+      "controlled_raw_file": "outputs/cpag-r19-reference-controlled-evidence/raw-public-source/format6-formal-attempt1.log",
+      "original_sha256": "eb43e770152534d7fca9b30aae27f9d6a278fd3e2c69389d042509142886db03",
+      "public_sha256": "8971ba8d5d8105f9d899f5058855bb2d630de7c599dc7603724d59f0809cc93b",
+      "replacements": {
+        "workspace_root": "$WORKSPACE",
+        "other_user_home_paths": "$LOCAL_HOME"
+      }
+    },
+    {
+      "public_file": "format6-formal-attempt2-public/results.json",
+      "controlled_raw_file": "outputs/cpag-r19-reference-controlled-evidence/raw-public-source/format6-formal-attempt2-public/results.json",
+      "original_sha256": "7b78c8585991cdcb2e16d036517b00eae092e789f9e03d6a94feb7376ceedd40",
+      "public_sha256": "e3faad46a6528da95bea16d0350f213396aa3d9a08009d5dd792d34c43c59bc8",
+      "replacements": {
+        "workspace_root": "$WORKSPACE",
+        "other_user_home_paths": "$LOCAL_HOME"
+      }
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+Source: https://github.com/TonyP4N/cpagx-go/actions/runs/40479084527/job/122104556712
+Commit: bc11e2838acc1a736b5de1e25419ba47891c430c
+Exact test-step excerpt (setup/cache log omitted):
+##[group]Run go test ./...
+2026-10-27T09:13:21.8574915Z [36;1mgo test ./...[0m
+2026-10-27T09:13:21.8754685Z shell: /usr/bin/bash -e {0}
+2026-10-27T09:13:21.8754944Z ##[endgroup]
+2026-10-27T09:13:22.2032448Z ok  	github.com/TonyP4N/cpagx-go/api	(cached)
+2026-10-27T09:13:22.4926336Z ok  	github.com/TonyP4N/cpagx-go/cmd/cpagctl	0.007s
+2026-10-27T09:13:22.4927153Z ?   	github.com/TonyP4N/cpagx-go/cmd/cpagx	[no test files]
+2026-10-27T09:13:23.5028968Z ok  	github.com/TonyP4N/cpagx-go/internal/catalog	0.073s
+2026-10-27T09:13:23.5029841Z ?   	github.com/TonyP4N/cpagx-go/internal/config	[no test files]
+2026-10-27T09:13:23.5049523Z --- FAIL: TestSharedSchemas (0.00s)
+2026-10-27T09:13:23.5050426Z     contracts_test.go:16: fifteen schemas required: <nil>
+2026-10-27T09:13:23.5050856Z FAIL
+2026-10-27T09:13:23.5051203Z FAIL	github.com/TonyP4N/cpagx-go/internal/contracts	0.082s
+2026-10-27T09:13:23.7388879Z ok  	github.com/TonyP4N/cpagx-go/internal/jobapi	0.151s
+2026-10-27T09:13:23.7389351Z ok  	github.com/TonyP4N/cpagx-go/internal/jobs	0.002s
+2026-10-27T09:13:23.7389696Z ?   	github.com/TonyP4N/cpagx-go/internal/services	[no test files]
+2026-10-27T09:13:23.7389970Z FAIL
+2026-10-27T09:13:23.7587431Z ##[error]Process completed with exit code 1.
+2026-10-27T09:13:23.7701506Z Post job cleanup.
+2026-10-27T09:13:23.8414830Z [command]/usr/bin/git version
+2026-10-27T09:13:23.8453583Z git version 2.55.0
+2026-10-27T09:13:23.8488006Z Temporarily overriding HOME='/home/runner/work/_temp/9ada24de-7c66-47cc-8e55-a3afce5c0287' before making global git config changes
+2026-10-27T09:13:23.8489398Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-27T09:13:23.8492821Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/cpagx-go/cpagx-go
+2026-10-27T09:13:23.8557290Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-27T09:13:23.8591150Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-27T09:13:23.8848690Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-27T09:13:23.8879106Z http.https://github.com/.extraheader
+2026-10-27T09:13:23.8890054Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-27T09:13:23.9224649Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-27T09:13:23.9467806Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-27T09:13:23.9497051Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-27T09:13:24.0024363Z Cleaning up orphan processes
+2026-10-27T09:13:24.0358502Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-go@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

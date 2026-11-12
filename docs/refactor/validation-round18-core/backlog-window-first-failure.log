@@ -1,0 +1,16 @@
+Expected: pending prerequisites1/openwindow1; normal prerequisites0/openwindow1; closed openwindow0
+command: /Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/.venv/bin/python -m unittest discover -s tests/replay -p test_replay_core.py -k backlog_separates -q
+exit_code: 1
+======================================================================
+ERROR: test_backlog_separates_prerequisite_waiting_from_all_open_windows (test_replay_core.ReplayCoreTests.test_backlog_separates_prerequisite_waiting_from_all_open_windows)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/nbtechx-pyf/Documents/ChatGPT/FYP/cpagx-go/tests/replay/test_replay_core.py", line 433, in test_backlog_separates_prerequisite_waiting_from_all_open_windows
+    self.assertEqual(waiting['prerequisite_waiting_operations'],1)
+                     ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+KeyError: 'prerequisite_waiting_operations'
+
+----------------------------------------------------------------------
+Ran 1 test in 0.026s
+
+FAILED (errors=1)

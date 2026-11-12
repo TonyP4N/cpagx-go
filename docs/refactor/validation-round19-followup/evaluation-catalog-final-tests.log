@@ -1,0 +1,34 @@
+=== RUN   TestEvaluationStorePermissionsQueriesAndLimits
+--- PASS: TestEvaluationStorePermissionsQueriesAndLimits (0.01s)
+=== RUN   TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence
+--- PASS: TestEvaluationStoreImportsReverifiesAndQueriesOriginalEvidence (4.50s)
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory
+=== RUN   TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored
+--- PASS: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory (3.75s)
+    --- PASS: TestEvaluationReferenceInventoryAuthorizationIntegrityAndRestoredDirectory/restored (0.18s)
+=== RUN   TestEvaluationVersionedJSONAndResourceBudgets
+--- PASS: TestEvaluationVersionedJSONAndResourceBudgets (0.14s)
+=== RUN   TestEvaluationInputRequiresACLAndStrictQuery
+--- PASS: TestEvaluationInputRequiresACLAndStrictQuery (0.00s)
+=== RUN   TestEvaluationInputPublishedOfflineAndReplayViews
+=== RUN   TestEvaluationInputPublishedOfflineAndReplayViews/false
+=== RUN   TestEvaluationInputPublishedOfflineAndReplayViews/true
+--- PASS: TestEvaluationInputPublishedOfflineAndReplayViews (3.07s)
+    --- PASS: TestEvaluationInputPublishedOfflineAndReplayViews/false (0.52s)
+    --- PASS: TestEvaluationInputPublishedOfflineAndReplayViews/true (2.55s)
+=== RUN   TestEvaluationProjectionSubprocessBoundaries
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/malformed
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/multiple
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/oversized
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/stderr
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/failed
+=== RUN   TestEvaluationProjectionSubprocessBoundaries/timeout
+--- PASS: TestEvaluationProjectionSubprocessBoundaries (0.23s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/malformed (0.03s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/multiple (0.02s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/oversized (0.03s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/stderr (0.03s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/failed (0.02s)
+    --- PASS: TestEvaluationProjectionSubprocessBoundaries/timeout (0.10s)
+PASS
+ok  	github.com/TonyP4N/cpagx-go/internal/catalog	12.223s

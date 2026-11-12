@@ -1,0 +1,25 @@
+test_complete_result_evidence_and_integrity (test_dual_source_http.DualSourceHTTP.test_complete_result_evidence_and_integrity) ... ok
+test_corrupt_copy_fails_before_terminal_success (test_dual_source_http.DualSourceHTTP.test_corrupt_copy_fails_before_terminal_success) ... ok
+test_invalid_parsed_input_fails_without_publication (test_dual_source_http.DualSourceHTTP.test_invalid_parsed_input_fails_without_publication) ... ok
+test_opt_in_and_upload_validation (test_dual_source_http.DualSourceHTTP.test_opt_in_and_upload_validation) ... ok
+test_queue_failure (test_dual_source_http.DualSourceHTTP.test_queue_failure) ... ok
+test_real_core_fixture_round_trip (test_dual_source_http.DualSourceHTTP.test_real_core_fixture_round_trip) ... ok
+test_actual_core_empty_source_is_failed_without_artifacts (test_synthetic_http.SyntheticHTTP.test_actual_core_empty_source_is_failed_without_artifacts) ... ok
+test_capacity_rejection_and_redis_failure_are_not_swallowed (test_synthetic_http.SyntheticHTTP.test_capacity_rejection_and_redis_failure_are_not_swallowed) ... ok
+test_completed_delivery_is_verified_and_idempotent (test_synthetic_http.SyntheticHTTP.test_completed_delivery_is_verified_and_idempotent) ... ok
+test_completed_publication_reads_reject_corruption (test_synthetic_http.SyntheticHTTP.test_completed_publication_reads_reject_corruption) ... ok
+test_core_failure_visible (test_synthetic_http.SyntheticHTTP.test_core_failure_visible) ... ok
+test_duplicate_active_preserves_status_and_staging (test_synthetic_http.SyntheticHTTP.test_duplicate_active_preserves_status_and_staging) ... ok
+test_invalid_identifier_bounded (test_synthetic_http.SyntheticHTTP.test_invalid_identifier_bounded) ... ok
+test_legacy_empty_submission_is_rejected (test_synthetic_http.SyntheticHTTP.test_legacy_empty_submission_is_rejected) ... ok
+test_non_synthetic_legacy_result_read_behavior_preserved (test_synthetic_http.SyntheticHTTP.test_non_synthetic_legacy_result_read_behavior_preserved) ... ok
+test_opt_in_and_profile_required (test_synthetic_http.SyntheticHTTP.test_opt_in_and_profile_required) ... ok
+test_queue_failure_explicit (test_synthetic_http.SyntheticHTTP.test_queue_failure_explicit) ... ok
+test_real_core_http_artifacts_and_batch (test_synthetic_http.SyntheticHTTP.test_real_core_http_artifacts_and_batch) ... ok
+test_recoverable_records_publish_warning_and_correct_raw_evidence (test_synthetic_http.SyntheticHTTP.test_recoverable_records_publish_warning_and_correct_raw_evidence) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 0.404s
+
+OK
+InfluxDB client initialized successfully: http://localhost:8086

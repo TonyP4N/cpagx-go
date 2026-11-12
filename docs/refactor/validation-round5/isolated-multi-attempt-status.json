@@ -1,0 +1,93 @@
+{
+  "lease_valid": false,
+  "id": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+  "state": "cancelled",
+  "attempt": 2,
+  "payload": {
+    "network": {
+      "path": "inputs/isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9-0-bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99.jsonl",
+      "sha256": "bfedc284faa6b56d6ff4052da9bc5617c933e85e107ed46cbb9e0d65c56feb99"
+    },
+    "process": {
+      "path": "inputs/isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9-1-d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666.csv",
+      "sha256": "d855c95ec145a538f84ec330290996425ec70ab3a12e58d1ad57df902d890666"
+    },
+    "profile": {
+      "path": "inputs/isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9-2-f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164.json",
+      "sha256": "f84015dfd9d674ecc4c7d46c82321e18e772ef31c63580faa27a46f8f1d88164"
+    },
+    "config_fingerprint": "2800d335c40a718951a5177242442c2e64ef0fe5f16455537e244da845471902"
+  },
+  "artifact_path": null,
+  "artifact_sha256": null,
+  "recovery_deadline": "2026-10-26T00:32:05.540233+08:00",
+  "recovery_checked_at": "2026-10-26T00:32:06.328782+08:00",
+  "recovery_reason": "all attempt exit evidence recorded",
+  "missing_exit_attempts": null,
+  "attempt_history": [
+    {
+      "claimed_at": "2026-10-26T00:31:56.48897+08:00",
+      "artifact_sha256": null,
+      "exit_evidence": {
+        "attempt": 1,
+        "child_pid": 0,
+        "container_id": "2db2a98661e0cbd02d897b9cadde2731ab470f3cfdb9438363651ab8effd60fd",
+        "exited": true,
+        "group_exited": false,
+        "guardian_pid": 0,
+        "id": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+        "inspected_id": "2db2a98661e0cbd02d897b9cadde2731ab470f3cfdb9438363651ab8effd60fd",
+        "labels": {
+          "cpag.attempt": "1",
+          "cpag.job": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+          "cpag.worker": "host-multi-restart"
+        },
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+        "pid": 0,
+        "removed": true,
+        "running": false,
+        "scope": "container",
+        "worker": "host-multi-restart"
+      },
+      "attempt": 1,
+      "worker": "host-multi-restart",
+      "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "container_id": "2db2a98661e0cbd02d897b9cadde2731ab470f3cfdb9438363651ab8effd60fd",
+      "exited_at": "2026-10-26T00:31:59.574+08:00",
+      "publication_state": "fenced",
+      "artifact_path": null
+    },
+    {
+      "claimed_at": "2026-10-26T00:32:00.197141+08:00",
+      "artifact_sha256": null,
+      "exit_evidence": {
+        "attempt": 2,
+        "child_pid": 0,
+        "container_id": "905c32c5feae709ba99bee7d16013bda74d3835851d23ecb72a727b6f246c67c",
+        "exited": true,
+        "group_exited": false,
+        "guardian_pid": 0,
+        "id": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+        "inspected_id": "905c32c5feae709ba99bee7d16013bda74d3835851d23ecb72a727b6f246c67c",
+        "labels": {
+          "cpag.attempt": "2",
+          "cpag.job": "isolated-multi-restart-a5ed40e64ec346c6af4aa0306b9944b9",
+          "cpag.worker": "host-multi-second"
+        },
+        "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+        "pid": 0,
+        "removed": true,
+        "running": false,
+        "scope": "container",
+        "worker": "host-multi-second"
+      },
+      "attempt": 2,
+      "worker": "host-multi-second",
+      "location": "docker:ed0fb4a4-4915-4c1c-92ff-3ae16b44b50e",
+      "container_id": "905c32c5feae709ba99bee7d16013bda74d3835851d23ecb72a727b6f246c67c",
+      "exited_at": "2026-10-26T00:32:01.29579+08:00",
+      "publication_state": "fenced",
+      "artifact_path": null
+    }
+  ]
+}
