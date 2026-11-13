@@ -1,8 +1,11 @@
 name: Resident native AMD64 acceptance
 on:
-  push:
-    branches: ['review/resident-native-20261109', 'review/v3-rabbit-dispatch']
   workflow_dispatch:
+    inputs:
+      rabbit_canary:
+        description: Run the RabbitMQ dispatch and recovery scenarios
+        type: boolean
+        default: false
 permissions:
   contents: read
 jobs:
@@ -41,7 +44,7 @@ jobs:
       - name: Exercise exported bytes on native k3s
         env:
           PLAYWRIGHT_MODULE: /tmp/resident-playwright/node_modules/playwright
-          CPAG_RABBIT_CANARY: ${{ github.ref_name == 'review/v3-rabbit-dispatch' && '1' || '0' }}
+          CPAG_RABBIT_CANARY: ${{ inputs.rabbit_canary && '1' || '0' }}
         run: python scripts/validation/resident/native_lab.py
       - name: Collect sanitized diagnostics
         if: always()
